@@ -1,6 +1,6 @@
-#' Database Appending and Joining Functions
+#' Database Appending Function
 #'
-#' Functions for appending and joining tables in a database.
+#' Functions for appending tables into a new table in a database.
 #'
 #' @author Albert Cid Royo
 #'
