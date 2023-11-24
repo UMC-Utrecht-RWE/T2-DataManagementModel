@@ -31,32 +31,31 @@
 #'
 
 CreateUniqueID_CDM <- function(db_connection, CDM_tables_names, extensionName = "", ID_NAME = "Ori_ID", separatorID = "-", requireROWID = FALSE) {
-  
   # Append the extension to CDM table names
   CDM_tables_names <- paste0(CDM_tables_names, extensionName)
-  
+
   # Retrieve the names of all tables in the database
   listExistingTables <- dbListTables(db_connection)
-  
+
   # Get the existing tables among the specified CDM tables
   CDM_tables_names_existing <- CDM_tables_names[CDM_tables_names %in% listExistingTables]
-  
+
   # Check if tables exist in the database
   if (length(CDM_tables_names[!CDM_tables_names %in% listExistingTables]) > 0) {
     print(paste0("[CreateUniqueIDCDM] Can not create unique IDs on the following CDM table because they do not exist in the database ", tail(unlist(str_split(db_connection@dbname, "/")), 1)))
     print(CDM_tables_names[!CDM_tables_names %in% listExistingTables])
   }
-  
+
   # Loop through each existing CDM table
   for (table in CDM_tables_names_existing) {
     # Get columns of the current table
     columns_db_table <- dbListFields(db_connection, table)
-    
+
     # Check if "row_names" exists in the table and requireROWID is FALSE
     if (!"row_names" %in% columns_db_table & requireROWID == FALSE) {
       print(paste0("[CreateUniqueIDCDM] row_names for table ", table, " does not exist"))
       print(paste0("row_names is created in ", table))
-      
+
       # Rename the table and create a new one with ROWID as row_names
       dbSendStatement(db_connection, paste0("ALTER TABLE ", table, " RENAME TO OLD_", table, ";"), n = -1)
       dbSendStatement(db_connection, paste0(
@@ -70,7 +69,7 @@ CreateUniqueID_CDM <- function(db_connection, CDM_tables_names, extensionName = 
       print("UNIQUE ID is not generated. Define requireROWID to FALSE if you want to generate the UNIQUE ID.")
       next()
     }
-    
+
     # Rename the table and create a new one with the unique identifier
     dbSendStatement(db_connection, paste0("ALTER TABLE ", table, " RENAME TO OLD_", table, ";"), n = -1)
     dbSendStatement(db_connection, paste0("CREATE TABLE ", table, ' AS
