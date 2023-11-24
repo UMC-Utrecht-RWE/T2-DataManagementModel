@@ -1,8 +1,8 @@
 #' Create DAP-Specific Codelist
 #'
-#' This function merges the unque codelist from a database (distinct list of codes) with a study code list.
+#' This function merges the unique codelist from a database (you can use the function getUniqueCodeList) with a study code list.
 #'
-#' @param UNIQUE_CODELIST Data.table containing unique code list output from Level Check 1b.
+#' @param UNIQUE_CODELIST Data.table containing unique code list output from the function getUniqueCodeList.
 #' @param STUDY_CODELIST Data.table containing the study code list.
 #' @param additionalColumns Additional columns to be included in the result.
 #' @param priority Priority column for selecting codes when there are multiple matches.
