@@ -13,7 +13,7 @@
 #'
 #' @examples
 #' # Example usage:
-#' # get_value_origin_database_dap_specific(cases_dt, db_connection, codelist)
+#' # get_value_origin_dapspecific(cases_dt, db_connection, codelist)
 #'
 #' @import data.table
 #' @import DBI
