@@ -30,7 +30,7 @@
 #' }
 #'
 #' @export
-get_records_origin_cdm_sql <- function(db_connection, unique_id_dt,
+get_records_origin <- function(db_connection, unique_id_dt,
                                        unique_id_name = "ID", separator_id = "-") {
   unique_id_dt <- data.table::as.data.table(unique_id_dt)
   return_values <- list()
