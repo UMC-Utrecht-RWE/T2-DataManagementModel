@@ -15,7 +15,7 @@
 #' \dontrun{
 #' # Example usage:
 #' db_connection <- dbConnect(RSQLite::SQLite(), "your_database.db")
-#' get_rows_tables_database(db_connection)
+#' get_rows_tables(db_connection)
 #' }
 #'
 #' @export
