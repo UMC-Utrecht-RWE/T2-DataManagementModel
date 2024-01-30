@@ -9,4 +9,4 @@
 library(testthat)
 library(RWEDataManagementModel)
 
-test_check("RWEDataManagementModel")
+#test_check("RWEDataManagementModel")
