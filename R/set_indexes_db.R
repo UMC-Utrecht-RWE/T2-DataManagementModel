@@ -1,11 +1,13 @@
 #' Set Indexes for Tables in a Database
 #'
-#' This function creates indexes for tables in a database according to the provided specifications.
+#' This function creates indexes for tables in a database according to the 
+#' provided specifications.
 #'
 #' @author Albert Cid Royo
 #'
 #' @param db_conn A database connection object.
-#' @param specs A list containing the table names as keys and lists of column names for indexing as values.
+#' @param specs A list containing the table names as keys and lists of column 
+#' names for indexing as values.
 #'
 #' @examples
 #' \dontrun{
