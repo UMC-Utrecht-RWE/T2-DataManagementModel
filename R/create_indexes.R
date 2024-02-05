@@ -11,13 +11,13 @@
 #'
 #' @examples
 #' \dontrun{
-#' # Example usage of create_indexes_db
+#' # Example usage of create_indexes
 #' db_conn <- dbConnect(RSQLite::SQLite(), ":memory:")
 #' specs <- list(
 #'   persons = list("1" = "person_id", "2" = c("person_id", "sex_at_intance_creation")),
 #'   medicines = list("1" = "person_id", "2" = c("person_id", "date_dispensing"))
 #' )
-#' create_indexes_db(db_conn, specs)
+#' create_indexes(db_conn, specs)
 #' }
 #'
 #' @importFrom DBI dbSendStatement
@@ -25,9 +25,9 @@
 #' @export
 #' @keywords database
 #' @name RWEDataManagementModel
-#' @rdname Create_indexes_db
+#' @rdname create_indexes
 #'
-create_indexes_db <- function(db_conn, specs) {
+create_indexes <- function(db_conn, specs) {
   # Loop through the table names in the specs list
   for (table_name in names(specs)) {
     # Get the table's list of index column names
