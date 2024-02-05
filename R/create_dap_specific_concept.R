@@ -1,6 +1,6 @@
-#' Import DAP-Specific Concepts into Database
+#' Create DAP-Specific Concepts into Database
 #'
-#' This function imports DAP-specific concepts into a database, applying necessary transformations based on the provided codelist.
+#' This function Creates DAP-specific concepts into a database, applying necessary transformations based on the provided codelist.
 #'
 #' @param codelist A data.table containing information about tables, columns, and values for DAP-specific concepts.
 #' @param data_db The database connection object.
@@ -9,19 +9,19 @@
 #' @param case_insensitive Logical, indicating whether column names are case-insensitive. Default is FALSE.
 #' @param date_col_filter An optional filter to subset data based on a specified date column.
 #'
-#' @return The function modifies the specified save_db by creating edited tables and importing DAP-specific concepts.
+#' @return The function modifies the specified save_db by creating edited tables and Createing DAP-specific concepts.
 #'
 #' @author Albert Cid Royo
 #'
-#' @importFrom data.table fread setnames dbListTables dbListFields dbSendStatement
+#' @CreateFrom data.table fread setnames dbListTables dbListFields dbSendStatement
 #'
 #' @examples
 #' \dontrun{
-#' # Example usage of import_dap_specific_concept
+#' # Example usage of Create_dap_specific_concept
 #' codelist <- fread("path/to/codelist.csv")
 #' data_db <- dbConnect(RSQLite::SQLite(), ":memory:")
 #' save_db <- dbConnect(RSQLite::SQLite(), ":memory:")
-#' import_dap_specific_concept(codelist, data_db, "Attachment", save_db, case_insensitive = FALSE, date_col_filter = "20230101")
+#' create_dap_specific_concept(codelist, data_db, "Attachment", save_db, case_insensitive = FALSE, date_col_filter = "20230101")
 #' }
 #'
 #' @export
@@ -30,7 +30,7 @@
 #' @docType package
 #'
 
-import_dap_specific_concept <- function(codelist, data_db, name_attachment, save_db, case_insensitive = FALSE, date_col_filter = NULL) {
+create_dap_specific_concept <- function(codelist, data_db, name_attachment, save_db, case_insensitive = FALSE, date_col_filter = NULL) {
   # Check if codelist is not empty
   if (nrow(codelist) > 0) {
     # Get unique tables from codelist
@@ -64,7 +64,7 @@ import_dap_specific_concept <- function(codelist, data_db, name_attachment, save
               FROM ", name_attachment, ".", name))
         DBI::dbClearResult(rs)
       } else if (all(c(rest_cols, to_upper_cols) %in% DBI::dbListFields(save_db, name_edited)) == FALSE) {
-        # If the edited database exists but not all the columns have been included, you need to import the table again
+        # If the edited database exists but not all the columns have been included, you need to Create the table again
         rs <- DBI::dbSendStatement(save_db, paste0("CREATE TEMP TABLE ", name_edited, " AS
               SELECT ", select_cols_query, " ", to_upper_query, "
               FROM ", name_attachment, ".", name))
