@@ -1,6 +1,6 @@
 #' Create DAP-Specific Concepts into Database
 #'
-#' This function Creates DAP-specific concepts into a database, applying necessary transformations based on the provided codelist.
+#' This function Creates DAP-specific concepts into a database using a DAP-specifc concept map (codelist)
 #'
 #' @param codelist A data.table containing information about tables, columns, and values for DAP-specific concepts.
 #' @param data_db The database connection object.
