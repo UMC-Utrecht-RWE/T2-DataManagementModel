@@ -47,7 +47,7 @@ db_connection_origin <- dbConnect(RSQLite::SQLite(), dir_origin_db)
 
 data_d2 <- 'TO_BE_DEFINED'
 cdm_table_names_load <- 'TO_BE_DEFINED' #c('EVENTS','MEDICINES')
-load_db(db_connection = db_connection_origin,csv_path_dir = data_d2 <- 'TO_BE_DEFINED',
+load_db(db_connection = db_connection_origin,csv_path_dir = data_d2,
           CDM_metadata = CDM_metadata,CDM_tables_names = CDM_tables_names)
 
 #################
