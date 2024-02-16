@@ -38,16 +38,16 @@ suppressPackageStartupMessages(library(stringr))
 #Loading files into the origin database
 ################
 
-transformation_T2_semantic_harmonization_configuration <- "/Users/ymao/Library/CloudStorage/OneDrive-UMCUtrecht/Work_UMC_230726/Paxlovid/Paxlovid-1047/transformations/T2_semantic_harmonization/configuration"
-cdm_metadata <- as.data.table(readRDS(paste0(transformations_t2_configuration,'CDM_metadata.rds')))
+transformations_T2_semantic_harmonization_configuration <- "/Users/ymao/Library/CloudStorage/OneDrive-UMCUtrecht/Work_UMC_230726/Paxlovid/Paxlovid-1047/transformations/T2_semantic_harmonization/configuration"
+cdm_metadata <- as.data.table(readRDS(paste0(transformations_T2_semantic_harmonization_configuration,'CDM_metadata.rds')))
 
-transformation_T2_semantic_harmonization_intermediate_data_files <- "/Users/ymao/Library/CloudStorage/OneDrive-UMCUtrecht/Work_UMC_230726/Paxlovid/Paxlovid-1047/transformations/T2_semantic_harmonization/intermediate_data_file"
-dir_d2_db <- paste0(transformation_T2_semantic_harmonization_intermediate_data_files, 'd2.db')
-db_connection_origin <- dbConnect(RSQLite::SQLite(), dir_origin_db)
+transformations_T2_semantic_harmonization_intermediate_data_file <- "/Users/ymao/Library/CloudStorage/OneDrive-UMCUtrecht/Work_UMC_230726/Paxlovid/Paxlovid-1047/transformations/T2_semantic_harmonization/intermediate_data_file"
+dir_d2_db <- paste0(transformations_T2_semantic_harmonization_intermediate_data_file, 'd2.db')
+db_connection_origin <- dbConnect(RSQLite::SQLite(), dir_d2_db)
 
-data_d2 <- "/Users/ymao/Library/CloudStorage/OneDrive-UMCUtrecht/Work_UMC_230726/Paxlovid/Paxlovid-1047/data/D2_cdm" 
+data_D2_cdm <- "/Users/ymao/Library/CloudStorage/OneDrive-UMCUtrecht/Work_UMC_230726/Paxlovid/Paxlovid-1047/data/D2_cdm" 
 cdm_table_names_load <- c('EVENTS','MEDICINES')
-load_db(db_connection = db_connection_origin,csv_path_dir = data_d2,
+load_db(db_connection = db_connection_origin,csv_path_dir = data_D2_cdm,
           CDM_metadata = CDM_metadata,CDM_tables_names = CDM_tables_names)
 
 #################
