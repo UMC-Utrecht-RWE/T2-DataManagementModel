@@ -50,7 +50,7 @@ load_db <- function(db_connection, csv_path_dir, cdm_metadata,
       print(paste0("[load_db]: Loading: ", c_table, " ", indx_table, "/",
                    length(table_list)))
       # If there are mandatory date columns, import the file with the date columns
-      cdm_loaded_table <- import_file(paste0(csv_path_dir, c_table))
+      cdm_loaded_table <- import_file(path=file.path(csv_path_dir, c_table))
       
       # Set specified columns in data.colls to date format
       existing_date_cols <- date_cols[date_cols %in% names(cdm_loaded_table)]
@@ -88,17 +88,16 @@ load_db <- function(db_connection, csv_path_dir, cdm_metadata,
         }
         # If there are missing columns in the database, add the columns
         if (length(missing_in_db) > 0) {
-          rs <-DBI::dbSendStatement(db_connection, paste0("ALTER TABLE ", table_name_pattern, paste0(" ADD COLUMN ", missing_in_db, collapse = ""), " ;"))
-          DatabaseConnector::dbClearResults(rs)
+          DBI::dbSendStatement(db_connection, paste0("ALTER TABLE ", table_name_pattern, paste0(" ADD COLUMN ", missing_in_db, collapse = ""), " ;"))
         }
         
         # If there are missing columns in the input, add the columns with NA values
         if (length(missing_in_input) > 0) {
-          lapply(missing_in_input, function(x) CDM_loaded_table[, eval(x) := NA])
+          lapply(missing_in_input, function(x) cdm_loaded_table[, eval(x) := NA])
         }
         
         # Append the data to the existing table
-        DBI::dbWriteTable(db_connection, paste0(table_name_pattern, extension_name), CDM_loaded_table, overwrite = F, append = T)
+        DBI::dbWriteTable(db_connection, paste0(table_name_pattern, extension_name), cdm_loaded_table, overwrite = F, append = T)
       }
     }
   }

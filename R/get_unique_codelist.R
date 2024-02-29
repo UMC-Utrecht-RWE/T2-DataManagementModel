@@ -19,6 +19,12 @@
 #'   list(column_name = "event_record_vocabulary", alias_name = "coding_system"),
 #'   list(column_name = "event_free_text", alias_name = "code")
 #' )
+#'  column_info_list <- list(
+#' list(column_name = c("event_code", "event_record_vocabulary"),
+#'      alias_name = c("code", "coding_system")),
+#' list(column_name = c("event_free_text"),
+#'      alias_name = c("code"))
+#' )
 #' }
 #'
 #' # Replace 'your_db_connection' with your actual database connection
@@ -36,7 +42,7 @@
 #' }
 #'
 #' @export
-get_unique_codelist <- function(db_connection, column_info_list) {
+get_unique_codelist <- function(db_connection, column_info_list, tb_name) {
   # Initialize an empty list to store the individual queries
   queries <- list()
   
@@ -46,16 +52,15 @@ get_unique_codelist <- function(db_connection, column_info_list) {
     column_name <- col_info$column_name
     alias_name <- col_info$alias_name
     
-    select_clause <- paste(
-      sprintf("SELECT %s AS %s", spec$column_name, spec$new_name),
-      collapse = ", "
-    )
+    # take EVENTS table for example, switch to function argument later
+    select_clause <- 
+      sprintf("SELECT %s, count(*) AS COUNT FROM %s", 
+              paste(sprintf("%s AS %s", column_name, alias_name), collapse=", "),
+              tb_name)
     
     # Generate the GROUP BY clause
-    group_by_clause <- paste(
-      sprintf("GROUP BY %s", spec$column_name),
-      collapse = ", "
-    )
+    group_by_clause <- 
+      sprintf("GROUP BY %s", paste(column_name, collapse = ", "))
     
     # Construct the SQL query
     sql_query <- paste(select_clause, group_by_clause)

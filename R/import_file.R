@@ -76,7 +76,7 @@ import_file <- function(path, cols = NULL, cols_new = NULL, exprs = NULL,
       print(paste0(rem2, " selected rows from ", rem1,
                    " rows after evaluation of exprs"))
     }
-    loaded_file <- data.table::as.data.table(loaded_file)
+    loaded_file_dt <- data.table::as.data.table(loaded_file)
     return(loaded_file_dt)
   }
 }

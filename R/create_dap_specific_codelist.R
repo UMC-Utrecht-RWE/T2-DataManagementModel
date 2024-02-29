@@ -32,6 +32,7 @@
 #'
 
 create_dap_specific_codelist <- function(unique_codelist, study_codelist, 
+                                         start_with_colls= c("ICD10CM", "ICD10", "ICD10DA", "ICD9CM", "MTHICD9", "ICPC", "ICPC2P","ICPC2EENG", "ATC", "vx_atc"),
                                          additional_columns = NA, priority = NA) {
   # Preprocessing the study_codelist
   study_codelist[, code_no_dot := gsub("\\.", "", code)]
@@ -46,14 +47,18 @@ create_dap_specific_codelist <- function(unique_codelist, study_codelist,
   exact_study_codelist <- study_codelist[!coding_system %in% start_with_colls]
   
   # Finding exact matches
-  exact_match <- merge(exact_unique_codelist, exact_study_codelist, 
-                       by = c("coding_system", "code_no_dot"))
+  exact_match <- NULL
+  if(nrow(exact_unique_codelist) > 0)
+    exact_match <- merge(exact_unique_codelist, exact_study_codelist, 
+                         by = c("coding_system", "code_no_dot"))
   
-  # Finding start with matches
-  start_exact_match <- merge(start_unique_codelist, start_study_codelist, 
-                             by = c("coding_system", "code_no_dot"))
   
   if (nrow(start_unique_codelist) > 0) {
+    # Finding start with matches
+    # TODO check merge is intersect join; result is a smaller set
+    start_exact_match <- merge(start_unique_codelist, start_study_codelist, 
+                               by = c("coding_system", "code_no_dot"))
+    
     # Preprocessing start with codes
     start_unique_codelist[, ori_length_str := str_length(code_no_dot)]
     max_code_length <- max(start_unique_codelist$ori_length_str)
@@ -105,7 +110,7 @@ create_dap_specific_codelist <- function(unique_codelist, study_codelist,
   dap_specific_codelist <- exact_match
   
   if (nrow(start_unique_codelist) > 0) {
-    cols_sel <- names(dap_specific_codelist)
+    cols_sel <- names(start_exact_match)
     dap_specific_codelist <- rbindlist(list(dap_specific_codelist, 
                                             results_startwith2[, ..cols_sel]), 
                                        use.names = TRUE)
