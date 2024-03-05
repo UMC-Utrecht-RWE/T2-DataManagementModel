@@ -7,23 +7,14 @@
 #' @return A data frame with two columns: 'name' (table name) and 'row_count' 
 #' (number of rows in each table).
 #'
-#' @author Albert Cid Royo
-#'
-#' @importFrom DBI dbListTables dbGetQuery
-#'
 #' @examples
 #' \dontrun{
 #' # Example usage:
-#' db_connection <- dbConnect(RSQLite::SQLite(), "your_database.db")
+#' db_connection <- DBI::dbConnect(RSQLite::SQLite(), "your_database.db")
 #' get_rows_tables(db_connection)
 #' }
 #'
 #' @export
-#' @keywords database
-#' @name RWEDataManagementModel
-#' @docType package
-#'
-
 get_rows_tables <- function(db_connection) {
   # Retrieve the names of all tables in the database
   tables <- DBI::dbListTables(db_connection)
