@@ -3,8 +3,6 @@
 #' This function creates indexes for tables in a database according to the 
 #' provided specifications.
 #'
-#' @author Albert Cid Royo
-#'
 #' @param db_conn A database connection object.
 #' @param specs A list containing the table names as keys and lists of column 
 #' names for indexing as values.
@@ -14,19 +12,12 @@
 #' # Example usage of create_indexes
 #' db_conn <- dbConnect(RSQLite::SQLite(), ":memory:")
 #' specs <- list(
-#'   persons = list("1" = "person_id", "2" = c("person_id", "sex_at_intance_creation")),
+#'   persons = list("1" = "person_id", "2" = c("person_id", "sex_at_instance_creation")),
 #'   medicines = list("1" = "person_id", "2" = c("person_id", "date_dispensing"))
 #' )
 #' create_indexes(db_conn, specs)
 #' }
-#'
-#' @importFrom DBI dbSendStatement
-#'
 #' @export
-#' @keywords database
-#' @name RWEDataManagementModel
-#' @rdname create_indexes
-#'
 create_indexes <- function(db_conn, specs) {
   # Loop through the table names in the specs list
   for (table_name in names(specs)) {
