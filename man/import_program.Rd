@@ -11,6 +11,9 @@ import_program(program_list, fl)
 
 \item{fl}{file name}
 }
+\value{
+imported file
+}
 \description{
 Import meta data file based on directory and file name specified in the program_list
 }
