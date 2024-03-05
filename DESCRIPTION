@@ -2,8 +2,11 @@ Package: RWEDataManagementModel
 Type: Package
 Title: Data Management Model for Real World Evidence group
 Version: 0.1.0
-Authors@R: person("Albert", "Cid Royo", email = "A.CidRoyo@umcutrecht.nl",
-  role = c("aut", "cre"))
+Authors@R: c(
+  person("Albert", "Cid Royo", email = "A.CidRoyo@umcutrecht.nl", role = c("aut", "cre")),
+  person("Yinan", "Mao", email = "Y.Mao@umcutrecht.nl", role = "aut"),
+  person("Roel", "Elbers", role = "aut"),
+  person("Barbara", "Vreede", role = "aut", comment = c(ORCID = "0000-0002-5023-4601")))
 Description: Databases
 License: GPL (>= 3)
 Encoding: UTF-8
