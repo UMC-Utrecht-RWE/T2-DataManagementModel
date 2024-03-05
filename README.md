@@ -6,6 +6,8 @@
 
 RWE-DataManagementModel is an R package that provides a data model and functionality for processing RWD.
 
+![Overview data management](T2_DMM.png)
+
 ## Installation
 
 You can install the development version of RWE-DataManagementModel (or the latest stable release) like so:
