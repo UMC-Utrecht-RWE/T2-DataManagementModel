@@ -26,7 +26,7 @@ create_dap_specific_codelist <- function(unique_codelist, study_codelist,
                                          additional_columns = NA, priority = NA) {
   # Preprocessing the study_codelist
   study_codelist[, code_no_dot := gsub("\\.", "", code)]
-  study_codelist[, length_str := data.table::str_length(code_no_dot)]
+  study_codelist[, length_str := stringr::str_length(code_no_dot)]
   data.table::setnames(study_codelist, "code", "code.CDM_CODELIST")
   min_length_study_codelist <- min(study_codelist$length_str, na.rm = TRUE)
   
@@ -50,7 +50,7 @@ create_dap_specific_codelist <- function(unique_codelist, study_codelist,
                                by = c("coding_system", "code_no_dot"))
     
     # Preprocessing start with codes
-    start_unique_codelist[, ori_length_str := data.table::str_length(code_no_dot)]
+    start_unique_codelist[, ori_length_str := stringr::str_length(code_no_dot)]
     max_code_length <- max(start_unique_codelist$ori_length_str)
     print(paste0("[SetCodesheets] Max length of code from the DAP is : ", 
                  max_code_length))
@@ -107,10 +107,10 @@ create_dap_specific_codelist <- function(unique_codelist, study_codelist,
   }
   
   # Finding missing codes
-  missing_from_cdm <- as.data.table(data.table::anti_join(unique_codelist, 
+  missing_from_cdm <- data.table::as.data.table(dplyr::anti_join(unique_codelist, 
                                               dap_specific_codelist, 
                                               by = c("coding_system", "code_no_dot")))
-  missing_from_codelist <- as.data.table(data.table::anti_join(study_codelist, 
+  missing_from_codelist <- data.table::as.data.table(dplyr::anti_join(study_codelist, 
                                                    dap_specific_codelist, 
                                                    by = c("coding_system", "code_no_dot")))
   

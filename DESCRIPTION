@@ -18,4 +18,5 @@ Imports:
     DBI (>= 1.2.2),
     dplyr (>= 1.1.4),
     logr (>= 1.3.6),
-    rlist (>= 0.4.6.2)
+    rlist (>= 0.4.6.2),
+    stringr (>= 1.5.1)
