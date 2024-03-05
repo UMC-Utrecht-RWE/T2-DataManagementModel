@@ -1,6 +1,7 @@
 #' Create DAP-Specific Concepts into Database
 #'
-#' This function Creates DAP-specific concepts into a database using a DAP-specifc concept map (codelist)
+#' This function Creates DAP-specific concepts into a database using a DAP-specifc concept map (codelist).
+#' The function modifies the specified save_db by creating edited tables and Creating DAP-specific concepts.
 #'
 #' @param codelist A data.table containing information about tables, columns, and values for DAP-specific concepts.
 #' @param data_db The database connection object.
@@ -9,7 +10,6 @@
 #' @param case_insensitive Logical, indicating whether column names are case-insensitive. Default is FALSE.
 #' @param date_col_filter An optional filter to subset data based on a specified date column.
 #'
-#' @return The function modifies the specified save_db by creating edited tables and Createing DAP-specific concepts.
 #' @examples
 #' \dontrun{
 #' # Example usage of Create_dap_specific_concept

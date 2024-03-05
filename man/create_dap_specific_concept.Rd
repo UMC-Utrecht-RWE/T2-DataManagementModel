@@ -26,11 +26,9 @@ create_dap_specific_concept(
 
 \item{date_col_filter}{An optional filter to subset data based on a specified date column.}
 }
-\value{
-The function modifies the specified save_db by creating edited tables and Createing DAP-specific concepts.
-}
 \description{
-This function Creates DAP-specific concepts into a database using a DAP-specifc concept map (codelist)
+This function Creates DAP-specific concepts into a database using a DAP-specifc concept map (codelist).
+The function modifies the specified save_db by creating edited tables and Creating DAP-specific concepts.
 }
 \examples{
 \dontrun{

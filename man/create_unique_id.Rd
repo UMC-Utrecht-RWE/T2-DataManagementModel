@@ -30,14 +30,12 @@ and the ROWID number.}
 \item{require_rowid}{Logical, default is FALSE. If TRUE, the unique ID won't 
 be generated unless the ROWID column exists in the table.}
 }
-\value{
-The function modifies the specified database by creating unique IDs 
-for the specified CDM tables.
-}
 \description{
 This function generates a unique CDM ID for each data record of the specified 
 Database CDM instance. This step is suggested to be applied after using the 
 loadDb function.
+The function modifies the specified database by creating unique IDs 
+for the specified CDM tables.
 }
 \examples{
 \dontrun{
