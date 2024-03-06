@@ -11,23 +11,20 @@ RWE-DataManagementModel is an R package that provides a data model and functiona
 
 ## Installation
 
-You can install the development version of RWE-DataManagementModel (or the latest stable release) like so:
+You can install the current version of RWE-DataManagementModel as follows:
 
-Using devtools (recommended):
-
-Download and unzip (in your working enviroment) or clone the repo. Let's say your folder is here:
-
-- on Mac, the *"path_to_the_directory_of_the_package"* looks something like this: "/Users/Name/Desktop/RWE-DataManagementModel"
-- on Windows, the *"path_to_the_directory_of_the_package"* looks something like this: "C:/Users/Name/Desktop/RWE-DataManagementModel" (it should be **"/"**, and not "\\")
-
-and on R console, type the following:
-``` r
-# If you don't have devtools, install it
-install.packages("devtools")
-#Install RWE-DataManagementModel  by typing this on R console
-devtools::install("path_to_the_directory_of_the_package", dependencies = TRUE)
-```
-If it asks about updating the packages that are available in your system, I usually skip it and hope that I won't break anything. So far it worked, but please check it.
+1. [Download a ZIP file](https://github.com/UMC-Utrecht-RWE/T2-DataManagementModel/archive/refs/heads/main.zip) of this repository.
+1. Verify the path of the newly downloaded zip file:
+  - on Mac, the *"path_to_the_directory_of_the_package"* looks something like this: `/Users/Name/Desktop/RWE-DataManagementModel-main.zip`
+  - on Windows, the *"path_to_the_directory_of_the_package"* looks something like this: `C:/Users/Name/Desktop/RWE-DataManagementModel-main.zip` (it should be **`/`**, and not `\\`)
+1. In your R console, ensure you have the package `devtools` installed:
+   ```
+   install.packages("devtools")
+   ```
+1. Using devtools, install the package using the path to the zip file:
+   ```
+   devtools::install_local('/Users/<yourusername>/Desktop/T2-DataManagementModel-main.zip', dependencies = TRUE)
+   ```
 
 ### Dependency `data.table` on mac
 
