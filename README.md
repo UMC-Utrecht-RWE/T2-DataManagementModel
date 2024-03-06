@@ -2,6 +2,7 @@
 # RWE-DataManagementModel
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/UMC-Utrecht-RWE/T2-DataManagementModel/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/UMC-Utrecht-RWE/T2-DataManagementModel/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 RWE-DataManagementModel is an R package that provides a data model and functionality for processing RWD.
