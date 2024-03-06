@@ -7,8 +7,6 @@
 
 RWE-DataManagementModel is an R package that provides a data model and functionality for processing RWD.
 
-![Overview data management](T2_DMM.png)
-
 ## Installation
 
 You can install the current version of RWE-DataManagementModel as follows:
@@ -36,12 +34,7 @@ You can verify `data.table` functionality with:
 data.table::test.data.table()
 ```
 
-## Example
+## Workflow
 
-Here is how you can use metadatachecker: 
+![Overview data management](T2_DMM.png)
 
-
-On R console, type the following:
-``` r
-library(RWE-DataManagementModel)
-```
