@@ -28,7 +28,7 @@ import_dap_specific_codelist <- function(codelist_path, codelist_name_db,
   codelist <- data.table::as.data.table(readRDS(file = codelist_path))
   
   # Select specified columns and unique rows
-  codelist <- data.table::unique(codelist[Comment %in% "BOTH", ..columns])
+  codelist <- unique(codelist[Comment %in% "BOTH", ..columns])
   
   # Convert selected columns to uppercase
   lapply(columns, function(x) codelist[, eval(x) := toupper(get(x))])

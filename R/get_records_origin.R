@@ -41,8 +41,8 @@ get_records_origin <- function(db_connection, unique_id_dt,
                                            separator_id, fixed = TRUE)]
   
   # Check if separator_id is present in the unique identifier
-  if (data.table::all.equal(unique_id_dt$ID, unique_id_dt$cdm_table) == TRUE &&
-      data.table::all.equal(unique_id_dt$ID, unique_id_dt$rowid) == TRUE) {
+  if (all.equal(unique_id_dt$ID, unique_id_dt$cdm_table) == TRUE &&
+      all.equal(unique_id_dt$ID, unique_id_dt$rowid) == TRUE) {
     print(paste0("[get_records_origin_cdm_sql] The  ", separator_id,
                  " does not exist in the unique identifier"))
     print("Returning empty list")
