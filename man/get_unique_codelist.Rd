@@ -9,9 +9,11 @@ get_unique_codelist(db_connection, column_info_list, tb_name)
 \arguments{
 \item{db_connection}{A database connection object.}
 
-\item{column_specs}{A list of lists specifying the columns to be used for
+\item{column_info_list}{A list of lists specifying the columns to be used for
 distinct, along with their new names. Each inner list should contain two
 elements: "column_name" and "new_name".}
+
+\item{tb_name}{#TODO document this parameter}
 }
 \value{
 A data.table with distinct values based on the specified columns.

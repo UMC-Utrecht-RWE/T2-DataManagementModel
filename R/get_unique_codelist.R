@@ -4,9 +4,10 @@
 #' specified columns.
 #'
 #' @param db_connection A database connection object.
-#' @param column_specs A list of lists specifying the columns to be used for
+#' @param column_info_list A list of lists specifying the columns to be used for
 #'   distinct, along with their new names. Each inner list should contain two
 #'   elements: "column_name" and "new_name".
+#' @param tb_name #TODO document this parameter
 #'
 #' @return A data.table with distinct values based on the specified columns.
 #'

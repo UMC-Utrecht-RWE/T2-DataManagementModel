@@ -6,6 +6,7 @@
 #' @param unique_codelist Data.table containing unique code list output 
 #' from the function getUniqueCodeList.
 #' @param study_codelist Data.table containing the study code list.
+#' @param start_with_colls Columns to start with
 #' @param additional_columns Additional columns to be included in the result.
 #' @param priority Priority column for selecting codes when there are 
 #' multiple matches.

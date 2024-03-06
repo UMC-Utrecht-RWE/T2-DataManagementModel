@@ -19,6 +19,8 @@ from the function getUniqueCodeList.}
 
 \item{study_codelist}{Data.table containing the study code list.}
 
+\item{start_with_colls}{Columns to start with}
+
 \item{additional_columns}{Additional columns to be included in the result.}
 
 \item{priority}{Priority column for selecting codes when there are 
