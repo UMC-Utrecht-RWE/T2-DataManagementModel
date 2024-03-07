@@ -6,20 +6,13 @@
 #' @param unique_codelist Data.table containing unique code list output 
 #' from the function getUniqueCodeList.
 #' @param study_codelist Data.table containing the study code list.
+#' @param start_with_colls Columns to start with
 #' @param additional_columns Additional columns to be included in the result.
 #' @param priority Priority column for selecting codes when there are 
 #' multiple matches.
 #'
 #' @return A merged data.table containing DAP-specific codes, 
 #' including exact matches and those starting with.
-#'
-#' @author Albert Cid Royo
-#' @email a.cidroyo@umcutrecht.nl
-#' @organisation UMC Utrecht, Utrecht, The Netherlands
-#' @date 01/12/2022
-#'
-#' @importFrom data.table melt copy rbindlist anti_join str_length gsub setnames
-#' @importFrom base order
 #'
 #' @examples
 #' \dontrun{
@@ -29,15 +22,13 @@
 #' }
 #'
 #' @export
-#'
-
 create_dap_specific_codelist <- function(unique_codelist, study_codelist, 
                                          start_with_colls= c("ICD10CM", "ICD10", "ICD10DA", "ICD9CM", "MTHICD9", "ICPC", "ICPC2P","ICPC2EENG", "ATC", "vx_atc"),
                                          additional_columns = NA, priority = NA) {
   # Preprocessing the study_codelist
   study_codelist[, code_no_dot := gsub("\\.", "", code)]
-  study_codelist[, length_str := str_length(code_no_dot)]
-  setnames(study_codelist, "code", "code.CDM_CODELIST")
+  study_codelist[, length_str := stringr::str_length(code_no_dot)]
+  data.table::setnames(study_codelist, "code", "code.CDM_CODELIST")
   min_length_study_codelist <- min(study_codelist$length_str, na.rm = TRUE)
   
   # Dividing code lists into exact and start with codes
@@ -60,7 +51,7 @@ create_dap_specific_codelist <- function(unique_codelist, study_codelist,
                                by = c("coding_system", "code_no_dot"))
     
     # Preprocessing start with codes
-    start_unique_codelist[, ori_length_str := str_length(code_no_dot)]
+    start_unique_codelist[, ori_length_str := stringr::str_length(code_no_dot)]
     max_code_length <- max(start_unique_codelist$ori_length_str)
     print(paste0("[SetCodesheets] Max length of code from the DAP is : ", 
                  max_code_length))
@@ -97,11 +88,11 @@ create_dap_specific_codelist <- function(unique_codelist, study_codelist,
       cols_by <- c(cols_by, additional_columns)
     }
     if (!is.na(priority)) {
-      results_startwith2 <- copy(results_startwith)[order(-length_str, 
+      results_startwith2 <- data.table::copy(results_startwith)[order(-length_str, 
                                                           eval(priority)), 
                                                     .SD[1], by = cols_by]
     } else {
-      results_startwith2 <- copy(results_startwith)[order(-length_str), 
+      results_startwith2 <- data.table::copy(results_startwith)[order(-length_str), 
                                                     .SD[1], by = cols_by]
     }
   }
@@ -111,21 +102,21 @@ create_dap_specific_codelist <- function(unique_codelist, study_codelist,
   
   if (nrow(start_unique_codelist) > 0) {
     cols_sel <- names(start_exact_match)
-    dap_specific_codelist <- rbindlist(list(dap_specific_codelist, 
+    dap_specific_codelist <- data.table::rbindlist(list(dap_specific_codelist, 
                                             results_startwith2[, ..cols_sel]), 
                                        use.names = TRUE)
   }
   
   # Finding missing codes
-  missing_from_cdm <- as.data.table(anti_join(unique_codelist, 
+  missing_from_cdm <- data.table::as.data.table(dplyr::anti_join(unique_codelist, 
                                               dap_specific_codelist, 
                                               by = c("coding_system", "code_no_dot")))
-  missing_from_codelist <- as.data.table(anti_join(study_codelist, 
+  missing_from_codelist <- data.table::as.data.table(dplyr::anti_join(study_codelist, 
                                                    dap_specific_codelist, 
                                                    by = c("coding_system", "code_no_dot")))
   
   # Combining all results
-  dap_specific_codelist <- rbindlist(list(dap_specific_codelist, 
+  dap_specific_codelist <- data.table::rbindlist(list(dap_specific_codelist, 
                                           missing_from_cdm, 
                                           missing_from_codelist), 
                                      fill = TRUE)

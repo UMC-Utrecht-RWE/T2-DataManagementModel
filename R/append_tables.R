@@ -1,23 +1,16 @@
 #' Database Appending Function
 #'
 #' Functions for appending tables into a new table in a database.
-#'
-#' @author Albert Cid Royo
-#'
-#' @docType package
-#'
-#' @import data.table DBI logr
-#'
-#' @examples
-#' \dontrun{
-#' # Example usage of the functions
-#' }
+#' 
+#' @param db connection to the database
+#' @param tables vector of table names to append
+#' @param name new name of the resulting table
+#' @param dt_coll name of the column that represents dates
+#' @param colls which columns to append
+#' @param return if TRUE, the function returns the resulting data frame
+#' @param sqlite_temp if TRUE, the SQL table created is temporary
 #'
 #' @export
-#' @keywords database
-#' @name RWEDataManagementModel
-#'
-# Function to append tables within a list that leads to a new table
 append_tables <- function(db, tables, name, dt_coll = "date", 
                           colls = "*", return = TRUE, sqlite_temp = FALSE) {
   # Check for missing tables in the database

@@ -3,6 +3,9 @@
 #' This function generates a unique CDM ID for each data record of the specified 
 #' Database CDM instance. This step is suggested to be applied after using the 
 #' loadDb function.
+#' The function modifies the specified database by creating unique IDs 
+#' for the specified CDM tables.
+#'
 #'
 #' @param db_connection Database connection object (SQLiteConnection).
 #' @param cdm_tables_names List of CDM tables names to be imported into the database.
@@ -15,13 +18,6 @@
 #' @param require_rowid Logical, default is FALSE. If TRUE, the unique ID won't 
 #' be generated unless the ROWID column exists in the table.
 #'
-#' @return The function modifies the specified database by creating unique IDs 
-#' for the specified CDM tables.
-#'
-#' @author Albert Cid Royo
-#'
-#' @importFrom DBI dbListTables dbListFields dbSendStatement
-#'
 #' @examples
 #' \dontrun{
 #' # Example usage of create_unique_id
@@ -32,11 +28,6 @@
 #' }
 #'
 #' @export
-#' @keywords database
-#' @name RWEDataManagementModel
-#' @docType package
-#'
-
 create_unique_id <- function(db_connection, cdm_tables_names, 
                                  extension_name = "", id_name = "Ori_ID", 
                                  separator_id = "-", require_rowid = FALSE) {

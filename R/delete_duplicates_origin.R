@@ -2,6 +2,8 @@
 #'
 #' This function is designed for deleting duplicate rows based on the specified
 #' columns.
+#' The function deletes duplicate rows in the specified CDM tables and
+#' optionally saves the deleted records.
 #'
 #' @param db_connection Database connection object (SQLiteConnection).
 #' @param scheme List with CDM table names and character vectors with the
@@ -14,18 +16,10 @@
 #' @param add_postfix An additional postfix to the saved file name when saving
 #'   deleted records. Default is NA.
 #'
-#' @return The function deletes duplicate rows in the specified CDM tables and
-#'   optionally saves the deleted records.
-#'
-#' @author Albert Cid Royo
-#'
-#' @importFrom DBI dbListTables dbListFields dbSendStatement dbGetQuery
-#'   dbGetRowsAffected dbClearResult
-#'
 #' @examples
 #' \dontrun{
 #' # Example 1: Deleting duplicate rows in specified columns
-#' db_connection <- dbConnect(RSQLite::SQLite(), ":memory:")
+#' db_connection <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 #' scheme <- list("EVENTS" = c("*"), "PERSONS" = c("person_id", "age"))
 #' delete_duplicates_origin(db_connection, scheme)
 #'
@@ -36,7 +30,6 @@
 #' }
 #'
 #' @export
-#' @keywords database
 delete_duplicates_origin <- function(db_connection, scheme, save_deleted = FALSE,
                                       save_path = NULL, add_postfix = NA) {
   f_paste <- function(vec) sub(",\\s+([^,]+)$", " , \\1", toString(vec))

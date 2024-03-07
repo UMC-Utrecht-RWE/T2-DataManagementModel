@@ -12,14 +12,6 @@
 #' @return A list containing records from the origin CDM tables for each unique
 #'   identifier.
 #'
-#' @author Albert Cid Royo
-#' @email a.cidroyo@umcutrecht.com
-#' @organisation UMC Utrecht, Utrecht, The Netherlands
-#' @date 16/01/2023
-#'
-#' @importFrom data.table data.table tstrsplit all.equal dbListFields dbGetQuery
-#'   paste0 print next
-#'
 #' @examples
 #' \dontrun{
 #' # Example usage:

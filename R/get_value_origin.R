@@ -10,15 +10,14 @@
 #'
 #' @return A data table with the collected values.
 #'
-#' @export
-#'
 #' @examples
+#' \dontrun{
 #' # Example usage:
-#' # get_value_origin(cases_dt, db_connection,
-#' #   list('Table1' = 'Column1', 'Table2' = 'Column2'))
+#' get_value_origin(cases_dt, db_connection,
+#'                  list('Table1' = 'Column1', 'Table2' = 'Column2'))
+#' }
 #'
-#' @import data.table
-#' @import DBI
+#'@export
 get_value_origin <- function(cases_dt, db_connection, columns = NULL) {
   # Write cases data table to a temporary table in the database
   DBI::dbWriteTable(db_connection, "cases_tmp", cases_dt, overwrite = TRUE, temp = TRUE)
