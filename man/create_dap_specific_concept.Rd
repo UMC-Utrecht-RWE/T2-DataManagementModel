@@ -30,7 +30,7 @@ create_dap_specific_concept(
 
 \item{column_name_prefix}{An optional defines the prefix name of the column_name variable column from the DAP-specifc concept map}
 
-\item{expected_value_}{An optional defines the prefix name of the expected_value_ variable column from the DAP-specifc concept map}
+\item{expected_value_prefix}{An optional defines the prefix name of the expected_value_ variable column from the DAP-specifc concept map}
 }
 \description{
 This function Creates DAP-specific concepts into a database using a DAP-specifc concept map (codelist).

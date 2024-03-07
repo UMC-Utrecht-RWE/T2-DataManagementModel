@@ -10,7 +10,7 @@
 #' @param case_insensitive Logical, indicating whether column names are case-insensitive. Default is FALSE.
 #' @param date_col_filter An optional filter to subset data based on a specified date column.
 #' @param column_name_prefix An optional defines the prefix name of the column_name variable column from the DAP-specifc concept map
-#' @param expected_value_ An optional defines the prefix name of the expected_value_ variable column from the DAP-specifc concept map
+#' @param expected_value_prefix An optional defines the prefix name of the expected_value_ variable column from the DAP-specifc concept map
 #'
 #' @examples
 #' \dontrun{
