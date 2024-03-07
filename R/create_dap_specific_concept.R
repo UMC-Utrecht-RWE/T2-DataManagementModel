@@ -1,6 +1,7 @@
 #' Create DAP-Specific Concepts into Database
 #'
-#' This function Creates DAP-specific concepts into a database using a DAP-specifc concept map (codelist)
+#' This function Creates DAP-specific concepts into a database using a DAP-specifc concept map (codelist).
+#' The function modifies the specified save_db by creating edited tables and Creating DAP-specific concepts.
 #'
 #' @param codelist A data.table containing information about tables, columns, and values for DAP-specific concepts.
 #' @param data_db The database connection object.
@@ -11,26 +12,16 @@
 #' @param column_name_prefix An optional defines the prefix name of the column_name variable column from the DAP-specifc concept map
 #' @param expected_value_ An optional defines the prefix name of the expected_value_ variable column from the DAP-specifc concept map
 #'
-#' @return The function modifies the specified save_db by creating edited tables and Createing DAP-specific concepts.
-#'
-#' @author Albert Cid Royo
-#'
-#' @CreateFrom data.table fread setnames dbListTables dbListFields dbSendStatement
-#'
 #' @examples
 #' \dontrun{
 #' # Example usage of Create_dap_specific_concept
-#' codelist <- fread("path/to/codelist.csv")
+#' codelist <- data.table::fread("path/to/codelist.csv")
 #' data_db <- dbConnect(RSQLite::SQLite(), ":memory:")
 #' save_db <- dbConnect(RSQLite::SQLite(), ":memory:")
 #' create_dap_specific_concept(codelist, data_db, "Attachment", save_db, case_insensitive = FALSE, date_col_filter = "20230101")
 #' }
 #'
 #' @export
-#' @keywords database
-#' @name RWEDataManagementModel
-#' @docType package
-#'
 
 create_dap_specific_concept <- function(codelist, data_db, name_attachment, save_db, case_insensitive = FALSE, date_col_filter = NULL, 
                                         column_name_prefix = 'column_name_',

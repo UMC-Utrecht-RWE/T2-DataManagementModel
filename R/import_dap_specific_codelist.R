@@ -9,12 +9,6 @@
 #' @param db_connection Database connection object (e.g., SQLiteConnection).
 #' @param columns Vector of column names to select and import from the codelist.
 #'
-#' @return None (data is imported into the specified database table).
-#'
-#' @author Albert Cid Royo
-#'
-#' @importFrom data.table as.data.table setnames unique lapply DBI dbWriteTable
-#'   readRDS
 #'
 #' @examples
 #' \dontrun{
@@ -28,7 +22,6 @@
 #' }
 #'
 #' @export
-#' @keywords database
 import_dap_specific_codelist <- function(codelist_path, codelist_name_db,
                                          db_connection, columns) {
   # Read the DAP-specific codelist from the file

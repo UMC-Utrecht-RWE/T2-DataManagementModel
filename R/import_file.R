@@ -15,11 +15,6 @@
 #'   format to be converted to date format. Optional.
 #'
 #' @return A data.table data frame with formatted columns.
-#'
-#' @author Roel Elbers, Albert Cid Royo
-#'
-#' @import data.table
-#'
 #' @examples
 #' \dontrun{
 #' # Example usage of import_file
@@ -30,7 +25,6 @@
 #' }
 #'
 #' @export
-#' @keywords data
 import_file <- function(path, cols = NULL, cols_new = NULL, exprs = NULL,
                         date_cols = NULL) {
   if (!file.exists(path)) {

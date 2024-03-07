@@ -10,14 +10,6 @@
 #' @param extension_name String to be added to the name of the tables, useful
 #'   when loading different CDM instances in the same DB.
 #'
-#' @return No direct return value. Tables are loaded into the specified database.
-#'
-#' @author Albert Cid Royo
-#'
-#' @importFrom DBI dbListTables dbGetQuery dbListFields dbWriteTable
-#'   dbSendStatement
-#' @import data.table rlist
-#'
 #' @examples
 #' \dontrun{
 #' # Example usage of load_db
@@ -30,7 +22,6 @@
 #' }
 #'
 #' @export
-#' @keywords database
 load_db <- function(db_connection, csv_path_dir, cdm_metadata,
                     cdm_tables_names, extension_name = "") {
   # Loop through each table in cdm_tables_names

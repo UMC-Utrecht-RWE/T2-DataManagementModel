@@ -4,9 +4,10 @@
 #' specified columns.
 #'
 #' @param db_connection A database connection object.
-#' @param column_specs A list of lists specifying the columns to be used for
+#' @param column_info_list A list of lists specifying the columns to be used for
 #'   distinct, along with their new names. Each inner list should contain two
 #'   elements: "column_name" and "new_name".
+#' @param tb_name name of the CDM table
 #'
 #' @return A data.table with distinct values based on the specified columns.
 #'
@@ -25,16 +26,15 @@
 #' list(column_name = c("event_free_text"),
 #'      alias_name = c("code"))
 #' )
-#' }
 #'
 #' # Replace 'your_db_connection' with your actual database connection
-#' db_connection_origin <- dbConnect(RSQLite::SQLite(), dbname = "your_database.db")
+#' db_connection_origin <- DBI::dbConnect(RSQLite::SQLite(), dbname = "your_database.db")
 #'
 #' # Call the function with the database connection and column information list
 #' result_list <- get_unique_codelist(db_connection_origin, column_info_list)
 #'
 #' # Close the database connection
-#' dbDisconnect(db_connection_origin)
+#' DBI::dbDisconnect(db_connection_origin)
 #'
 #' # Access individual results from the list
 #' unique_codelist_event_code <- result_list[[1]]
