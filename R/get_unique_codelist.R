@@ -7,7 +7,7 @@
 #' @param column_info_list A list of lists specifying the columns to be used for
 #'   distinct, along with their new names. Each inner list should contain two
 #'   elements: "column_name" and "new_name".
-#' @param tb_name #TODO document this parameter
+#' @param tb_name name of the CDM table
 #'
 #' @return A data.table with distinct values based on the specified columns.
 #'
