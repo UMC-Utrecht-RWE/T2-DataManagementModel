@@ -83,7 +83,7 @@ create_dap_specific_codelist <- function(unique_codelist, study_codelist,
     )
     
     # Selecting the top priority matches
-    cols_by <- c("code.DAP_UNIQUE_CODELIST", "Outcome", "coding_system")
+    cols_by <- c("code.DAP_UNIQUE_CODELIST", "concept_id", "coding_system")
     if (!all(is.na(additional_columns))) {
       cols_by <- c(cols_by, additional_columns)
     }
