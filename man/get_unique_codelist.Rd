@@ -13,7 +13,7 @@ get_unique_codelist(db_connection, column_info_list, tb_name)
 distinct, along with their new names. Each inner list should contain two
 elements: "column_name" and "new_name".}
 
-\item{tb_name}{#TODO document this parameter}
+\item{tb_name}{name of the CDM table}
 }
 \value{
 A data.table with distinct values based on the specified columns.

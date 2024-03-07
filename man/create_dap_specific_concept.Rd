@@ -10,7 +10,9 @@ create_dap_specific_concept(
   name_attachment,
   save_db,
   case_insensitive = FALSE,
-  date_col_filter = NULL
+  date_col_filter = NULL,
+  column_name_prefix = "column_name_",
+  expected_value_prefix = "expected_value_"
 )
 }
 \arguments{
@@ -25,6 +27,10 @@ create_dap_specific_concept(
 \item{case_insensitive}{Logical, indicating whether column names are case-insensitive. Default is FALSE.}
 
 \item{date_col_filter}{An optional filter to subset data based on a specified date column.}
+
+\item{column_name_prefix}{An optional defines the prefix name of the column_name variable column from the DAP-specifc concept map}
+
+\item{expected_value_}{An optional defines the prefix name of the expected_value_ variable column from the DAP-specifc concept map}
 }
 \description{
 This function Creates DAP-specific concepts into a database using a DAP-specifc concept map (codelist).
