@@ -67,7 +67,7 @@ create_dap_specific_concept <- function(codelist, data_db, name_attachment, save
       # Get table name, edited table name, concept name, date column, columns, and values
       table_temp <- codelist[[j, "table"]]
       name_edited <- paste0(table_temp, "_edited")
-      concept_name <- codelist[[j, "outcome"]]
+      concept_name <- codelist[[j, "concept_id"]]
       date_col <- codelist[[j, "date_column"]]
       codelist_id <- codelist[[j, "dap_spec_id"]]
       cols_temp <- na.omit(as.character(cols[j]))
@@ -87,7 +87,7 @@ create_dap_specific_concept <- function(codelist, data_db, name_attachment, save
       # Insert data into the concept_table in save_db
       rs <- DBI::dbSendStatement(save_db, paste0(
         "INSERT INTO concept_table
-      SELECT Ori_ID, Ori_Table, ROWID, person_id, ", coding_system, " AS code, ", coding_system, " AS coding_system, ", value, " AS value, '", concept_name, "' AS outcome, ", date_col, " AS date ", "
+      SELECT Ori_ID, Ori_Table, ROWID, person_id, ", coding_system, " AS code, ", coding_system, " AS coding_system, ", value, " AS value, '", concept_name, "' AS concept_id, ", date_col, " AS date ", "
       FROM ", name_edited,
         " WHERE ", where_statement
       ))
