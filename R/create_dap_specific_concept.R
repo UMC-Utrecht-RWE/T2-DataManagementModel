@@ -8,8 +8,8 @@
 #' @param name_attachment Attachment to the database table names.
 #' @param save_db The database connection object where the edited tables and concepts will be saved.
 #' @param date_col_filter An optional filter to subset data based on a specified date column.
-#' @param column_name_prefix An optional defines the prefix name of the column_name variable column from the DAP-specifc concept map
-#' @param expected_value_prefix An optional defines the prefix name of the expected_value_ variable column from the DAP-specifc concept map
+#' @param column_name_prefix An optional string that defines the prefix name of the column name variable column(s) from the DAP-specific concept map
+#' @param expected_value_prefix An optional string that defines the prefix name of the expected value variable column(s) from the DAP-specific concept map
 #'
 #' @examples
 #' \dontrun{
