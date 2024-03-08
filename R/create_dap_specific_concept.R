@@ -8,6 +8,7 @@
 #' @param name_attachment Attachment to the database table names.
 #' @param save_db The database connection object where the edited tables and concepts will be saved.
 #' @param date_col_filter An optional filter to subset data based on a specified date column.
+#' @param table_name Name of the table in the codelist
 #' @param column_name_prefix An optional string that defines the prefix name of the column name variable column(s) from the DAP-specific concept map
 #' @param expected_value_prefix An optional string that defines the prefix name of the expected value variable column(s) from the DAP-specific concept map
 #'
@@ -22,7 +23,8 @@
 #'
 #' @export
 
-create_dap_specific_concept <- function(codelist, data_db, name_attachment, save_db, date_col_filter = NULL, 
+create_dap_specific_concept <- function(codelist, data_db, name_attachment, save_db, date_col_filter = NULL,
+                                        table_name = 'cdm_table_name',
                                         column_name_prefix = 'column_name_',
                                         expected_value_prefix = 'expected_value_') {
 
@@ -32,7 +34,7 @@ create_dap_specific_concept <- function(codelist, data_db, name_attachment, save
   
   
     # Get unique tables from codelist
-    scheme <- unique(codelist[["cdm_table_name"]])
+    scheme <- unique(codelist[[table_name]])
     # Get columns and value names
     cols_names <- grep(paste0("^",column_name_prefix), names(codelist), value = TRUE)
     value_names <- grep(paste0("^",expected_value_prefix), names(codelist), value = TRUE) 
@@ -46,7 +48,7 @@ create_dap_specific_concept <- function(codelist, data_db, name_attachment, save
       # Edit table name to indicate that it's been processed
       name_edited <- paste0(name, "_EDITED")
       # Get columns that need to be converted to uppercase
-      to_upper_cols <- na.omit(unique(unlist(codelist[cdm_table_name %in% name, ..cols_names])))
+      to_upper_cols <- na.omit(unique(unlist(codelist[table_name %in% name, ..cols_names])))
       # Get all columns from the table
       columns_db_table <- DBI::dbListFields(data_db, name)
       # Get columns that don't need to be converted to uppercase
@@ -73,7 +75,7 @@ create_dap_specific_concept <- function(codelist, data_db, name_attachment, save
     # Loop through each row in codelist
     for (j in seq_len(nrow(codelist))) {
       # Get table name, edited table name, concept name, date column, columns, and values
-      table_temp <- codelist[[j, "cdm_table_name"]]
+      table_temp <- codelist[[j, table_name]]
       name_edited <- paste0(table_temp, "_edited")
       concept_name <- codelist[[j, "concept_id"]]
       date_col <- codelist[[j, "keep_date_column_name"]]
