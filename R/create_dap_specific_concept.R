@@ -25,8 +25,12 @@
 create_dap_specific_concept <- function(codelist, data_db, name_attachment, save_db, date_col_filter = NULL, 
                                         column_name_prefix = 'column_name_',
                                         expected_value_prefix = 'expected_value_') {
-  # Check if codelist is not empty
-  if (nrow(codelist) > 0) {
+
+  if (nrow(codelist) <= 0) {
+    stop("Codelist does not contain any data.")
+  }
+  
+  
     # Get unique tables from codelist
     scheme <- unique(codelist[["cdm_table_name"]])
     # Get columns and value names
@@ -106,5 +110,4 @@ create_dap_specific_concept <- function(codelist, data_db, name_attachment, save
       ))
       DBI::dbClearResult(rs)
     }
-  }
 }
