@@ -7,7 +7,6 @@
 #' @param data_db The database connection object.
 #' @param name_attachment Attachment to the database table names.
 #' @param save_db The database connection object where the edited tables and concepts will be saved.
-#' @param case_insensitive Logical, indicating whether column names are case-insensitive. Default is FALSE.
 #' @param date_col_filter An optional filter to subset data based on a specified date column.
 #' @param column_name_prefix An optional defines the prefix name of the column_name variable column from the DAP-specifc concept map
 #' @param expected_value_prefix An optional defines the prefix name of the expected_value_ variable column from the DAP-specifc concept map
@@ -18,12 +17,12 @@
 #' codelist <- data.table::fread("path/to/codelist.csv")
 #' data_db <- dbConnect(RSQLite::SQLite(), ":memory:")
 #' save_db <- dbConnect(RSQLite::SQLite(), ":memory:")
-#' create_dap_specific_concept(codelist, data_db, "Attachment", save_db, case_insensitive = FALSE, date_col_filter = "20230101")
+#' create_dap_specific_concept(codelist, data_db, "Attachment", save_db, date_col_filter = "20230101")
 #' }
 #'
 #' @export
 
-create_dap_specific_concept <- function(codelist, data_db, name_attachment, save_db, case_insensitive = FALSE, date_col_filter = NULL, 
+create_dap_specific_concept <- function(codelist, data_db, name_attachment, save_db, date_col_filter = NULL, 
                                         column_name_prefix = 'column_name_',
                                         expected_value_prefix = 'expected_value_') {
   # Check if codelist is not empty
