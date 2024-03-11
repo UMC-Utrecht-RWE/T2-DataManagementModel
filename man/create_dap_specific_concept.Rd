@@ -11,8 +11,8 @@ create_dap_specific_concept(
   save_db,
   date_col_filter = NULL,
   table_name = "cdm_table_name",
-  column_name_prefix = "column_name_",
-  expected_value_prefix = "expected_value_"
+  column_name_prefix = "column_name",
+  expected_value_prefix = "expected_value"
 )
 }
 \arguments{
