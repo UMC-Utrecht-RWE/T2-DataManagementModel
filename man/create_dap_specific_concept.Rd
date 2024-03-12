@@ -9,8 +9,10 @@ create_dap_specific_concept(
   data_db,
   name_attachment,
   save_db,
-  case_insensitive = FALSE,
-  date_col_filter = NULL
+  date_col_filter = NULL,
+  table_name = "cdm_table_name",
+  column_name_prefix = "column_name",
+  expected_value_prefix = "expected_value"
 )
 }
 \arguments{
@@ -22,9 +24,13 @@ create_dap_specific_concept(
 
 \item{save_db}{The database connection object where the edited tables and concepts will be saved.}
 
-\item{case_insensitive}{Logical, indicating whether column names are case-insensitive. Default is FALSE.}
-
 \item{date_col_filter}{An optional filter to subset data based on a specified date column.}
+
+\item{table_name}{Name of the table in the codelist}
+
+\item{column_name_prefix}{An optional string that defines the prefix name of the column name variable column(s) from the DAP-specific concept map}
+
+\item{expected_value_prefix}{An optional string that defines the prefix name of the expected value variable column(s) from the DAP-specific concept map}
 }
 \description{
 This function Creates DAP-specific concepts into a database using a DAP-specifc concept map (codelist).
@@ -36,7 +42,7 @@ The function modifies the specified save_db by creating edited tables and Creati
 codelist <- data.table::fread("path/to/codelist.csv")
 data_db <- dbConnect(RSQLite::SQLite(), ":memory:")
 save_db <- dbConnect(RSQLite::SQLite(), ":memory:")
-create_dap_specific_concept(codelist, data_db, "Attachment", save_db, case_insensitive = FALSE, date_col_filter = "20230101")
+create_dap_specific_concept(codelist, data_db, "Attachment", save_db, date_col_filter = "20230101")
 }
 
 }
