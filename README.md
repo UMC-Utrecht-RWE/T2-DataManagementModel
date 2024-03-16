@@ -11,17 +11,13 @@ RWE-DataManagementModel is an R package that provides a data model and functiona
 
 You can install the current version of RWE-DataManagementModel as follows:
 
-1. [Download a ZIP file](https://github.com/UMC-Utrecht-RWE/T2-DataManagementModel/archive/refs/heads/main.zip) of this repository.
-1. Verify the path of the newly downloaded zip file:
-  - on Mac, the *"path_to_the_directory_of_the_package"* looks something like this: `/Users/Name/Desktop/RWE-DataManagementModel-main.zip`
-  - on Windows, the *"path_to_the_directory_of_the_package"* looks something like this: `C:/Users/Name/Desktop/RWE-DataManagementModel-main.zip` (it should be **`/`**, and not `\\`)
 1. In your R console, ensure you have the package `devtools` installed:
    ```
    install.packages("devtools")
    ```
-1. Using devtools, install the package using the path to the zip file:
+1. Using devtools, install the package directly from GitHub
    ```
-   devtools::install_local('/Users/<yourusername>/Desktop/T2-DataManagementModel-main.zip', dependencies = TRUE)
+   devtools::install_github('UMC-Utrecht-RWE/T2-DataManagementModel', dependencies = TRUE)
    ```
 
 ### Dependency `data.table` on mac
