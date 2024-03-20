@@ -13,5 +13,7 @@ test_that("database gets loaded", {
     cdm_tables_names = c("PERSONS", "VACCINES")
   )
   expect_equal(file.size(dbname), 12288)
+  # 12288 is the size of the database file once created.
+  # TODO: create more robust tests for this database.
 })
 
