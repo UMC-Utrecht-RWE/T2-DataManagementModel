@@ -30,8 +30,8 @@ load_db <- function(db_connection, csv_path_dir, cdm_metadata,
     # Get metadata for the current table
     table_metadata <- cdm_metadata[TABLE %in% table_name_pattern]
     # Identify date columns that are mandatory and date
-    date_cols <- table_metadata[str_detect(Format, "yyyymmdd") == TRUE &
-                                  str_detect(Mandatory, "Yes") == TRUE, Variable]
+    date_cols <- table_metadata[stringr::str_detect(Format, "yyyymmdd") == TRUE &
+                                  stringr::str_detect(Mandatory, "Yes") == TRUE, Variable]
     # Get a list of CSV files for the current table
     table_list <- list.files(csv_path_dir, pattern = table_name_pattern)
     indx_table <- 0
