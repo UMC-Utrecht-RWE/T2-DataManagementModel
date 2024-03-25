@@ -8,7 +8,7 @@ Authors@R: c(
   person("Roel", "Elbers", role = "aut"),
   person("Barbara", "Vreede", email = "B.M.I.Vreede@umcutrecht.nl", role = "aut", comment = c(ORCID = "0000-0002-5023-4601")))
 Description: RWE-DataManagementModel is an R package that provides a data model
-  and functionality for processing RWD. T2 stands by the semantic harmonization transformation step.
+  and functionality for processing RWD. T2 stands for the semantic harmonization transformation step.
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
