@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(RWEDataManagementModel)
+library(T2.DMM)
 
-test_check("RWEDataManagementModel")
+test_check("T2.DMM")
