@@ -11,7 +11,7 @@
 #' @param table_name Name of the table in the codelist
 #' @param column_name_prefix An optional string that defines the prefix name of the column name variable column(s) from the DAP-specific concept map
 #' @param expected_value_prefix An optional string that defines the prefix name of the expected value variable column(s) from the DAP-specific concept map
-#'
+#' @param add_meaning An optional boolean that defines whether the possibility to save the meaning of any CDM table -if available- in the results of the function. This is specific for the ConcePTION CDM.
 #' @examples
 #' \dontrun{
 #' # Example usage of Create_dap_specific_concept
@@ -85,8 +85,8 @@ create_dap_specific_concept <- function(codelist, data_db, name_attachment, save
     values_temp <- toupper(na.omit(as.character(values[j])))
     value <- codelist[[j, "keep_value_column_name"]]
     if(add_meaning == TRUE){
-      columns_db_table <- dbListFields(save_db, name_edited)
-      meaning_column_name <- columns_db_table[str_detect(columns_db_table,'meaning')]
+      columns_db_table <- DBI::dbListFields(save_db, name_edited)
+      meaning_column_name <- columns_db_table[stringr::str_detect(columns_db_table,'meaning')]
       if(length(meaning_column_name) > 0 ){
         meaning_clause <- paste0(', ',meaning_column_name, " AS meaning ")
       }else{
