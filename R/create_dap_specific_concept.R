@@ -84,7 +84,7 @@ create_dap_specific_concept <- function(codelist, data_db, name_attachment, save
     cols_temp <- na.omit(as.character(cols[j]))
     values_temp <- toupper(na.omit(as.character(values[j])))
     value <- codelist[[j, "keep_value_column_name"]]
-    if(add_meaning == TRUE){
+    if(add_meaning){
       columns_db_table <- DBI::dbListFields(save_db, name_edited)
       meaning_column_name <- columns_db_table[stringr::str_detect(columns_db_table,'meaning')]
       if(length(meaning_column_name) > 0 ){
