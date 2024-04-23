@@ -11,7 +11,7 @@
 #' @param table_name Name of the table in the codelist
 #' @param column_name_prefix An optional string that defines the prefix name of the column name variable column(s) from the DAP-specific concept map
 #' @param expected_value_prefix An optional string that defines the prefix name of the expected value variable column(s) from the DAP-specific concept map
-#'
+#' @param add_meaning An optional boolean that defines whether the possibility to save the meaning of any CDM table -if available- in the results of the function. This is specific for the ConcePTION CDM.
 #' @examples
 #' \dontrun{
 #' # Example usage of Create_dap_specific_concept
@@ -26,7 +26,8 @@
 create_dap_specific_concept <- function(codelist, data_db, name_attachment, save_db, date_col_filter = NULL,
                                         table_name = 'cdm_table_name',
                                         column_name_prefix = 'column_name',
-                                        expected_value_prefix = 'expected_value') {
+                                        expected_value_prefix = 'expected_value',
+                                        add_meaning = FALSE) {
   
   if (nrow(codelist) <= 0) {
     stop("Codelist does not contain any data.")
@@ -37,7 +38,7 @@ create_dap_specific_concept <- function(codelist, data_db, name_attachment, save
   scheme <- unique(codelist[[table_name]])
   # Get columns and value names
   cols_names <- grep(paste0("^",column_name_prefix), names(codelist), value = TRUE)
-  value_names <- grep(paste0("^",expected_value_prefix), names(codelist), value = TRUE) 
+  value_names <- grep(paste0("^",expected_value_prefix), names(codelist), value = TRUE)
   # Get columns and values
   cols <- codelist[, ..cols_names]
   values <- codelist[, ..value_names]
@@ -83,6 +84,19 @@ create_dap_specific_concept <- function(codelist, data_db, name_attachment, save
     cols_temp <- na.omit(as.character(cols[j]))
     values_temp <- toupper(na.omit(as.character(values[j])))
     value <- codelist[[j, "keep_value_column_name"]]
+    if(add_meaning){
+      columns_db_table <- DBI::dbListFields(save_db, name_edited)
+      meaning_column_name <- columns_db_table[stringr::str_detect(columns_db_table,'meaning')]
+      if(length(meaning_column_name) > 0 ){
+        meaning_clause <- paste0(', ',meaning_column_name, " AS meaning ")
+      }else{
+        print(paste0('[create_dap_specific_concept] Meaning not identified for: ', name_edited))
+        meaning_clause <- paste0(", NULL AS meaning ")
+      }
+     
+    }else{
+      meaning_clause <- ''
+    }
     if (is.null(value)) {
       value <- TRUE
     } else if (any(is.na(value))) {
@@ -106,9 +120,9 @@ create_dap_specific_concept <- function(codelist, data_db, name_attachment, save
     # Insert data into the concept_table in save_db
     rs <- DBI::dbSendStatement(save_db, paste0(
       "INSERT INTO concept_table
-      SELECT Ori_ID, Ori_Table, ROWID, person_id, ", coding_system, " AS code, ", coding_system, " AS coding_system, ", value, 
-      " AS value, '", concept_name, "' AS concept_id, ", date_col, " AS date ", "
-      FROM ", name_edited,
+      SELECT Ori_ID, Ori_Table, ROWID, person_id, ", coding_system, " AS code, ", coding_system, " AS coding_system, ", value,
+      " AS value, '", concept_name, "' AS concept_id, ", date_col, " AS date ", meaning_clause,
+      "FROM ", name_edited,
       " WHERE ", where_statement
     ))
     DBI::dbClearResult(rs)
