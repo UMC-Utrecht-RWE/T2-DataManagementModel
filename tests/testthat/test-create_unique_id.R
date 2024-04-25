@@ -18,4 +18,10 @@ test_that("Names and number of new columns added", {
   expect_contains(names(vx_db),names(vx))
   expect_contains(names(vx_db),c('Ori_ID','ROWID','Ori_Table'))
   expect_equal(length(names(vx_db)),length(names(vx))+3)
+  
+  persons_db <- DBI::dbReadTable(db_connection_origin,'persons')
+  persons <- import_file("dbtest/PERSONS.csv")
+  expect_contains(names(persons_db),names(persons))
+  expect_contains(names(persons_db),c('Ori_ID','ROWID','Ori_Table'))
+  expect_equal(length(names(persons_db)),length(names(persons))+3)
 })
