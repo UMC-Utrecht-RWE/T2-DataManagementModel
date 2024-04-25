@@ -25,3 +25,25 @@ test_that("Names and number of new columns added", {
   expect_contains(names(persons_db),c('Ori_ID','ROWID','Ori_Table'))
   expect_equal(length(names(persons_db)),length(names(persons))+3)
 })
+
+test_that("Checking the ROWID is the same as the number of rows of the table",{
+  create_unique_id(db_connection_origin, cdm_tables_names = c("PERSONS"), 
+                   extension_name = "", id_name = "Ori_ID", 
+                   separator_id = "-", require_rowid = FALSE)
+  
+  persons_db <- DBI::dbReadTable(db_connection_origin,'persons')
+  persons <- import_file("dbtest/PERSONS.csv")
+  max_rowID <- max(persons_db$ROWID)
+  expect_equal(nrow(persons),max_rowID)
+})
+
+test_that("Checking the OriTable is the same as the included table",{
+  create_unique_id(db_connection_origin, cdm_tables_names = c("PERSONS"), 
+                   extension_name = "", id_name = "Ori_ID", 
+                   separator_id = "-", require_rowid = FALSE)
+  
+  persons_db <- DBI::dbReadTable(db_connection_origin,'persons')
+  persons <- import_file("dbtest/PERSONS.csv")
+  ori_table_name <- unique(persons_db$Ori_Table)
+  expect_equal('PERSONS',ori_table_name)
+})
