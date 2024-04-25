@@ -7,7 +7,7 @@ load_db(
   cdm_tables_names = c("PERSONS", "VACCINES")
 )
 
-test_that("Names and number of new columns added", {
+test_that("Checking if the function delete the duplicates cases", {
   
   vx_db <- DBI::dbReadTable(db_connection_origin,'VACCINES')
   vx1 <- import_file("dbtest/VACCINES.csv")
