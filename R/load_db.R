@@ -79,7 +79,8 @@ load_db <- function(db_connection, csv_path_dir, cdm_metadata,
         }
         # If there are missing columns in the database, add the columns
         if (length(missing_in_db) > 0) {
-          DBI::dbSendStatement(db_connection, paste0("ALTER TABLE ", table_name_pattern, paste0(" ADD COLUMN ", missing_in_db, collapse = ""), " ;"))
+          p <- DBI::dbSendStatement(db_connection, paste0("ALTER TABLE ", table_name_pattern, paste0(" ADD COLUMN ", missing_in_db, collapse = ""), " ;"))
+          DBI::dbClearResult(p)
         }
         
         # If there are missing columns in the input, add the columns with NA values
