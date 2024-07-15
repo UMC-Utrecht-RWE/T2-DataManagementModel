@@ -22,3 +22,4 @@ test_that("database gets loaded", {
   expect_equal(names(vx_db),names(vx))
 })
 
+DBI::dbDisconnect(db_connection_origin)

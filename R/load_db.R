@@ -26,70 +26,72 @@ load_db <- function(db_connection, csv_path_dir, cdm_metadata,
                     cdm_tables_names, extension_name = "") {
   # Loop through each table in cdm_tables_names
   for (table_name_pattern in cdm_tables_names) {
-    print(paste0("[load_db]: Loading tables: ", table_name_pattern))
-    # Get metadata for the current table
     table_metadata <- cdm_metadata[TABLE %in% table_name_pattern]
-    # Identify date columns that are mandatory and date
-    date_cols <- table_metadata[stringr::str_detect(Format, "yyyymmdd") == TRUE &
-                                  stringr::str_detect(Mandatory, "Yes") == TRUE, Variable]
-    # Get a list of CSV files for the current table
+    date_cols <- table_metadata[stringr::str_detect(Format, 
+                                                    "yyyymmdd") == TRUE & stringr::str_detect(Mandatory, 
+                                                                                              "Yes") == TRUE, Variable]
     table_list <- list.files(csv_path_dir, pattern = table_name_pattern)
     indx_table <- 0
-    # Loop through each CSV file for the current table
     for (c_table in table_list) {
       indx_table <- indx_table + 1
-      print(paste0("[load_db]: Loading: ", c_table, " ", indx_table, "/",
-                   length(table_list)))
-      # If there are mandatory date columns, import the file with the date columns
-      cdm_loaded_table <- import_file(path=file.path(csv_path_dir, c_table))
+      existing_tables <- DBI::dbListTables(db_connection)
+      if (!paste0(table_name_pattern, extension_name) %in% existing_tables) {
+        print(paste0("[load_db]: Table created for first time: ", table_name_pattern ))
+        add_new_table <- FALSE
+      }else{
+        add_new_table <- TRUE
+      }
       
-      # Set specified columns in data.colls to date format
+      print(paste0("[load_db]: Loading: ", c_table, " ", 
+                   indx_table, "/", length(table_list)))
+      cdm_loaded_table <- import_file(path = file.path(csv_path_dir, 
+                                                       c_table))
+      
       existing_date_cols <- date_cols[date_cols %in% names(cdm_loaded_table)]
       missing_date_cols <- date_cols[!date_cols %in% names(cdm_loaded_table)]
       if (length(missing_date_cols) > 0) {
-        print(paste0("[load_db]: Table: ", c_table,
-                     " is missing the following mandatory date columns: ",
+        print(paste0("[load_db]: Table: ", c_table, 
+                     " is missing the following mandatory date columns: ", 
                      missing_date_cols))
       }
       if (length(existing_date_cols) > 0) {
-        lapply(existing_date_cols, function(x) cdm_loaded_table[, eval(x) :=
-                                                                  as.Date(get(x), "%Y%m%d")])
+        lapply(existing_date_cols, function(x) cdm_loaded_table[, 
+                                                                `:=`(eval(x), as.Date(get(x), "%Y%m%d"))])
       }
       
-      # Get a list of existing tables in the database
-      existing_tables <- DBI::dbListTables(db_connection)
-      
-      # If the table does not exist in the database, create and write the table
-      if (!paste0(table_name_pattern, extension_name) %in% existing_tables) {
-        DBI::dbWriteTable(db_connection, paste0(table_name_pattern,
-                                                extension_name),
-                          cdm_loaded_table)
-      } else {
-        # If the table exists, check for missing columns in the input and database
-        cols_in_table <- DBI::dbListFields(db_connection, table_name_pattern)
-        missing_in_input <- cols_in_table[!cols_in_table %in%
+      if (add_new_table == FALSE) {
+        DBI::dbWriteTable(db_connection, paste0(table_name_pattern, 
+                                                extension_name), cdm_loaded_table)
+      }else {
+        cols_in_table <- DBI::dbListFields(db_connection, 
+                                           table_name_pattern)
+        missing_in_input <- cols_in_table[!cols_in_table %in% 
                                             names(cdm_loaded_table)]
-        missing_in_db <- names(cdm_loaded_table)[!names(cdm_loaded_table) %in%
+        missing_in_db <- names(cdm_loaded_table)[!names(cdm_loaded_table) %in% 
                                                    cols_in_table]
-        
-        # If there are missing columns, print a warning
         if (length(missing_in_input) > 0) {
-          print(paste0("[load_db]: The following columns are missing in the input: ",
+          print(paste0("[load_db]: The following columns are missing in the NEW INPUT: ", 
                        missing_in_input))
+          lapply(missing_in_input, function(new_column) {
+            print(paste0("[load_db]: Addding column: ", 
+                         new_column, ' to table ', table_name_pattern, ' to NEW INPUT'))
+            cdm_loaded_table[, `:=`(eval(x), NA)]
+          })
         }
-        # If there are missing columns in the database, add the columns
         if (length(missing_in_db) > 0) {
-          p <- DBI::dbSendStatement(db_connection, paste0("ALTER TABLE ", table_name_pattern, paste0(" ADD COLUMN ", missing_in_db, collapse = ""), " ;"))
-          DBI::dbClearResult(p)
+          print(paste0("[load_db]: The following columns are missing in the DATABASE: ", 
+                       paste(missing_in_db, collapse = ',')))
+          invisible(lapply(missing_in_db, function(new_column){
+            print(paste0("[load_db]: Addding column: ", 
+                         new_column, ' to table ', table_name_pattern, ' in the DATABASE'))
+            p <- DBI::dbSendStatement(db_connection, paste0("ALTER TABLE ", 
+                                                            table_name_pattern," ADD COLUMN ",new_column," ;"))
+            DBI::dbClearResult(p)
+          }))
         }
-        
-        # If there are missing columns in the input, add the columns with NA values
-        if (length(missing_in_input) > 0) {
-          lapply(missing_in_input, function(x) cdm_loaded_table[, eval(x) := NA])
-        }
-        
-        # Append the data to the existing table
-        DBI::dbWriteTable(db_connection, paste0(table_name_pattern, extension_name), cdm_loaded_table, overwrite = F, append = T)
+        DBI::dbWriteTable(db_connection, paste0(table_name_pattern, 
+                                                extension_name), cdm_loaded_table, overwrite = F, 
+                          append = T)
       }
     }
   }
