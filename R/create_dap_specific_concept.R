@@ -38,7 +38,7 @@ create_dap_specific_concept <- function(codelist, data_db, name_attachment, save
   # Get columns and value names
   cols_names <- grep(paste0("^", column_name_prefix), names(codelist), value = TRUE)
   value_names <- grep(paste0("^", expected_value_prefix), names(codelist), value = TRUE)
-  if (length(cols_names) == 0 | length(value_names) | length(cols_names) != length(value_names)) {
+  if (length(cols_names) == 0 | length(value_names) == 0| length(cols_names) != length(value_names)) {
     print(paste0("[create_dap_specific_concept] Incongruencies found in the column_names and/or value name"))
     stop()
   } else {
