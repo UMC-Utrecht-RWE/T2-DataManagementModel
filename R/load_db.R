@@ -75,7 +75,7 @@ load_db <- function(db_connection, csv_path_dir, cdm_metadata,
           lapply(missing_in_input, function(new_column) {
             print(paste0("[load_db]: Addding column: ", 
                          new_column, ' to table ', table_name_pattern, ' to NEW INPUT'))
-            cdm_loaded_table[, `:=`(eval(x), NA)]
+            cdm_loaded_table[, `:=`(eval(new_column), NA)]
           })
         }
         if (length(missing_in_db) > 0) {
