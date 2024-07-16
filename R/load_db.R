@@ -36,7 +36,7 @@ load_db <- function(db_connection, csv_path_dir, cdm_metadata,
       indx_table <- indx_table + 1
       existing_tables <- DBI::dbListTables(db_connection)
       if (!paste0(table_name_pattern, extension_name) %in% existing_tables) {
-        print(paste0("[load_db]: Table created for first time: ", table_name_pattern ))
+        print(paste0("[load_db]: Table ", table_name_pattern, " does not exist in the database and is created by loading the provided csv(s)"))
         add_new_table <- FALSE
       }else{
         add_new_table <- TRUE
@@ -70,20 +70,23 @@ load_db <- function(db_connection, csv_path_dir, cdm_metadata,
         missing_in_db <- names(cdm_loaded_table)[!names(cdm_loaded_table) %in% 
                                                    cols_in_table]
         if (length(missing_in_input) > 0) {
-          print(paste0("[load_db]: The following columns are missing in the NEW INPUT: ", 
+          print(paste0("[load_db]: The following columns were in previously loaded ",
+                       table_name_pattern, " csvs but not in ", 
+                       c_table, ": ",
                        missing_in_input))
           lapply(missing_in_input, function(new_column) {
-            print(paste0("[load_db]: Addding column: ", 
-                         new_column, ' to table ', table_name_pattern, ' to NEW INPUT'))
+            print(paste0("[load_db]: Adding column: ", 
+                         new_column, " to table ", c_table))
             cdm_loaded_table[, `:=`(eval(new_column), NA)]
           })
         }
         if (length(missing_in_db) > 0) {
-          print(paste0("[load_db]: The following columns are missing in the DATABASE: ", 
-                       paste(missing_in_db, collapse = ',')))
+          print(paste0("[load_db]: The following columns are in ", c_table,
+                       " and not in the previously loaded ", table_name_pattern, " csvs: ", 
+                       paste(missing_in_db, collapse = ', ')))
           invisible(lapply(missing_in_db, function(new_column){
-            print(paste0("[load_db]: Addding column: ", 
-                         new_column, ' to table ', table_name_pattern, ' in the DATABASE'))
+            print(paste0("[load_db]: Adding column: ", 
+                         new_column, ' to table ', table_name_pattern, ' in the database'))
             p <- DBI::dbSendStatement(db_connection, paste0("ALTER TABLE ", 
                                                             table_name_pattern," ADD COLUMN ",new_column," ;"))
             DBI::dbClearResult(p)
