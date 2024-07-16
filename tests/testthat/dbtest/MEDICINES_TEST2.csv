@@ -1,0 +1,2 @@
+﻿,person_id,medicinal_product_id,medicinal_product_atc_code,date_dispensing,date_prescription,disp_number_medicinal_product,presc_quantity_per_day,presc_quantity_unit,presc_duration_days,product_lot_number,inidication_code,indication_code_vocabulary,meaning_of_drug_record,origin_of_drug_record,prescriber_speciality,prescriber_speciality_vocabulary,visit_occurrence_id
+1,10000014122,12583641000033114,NA,28/04/2019,25/08/2015,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
