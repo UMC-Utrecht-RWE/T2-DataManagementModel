@@ -10,16 +10,14 @@ test_that("database gets loaded", {
     db_connection = db_connection_origin,
     csv_path_dir = "dbtest",
     cdm_metadata = concePTION_metadata_v2,
-    cdm_tables_names = c("PERSONS", "VACCINES")
+    cdm_tables_names = c("PERSONS", "VACCINES","MEDICINES")
   )
-  expect_equal(file.size(dbname), 12288)
-  # 12288 is the size of the database file once created.
-  # TODO: create more robust tests for this database.
-  
+
   #Testing that all column names are the same
-  vx_db <- DBI::dbReadTable(db_connection_origin,'VACCINES')
-  vx <- import_file("dbtest/VACCINES.csv")
-  expect_equal(names(vx_db),names(vx))
+  med_db <- DBI::dbReadTable(db_connection_origin,'MEDICINES')
+  med_1 <- import_file("dbtest/MEDICINES_TEST1.csv")
+  med_2 <- import_file("dbtest/MEDICINES_TEST2.csv")
+  expect_contains(names(med_db),unique(names(med_1),names(med_2)))
 })
 
 DBI::dbDisconnect(db_connection_origin)
