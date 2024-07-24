@@ -12,8 +12,7 @@ create_dap_specific_concept(
   date_col_filter = NULL,
   table_name = "cdm_table_name",
   column_name_prefix = "column_name",
-  expected_value_prefix = "expected_value",
-  add_meaning = FALSE
+  expected_value_prefix = "expected_value"
 )
 }
 \arguments{
@@ -32,8 +31,6 @@ create_dap_specific_concept(
 \item{column_name_prefix}{An optional string that defines the prefix name of the column name variable column(s) from the DAP-specific concept map}
 
 \item{expected_value_prefix}{An optional string that defines the prefix name of the expected value variable column(s) from the DAP-specific concept map}
-
-\item{add_meaning}{An optional boolean that defines whether the possibility to save the meaning of any CDM table -if available- in the results of the function. This is specific for the ConcePTION CDM.}
 }
 \description{
 This function Creates DAP-specific concepts into a database using a DAP-specifc concept map (codelist).
