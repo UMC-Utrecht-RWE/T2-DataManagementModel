@@ -17,7 +17,7 @@ test_that("database gets loaded", {
   med_db <- DBI::dbReadTable(db_connection_origin,'MEDICINES')
   med_1 <- import_file("dbtest/MEDICINES_TEST1.csv")
   med_2 <- import_file("dbtest/MEDICINES_TEST2.csv")
-  expect_contains(names(med_db),unique(names(med_1),names(med_2)))
+  expect_contains(names(med_db),concePTION_metadata_v2[TABLE %in% 'MEDICINES',Variable])
 })
 
 DBI::dbDisconnect(db_connection_origin)
