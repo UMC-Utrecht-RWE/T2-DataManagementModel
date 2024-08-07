@@ -47,6 +47,10 @@ load_db <- function(db_connection, csv_path_dir, cdm_metadata,
       cdm_loaded_table <- import_file(path = file.path(csv_path_dir, 
                                                        c_table))
       
+      cols_input <- names(cdm_loaded_table)
+      cols_selected <- cols_input[cols_input %in% table_metadata$Variable]
+      cdm_loaded_table <- cdm_loaded_table[,c(cols_selected), with = F]
+      
       existing_date_cols <- date_cols[date_cols %in% names(cdm_loaded_table)]
       missing_date_cols <- date_cols[!date_cols %in% names(cdm_loaded_table)]
       if (length(missing_date_cols) > 0) {
@@ -87,9 +91,24 @@ load_db <- function(db_connection, csv_path_dir, cdm_metadata,
           invisible(lapply(missing_in_db, function(new_column){
             print(paste0("[load_db]: Adding column: ", 
                          new_column, ' to table ', table_name_pattern, ' in the database'))
-            p <- DBI::dbSendStatement(db_connection, paste0("ALTER TABLE ", 
-                                                            table_name_pattern," ADD COLUMN ",new_column," ;"))
-            DBI::dbClearResult(p)
+            if(class(db_connection)[1] %in% "duckdb_connection"){
+              # Create a temporal_table with an additional column
+              DBI::dbExecute(db_connection, paste0("CREATE TABLE temporal_table AS SELECT *, NULL ",new_column," FROM ", 
+                                                   table_name_pattern))
+              DBI::dbExecute(db_connection, paste0("ALTER TABLE temporal_table ALTER ",new_column," TYPE VARCHAR;"))
+              
+              # Drop the old table
+              DBI::dbExecute(db_connection, paste0("DROP TABLE ", table_name_pattern))
+              
+              # Rename the temporal_table to the old table
+              DBI::dbExecute(db_connection, paste0("ALTER TABLE temporal_table RENAME TO ", table_name_pattern))
+              
+            }else{
+              DBI::dbExecute(db_connection, paste0("ALTER TABLE ", 
+                                                   table_name_pattern," ADD COLUMN ",new_column," ;"))
+            }
+            
+            
           }))
         }
         DBI::dbWriteTable(db_connection, paste0(table_name_pattern, 
