@@ -53,7 +53,7 @@ if (delete_duplicates_flag == TRUE) {
 # Generate Unique ID of each record.
 ################
 
-create_unique_id(db_connection_origin, cdm_tables_names, extension_name = "", require_rowid = FALSE)
+create_unique_id(db_connection_origin, cdm_tables_names, extension_name = "")
 
 #################
 # OPTIONAL: Report the number of rows per table, this is useful for early detection of missing records
