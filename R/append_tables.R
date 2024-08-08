@@ -1,7 +1,7 @@
 #' Database Appending Function
 #'
 #' Functions for appending tables into a new table in a database.
-#' 
+#'
 #' @param db connection to the database
 #' @param tables vector of table names to append
 #' @param name new name of the resulting table
@@ -11,7 +11,7 @@
 #' @param sqlite_temp if TRUE, the SQL table created is temporary
 #'
 #' @export
-append_tables <- function(db, tables, name, dt_coll = "date", 
+append_tables <- function(db, tables, name, dt_coll = "date",
                           colls = "*", return = TRUE, sqlite_temp = FALSE) {
   # Check for missing tables in the database
   lists_tables_available <- DBI::dbListTables(db)
@@ -19,16 +19,22 @@ append_tables <- function(db, tables, name, dt_coll = "date",
   if (length(missing) > 0) {
     print(paste0(paste0(missing, collapse = " "), " not in database"))
   }
-  
+
   if (any(tables %in% lists_tables_available)) {
     tables <- tables[tables %in% lists_tables_available]
-    
+
     # Build the SQL query for appending tables
     if (length(tables) > 1) {
-      query <- paste0("SELECT DISTINCT ", colls, " FROM ", tables[1], 
-                      paste0(paste0(" UNION SELECT DISTINCT ", colls, 
-                                    " FROM ", tables[2:length(tables)]), 
-                             collapse = " "))
+      query <- paste0(
+        "SELECT DISTINCT ", colls, " FROM ", tables[1],
+        paste0(
+          paste0(
+            " UNION SELECT DISTINCT ", colls,
+            " FROM ", tables[2:length(tables)]
+          ),
+          collapse = " "
+        )
+      )
     } else if (length(tables) == 1) {
       query <- paste0("SELECT DISTINCT ", colls, " FROM ", tables[1])
     }

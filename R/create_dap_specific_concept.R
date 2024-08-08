@@ -24,25 +24,24 @@
 #' @export
 
 create_dap_specific_concept <- function(codelist, data_db, name_attachment, save_db, date_col_filter = NULL,
-                                        table_name = 'cdm_table_name',
-                                        column_name_prefix = 'column_name',
-                                        expected_value_prefix = 'expected_value',
+                                        table_name = "cdm_table_name",
+                                        column_name_prefix = "column_name",
+                                        expected_value_prefix = "expected_value",
                                         add_meaning = FALSE) {
-  
   if (nrow(codelist) <= 0) {
     stop("Codelist does not contain any data.")
   }
-  
-  
+
+
   # Get unique tables from codelist
   scheme <- unique(codelist[[table_name]])
   # Get columns and value names
-  cols_names <- grep(paste0("^",column_name_prefix), names(codelist), value = TRUE)
-  value_names <- grep(paste0("^",expected_value_prefix), names(codelist), value = TRUE)
+  cols_names <- grep(paste0("^", column_name_prefix), names(codelist), value = TRUE)
+  value_names <- grep(paste0("^", expected_value_prefix), names(codelist), value = TRUE)
   # Get columns and values
   cols <- codelist[, ..cols_names]
   values <- codelist[, ..value_names]
-  
+
   # Preprocess all possible tables:
   # Loop through each table in scheme
   for (name in scheme) {
@@ -53,7 +52,7 @@ create_dap_specific_concept <- function(codelist, data_db, name_attachment, save
     # Get all columns from the table
     columns_db_table <- DBI::dbListFields(data_db, name)
     # Get columns that don't need to be converted to uppercase
-    rest_cols <-  na.omit(columns_db_table[!columns_db_table %in% to_upper_cols])
+    rest_cols <- na.omit(columns_db_table[!columns_db_table %in% to_upper_cols])
     # Create query to convert columns to uppercase
     to_upper_query <- paste0(paste0("UPPER(", to_upper_cols, ") AS ", to_upper_cols), collapse = ", ")
     # Create query to select all columns and that are not converted to uppercase
@@ -72,7 +71,7 @@ create_dap_specific_concept <- function(codelist, data_db, name_attachment, save
       DBI::dbClearResult(rs)
     }
   }
-  
+
   # Loop through each row in codelist
   for (j in seq_len(nrow(codelist))) {
     # Get table name, edited table name, concept name, date column, columns, and values
@@ -84,18 +83,17 @@ create_dap_specific_concept <- function(codelist, data_db, name_attachment, save
     cols_temp <- na.omit(as.character(cols[j]))
     values_temp <- toupper(na.omit(as.character(values[j])))
     value <- codelist[[j, "keep_value_column_name"]]
-    if(add_meaning){
+    if (add_meaning) {
       columns_db_table <- DBI::dbListFields(save_db, name_edited)
-      meaning_column_name <- columns_db_table[stringr::str_detect(columns_db_table,'meaning')]
-      if(length(meaning_column_name) > 0 ){
-        meaning_clause <- paste0(', ',meaning_column_name, " AS meaning ")
-      }else{
-        print(paste0('[create_dap_specific_concept] Meaning not identified for: ', name_edited))
+      meaning_column_name <- columns_db_table[stringr::str_detect(columns_db_table, "meaning")]
+      if (length(meaning_column_name) > 0) {
+        meaning_clause <- paste0(", ", meaning_column_name, " AS meaning ")
+      } else {
+        print(paste0("[create_dap_specific_concept] Meaning not identified for: ", name_edited))
         meaning_clause <- paste0(", NULL AS meaning ")
       }
-      
-    }else{
-      meaning_clause <- ''
+    } else {
+      meaning_clause <- ""
     }
     if (is.null(value)) {
       value <- TRUE
@@ -107,35 +105,32 @@ create_dap_specific_concept <- function(codelist, data_db, name_attachment, save
     } else if (any(is.na(date_col))) {
       date_col <- "'NA'"
     }
-    
-    
+
+
     # Create coding system name
     coding_system <- paste0("'", codelist_id, "'")
-    if(class(save_db)[1] %in% "duckdb_connection"){
-      #DUCKDB CODE VERSION
+    if (class(save_db)[1] %in% "duckdb_connection") {
+      # DUCKDB CODE VERSION
       # Create where statement for the query
       where_statement <- paste(paste(cols_temp, paste0("'", values_temp, "'"), sep = " = "), collapse = " AND ")
       if (!is.null(date_col_filter)) {
         # Convert date_col_filter to date string in the format 'YYYY-MM-DD'
         where_statement <- paste0(where_statement, " AND ", date_col, " >= DATE '", date_col_filter, "'")
       }
-      
-      
-    }else{
-      #SQLITE CODE VERSION
+    } else {
+      # SQLITE CODE VERSION
       # Create where statement for the query
       where_statement <- paste(paste(cols_temp, paste0("'", values_temp, "'"), sep = " = "), collapse = " AND ")
       if (!is.null(date_col_filter)) {
         where_statement <- paste0(where_statement, " AND ", date_col, " >= ", as.integer(date_col_filter))
       }
-      
     }
     # Insert data into the concept_table in save_db
     rs <- DBI::dbSendStatement(save_db, paste0(
       "INSERT INTO concept_table
-              SELECT t1.Ori_ID, t1.Ori_Table, ROWID, t1.person_id, ", coding_system, " AS code, ", coding_system, " AS coding_system, ", value,
+              SELECT t1.ori_id, t1.ori_table, ROWID, t1.person_id, ", coding_system, " AS code, ", coding_system, " AS coding_system, ", value,
       " AS value, '", concept_name, "' AS concept_id, ", date_col, " AS date ", meaning_clause,
-      "FROM ", name_edited," t1",
+      "FROM ", name_edited, " t1",
       " WHERE ", where_statement
     ))
     DBI::dbClearResult(rs)
