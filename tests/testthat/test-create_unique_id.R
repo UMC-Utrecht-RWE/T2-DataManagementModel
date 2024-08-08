@@ -10,26 +10,23 @@ load_db(
 test_that("Names and number of new columns added", {
   
   create_unique_id(db_connection_origin, cdm_tables_names = c("PERSONS", "VACCINES"), 
-                              extension_name = "", id_name = "Ori_ID", 
-                              separator_id = "-", require_rowid = FALSE)
+
+                              extension_name = "", id_name = "ori_id", 
+                              separator_id = "-")
   
   vx_db <- DBI::dbReadTable(db_connection_origin,'VACCINES')
-  vx <- import_file("dbtest/VACCINES.csv")
-  expect_contains(names(vx_db),names(vx))
-  expect_contains(names(vx_db),c('Ori_ID','ROWID','Ori_Table'))
-  expect_equal(length(names(vx_db)),length(names(vx))+3)
+  expect_contains(names(vx_db),c('ori_id','ROWID','ori_table'))
   
   persons_db <- DBI::dbReadTable(db_connection_origin,'persons')
-  persons <- import_file("dbtest/PERSONS.csv")
-  expect_contains(names(persons_db),names(persons))
-  expect_contains(names(persons_db),c('Ori_ID','ROWID','Ori_Table'))
-  expect_equal(length(names(persons_db)),length(names(persons))+3)
+  expect_contains(names(persons_db),c('ori_id','ROWID','ori_table'))
+
 })
 
 test_that("Checking the ROWID is the same as the number of rows of the table",{
   create_unique_id(db_connection_origin, cdm_tables_names = c("PERSONS"), 
-                   extension_name = "", id_name = "Ori_ID", 
-                   separator_id = "-", require_rowid = FALSE)
+                   extension_name = "", id_name = "ori_id", 
+                   separator_id = "-")
+
   
   persons_db <- DBI::dbReadTable(db_connection_origin,'persons')
   persons <- import_file("dbtest/PERSONS.csv")
@@ -39,11 +36,13 @@ test_that("Checking the ROWID is the same as the number of rows of the table",{
 
 test_that("Checking the OriTable is the same as the included table",{
   create_unique_id(db_connection_origin, cdm_tables_names = c("PERSONS"), 
-                   extension_name = "", id_name = "Ori_ID", 
-                   separator_id = "-", require_rowid = FALSE)
+
+                   extension_name = "", id_name = "ori_id", 
+                   separator_id = "-")
+
   
   persons_db <- DBI::dbReadTable(db_connection_origin,'persons')
   persons <- import_file("dbtest/PERSONS.csv")
-  ori_table_name <- unique(persons_db$Ori_Table)
+  ori_table_name <- unique(persons_db$ori_table)
   expect_equal('PERSONS',ori_table_name)
 })

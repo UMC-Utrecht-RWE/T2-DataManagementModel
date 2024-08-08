@@ -12,7 +12,7 @@
 #' @param extension_name String to be added to the name of the tables, useful when 
 #' loading different CDM instances in the same database.
 #' @param id_name String that defines the name of the unique identifier. 
-#' By default is set as "Ori_ID".
+#' By default is set as "ori_id".
 #' @param separator_id String that defines the separators between the table name 
 #' and the ROWID number.
 #' @param require_rowid Logical, default is FALSE. If TRUE, the unique ID won't 
@@ -29,8 +29,8 @@
 #'
 #' @export
 create_unique_id <- function(db_connection, cdm_tables_names, 
-                                 extension_name = "", id_name = "Ori_ID", 
-                                 separator_id = "-", require_rowid = FALSE) {
+                                 extension_name = "", id_name = "ori_id", 
+                                 separator_id = "-") {
   # Append the extension to CDM table names
   cdm_tables_names <- paste0(cdm_tables_names, extension_name)
   
@@ -87,13 +87,12 @@ create_unique_id <- function(db_connection, cdm_tables_names,
                                           " RENAME TO OLD_", table, ";"), n = -1)
     DBI::dbClearResult(rs)
     
-    rs <- DBI::dbSendStatement(db_connection, paste0("CREATE TABLE ", table, ' AS
-                                      SELECT  "', table, separator_id, 
-                                          '" || row_names AS ', id_name, ',
-                                      "', table, '" AS Ori_Table, 
-                                      row_names as ROWID, *
-                                      FROM OLD_', table), n = -1)
-    DBI::dbClearResult(rs)
+    DBI::dbExecute(db_connection, paste0("CREATE TABLE temporal_table AS
+                                      SELECT  '", table, separator_id, 
+                                          "' || rowid AS ", id_name, ",
+                                      '", table, "' AS ori_table, 
+                                      rowid AS ROWID, *
+                                      FROM ", table), n = -1)
     
     rs <- DBI::dbSendStatement(db_connection, paste0("ALTER TABLE ", table, 
                                           " DROP COLUMN row_names ;"), n = -1)

@@ -120,7 +120,8 @@ create_dap_specific_concept <- function(codelist, data_db, name_attachment, save
     # Insert data into the concept_table in save_db
     rs <- DBI::dbSendStatement(save_db, paste0(
       "INSERT INTO concept_table
-      SELECT Ori_ID, Ori_Table, ROWID, person_id, ", coding_system, " AS code, ", coding_system, " AS coding_system, ", value,
+
+              SELECT t1.ori_id, t1.ori_table, ROWID, t1.person_id, ", coding_system, " AS code, ", coding_system, " AS coding_system, ", value,
       " AS value, '", concept_name, "' AS concept_id, ", date_col, " AS date ", meaning_clause,
       "FROM ", name_edited,
       " WHERE ", where_statement

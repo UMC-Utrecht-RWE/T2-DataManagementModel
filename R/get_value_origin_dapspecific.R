@@ -49,11 +49,11 @@ get_value_origin_dapspecific <- function(cases_dt, db_connection, codelist) {
     
     # Query the database to get values based on the DAP-specific code
     rs <- data.table::as.data.table(DBI::dbGetQuery(db_connection, paste0(
-      "SELECT t1.Ori_ID, ", column,
+      "SELECT t1.ori_id, ", column,
       " FROM ", cdm_table, " t1
                             INNER JOIN
                             cases_tmp t2
-                            ON t1.Ori_ID = t2.Ori_ID
+                            ON t1.ori_id = t2.ori_id
                             WHERE t2.coding_system = '", current_id, "'"
     )))
     # Rename the column in the result set
