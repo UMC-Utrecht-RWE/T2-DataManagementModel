@@ -25,9 +25,6 @@ By default is set as "ori_id".}
 
 \item{separator_id}{String that defines the separators between the table name 
 and the ROWID number.}
-
-\item{require_rowid}{Logical, default is FALSE. If TRUE, the unique ID won't 
-be generated unless the ROWID column exists in the table.}
 }
 \description{
 This function generates a unique CDM ID for each data record of the specified 
@@ -42,7 +39,7 @@ for the specified CDM tables.
 db_connection <- dbConnect(RSQLite::SQLite(), ":memory:")
 cdm_tables_names <- c("PERSONS", "VISITS", "OBSERVATIONS")
 create_unique_id(db_connection, cdm_tables_names, extension_name = "_CDM1", 
-id_name = "CDM_ID", separator_id = "_", require_rowid = FALSE)
+id_name = "CDM_ID", separator_id = "_")
 }
 
 }

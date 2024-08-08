@@ -15,8 +15,6 @@
 #' By default is set as "ori_id".
 #' @param separator_id String that defines the separators between the table name 
 #' and the ROWID number.
-#' @param require_rowid Logical, default is FALSE. If TRUE, the unique ID won't 
-#' be generated unless the ROWID column exists in the table.
 #'
 #' @examples
 #' \dontrun{
@@ -24,7 +22,7 @@
 #' db_connection <- dbConnect(RSQLite::SQLite(), ":memory:")
 #' cdm_tables_names <- c("PERSONS", "VISITS", "OBSERVATIONS")
 #' create_unique_id(db_connection, cdm_tables_names, extension_name = "_CDM1", 
-#' id_name = "CDM_ID", separator_id = "_", require_rowid = FALSE)
+#' id_name = "CDM_ID", separator_id = "_")
 #' }
 #'
 #' @export
@@ -44,61 +42,26 @@ create_unique_id <- function(db_connection, cdm_tables_names,
   # Check if tables exist in the database
   if (length(cdm_tables_names[!cdm_tables_names %in% list_existing_tables]) > 0) {
     print(paste0("[CreateUniqueIDCDM] Can not create unique IDs on the following ",
-                 "CDM table because they do not exist in the database ", 
-                 tail(unlist(str_split(db_connection@dbname, "/")), 1)))
+                 "CDM table because they do not exist in the database "))
     print(cdm_tables_names[!cdm_tables_names %in% list_existing_tables])
   }
   
   # Loop through each existing CDM table
   for (table in cdm_tables_names_existing) {
-    # Get columns of the current table
-    columns_db_table <- DBI::dbListFields(db_connection, table)
-    
-    # Check if "row_names" exists in the table and require_rowid is FALSE
-    if (!"row_names" %in% columns_db_table & require_rowid == FALSE) {
-      print(paste0("[CreateUniqueIDCDM] row_names for table ", table, 
-                   " does not exist"))
-      print(paste0("row_names is created in ", table))
-      
-      # Rename the table and create a new one with ROWID as row_names
-      rs <- DBI::dbSendStatement(db_connection, paste0("ALTER TABLE ", table, 
-                                            " RENAME TO OLD_", table, ";"), n = -1)
-      DBI::dbClearResult(rs)
-      
-      rs <- DBI::dbSendStatement(db_connection, paste0(
-        "CREATE TABLE ", table,
-        " AS SELECT ROWID as row_names, * FROM OLD_", table
-      ), n = -1)
-      DBI::dbClearResult(rs)
-      rs <- DBI::dbSendStatement(db_connection, paste0("DROP TABLE OLD_", table), n = -1)
-      DBI::dbClearResult(rs)
-    } else if (!"row_names" %in% columns_db_table && require_rowid == TRUE) {
-      # If require_rowid is TRUE and "row_names" doesn't exist, print a message 
-      # and skip to the next table
-      print(paste0(print("[CreateUniqueIDCDM] row_names for table ", table, 
-                         " does not exist")))
-      print("UNIQUE ID is not generated. Define require_rowid to FALSE if you 
-        want to generate the UNIQUE ID.")
-      next()
-    }
     
     # Rename the table and create a new one with the unique identifier
-    rs <- DBI::dbSendStatement(db_connection, paste0("ALTER TABLE ", table, 
-                                          " RENAME TO OLD_", table, ";"), n = -1)
-    DBI::dbClearResult(rs)
     
     DBI::dbExecute(db_connection, paste0("CREATE TABLE temporal_table AS
                                       SELECT  '", table, separator_id, 
                                           "' || rowid AS ", id_name, ",
                                       '", table, "' AS ori_table, 
+
                                       rowid AS ROWID, *
                                       FROM ", table), n = -1)
     
-    rs <- DBI::dbSendStatement(db_connection, paste0("ALTER TABLE ", table, 
-                                          " DROP COLUMN row_names ;"), n = -1)
-    DBI::dbClearResult(rs)
+    DBI::dbExecute(db_connection, paste0("DROP TABLE ", table), n = -1)
     
-    rs <- DBI::dbSendStatement(db_connection, paste0("DROP TABLE OLD_", table), n = -1)
-    DBI::dbClearResult(rs)
+    DBI::dbExecute(db_connection, paste0("ALTER TABLE temporal_table RENAME TO ", table))
+    print(paste0('[CreateUniqueIDCDM] Unique ID create for table: ',table))
   }
 }

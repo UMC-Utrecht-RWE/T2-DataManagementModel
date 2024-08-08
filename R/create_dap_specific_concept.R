@@ -93,7 +93,7 @@ create_dap_specific_concept <- function(codelist, data_db, name_attachment, save
         print(paste0('[create_dap_specific_concept] Meaning not identified for: ', name_edited))
         meaning_clause <- paste0(", NULL AS meaning ")
       }
-     
+      
     }else{
       meaning_clause <- ''
     }
@@ -111,19 +111,31 @@ create_dap_specific_concept <- function(codelist, data_db, name_attachment, save
     
     # Create coding system name
     coding_system <- paste0("'", codelist_id, "'")
-    # Create where statement for the query
-    where_statement <- paste(paste(cols_temp, paste0("'", values_temp, "'"), sep = " = "), collapse = " AND ")
-    if (!is.null(date_col_filter)) {
-      where_statement <- paste0(where_statement, " AND ", date_col, " >= ", as.integer(date_col_filter))
+    if(class(save_db)[1] %in% "duckdb_connection"){
+      #DUCKDB CODE VERSION
+      # Create where statement for the query
+      where_statement <- paste(paste(cols_temp, paste0("'", values_temp, "'"), sep = " = "), collapse = " AND ")
+      if (!is.null(date_col_filter)) {
+        # Convert date_col_filter to date string in the format 'YYYY-MM-DD'
+        where_statement <- paste0(where_statement, " AND ", date_col, " >= DATE '", date_col_filter, "'")
+      }
+      
+      
+    }else{
+      #SQLITE CODE VERSION
+      # Create where statement for the query
+      where_statement <- paste(paste(cols_temp, paste0("'", values_temp, "'"), sep = " = "), collapse = " AND ")
+      if (!is.null(date_col_filter)) {
+        where_statement <- paste0(where_statement, " AND ", date_col, " >= ", as.integer(date_col_filter))
+      }
+      
     }
-    
     # Insert data into the concept_table in save_db
     rs <- DBI::dbSendStatement(save_db, paste0(
       "INSERT INTO concept_table
-
               SELECT t1.ori_id, t1.ori_table, ROWID, t1.person_id, ", coding_system, " AS code, ", coding_system, " AS coding_system, ", value,
       " AS value, '", concept_name, "' AS concept_id, ", date_col, " AS date ", meaning_clause,
-      "FROM ", name_edited,
+      "FROM ", name_edited," t1",
       " WHERE ", where_statement
     ))
     DBI::dbClearResult(rs)
