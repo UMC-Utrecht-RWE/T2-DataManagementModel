@@ -44,8 +44,7 @@ create_unique_id <- function(db_connection, cdm_tables_names,
   # Check if tables exist in the database
   if (length(cdm_tables_names[!cdm_tables_names %in% list_existing_tables]) > 0) {
     print(paste0("[CreateUniqueIDCDM] Can not create unique IDs on the following ",
-                 "CDM table because they do not exist in the database ", 
-                 tail(unlist(str_split(db_connection@dbname, "/")), 1)))
+                 "CDM table because they do not exist in the database "))
     print(cdm_tables_names[!cdm_tables_names %in% list_existing_tables])
   }
   
