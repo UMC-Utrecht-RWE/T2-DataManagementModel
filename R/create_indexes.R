@@ -1,10 +1,10 @@
 #' Create Indexes for Tables in a Database
 #'
-#' This function creates indexes for tables in a database according to the 
+#' This function creates indexes for tables in a database according to the
 #' provided specifications.
 #'
 #' @param db_conn A database connection object.
-#' @param specs A list containing the table names as keys and lists of column 
+#' @param specs A list containing the table names as keys and lists of column
 #' names for indexing as values.
 #'
 #' @examples
@@ -23,15 +23,15 @@ create_indexes <- function(db_conn, specs) {
   for (table_name in names(specs)) {
     # Get the table's list of index column names
     table <- specs[[table_name]]
-    
+
     # Loop through the index names within the table
     for (index_name in names(table)) {
       # Get the column names for the current index
       index <- table[[index_name]]
-      
+
       # Concatenate the index elements with commas
       index_elements <- paste(index, collapse = ", ")
-      
+
       # Send the CREATE INDEX statement to the database
       p <- DBI::dbSendStatement(db_conn, paste0(
         "CREATE INDEX ", table_name, "_index_", index_name,

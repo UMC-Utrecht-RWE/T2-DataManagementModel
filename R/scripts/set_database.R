@@ -23,7 +23,9 @@ cdm_metadata <- as.data.table(readRDS(file.path(transformations_common_configura
 
 dir_d2_db <- file.path(transformations_T2_semantic_harmonization_intermediate_data_file, "d2.db")
 
-if(file.exists(dir_d2_db)){file.remove(dir_d2_db)}
+if (file.exists(dir_d2_db)) {
+  file.remove(dir_d2_db)
+}
 db_connection_origin <- dbConnect(RSQLite::SQLite(), dir_d2_db)
 
 cdm_tables_names <- c(
@@ -68,7 +70,8 @@ if (count_rows_flag == TRUE) {
 
   dir_save_count_row <- file.path(
     transformations_T2_semantic_harmonization_intermediate_data_file,
-    'count_rows_origin.rds')
+    "count_rows_origin.rds"
+  )
   saveRDS(count_rows_origin, dir_save_count_row)
 }
 

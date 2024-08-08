@@ -14,13 +14,15 @@ install_package_fun <- function(name_fun) {
   suppressPackageStartupMessages(library(package_name, character.only = TRUE))
 }
 
-list_of_packages <- c("stringr",
-                      "data.table",
-                      "rlist",
-                      "DBI",
-                      "sqldf",
-                      "RSQLite",
-                      "tidyverse")
+list_of_packages <- c(
+  "stringr",
+  "data.table",
+  "rlist",
+  "DBI",
+  "sqldf",
+  "RSQLite",
+  "tidyverse"
+)
 lapply(list_of_packages, function(package_name) {
-  install_package_fun(package_name)}
-  )
+  install_package_fun(package_name)
+})

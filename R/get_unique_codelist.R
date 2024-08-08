@@ -20,11 +20,15 @@
 #'   list(column_name = "event_record_vocabulary", alias_name = "coding_system"),
 #'   list(column_name = "event_free_text", alias_name = "code")
 #' )
-#'  column_info_list <- list(
-#' list(column_name = c("event_code", "event_record_vocabulary"),
-#'      alias_name = c("code", "coding_system")),
-#' list(column_name = c("event_free_text"),
-#'      alias_name = c("code"))
+#' column_info_list <- list(
+#'   list(
+#'     column_name = c("event_code", "event_record_vocabulary"),
+#'     alias_name = c("code", "coding_system")
+#'   ),
+#'   list(
+#'     column_name = c("event_free_text"),
+#'     alias_name = c("code")
+#'   )
 #' )
 #'
 #' # Replace 'your_db_connection' with your actual database connection
@@ -45,39 +49,41 @@
 get_unique_codelist <- function(db_connection, column_info_list, tb_name) {
   # Initialize an empty list to store the individual queries
   queries <- list()
-  
+
   # Iterate through the column information list
   for (col_info in column_info_list) {
     # Extract column details
     column_name <- col_info$column_name
     alias_name <- col_info$alias_name
-    
+
     # take EVENTS table for example, switch to function argument later
-    select_clause <- 
-      sprintf("SELECT %s, count(*) AS COUNT FROM %s", 
-              paste(sprintf("%s AS %s", column_name, alias_name), collapse=", "),
-              tb_name)
-    
+    select_clause <-
+      sprintf(
+        "SELECT %s, count(*) AS COUNT FROM %s",
+        paste(sprintf("%s AS %s", column_name, alias_name), collapse = ", "),
+        tb_name
+      )
+
     # Generate the GROUP BY clause
-    group_by_clause <- 
+    group_by_clause <-
       sprintf("GROUP BY %s", paste(column_name, collapse = ", "))
-    
+
     # Construct the SQL query
     sql_query <- paste(select_clause, group_by_clause)
-    
+
     # Add the query to the list
     queries <- c(queries, list(sql_query))
   }
-  
+
   # Initialize an empty list to store the results
   results <- list()
-  
+
   # Execute each query and store the result in the results list
   for (query in queries) {
     result <- data.table::as.data.table(DBI::dbGetQuery(db_connection, query))
     results <- c(results, list(result))
   }
-  
+
   # Return the list of results
   return(results)
 }
