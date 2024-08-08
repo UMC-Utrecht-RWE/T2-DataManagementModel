@@ -15,8 +15,6 @@
 #' By default is set as "Ori_ID".
 #' @param separator_id String that defines the separators between the table name 
 #' and the ROWID number.
-#' @param require_rowid Logical, default is FALSE. If TRUE, the unique ID won't 
-#' be generated unless the ROWID column exists in the table.
 #'
 #' @examples
 #' \dontrun{
