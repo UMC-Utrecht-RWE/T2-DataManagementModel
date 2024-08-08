@@ -55,9 +55,9 @@ create_unique_id <- function(db_connection, cdm_tables_names,
     
     DBI::dbExecute(db_connection, paste0("CREATE TABLE temporal_table AS
                                       SELECT  '", table, separator_id, 
-                                          "' || ROWID AS ", id_name, ",
+                                          "' || rowid AS ", id_name, ",
                                       '", table, "' AS Ori_Table, 
-                                      ROWID, *
+                                      rowid AS ROWID, *
                                       FROM ", table), n = -1)
     
     DBI::dbExecute(db_connection, paste0("DROP TABLE ", table), n = -1)
