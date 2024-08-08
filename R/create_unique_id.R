@@ -87,12 +87,12 @@ create_unique_id <- function(db_connection, cdm_tables_names,
                                           " RENAME TO OLD_", table, ";"), n = -1)
     DBI::dbClearResult(rs)
     
-    rs <- DBI::dbSendStatement(db_connection, paste0("CREATE TABLE ", table, ' AS
-                                      SELECT  "', table, separator_id, 
-                                          '" || row_names AS ', id_name, ',
-                                      "', table, '" AS Ori_Table, 
+    rs <- DBI::dbSendStatement(db_connection, paste0("CREATE TABLE ", table, " AS
+                                      SELECT  '", table, separator_id, 
+                                          "' || row_names AS ", id_name, ",
+                                      '", table, "' AS Ori_Table, 
                                       row_names as ROWID, *
-                                      FROM OLD_', table), n = -1)
+                                      FROM OLD_", table), n = -1)
     DBI::dbClearResult(rs)
     
     rs <- DBI::dbSendStatement(db_connection, paste0("ALTER TABLE ", table, 
