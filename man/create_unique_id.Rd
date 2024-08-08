@@ -9,8 +9,7 @@ create_unique_id(
   cdm_tables_names,
   extension_name = "",
   id_name = "Ori_ID",
-  separator_id = "-",
-  require_rowid = FALSE
+  separator_id = "-"
 )
 }
 \arguments{
