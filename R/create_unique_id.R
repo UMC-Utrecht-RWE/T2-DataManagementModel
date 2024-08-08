@@ -30,7 +30,7 @@
 #' @export
 create_unique_id <- function(db_connection, cdm_tables_names, 
                                  extension_name = "", id_name = "Ori_ID", 
-                                 separator_id = "-", require_rowid = FALSE) {
+                                 separator_id = "-") {
   # Append the extension to CDM table names
   cdm_tables_names <- paste0(cdm_tables_names, extension_name)
   
@@ -50,55 +50,19 @@ create_unique_id <- function(db_connection, cdm_tables_names,
   
   # Loop through each existing CDM table
   for (table in cdm_tables_names_existing) {
-    # Get columns of the current table
-    columns_db_table <- DBI::dbListFields(db_connection, table)
-    
-    # Check if "row_names" exists in the table and require_rowid is FALSE
-    if (!"row_names" %in% columns_db_table & require_rowid == FALSE) {
-      print(paste0("[CreateUniqueIDCDM] row_names for table ", table, 
-                   " does not exist"))
-      print(paste0("row_names is created in ", table))
-      
-      # Rename the table and create a new one with ROWID as row_names
-      rs <- DBI::dbSendStatement(db_connection, paste0("ALTER TABLE ", table, 
-                                            " RENAME TO OLD_", table, ";"), n = -1)
-      DBI::dbClearResult(rs)
-      
-      rs <- DBI::dbSendStatement(db_connection, paste0(
-        "CREATE TABLE ", table,
-        " AS SELECT ROWID as row_names, * FROM OLD_", table
-      ), n = -1)
-      DBI::dbClearResult(rs)
-      rs <- DBI::dbSendStatement(db_connection, paste0("DROP TABLE OLD_", table), n = -1)
-      DBI::dbClearResult(rs)
-    } else if (!"row_names" %in% columns_db_table && require_rowid == TRUE) {
-      # If require_rowid is TRUE and "row_names" doesn't exist, print a message 
-      # and skip to the next table
-      print(paste0(print("[CreateUniqueIDCDM] row_names for table ", table, 
-                         " does not exist")))
-      print("UNIQUE ID is not generated. Define require_rowid to FALSE if you 
-        want to generate the UNIQUE ID.")
-      next()
-    }
     
     # Rename the table and create a new one with the unique identifier
-    rs <- DBI::dbSendStatement(db_connection, paste0("ALTER TABLE ", table, 
-                                          " RENAME TO OLD_", table, ";"), n = -1)
-    DBI::dbClearResult(rs)
     
-    rs <- DBI::dbSendStatement(db_connection, paste0("CREATE TABLE ", table, " AS
+    DBI::dbExecute(db_connection, paste0("CREATE TABLE temporal_table AS
                                       SELECT  '", table, separator_id, 
-                                          "' || row_names AS ", id_name, ",
+                                          "' || ROWID AS ", id_name, ",
                                       '", table, "' AS Ori_Table, 
-                                      row_names as ROWID, *
-                                      FROM OLD_", table), n = -1)
-    DBI::dbClearResult(rs)
+                                      ROWID, *
+                                      FROM ", table), n = -1)
     
-    rs <- DBI::dbSendStatement(db_connection, paste0("ALTER TABLE ", table, 
-                                          " DROP COLUMN row_names ;"), n = -1)
-    DBI::dbClearResult(rs)
+    DBI::dbExecute(db_connection, paste0("DROP TABLE ", table), n = -1)
     
-    rs <- DBI::dbSendStatement(db_connection, paste0("DROP TABLE OLD_", table), n = -1)
-    DBI::dbClearResult(rs)
+    DBI::dbExecute(db_connection, paste0("ALTER TABLE temporal_table RENAME TO ", table))
+    print(paste0('[CreateUniqueIDCDM] Unique ID create for table: ',table))
   }
 }
