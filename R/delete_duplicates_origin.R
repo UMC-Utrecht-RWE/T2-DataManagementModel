@@ -25,30 +25,34 @@
 #'
 #' # Example 2: Deleting duplicate rows for all columns in specified tables
 #' scheme <- setNames(rep("*", length(CDM_tables_names)), CDM_tables_names)
-#' delete_duplicates_origin(db_connection, scheme, save_deleted = TRUE,
-#'   save_path = "/path/to/save")
+#' delete_duplicates_origin(db_connection, scheme,
+#'   save_deleted = TRUE,
+#'   save_path = "/path/to/save"
+#' )
 #' }
 #'
 #' @export
 delete_duplicates_origin <- function(db_connection, scheme, save_deleted = FALSE,
-                                      save_path = NULL, add_postfix = NA) {
+                                     save_path = NULL, add_postfix = NA) {
   f_paste <- function(vec) sub(",\\s+([^,]+)$", " , \\1", toString(vec))
-  
+
   # Check if specified columns in the scheme exist in the corresponding tables
   for (case_name in names(scheme)) {
     if (case_name %in% DBI::dbListTables(db_connection)) {
       if (!all(scheme[[case_name]] %in% DBI::dbListFields(db_connection, case_name)) &&
-          all(!scheme[[case_name]] %in% "*")) {
+        all(!scheme[[case_name]] %in% "*")) {
         wrong_cols <- scheme[[case_name]][!scheme[[case_name]] %in%
-                                            DBI::dbListFields(db_connection, case_name)]
-        print(paste0("[delete_duplicates_origin]: Table ", case_name,
-                     " columns -> ", wrong_cols,
-                     " do not exist in the DB instance table"))
+          DBI::dbListFields(db_connection, case_name)]
+        print(paste0(
+          "[delete_duplicates_origin]: Table ", case_name,
+          " columns -> ", wrong_cols,
+          " do not exist in the DB instance table"
+        ))
         stop()
       }
     }
   }
-  
+
   # Loop through each specified table in the scheme
   for (case_name in names(scheme)) {
     # Check if the table exists in the database
@@ -61,7 +65,7 @@ delete_duplicates_origin <- function(db_connection, scheme, save_deleted = FALSE
         cols_to_select <- scheme[[case_name]]
       }
       cols_to_select <- f_paste(cols_to_select)
-      
+
       # Build the SQL query to delete duplicate rows
       query <- paste0("DELETE FROM ", case_name, "
                       WHERE rowid NOT IN
@@ -75,22 +79,26 @@ delete_duplicates_origin <- function(db_connection, scheme, save_deleted = FALSE
         rs <- DBI::dbSendStatement(db_connection, query)
         DBI::dbHasCompleted(rs)
         num_rows <- DBI::dbGetRowsAffected(rs)
-        print(paste0("[delete_duplicates_origin] Number of record deleted: ",num_rows))
+        print(paste0("[delete_duplicates_origin] Number of record deleted: ", num_rows))
         DBI::dbClearResult(rs)
       } else if (save_deleted == TRUE && !is.null(save_path)) {
         rs <- DBI::dbGetQuery(db_connection, paste0(query, " RETURNING *;"))
         rs <- data.table::as.data.table(rs)
         num_rows <- nrow(rs)
-        print(paste0("[delete_duplicates_origin] Number of record deleted: ",num_rows))
+        print(paste0("[delete_duplicates_origin] Number of record deleted: ", num_rows))
         dir.create(file.path(save_path), showWarnings = FALSE) # Create folder
         # Save deleted records with optional postfix
         if (!is.na(add_postfix)) {
-          save_file_name <- paste0(save_path, "/", case_name, "_",
-                                   format(Sys.Date(), "%Y%m%d"), "_",
-                                   add_postfix, ".csv")
+          save_file_name <- paste0(
+            save_path, "/", case_name, "_",
+            format(Sys.Date(), "%Y%m%d"), "_",
+            add_postfix, ".csv"
+          )
         } else {
-          save_file_name <- paste0(save_path, "/", case_name, "_",
-                                   format(Sys.Date(), "%Y%m%d"), ".csv")
+          save_file_name <- paste0(
+            save_path, "/", case_name, "_",
+            format(Sys.Date(), "%Y%m%d"), ".csv"
+          )
         }
         data.table::fwrite(rs, save_file_name)
       }

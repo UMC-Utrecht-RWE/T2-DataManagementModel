@@ -8,7 +8,7 @@ create_unique_id(
   db_connection,
   cdm_tables_names,
   extension_name = "",
-  id_name = "Ori_ID",
+  id_name = "ori_id",
   separator_id = "-"
 )
 }
@@ -21,7 +21,7 @@ create_unique_id(
 loading different CDM instances in the same database.}
 
 \item{id_name}{String that defines the name of the unique identifier. 
-By default is set as "Ori_ID".}
+By default is set as "ori_id".}
 
 \item{separator_id}{String that defines the separators between the table name 
 and the ROWID number.}
