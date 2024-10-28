@@ -14,7 +14,7 @@ create_dap_specific_codelist(
 )
 }
 \arguments{
-\item{unique_codelist}{Data.table containing unique code list output 
+\item{unique_codelist}{Data.table containing unique code list output
 from the function getUniqueCodeList.}
 
 \item{study_codelist}{Data.table containing the study code list.}
@@ -23,22 +23,23 @@ from the function getUniqueCodeList.}
 
 \item{additional_columns}{Additional columns to be included in the result.}
 
-\item{priority}{Priority column for selecting codes when there are 
+\item{priority}{Priority column for selecting codes when there are
 multiple matches.}
 }
 \value{
-A merged data.table containing DAP-specific codes, 
+A merged data.table containing DAP-specific codes,
 including exact matches and those starting with.
 }
 \description{
-This function merges the unique codelist from a database 
+This function merges the unique codelist from a database
 (you can use the function getUniqueCodeList) with a study code list.
 }
 \examples{
 \dontrun{
 # Example usage:
-result <- create_dap_specific_codelist(unique_codelist, study_codelist, 
-additional_columns = NA, priority = NA)
+result <- create_dap_specific_codelist(unique_codelist, study_codelist,
+  additional_columns = NA, priority = NA
+)
 }
 
 }

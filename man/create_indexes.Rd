@@ -9,11 +9,11 @@ create_indexes(db_conn, specs)
 \arguments{
 \item{db_conn}{A database connection object.}
 
-\item{specs}{A list containing the table names as keys and lists of column 
+\item{specs}{A list containing the table names as keys and lists of column
 names for indexing as values.}
 }
 \description{
-This function creates indexes for tables in a database according to the 
+This function creates indexes for tables in a database according to the
 provided specifications.
 }
 \examples{

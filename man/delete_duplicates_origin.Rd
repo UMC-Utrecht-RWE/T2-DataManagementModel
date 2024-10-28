@@ -43,8 +43,10 @@ delete_duplicates_origin(db_connection, scheme)
 
 # Example 2: Deleting duplicate rows for all columns in specified tables
 scheme <- setNames(rep("*", length(CDM_tables_names)), CDM_tables_names)
-delete_duplicates_origin(db_connection, scheme, save_deleted = TRUE,
-  save_path = "/path/to/save")
+delete_duplicates_origin(db_connection, scheme,
+  save_deleted = TRUE,
+  save_path = "/path/to/save"
+)
 }
 
 }

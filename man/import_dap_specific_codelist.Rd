@@ -32,8 +32,10 @@ codelist_path <- "path/to/codelist.rds"
 codelist_name_db <- "CodelistTable"
 db_connection <- dbConnect(RSQLite::SQLite(), "your_database.db")
 columns_to_import <- c("code", "description") # Add desired column names
-import_dap_specific_codelist(codelist_path, codelist_name_db, db_connection,
-  columns_to_import)
+import_dap_specific_codelist(
+  codelist_path, codelist_name_db, db_connection,
+  columns_to_import
+)
 }
 
 }

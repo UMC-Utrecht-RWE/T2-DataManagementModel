@@ -17,7 +17,7 @@ get_value_origin_dapspecific(cases_dt, db_connection, codelist)
 A data table with the collected values.
 }
 \description{
-This function retrieves values from the origin database for specific 
+This function retrieves values from the origin database for specific
 DAP-specific codes.
 }
 \examples{

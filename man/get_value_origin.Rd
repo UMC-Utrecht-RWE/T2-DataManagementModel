@@ -24,8 +24,10 @@ and tables.
 \examples{
 \dontrun{
 # Example usage:
-get_value_origin(cases_dt, db_connection,
-                 list('Table1' = 'Column1', 'Table2' = 'Column2'))
+get_value_origin(
+  cases_dt, db_connection,
+  list("Table1" = "Column1", "Table2" = "Column2")
+)
 }
 
 }

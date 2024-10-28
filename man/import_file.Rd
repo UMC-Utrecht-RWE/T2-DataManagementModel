@@ -33,9 +33,11 @@ criteria.
 \dontrun{
 # Example usage of import_file
 path <- "path/to/your/file.csv"
-data <- import_file(path, cols = c("col1", "col2"),
+data <- import_file(path,
+  cols = c("col1", "col2"),
   cols_new = c("new_col1", "new_col2"), exprs = expression(col1 > 0),
-  date_cols = c("date_col"))
+  date_cols = c("date_col")
+)
 }
 
 }

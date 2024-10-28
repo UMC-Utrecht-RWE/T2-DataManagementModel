@@ -32,11 +32,15 @@ into a database.
 \dontrun{
 # Example usage of load_db
 db <- dbConnect(RSQLite::SQLite(), ":memory:")
-cdm_metadata <- data.table(TABLE = c("table1", "table2"),
-  Variable = c("var1", "var2"), Format = c("yyyymmdd", "numeric"))
+cdm_metadata <- data.table(
+  TABLE = c("table1", "table2"),
+  Variable = c("var1", "var2"), Format = c("yyyymmdd", "numeric")
+)
 cdm_tables_names <- c("table1", "table2")
-load_db(db, "path/to/csv/files/", cdm_metadata, cdm_tables_names,
-  "instance1")
+load_db(
+  db, "path/to/csv/files/", cdm_metadata, cdm_tables_names,
+  "instance1"
+)
 }
 
 }

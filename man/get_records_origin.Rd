@@ -34,8 +34,10 @@ instance that have a unique identifier.
 # Example usage:
 table <- dbReadTable(db_connection, "EVENTS")
 cases <- as.data.table(table)[seq(1, 1000), "ID"]
-a <- get_records_origin(db_connection = db_connection, cases,
-  separator_id = "-")
+a <- get_records_origin(
+  db_connection = db_connection, cases,
+  separator_id = "-"
+)
 }
 
 }

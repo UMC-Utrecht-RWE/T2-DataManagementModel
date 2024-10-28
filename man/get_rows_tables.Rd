@@ -10,7 +10,7 @@ get_rows_tables(db_connection)
 \item{db_connection}{Database connection object (SQLiteConnection).}
 }
 \value{
-A data frame with two columns: 'name' (table name) and 'row_count' 
+A data frame with two columns: 'name' (table name) and 'row_count'
 (number of rows in each table).
 }
 \description{

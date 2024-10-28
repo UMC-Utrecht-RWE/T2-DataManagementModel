@@ -9,7 +9,8 @@ create_unique_id(
   cdm_tables_names,
   extension_name = "",
   id_name = "ori_id",
-  separator_id = "-"
+  separator_id = "-",
+  order_by_cols = NA
 )
 }
 \arguments{
@@ -17,20 +18,22 @@ create_unique_id(
 
 \item{cdm_tables_names}{List of CDM tables names to be imported into the database.}
 
-\item{extension_name}{String to be added to the name of the tables, useful when 
+\item{extension_name}{String to be added to the name of the tables, useful when
 loading different CDM instances in the same database.}
 
-\item{id_name}{String that defines the name of the unique identifier. 
+\item{id_name}{String that defines the name of the unique identifier.
 By default is set as "ori_id".}
 
-\item{separator_id}{String that defines the separators between the table name 
+\item{separator_id}{String that defines the separators between the table name
 and the ROWID number.}
+
+\item{order_by_cols}{List of vector with column names which you can apply an order by. E.g list(EVENTS = c('person_id','event_code'))}
 }
 \description{
-This function generates a unique CDM ID for each data record of the specified 
-Database CDM instance. This step is suggested to be applied after using the 
+This function generates a unique CDM ID for each data record of the specified
+Database CDM instance. This step is suggested to be applied after using the
 loadDb function.
-The function modifies the specified database by creating unique IDs 
+The function modifies the specified database by creating unique IDs
 for the specified CDM tables.
 }
 \examples{
@@ -38,8 +41,10 @@ for the specified CDM tables.
 # Example usage of create_unique_id
 db_connection <- dbConnect(RSQLite::SQLite(), ":memory:")
 cdm_tables_names <- c("PERSONS", "VISITS", "OBSERVATIONS")
-create_unique_id(db_connection, cdm_tables_names, extension_name = "_CDM1", 
-id_name = "CDM_ID", separator_id = "_")
+create_unique_id(db_connection, cdm_tables_names,
+  extension_name = "_CDM1",
+  id_name = "CDM_ID", separator_id = "_"
+)
 }
 
 }
