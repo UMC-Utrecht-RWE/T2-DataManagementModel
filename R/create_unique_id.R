@@ -15,6 +15,7 @@
 #' By default is set as "ori_id".
 #' @param separator_id String that defines the separators between the table name
 #' and the ROWID number.
+#' @param order_by_cols List of vector with column names which you can apply an order by. E.g list(EVENTS = c('person_id','event_code'))
 #'
 #' @examples
 #' \dontrun{
@@ -30,7 +31,8 @@
 #' @export
 create_unique_id <- function(db_connection, cdm_tables_names,
                              extension_name = "", id_name = "ori_id",
-                             separator_id = "-") {
+                             separator_id = "-",
+                             order_by_cols = NA) {
   # Append the extension to CDM table names
   cdm_tables_names <- paste0(cdm_tables_names, extension_name)
 
@@ -49,11 +51,20 @@ create_unique_id <- function(db_connection, cdm_tables_names,
     ))
     print(cdm_tables_names[!cdm_tables_names %in% list_existing_tables])
   }
-
+  
+  order_by_flag <- FALSE
+  if(!is.na(order_by_cols)){
+    order_by_flag <- TRUE
+  }
+  
   # Loop through each existing CDM table
   for (table in cdm_tables_names_existing) {
     # Rename the table and create a new one with the unique identifier
-
+    
+    order_by <- ""
+    if(order_by_flag){
+      order_by <- paste0(" ORDER BY ",paste0(order_by_cols[[table]], collapse =', '))
+    }
     DBI::dbExecute(db_connection, paste0(
       "CREATE TABLE temporal_table AS
                                       SELECT  '", table, separator_id,
@@ -61,7 +72,8 @@ create_unique_id <- function(db_connection, cdm_tables_names,
                                       '", table, "' AS ori_table,
 
                                       rowid AS ROWID, *
-                                      FROM ", table
+                                      FROM ", table,
+      order_by
     ), n = -1)
 
     DBI::dbExecute(db_connection, paste0("DROP TABLE ", table), n = -1)
