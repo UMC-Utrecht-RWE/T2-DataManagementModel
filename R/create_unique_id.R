@@ -66,7 +66,7 @@ create_unique_id <- function(db_connection, cdm_tables_names,
       columns_in_table <- dbListFields(db_connection,table)
       cols <- order_by_cols[[table]]
       available_order_by_cols <- columns_in_table[columns_in_table %in% cols]
-      order_by <- paste0(" ORDER BY ",paste0(order_by_cols[[table]], collapse =', '))
+      order_by <- paste0(" ORDER BY ",paste0(available_order_by_cols, collapse =', '))
     }else{
       order_by <- ""
     }
