@@ -32,7 +32,7 @@
 create_unique_id <- function(db_connection, cdm_tables_names,
                              extension_name = "", id_name = "ori_id",
                              separator_id = "-",
-                             order_by_cols = NA) {
+                             order_by_cols = list()) {
   # Append the extension to CDM table names
   cdm_tables_names <- paste0(cdm_tables_names, extension_name)
 
@@ -53,7 +53,7 @@ create_unique_id <- function(db_connection, cdm_tables_names,
   }
   
   order_by_flag <- FALSE
-  if(any(!is.na(order_by_cols))){
+  if(length(order_by_cols) > 0){
     order_by_flag <- TRUE
   }
   
@@ -61,12 +61,14 @@ create_unique_id <- function(db_connection, cdm_tables_names,
   for (table in cdm_tables_names_existing) {
     # Rename the table and create a new one with the unique identifier
     
-    order_by <- ""
+    
     if(order_by_flag & !is.null(order_by_cols[[table]])){
       columns_in_table <- dbListFields(db_connection,table)
       cols <- order_by_cols[[table]]
-      available_order_by_cols <- cols[columns_in_table %in% cols]
+      available_order_by_cols <- columns_in_table[columns_in_table %in% cols]
       order_by <- paste0(" ORDER BY ",paste0(order_by_cols[[table]], collapse =', '))
+    }else{
+      order_by <- ""
     }
     DBI::dbExecute(db_connection, paste0(
       "CREATE TABLE temporal_table AS

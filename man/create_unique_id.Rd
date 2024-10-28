@@ -10,7 +10,7 @@ create_unique_id(
   extension_name = "",
   id_name = "ori_id",
   separator_id = "-",
-  order_by_cols = NA
+  order_by_cols = list()
 )
 }
 \arguments{
