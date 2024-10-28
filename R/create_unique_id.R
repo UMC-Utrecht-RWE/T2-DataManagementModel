@@ -53,7 +53,7 @@ create_unique_id <- function(db_connection, cdm_tables_names,
   }
   
   order_by_flag <- FALSE
-  if(!is.na(order_by_cols)){
+  if(any(!is.na(order_by_cols))){
     order_by_flag <- TRUE
   }
   
