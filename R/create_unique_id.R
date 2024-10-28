@@ -62,7 +62,10 @@ create_unique_id <- function(db_connection, cdm_tables_names,
     # Rename the table and create a new one with the unique identifier
     
     order_by <- ""
-    if(order_by_flag){
+    if(order_by_flag & !is.null(order_by_cols[[table]])){
+      columns_in_table <- dbListFields(db_connection,table)
+      cols <- order_by_cols[[table]]
+      available_order_by_cols <- cols[columns_in_table %in% cols]
       order_by <- paste0(" ORDER BY ",paste0(order_by_cols[[table]], collapse =', '))
     }
     DBI::dbExecute(db_connection, paste0(
