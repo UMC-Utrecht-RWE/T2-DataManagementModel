@@ -38,10 +38,12 @@ create_dap_specific_concept <- function(codelist, data_db, name_attachment, save
   # Get columns and value names
   cols_names <- grep(paste0("^", column_name_prefix), names(codelist), value = TRUE)
   value_names <- grep(paste0("^", expected_value_prefix), names(codelist), value = TRUE)
+  # check if lengths equal
+  if(length(cols_names)!= length(value_names)) stop("Error: Column names and Value names are of different lengths")
   # Get columns and values
   cols <- codelist[, ..cols_names]
   values <- codelist[, ..value_names]
-
+  
   # Preprocess all possible tables:
   # Loop through each table in scheme
   for (name in scheme) {
@@ -71,7 +73,7 @@ create_dap_specific_concept <- function(codelist, data_db, name_attachment, save
       DBI::dbClearResult(rs)
     }
   }
-
+  
   # Loop through each row in codelist
   for (j in seq_len(nrow(codelist))) {
     # Get table name, edited table name, concept name, date column, columns, and values
@@ -101,12 +103,12 @@ create_dap_specific_concept <- function(codelist, data_db, name_attachment, save
       value <- TRUE
     }
     if (is.null(date_col)) {
-      date_col <- "'NA'"
+      date_col <- "NULL"
     } else if (any(is.na(date_col))) {
-      date_col <- "'NA'"
+      date_col <- "NULL"
     }
-
-
+    
+    
     # Create coding system name
     coding_system <- paste0("'", codelist_id, "'")
     if (class(save_db)[1] %in% "duckdb_connection") {
