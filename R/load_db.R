@@ -150,6 +150,8 @@ load_db <- function(db_connection, csv_path_dir, cdm_metadata,
         append = T
         )
       }
+      rm(cdm_loaded_table)
+      gc()
     }
   }
 }
