@@ -72,7 +72,13 @@ load_db <- function(db_connection, csv_path_dir, cdm_metadata,
     print(paste0(
       "[load_db]: The following columns are not part of the CDM table but are in the files : ", additional_columns
     ))
-    
-    
+    invisible(lapply(additional_columns, function(new_column) {
+      DBI::dbExecute(db_connection, paste0(
+        "ALTER TABLE ", table, " DROP COLUMN ", new_column, " ;"
+      ))
+      print(paste0(
+        "[load_db]: Dropping table : ", new_column
+      ))
+    }))
   }
 }
