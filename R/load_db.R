@@ -41,8 +41,7 @@ load_db <- function(db_connection, csv_path_dir, cdm_metadata,
                     union_by_name = true, 
                     ALL_VARCHAR = true, 
                     nullstr = "NA" );')
-    
-    
+ 
     # Execute the query
     DBI::dbExecute(db_connection, query)
     
