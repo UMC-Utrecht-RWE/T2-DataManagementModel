@@ -40,8 +40,8 @@ load_db <- function(db_connection, csv_path_dir, cdm_metadata,
                     SELECT * FROM read_csv_auto("', path_files_with_patt, '*.csv", 
                     union_by_name = true, 
                     ALL_VARCHAR = true, 
-                    nullstr = "NA" );')
- 
+                    nullstr = ["NA"," "] );')
+
     # Execute the query
     DBI::dbExecute(db_connection, query)
     
