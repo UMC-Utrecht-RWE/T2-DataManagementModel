@@ -32,76 +32,90 @@
 #' }
 #'
 #' @export
-delete_duplicates_origin <- function(db_connection, scheme, save_deleted = FALSE,
-                                     save_path = NULL, add_postfix = NA) {
-  f_paste <- function(vec) sub(",\\s+([^,]+)$", " , \\1", toString(vec))
+delete_duplicates_origin <- function (db_connection, scheme, save_deleted = FALSE, save_path = NULL, 
+          add_postfix = NA) 
+{
+  f_paste <- function(vec) sub(",\\s+([^,]+)$", " , \\1", 
+                               toString(vec))
+  
+  # Get the list of column names
 
-  # Check if specified columns in the scheme exist in the corresponding tables
   for (case_name in names(scheme)) {
     if (case_name %in% DBI::dbListTables(db_connection)) {
-      if (!all(scheme[[case_name]] %in% DBI::dbListFields(db_connection, case_name)) &&
-        all(!scheme[[case_name]] %in% "*")) {
-        wrong_cols <- scheme[[case_name]][!scheme[[case_name]] %in%
-          DBI::dbListFields(db_connection, case_name)]
-        print(paste0(
-          "[delete_duplicates_origin]: Table ", case_name,
-          " columns -> ", wrong_cols,
-          " do not exist in the DB instance table"
-        ))
+      if (!all(scheme[[case_name]] %in% DBI::dbListFields(db_connection, 
+                                                          case_name)) && all(!scheme[[case_name]] %in% 
+                                                                             "*")) {
+        wrong_cols <- scheme[[case_name]][!scheme[[case_name]] %in% 
+                                            DBI::dbListFields(db_connection, case_name)]
+        print(paste0("[delete_duplicates_origin]: Table ", 
+                     case_name, " columns -> ", wrong_cols, " do not exist in the DB instance table"))
         stop()
       }
     }
   }
-
-  # Loop through each specified table in the scheme
   for (case_name in names(scheme)) {
-    # Check if the table exists in the database
     if (case_name %in% DBI::dbListTables(db_connection)) {
-      # Determine columns to select based on the scheme
+      # Generate queries for distinct values of each column
+      print(case_name)
+      queries <- c()
+      available_columns <- DBI::dbListFields(db_connection, 
+                                             case_name)
+      excluding_ndist_cols <- 'person_id'
+      for (column in available_columns[!available_columns %in% excluding_ndist_cols]) {
+        query <- paste0(
+          "SELECT '", column, "' AS column_name, COUNT(DISTINCT CASE WHEN ", column, " IS NOT NULL THEN ", column, " END) AS num_distinct FROM ", case_name
+        )
+        queries <- c(queries, query)  # Append the query to the list
+      }
+      # Combine all queries into a single query using UNION ALL
+      final_query <- paste(queries, collapse = " UNION ALL ")
+      
+      # Execute the final query
+      distinct_values <- dbGetQuery(db_connection, final_query)
+      rm(final_query,queries)
       if (all(scheme[[case_name]] %in% "*")) {
-        cols_to_select <- DBI::dbListFields(db_connection, case_name)
-        cols_to_select <- f_paste(cols_to_select)
+        cols_to_select <- DBI::dbListFields(db_connection, 
+                                            case_name)
       } else {
         cols_to_select <- scheme[[case_name]]
       }
-      cols_to_select <- f_paste(cols_to_select)
+      non_empty_cols <- c(distinct_values[distinct_values$num_distinct > 1,'column_name'],excluding_ndist_cols)
+      cols_to_select_non_empty <- cols_to_select[cols_to_select %in% non_empty_cols]
+      cols_to_select_query <- f_paste(cols_to_select_non_empty)
 
-      # Build the SQL query to delete duplicate rows
+      rm(non_empty_cols,cols_to_select_non_empty,distinct_values)
       query <- paste0("DELETE FROM ", case_name, "
-                      WHERE rowid NOT IN
-                       (
-                       SELECT  MIN(rowid)
-                       FROM ", case_name, "
-                       GROUP BY ", cols_to_select, "
-                       )")
-      # Execute the query and handle results
+                      WHERE rowid NOT IN(SELECT  MIN(rowid) FROM ",
+                      case_name,
+                      " GROUP BY ", cols_to_select_query, ")")
       if (save_deleted == FALSE) {
         rs <- DBI::dbSendStatement(db_connection, query)
         DBI::dbHasCompleted(rs)
         num_rows <- DBI::dbGetRowsAffected(rs)
-        print(paste0("[delete_duplicates_origin] Number of record deleted: ", num_rows))
+        print(paste0("[delete_duplicates_origin] Number of record deleted: ", 
+                     num_rows))
         DBI::dbClearResult(rs)
-      } else if (save_deleted == TRUE && !is.null(save_path)) {
-        rs <- DBI::dbGetQuery(db_connection, paste0(query, " RETURNING *;"))
+      }
+      else if (save_deleted == TRUE && !is.null(save_path)) {
+        rs <- DBI::dbGetQuery(db_connection, paste0(query, 
+                                                    " RETURNING *;"))
         rs <- data.table::as.data.table(rs)
         num_rows <- nrow(rs)
-        print(paste0("[delete_duplicates_origin] Number of record deleted: ", num_rows))
-        dir.create(file.path(save_path), showWarnings = FALSE) # Create folder
-        # Save deleted records with optional postfix
+        print(paste0("[delete_duplicates_origin] Number of record deleted: ", 
+                     num_rows))
+        dir.create(file.path(save_path), showWarnings = FALSE)
         if (!is.na(add_postfix)) {
-          save_file_name <- paste0(
-            save_path, "/", case_name, "_",
-            format(Sys.Date(), "%Y%m%d"), "_",
-            add_postfix, ".csv"
-          )
-        } else {
-          save_file_name <- paste0(
-            save_path, "/", case_name, "_",
-            format(Sys.Date(), "%Y%m%d"), ".csv"
-          )
+          save_file_name <- paste0(save_path, "/", case_name, 
+                                   "_", format(Sys.Date(), "%Y%m%d"), "_", 
+                                   add_postfix, ".csv")
+        }
+        else {
+          save_file_name <- paste0(save_path, "/", case_name, 
+                                   "_", format(Sys.Date(), "%Y%m%d"), ".csv")
         }
         data.table::fwrite(rs, save_file_name)
       }
     }
   }
 }
+
