@@ -52,6 +52,7 @@ load_db <- function(db_connection, csv_path_dir, cdm_metadata,
     standard_cdm_table_columns <- unique(cdm_metadata[TABLE %in% table, Variable])
     mandatory_colums <- unique(cdm_metadata[TABLE %in% table & stringr::str_detect(Mandatory,"Yes") == TRUE, Variable])
     mandatory_missing_in_db <- unique(mandatory_colums[!mandatory_colums %in% cols_in_table])
+    date_cols <- cdm_metadata[TABLE %in% table & stringr::str_detect(Format,"yyyymmdd") == TRUE, Variable]
     
     #If any mandatory colum is missing, then create it
     if (length(mandatory_missing_in_db) > 0) {
@@ -80,5 +81,39 @@ load_db <- function(db_connection, csv_path_dir, cdm_metadata,
         "[load_db]: Dropping table : ", new_column
       ))
     }))
+    
+    available_date_cols <- cols_in_table[cols_in_table %in% date_cols]
+    invisible(lapply(available_date_cols, function(new_column) {
+      tryCatch({
+        # Attempt to change the column type to DATE directly
+        DBI::dbExecute(db_connection, paste0(
+          "ALTER TABLE ", table, " ALTER ", new_column, " TYPE DATE;"
+        ))
+      }, error = function(e) {
+        # If direct conversion fails
+        message("Direct conversion failed. Attempting to fix with STRPTIME.")
+        
+        # Nullify invalid values first
+        DBI::dbExecute(db_connection, paste0(
+          "UPDATE ", table, 
+          " SET ", new_column, " = NULL WHERE ", new_column, " NOT SIMILAR TO '^[0-9]{8}$';"
+        ))
+        
+        # Apply STRPTIME to reformat valid date strings
+        DBI::dbExecute(db_connection, paste0(
+          "UPDATE ", table, 
+          " SET ", new_column, " = STRPTIME(", new_column, ", '%Y%m%d') WHERE ", new_column, " IS NOT NULL;"
+        ))
+        
+        # Retry altering the column type to DATE
+        DBI::dbExecute(db_connection, paste0(
+          "ALTER TABLE ", table, " ALTER ", new_column, " TYPE DATE;"
+        ))
+        
+        message("Column successfully converted to DATE after fixing format.")
+      })
+      
+    }))
+    
   }
 }
