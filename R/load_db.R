@@ -10,148 +10,110 @@
 #' @param extension_name String to be added to the name of the tables, useful
 #'   when loading different CDM instances in the same DB.
 #'
-#' @examples
-#' \dontrun{
-#' # Example usage of load_db
-#' db <- dbConnect(RSQLite::SQLite(), ":memory:")
-#' cdm_metadata <- data.table(
-#'   TABLE = c("table1", "table2"),
-#'   Variable = c("var1", "var2"), Format = c("yyyymmdd", "numeric")
-#' )
-#' cdm_tables_names <- c("table1", "table2")
-#' load_db(
-#'   db, "path/to/csv/files/", cdm_metadata, cdm_tables_names,
-#'   "instance1"
-#' )
-#' }
-#'
 #' @export
 load_db <- function(db_connection, csv_path_dir, cdm_metadata,
                     cdm_tables_names, extension_name = "") {
   # Loop through each table in cdm_tables_names
-  for (table_name_pattern in cdm_tables_names) {
-    table_metadata <- cdm_metadata[TABLE %in% table_name_pattern]
-    date_cols <- table_metadata[stringr::str_detect(
-      Format,
-      "yyyymmdd"
-    ) == TRUE & stringr::str_detect(
-      Mandatory,
-      "Yes"
-    ) == TRUE, Variable]
-    table_list <- list.files(csv_path_dir, pattern = table_name_pattern)
-    indx_table <- 0
-    for (c_table in table_list) {
-      indx_table <- indx_table + 1
-      existing_tables <- DBI::dbListTables(db_connection)
-      if (!paste0(table_name_pattern, extension_name) %in% existing_tables) {
-        print(paste0("[load_db]: Table ", table_name_pattern, " does not exist in the database and is created by loading the provided csv(s)"))
-        add_new_table <- FALSE
-      } else {
-        add_new_table <- TRUE
-      }
-
+  for (table in cdm_tables_names) {
+    
+    
+    # What table are we going to read
+    cat(paste0('Reading ', table, '...'))
+    
+    # Check if there is a file matching our table name
+    matching_files <- list.files(
+      path = csv_path_dir,
+      pattern = paste0(table, ".*\\.csv$"),
+      full.names = TRUE
+    )
+    
+    # Skip this loop if there are no files to read
+    if (length(matching_files) == 0) {
+      cat(paste0("\rSkipping ", table, ", no files found.\n"))
+      next
+    }
+    
+    # The query that will read the data into DuckDB. The union_by_name = true will mean it will try to ignore differences
+    # between files.
+    path_files_with_patt <- file.path(csv_path_dir,table)
+    query <- paste0('CREATE OR REPLACE TABLE ', table, ' AS
+                    SELECT * FROM read_csv_auto("', path_files_with_patt, '*.csv", union_by_name = true, ALL_VARCHAR = true);')
+    
+    # Execute the query
+    DBI::dbExecute(db_connection, query)
+    
+    # Yeah, done
+    cat(paste0('\rFinished reading ', table, '.\n'))
+    
+    
+    #Checking if any mandatory columns are missing within the database.
+    cols_in_table <- DBI::dbListFields(db_connection,table)
+    
+    standard_cdm_table_columns <- unique(cdm_metadata[TABLE %in% table, Variable])
+    mandatory_colums <- unique(cdm_metadata[TABLE %in% table & stringr::str_detect(Mandatory,"Yes") == TRUE, Variable])
+    mandatory_missing_in_db <- unique(mandatory_colums[!mandatory_colums %in% cols_in_table])
+    date_cols <- cdm_metadata[TABLE %in% table & stringr::str_detect(Format,"yyyymmdd") == TRUE, Variable]
+    
+    #If any mandatory colum is missing, then create it
+    if (length(mandatory_missing_in_db) > 0) {
       print(paste0(
-        "[load_db]: Loading: ", c_table, " ",
-        indx_table, "/", length(table_list)
+        "[load_db]: The following mandatory columns are missing in table: ", table
       ))
-      cdm_loaded_table <- import_file(path = file.path(
-        csv_path_dir,
-        c_table
-      ))
-
-      cols_input <- names(cdm_loaded_table)
-      cols_selected <- cols_input[cols_input %in% table_metadata$Variable]
-      cdm_loaded_table <- cdm_loaded_table[, c(cols_selected), with = F]
-
-      existing_date_cols <- date_cols[date_cols %in% names(cdm_loaded_table)]
-      missing_date_cols <- date_cols[!date_cols %in% names(cdm_loaded_table)]
-      if (length(missing_date_cols) > 0) {
-        print(paste0(
-          "[load_db]: Table: ", c_table,
-          " is missing the following mandatory date columns: ",
-          missing_date_cols
+      print(paste(mandatory_missing_in_db, collapse = ", "))
+      
+      invisible(lapply(mandatory_missing_in_db, function(new_column) {
+        DBI::dbExecute(db_connection, paste0(
+          "ALTER TABLE ", table, " ADD COLUMN ", new_column, " VARCHAR;"
         ))
       }
-      if (length(existing_date_cols) > 0) {
-        lapply(existing_date_cols, function(x) {
-          cdm_loaded_table[
-            ,
-            `:=`(eval(x), as.Date(get(x), "%Y%m%d"))
-          ]
-        })
-      }
-
-      if (add_new_table == FALSE) {
-        DBI::dbWriteTable(db_connection, paste0(
-          table_name_pattern,
-          extension_name
-        ), cdm_loaded_table)
-      } else {
-        cols_in_table <- DBI::dbListFields(
-          db_connection,
-          table_name_pattern
-        )
-        missing_in_input <- cols_in_table[!cols_in_table %in%
-          names(cdm_loaded_table)]
-        missing_in_db <- names(cdm_loaded_table)[!names(cdm_loaded_table) %in%
-          cols_in_table]
-        if (length(missing_in_input) > 0) {
-          print(paste0(
-            "[load_db]: The following columns were in previously loaded ",
-            table_name_pattern, " csvs but not in ",
-            c_table, ": ",
-            missing_in_input
-          ))
-          lapply(missing_in_input, function(new_column) {
-            print(paste0(
-              "[load_db]: Adding column: ",
-              new_column, " to table ", c_table
-            ))
-            cdm_loaded_table[, `:=`(eval(new_column), NA)]
-          })
-        }
-        if (length(missing_in_db) > 0) {
-          print(paste0(
-            "[load_db]: The following columns are in ", c_table,
-            " and not in the previously loaded ", table_name_pattern, " csvs: ",
-            paste(missing_in_db, collapse = ", ")
-          ))
-          invisible(lapply(missing_in_db, function(new_column) {
-            print(paste0(
-              "[load_db]: Adding column: ",
-              new_column, " to table ", table_name_pattern, " in the database"
-            ))
-            if (class(db_connection)[1] %in% "duckdb_connection") {
-              # Create a temporal_table with an additional column
-              DBI::dbExecute(db_connection, paste0(
-                "CREATE TABLE temporal_table AS SELECT *, NULL ", new_column, " FROM ",
-                table_name_pattern
-              ))
-              DBI::dbExecute(db_connection, paste0("ALTER TABLE temporal_table ALTER ", new_column, " TYPE VARCHAR;"))
-
-              # Drop the old table
-              DBI::dbExecute(db_connection, paste0("DROP TABLE ", table_name_pattern))
-
-              # Rename the temporal_table to the old table
-              DBI::dbExecute(db_connection, paste0("ALTER TABLE temporal_table RENAME TO ", table_name_pattern))
-            } else {
-              DBI::dbExecute(db_connection, paste0(
-                "ALTER TABLE ",
-                table_name_pattern, " ADD COLUMN ", new_column, " ;"
-              ))
-            }
-          }))
-        }
-        DBI::dbWriteTable(db_connection, paste0(
-          table_name_pattern,
-          extension_name
-        ), cdm_loaded_table,
-        overwrite = F,
-        append = T
-        )
-      }
-      rm(cdm_loaded_table)
-      gc()
+      ))
     }
+    
+    additional_columns <- cols_in_table[!cols_in_table %in% standard_cdm_table_columns]
+    print(paste0(
+      "[load_db]: The following columns are not part of the CDM table but are in the files : ", additional_columns
+    ))
+    invisible(lapply(additional_columns, function(new_column) {
+      DBI::dbExecute(db_connection, paste0(
+        "ALTER TABLE ", table, " DROP COLUMN ", new_column, " ;"
+      ))
+      print(paste0(
+        "[load_db]: Dropping table : ", new_column
+      ))
+    }))
+    
+    available_date_cols <- cols_in_table[cols_in_table %in% date_cols]
+    invisible(lapply(available_date_cols, function(new_column) {
+      tryCatch({
+        # Attempt to change the column type to DATE directly
+        DBI::dbExecute(db_connection, paste0(
+          "ALTER TABLE ", table, " ALTER ", new_column, " TYPE DATE;"
+        ))
+      }, error = function(e) {
+        # If direct conversion fails
+        message("Direct conversion failed. Attempting to fix with STRPTIME.")
+        
+        # Nullify invalid values first
+        DBI::dbExecute(db_connection, paste0(
+          "UPDATE ", table, 
+          " SET ", new_column, " = NULL WHERE ", new_column, " NOT SIMILAR TO '^[0-9]{8}$';"
+        ))
+        
+        # Apply STRPTIME to reformat valid date strings
+        DBI::dbExecute(db_connection, paste0(
+          "UPDATE ", table, 
+          " SET ", new_column, " = STRPTIME(", new_column, ", '%Y%m%d') WHERE ", new_column, " IS NOT NULL;"
+        ))
+        
+        # Retry altering the column type to DATE
+        DBI::dbExecute(db_connection, paste0(
+          "ALTER TABLE ", table, " ALTER ", new_column, " TYPE DATE;"
+        ))
+        
+        message("Column successfully converted to DATE after fixing format.")
+      })
+      
+    }))
+    
   }
 }

@@ -28,19 +28,3 @@ when loading different CDM instances in the same DB.}
 This function is designed for loading a CDM data set instance from CSV files
 into a database.
 }
-\examples{
-\dontrun{
-# Example usage of load_db
-db <- dbConnect(RSQLite::SQLite(), ":memory:")
-cdm_metadata <- data.table(
-  TABLE = c("table1", "table2"),
-  Variable = c("var1", "var2"), Format = c("yyyymmdd", "numeric")
-)
-cdm_tables_names <- c("table1", "table2")
-load_db(
-  db, "path/to/csv/files/", cdm_metadata, cdm_tables_names,
-  "instance1"
-)
-}
-
-}
