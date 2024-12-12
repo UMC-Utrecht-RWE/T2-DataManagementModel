@@ -37,7 +37,11 @@ load_db <- function(db_connection, csv_path_dir, cdm_metadata,
     # between files.
     path_files_with_patt <- file.path(csv_path_dir,table)
     query <- paste0('CREATE OR REPLACE TABLE ', table, ' AS
-                    SELECT * FROM read_csv_auto("', path_files_with_patt, '*.csv", union_by_name = true, ALL_VARCHAR = true);')
+                    SELECT * FROM read_csv_auto("', path_files_with_patt, '*.csv", 
+                    union_by_name = true, 
+                    ALL_VARCHAR = true, 
+                    nullstr = "NA" );')
+    
     
     # Execute the query
     DBI::dbExecute(db_connection, query)
