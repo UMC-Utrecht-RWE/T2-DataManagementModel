@@ -57,7 +57,7 @@ load_db <- function(db_connection, csv_path_dir, cdm_metadata,
     mandatory_colums <- unique(cdm_metadata[TABLE %in% table & stringr::str_detect(Mandatory,"Yes") == TRUE, Variable])
     mandatory_missing_in_db <- unique(mandatory_colums[!mandatory_colums %in% cols_in_table])
     date_cols <- cdm_metadata[TABLE %in% table & stringr::str_detect(Format,"yyyymmdd") == TRUE, Variable]
-    
+    character_cols <- cdm_metadata[TABLE %in% table & stringr::str_detect(Format,"Character") == TRUE, Variable]
     #If any mandatory colum is missing, then create it
     if (length(mandatory_missing_in_db) > 0) {
       print(paste0(
@@ -117,6 +117,16 @@ load_db <- function(db_connection, csv_path_dir, cdm_metadata,
         message("Column successfully converted to DATE after fixing format.")
       })
       
+    }))
+    
+    character_cols_not_date <- character_cols[!character_cols %in% date_cols]
+    available_character_cols <- cols_in_table[cols_in_table %in% character_cols_not_date]
+    invisible(lapply(available_character_cols, function(new_column) {
+        # Attempt to change the column type to DATE directly
+        update_query <- paste0('UPDATE ', table, ' 
+                        SET ',new_column,' = NULL 
+                        WHERE ',new_column,' = \'\';')
+        DBI::dbExecute(db_connection, update_query)
     }))
     
   }
