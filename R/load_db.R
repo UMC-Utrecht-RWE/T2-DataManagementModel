@@ -11,7 +11,7 @@
 #'   when loading different CDM instances in the same DB.
 #'
 #' @export
-load_db <- function(db_connection, csv_path_dir, cdm_metadata,
+load_db <- function(db_connection, csv_path_dir, cdm_name = NULL, cdm_metadata, cdm_schema_sqlquery = NULL,
                     cdm_tables_names, extension_name = "") {
   # Loop through each table in cdm_tables_names
   for (table in cdm_tables_names) {
@@ -41,82 +41,84 @@ load_db <- function(db_connection, csv_path_dir, cdm_metadata,
                     union_by_name = true, 
                     ALL_VARCHAR = true, 
                     nullstr = ["NA"," "] );')
-
+    
     # Execute the query
     DBI::dbExecute(db_connection, query)
     
+    list_columns_table <- dbListFields(db_connection,table)
+    for(column_name in list_columns_table){
+      update_query <- paste0('UPDATE ', table, ' 
+                        SET ',column_name,' = NULL 
+                        WHERE ',column_name,' = \'\';')
+      # Execute the query
+      DBI::dbExecute(db_connection, update_query)
+    }
+    
     # Yeah, done
     cat(paste0('\rFinished reading ', table, '.\n'))
+  }
+  
+  if(!is.null(cdm_schema_sqlquery)){
+    # Create the CDM schema
+    dbExecute(db_connection, paste0("CREATE SCHEMA IF NOT EXISTS ", cdm_name))
+    dbExecute(db_connection, cdm_schema_sqlquery)
     
-    
-    #Checking if any mandatory columns are missing within the database.
-    cols_in_table <- DBI::dbListFields(db_connection,table)
-    
-    standard_cdm_table_columns <- unique(cdm_metadata[TABLE %in% table, Variable])
-    mandatory_colums <- unique(cdm_metadata[TABLE %in% table & stringr::str_detect(Mandatory,"Yes") == TRUE, Variable])
-    mandatory_missing_in_db <- unique(mandatory_colums[!mandatory_colums %in% cols_in_table])
-    date_cols <- cdm_metadata[TABLE %in% table & stringr::str_detect(Format,"yyyymmdd") == TRUE, Variable]
-    
-    #If any mandatory colum is missing, then create it
-    if (length(mandatory_missing_in_db) > 0) {
-      print(paste0(
-        "[load_db]: The following mandatory columns are missing in table: ", table
-      ))
-      print(paste(mandatory_missing_in_db, collapse = ", "))
-      
-      invisible(lapply(mandatory_missing_in_db, function(new_column) {
-        DBI::dbExecute(db_connection, paste0(
-          "ALTER TABLE ", table, " ADD COLUMN ", new_column, " VARCHAR;"
-        ))
-      }
+    # Small function to read the columns and datatypes per table
+    get_table_info <- function(schema, table) {
+      dbGetQuery(db_connection, paste0(
+        "SELECT column_name, data_type 
+     FROM information_schema.columns 
+     WHERE table_schema = '", schema, "' AND table_name = '", table, "'"
       ))
     }
     
-    additional_columns <- cols_in_table[!cols_in_table %in% standard_cdm_table_columns]
-    print(paste0(
-      "[load_db]: The following columns are not part of the CDM table but are in the files : ", additional_columns
-    ))
-    invisible(lapply(additional_columns, function(new_column) {
-      DBI::dbExecute(db_connection, paste0(
-        "ALTER TABLE ", table, " DROP COLUMN ", new_column, " ;"
-      ))
-      print(paste0(
-        "[load_db]: Dropping table : ", new_column
-      ))
-    }))
+    # Get the list of tables in both schemas
+    tables_main <- dbGetQuery(db_connection, "SELECT table_name FROM information_schema.tables WHERE table_schema = 'main'")
+    tables_cdm <- dbGetQuery(db_connection, paste0("SELECT table_name FROM information_schema.tables WHERE table_schema = '",cdm_name,"'"))
     
-    available_date_cols <- cols_in_table[cols_in_table %in% date_cols]
-    invisible(lapply(available_date_cols, function(new_column) {
-      tryCatch({
-        # Attempt to change the column type to DATE directly
-        DBI::dbExecute(db_connection, paste0(
-          "ALTER TABLE ", table, " ALTER ", new_column, " TYPE DATE;"
-        ))
-      }, error = function(e) {
-        # If direct conversion fails
-        message("Direct conversion failed. Attempting to fix with STRPTIME.")
-        
-        # Nullify invalid values first
-        DBI::dbExecute(db_connection, paste0(
-          "UPDATE ", table, 
-          " SET ", new_column, " = NULL WHERE ", new_column, " NOT SIMILAR TO '^[0-9]{8}$';"
-        ))
-        
-        # Apply STRPTIME to reformat valid date strings
-        DBI::dbExecute(db_connection, paste0(
-          "UPDATE ", table, 
-          " SET ", new_column, " = STRPTIME(", new_column, ", '%Y%m%d') WHERE ", new_column, " IS NOT NULL;"
-        ))
-        
-        # Retry altering the column type to DATE
-        DBI::dbExecute(db_connection, paste0(
-          "ALTER TABLE ", table, " ALTER ", new_column, " TYPE DATE;"
-        ))
-        
-        message("Column successfully converted to DATE after fixing format.")
-      })
+    # We only want to read the tables that are in both the import and the cdm schema
+    common_tables <- intersect(tables_main$table_name, tables_cdm$table_name)
+    
+    # Loop through each table
+    for (table in common_tables) {
       
-    }))
+      # Some verbosity
+      cat('Start transfer of', table, '....')
+      
+      # Execute the get_table_info for that table, for both schemas
+      cols_main <- get_table_info("main", table)
+      cols_cdm <- get_table_info(cdm_name, table)
+      
+      # Intersect the columns from each schema, so we only use the columns that are both in import and target schema
+      common_columns <- intersect(cols_main$column_name, cols_cdm$column_name)
+      
+      # Here is the magic, we're reading and try_casting to the target datatype. If we cannot cast we will ignore the value
+      # and move on to the next value. This is an explicit cleanup....
+      # I don't really like creating SQL code from R but I don't really see another way....
+      query <- paste0(
+        "INSERT INTO ", cdm_name,".", table, " (", paste(common_columns, collapse = ", "), ") ",
+        "SELECT ", paste(
+          sapply(common_columns, function(col) {
+            target_type <- cols_cdm$data_type[cols_cdm$column_name == col]
+            paste0("TRY_CAST(", col, " AS ", target_type, ") AS ", col)
+          }),
+          collapse = ", "
+        ), 
+        " FROM main.", table
+      )
+      
+      # Execute the query
+      dbExecute(db_connection, query)
+      
+      #Delete the imported table
+      dbExecute(db_connection, paste0("DROP TABLE IF EXISTS main.", table))
+      
+      # And we're ready
+      cat("\rDone loading the target table:", table, "\n")
+    }
     
+    
+  }else{
+    print('Transfer completed')
   }
 }
