@@ -41,8 +41,7 @@ load_db <- function(db_connection, csv_path_dir, cdm_metadata,
                     union_by_name = true, 
                     ALL_VARCHAR = true, 
                     nullstr = "NA" );')
-    
-    
+
     # Execute the query
     DBI::dbExecute(db_connection, query)
     
@@ -58,6 +57,7 @@ load_db <- function(db_connection, csv_path_dir, cdm_metadata,
     mandatory_missing_in_db <- unique(mandatory_colums[!mandatory_colums %in% cols_in_table])
     date_cols <- cdm_metadata[TABLE %in% table & stringr::str_detect(Format,"yyyymmdd") == TRUE, Variable]
     character_cols <- cdm_metadata[TABLE %in% table & stringr::str_detect(Format,"Character") == TRUE, Variable]
+
     #If any mandatory colum is missing, then create it
     if (length(mandatory_missing_in_db) > 0) {
       print(paste0(
