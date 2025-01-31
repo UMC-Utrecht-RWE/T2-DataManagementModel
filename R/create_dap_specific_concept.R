@@ -82,8 +82,8 @@ create_dap_specific_concept <- function(codelist, data_db, name_attachment, save
     concept_name <- codelist[[j, "concept_id"]]
     date_col <- codelist[[j, "keep_date_column_name"]]
     codelist_id <- codelist[[j, "dap_spec_id"]]
-    cols_temp <- na.omit(as.character(cols[j]))
-    values_temp <- toupper(na.omit(as.character(values[j])))
+    cols_temp <- setdiff(as.character(cols[j]), "NA")
+    values_temp <- setdiff(toupper(as.character(values[j])), "NA")
     value <- codelist[[j, "keep_value_column_name"]]
     if (add_meaning) {
       columns_db_table <- DBI::dbListFields(save_db, name_edited)
@@ -115,7 +115,7 @@ create_dap_specific_concept <- function(codelist, data_db, name_attachment, save
       # DUCKDB CODE VERSION
       # Create where statement for the query
       where_statement <- paste(paste(cols_temp, paste0("'", values_temp, "'"), sep = " = "), collapse = " AND ")
-      if (!is.null(date_col_filter)) {
+      if (!is.null(date_col_filter) & date_col != "NULL") {
         # Convert date_col_filter to date string in the format 'YYYY-MM-DD'
         where_statement <- paste0(where_statement, " AND ", date_col, " >= DATE '", date_col_filter, "'")
       }
@@ -123,7 +123,7 @@ create_dap_specific_concept <- function(codelist, data_db, name_attachment, save
       # SQLITE CODE VERSION
       # Create where statement for the query
       where_statement <- paste(paste(cols_temp, paste0("'", values_temp, "'"), sep = " = "), collapse = " AND ")
-      if (!is.null(date_col_filter)) {
+      if (!is.null(date_col_filter) & date_col != "NULL") {
         where_statement <- paste0(where_statement, " AND ", date_col, " >= ", as.integer(date_col_filter))
       }
     }
