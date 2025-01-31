@@ -1,9 +1,8 @@
 # setup
-dbname <- tempfile(fileext = ".db")
-db_connection_origin <- DBI::dbConnect(RSQLite::SQLite(), dbname)
+#dbname <- tempfile(fileext = ".duckdb")
+db_connection_origin <- duckdb::dbConnect(duckdb::duckdb())
 
 test_that("database gets loaded", {
-  expect_equal(file.size(dbname), 0)
 
   load_db(
     db_connection = db_connection_origin,

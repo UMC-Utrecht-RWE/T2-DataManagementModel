@@ -1,5 +1,5 @@
-dbname <- tempfile(fileext = ".db")
-db_connection_origin <- DBI::dbConnect(RSQLite::SQLite(), dbname)
+dbname <- tempfile(fileext = ".duckdb")
+db_connection_origin <- DBI::dbConnect(duckdb::duckdb(), dbname)
 load_db(
   db_connection = db_connection_origin,
   csv_path_dir = "dbtest",
