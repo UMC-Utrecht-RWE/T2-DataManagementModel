@@ -1,0 +1,6 @@
+person_id,start_date_record,end_date_record,event_code,event_record_vocabulary,text_linked_to_event_code,event_free_text,present_on_admission,laterality_of_event,meaning_of_event,origin_of_event,visit_occurrence_id
+21110000001,20220410,,U07.1,ICD10CM,Test rˆpid,,,,,,
+21110000002,20220418,,U08,ICD10CM,,,,,,,
+21110000003,20220408,,12990621000006115,MEDCODEID,,,,,,,
+21110000004,20220413,,288205019,MEDCODEID,,,,,,,
+21110000005,20220415,,13012261000006113,MEDCODEID,,,,,,,
