@@ -6,7 +6,6 @@
 \usage{
 create_dap_specific_concept(
   codelist,
-  data_db,
   name_attachment,
   save_db,
   date_col_filter = NULL,
@@ -18,8 +17,6 @@ create_dap_specific_concept(
 }
 \arguments{
 \item{codelist}{A data.table containing information about tables, columns, and values for DAP-specific concepts.}
-
-\item{data_db}{The database connection object.}
 
 \item{name_attachment}{Attachment to the database table names.}
 
@@ -38,14 +35,4 @@ create_dap_specific_concept(
 \description{
 This function Creates DAP-specific concepts into a database using a DAP-specifc concept map (codelist).
 The function modifies the specified save_db by creating edited tables and Creating DAP-specific concepts.
-}
-\examples{
-\dontrun{
-# Example usage of Create_dap_specific_concept
-codelist <- data.table::fread("path/to/codelist.csv")
-data_db <- dbConnect(RSQLite::SQLite(), ":memory:")
-save_db <- dbConnect(RSQLite::SQLite(), ":memory:")
-create_dap_specific_concept(codelist, data_db, "Attachment", save_db, date_col_filter = "20230101")
-}
-
 }
