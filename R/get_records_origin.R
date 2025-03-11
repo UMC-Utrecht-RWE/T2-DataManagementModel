@@ -75,10 +75,15 @@ get_records_origin <- function(db_connection, unique_id_dt,
     # Retrieve records from the table based on the unique identifier
     query <- paste0(
       "SELECT * FROM ", table, " WHERE ", unique_id_name, " IN (",
-      paste0(unique_id_dt["cdm_table" %in% table, unique_id_name], collapse = ","),
+      paste0(
+        unique_id_dt["cdm_table" %in% table, unique_id_name],
+        collapse = ","
+      ),
       ")"
     )
-    return_values[[table]] <- data.table::as.data.table(DBI::dbGetQuery(db_connection, query))
+    return_values[[table]] <- data.table::as.data.table(
+      DBI::dbGetQuery(db_connection, query)
+    )
   }
 
   return(return_values)

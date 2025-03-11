@@ -32,14 +32,17 @@
 #' }
 #'
 #' @export
-delete_duplicates_origin <- function(db_connection, scheme, save_deleted = FALSE,
-                                     save_path = NULL, add_postfix = NA) {
+delete_duplicates_origin <- function(
+    db_connection, scheme, save_deleted = FALSE,
+    save_path = NULL, add_postfix = NA) {
   f_paste <- function(vec) sub(",\\s+([^,]+)$", " , \\1", toString(vec))
 
   # Check if specified columns in the scheme exist in the corresponding tables
   for (case_name in names(scheme)) {
     if (case_name %in% DBI::dbListTables(db_connection)) {
-      if (!all(scheme[[case_name]] %in% DBI::dbListFields(db_connection, case_name)) &&
+      if (!all(scheme[[case_name]] %in% DBI::dbListFields(
+        db_connection, case_name
+      )) &&
         all(!scheme[[case_name]] %in% "*")) {
         wrong_cols <- scheme[[case_name]][!scheme[[case_name]] %in%
           DBI::dbListFields(db_connection, case_name)]
@@ -79,13 +82,17 @@ delete_duplicates_origin <- function(db_connection, scheme, save_deleted = FALSE
         rs <- DBI::dbSendStatement(db_connection, query)
         DBI::dbHasCompleted(rs)
         num_rows <- DBI::dbGetRowsAffected(rs)
-        print(paste0("[delete_duplicates_origin] Number of record deleted: ", num_rows))
+        print(paste0(
+          "[delete_duplicates_origin] Number of record deleted: ", num_rows
+        ))
         DBI::dbClearResult(rs)
       } else if (save_deleted == TRUE && !is.null(save_path)) {
         rs <- DBI::dbGetQuery(db_connection, paste0(query, " RETURNING *;"))
         rs <- data.table::as.data.table(rs)
         num_rows <- nrow(rs)
-        print(paste0("[delete_duplicates_origin] Number of record deleted: ", num_rows))
+        print(paste0(
+          "[delete_duplicates_origin] Number of record deleted: ", num_rows
+        ))
         dir.create(file.path(save_path), showWarnings = FALSE) # Create folder
         # Save deleted records with optional postfix
         if (!is.na(add_postfix)) {
