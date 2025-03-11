@@ -57,7 +57,13 @@ jobs:
           if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv")
           renv::restore()
 
-      # 6 Run R CMD check
+      # 6 Install additional dependencies if needed
+      - name: Ensure rcmdcheck is installed
+        shell: Rscript {0}
+        run: |
+          if (!requireNamespace("rcmdcheck", quietly = TRUE)) install.packages("rcmdcheck")
+
+      # 7 Run R CMD check
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
