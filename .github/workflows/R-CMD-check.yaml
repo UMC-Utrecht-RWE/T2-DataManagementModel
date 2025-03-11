@@ -25,20 +25,22 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
-      RENV_PATHS_ROOT: ~/renv
+      RENV_PATHS_ROOT: ~/.cache/R/renv
 
     steps:
-      # 1 Checkout the repository
+      # 1 Checkout repository
       - uses: actions/checkout@v4
 
-      # 2 Cache R dependencies to speed up builds
-      - uses: actions/cache@v3
+      # 2 Cache `renv` packages to speed up builds
+      - name: Cache R package library
+        uses: actions/cache@v3
         with:
-          path: ${{ env.R_LIBS_USER }}
-          key: r-${{ runner.os }}-${{ matrix.config.r }}-${{ hashFiles('**/renv.lock') }}
-          restore-keys: r-${{ runner.os }}-${{ matrix.config.r }}-
+          path: ${{ env.RENV_PATHS_ROOT }}
+          key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-renv-
 
-      # 3 Install Pandoc (needed for vignettes)
+      # 3 Install Pandoc (required for vignettes)
       - uses: r-lib/actions/setup-pandoc@v2
 
       # 4 Set up R
@@ -48,14 +50,14 @@ jobs:
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
-      # 5 Install `renv` and restore dependencies
-      - name: Install renv and restore environment
-        run: |
-          install.packages("renv")
-          renv::restore()
+      # 5 Restore `renv` environment
+      - name: Restore R packages with renv
         shell: Rscript {0}
+        run: |
+          if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv")
+          renv::restore()
 
-      # 6 Run R CMD check with `renv`
+      # 6 Run R CMD check
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
