@@ -68,3 +68,9 @@ jobs:
         with:
           upload-snapshots: true
           build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
+
+      # 8 Run testthat Unit Tests
+      - name: Run testthat tests
+        shell: Rscript {0}
+        run: |
+          testthat::test_dir("tests/testthat/")
