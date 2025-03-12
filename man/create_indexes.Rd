@@ -21,8 +21,12 @@ provided specifications.
 # Example usage of create_indexes
 db_conn <- dbConnect(RSQLite::SQLite(), ":memory:")
 specs <- list(
-  persons = list("1" = "person_id", "2" = c("person_id", "sex_at_instance_creation")),
-  medicines = list("1" = "person_id", "2" = c("person_id", "date_dispensing"))
+  persons = list("1" = "person_id", "2" = c(
+    "person_id", "sex_at_instance_creation"
+  )),
+  medicines = list("1" = "person_id", "2" = c(
+    "person_id", "date_dispensing"
+  ))
 )
 create_indexes(db_conn, specs)
 }

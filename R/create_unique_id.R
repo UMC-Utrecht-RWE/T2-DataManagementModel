@@ -8,14 +8,15 @@
 #'
 #'
 #' @param db_connection Database connection object (SQLiteConnection).
-#' @param cdm_tables_names List of CDM tables names to be imported into the database.
-#' @param extension_name String to be added to the name of the tables, useful when
+#' @param cdm_tables_names List of CDM tables names to be imported to database.
+#' @param extension_name String to be added to name of the tables, useful when
 #' loading different CDM instances in the same database.
 #' @param id_name String that defines the name of the unique identifier.
 #' By default is set as "ori_id".
 #' @param separator_id String that defines the separators between the table name
 #' and the ROWID number.
-#' @param order_by_cols List of vector with column names which you can apply an order by. E.g list(EVENTS = c('person_id','event_code'))
+#' @param order_by_cols List of vector with column names which you can apply an
+#' order by. E.g list(EVENTS = c('person_id','event_code'))
 #'
 #' @examples
 #' \dontrun{
@@ -40,11 +41,14 @@ create_unique_id <- function(db_connection, cdm_tables_names,
   list_existing_tables <- DBI::dbListTables(db_connection)
 
   # Get the existing tables among the specified CDM tables
-  cdm_tables_names_existing <- cdm_tables_names[cdm_tables_names %in%
-    list_existing_tables]
+  cdm_tables_names_existing <- cdm_tables_names[
+    cdm_tables_names %in% list_existing_tables
+  ]
 
   # Check if tables exist in the database
-  if (length(cdm_tables_names[!cdm_tables_names %in% list_existing_tables]) > 0) {
+  if (
+    length(cdm_tables_names[!cdm_tables_names %in% list_existing_tables]) > 0
+  ) {
     print(paste0(
       "[CreateUniqueIDCDM] Can not create unique IDs on the following ",
       "CDM table because they do not exist in the database "
@@ -66,7 +70,9 @@ create_unique_id <- function(db_connection, cdm_tables_names,
       columns_in_table <- dbListFields(db_connection, table)
       cols <- order_by_cols[[table]]
       available_order_by_cols <- columns_in_table[columns_in_table %in% cols]
-      order_by <- paste0(" ORDER BY ", paste0(available_order_by_cols, collapse = ", "))
+      order_by <- paste0(
+        " ORDER BY ", paste0(available_order_by_cols, collapse = ", ")
+      )
     } else {
       order_by <- ""
     }
@@ -83,7 +89,9 @@ create_unique_id <- function(db_connection, cdm_tables_names,
 
     DBI::dbExecute(db_connection, paste0("DROP TABLE ", table), n = -1)
 
-    DBI::dbExecute(db_connection, paste0("ALTER TABLE temporal_table RENAME TO ", table))
+    DBI::dbExecute(
+      db_connection, paste0("ALTER TABLE temporal_table RENAME TO ", table)
+    )
     print(paste0("[CreateUniqueIDCDM] Unique ID create for table: ", table))
   }
 }

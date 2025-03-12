@@ -22,7 +22,10 @@
 #' @export
 get_value_origin <- function(cases_dt, db_connection, columns = NULL) {
   # Write cases data table to a temporary table in the database
-  DBI::dbWriteTable(db_connection, "cases_tmp", cases_dt, overwrite = TRUE, temp = TRUE)
+  DBI::dbWriteTable(
+    db_connection, "cases_tmp", cases_dt,
+    overwrite = TRUE, temp = TRUE
+  )
 
   # Extract unique ori_tables from the cases data table
   ori_tables <- unique(cases_dt[, "ori_table"])
@@ -39,7 +42,8 @@ get_value_origin <- function(cases_dt, db_connection, columns = NULL) {
   for (ori_table in ori_tables) {
     column <- columns[[ori_table]]
 
-    # Query the database to get values based on the specified column and ori_table
+    # Query the database to get values based on
+    # the specified column and ori_table
     query <- paste0(
       "SELECT t2.ori_table, t1.ROWID, ", column,
       " FROM ", ori_table, " t1",
@@ -51,7 +55,10 @@ get_value_origin <- function(cases_dt, db_connection, columns = NULL) {
     data.table::setnames(rs, column, "Value")
 
     # Combine the result set with the updated values list
-    updated_values <- data.table::rbindlist(list(updated_values, rs), use.names = TRUE)
+    updated_values <- data.table::rbindlist(
+      list(updated_values, rs),
+      use.names = TRUE
+    )
 
     # Remove the result set from memory
     rm(rs)

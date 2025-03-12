@@ -17,7 +17,10 @@
 #' # Define the column information list
 #' column_info_list <- list(
 #'   list(column_name = "event_code", alias_name = "code"),
-#'   list(column_name = "event_record_vocabulary", alias_name = "coding_system"),
+#'   list(
+#'     column_name = "event_record_vocabulary",
+#'     alias_name = "coding_system"
+#'   ),
 #'   list(column_name = "event_free_text", alias_name = "code")
 #' )
 #' column_info_list <- list(
@@ -32,7 +35,10 @@
 #' )
 #'
 #' # Replace 'your_db_connection' with your actual database connection
-#' db_connection_origin <- DBI::dbConnect(RSQLite::SQLite(), dbname = "your_database.db")
+#' db_connection_origin <- DBI::dbConnect(
+#'   RSQLite::SQLite(),
+#'   dbname = "your_database.db"
+#' )
 #'
 #' # Call the function with the database connection and column information list
 #' result_list <- get_unique_codelist(db_connection_origin, column_info_list)
@@ -85,5 +91,5 @@ get_unique_codelist <- function(db_connection, column_info_list, tb_name) {
   }
 
   # Return the list of results
-  return(results)
+  results
 }

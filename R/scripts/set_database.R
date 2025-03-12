@@ -1,7 +1,7 @@
 # Author: Albert Cid Royo
-# email: a.cidroyo@umcutrecht.com & Y.Mao@umcutrecht.nl
+# email: a.cidroyo@umcutrecht.com & Y.Mao@umcutrecht.nl #nolint
 # Organisation: UMC Utrecht, Utrecht, The Netherlands
-# Date: 05/12/2022
+# Date: 05/12/2022 #nolint
 
 # This script uses the different functions from the package
 # The aim of the script is to:
@@ -19,9 +19,14 @@ print(paste0("[Set Data Base]: Starting import into Data Base "))
 # Loading files into the origin database
 ################
 
-cdm_metadata <- as.data.table(readRDS(file.path(transformations_common_configuration, "CDM_metadata.rds")))
+cdm_metadata <- as.data.table(
+  readRDS(file.path(transformations_common_configuration, "CDM_metadata.rds"))
+)
 
-dir_d2_db <- file.path(transformations_T2_semantic_harmonization_intermediate_data_file, "d2.db")
+dir_d2_db <- file.path(
+  transformations_T2_semantic_harmonization_intermediate_data_file,
+  "d2.db"
+)
 
 if (file.exists(dir_d2_db)) {
   file.remove(dir_d2_db)
@@ -43,7 +48,8 @@ load_db(
 
 delete_duplicates_flag <- TRUE
 if (delete_duplicates_flag == TRUE) {
-  # The scheme defines the columns names (* = all) used for identifying unique records. The scheme is defined for every table in the CDM
+  # The scheme defines the columns names (* = all) used for identifying unique
+  #  records. The scheme is defined for every table in the CDM
   scheme <- setNames(rep("*", length(cdm_tables_names)), cdm_tables_names)
   delete_duplicates_origin(
     db_connection = db_connection_origin, scheme, save_deleted = TRUE,
@@ -58,7 +64,8 @@ if (delete_duplicates_flag == TRUE) {
 create_unique_id(db_connection_origin, cdm_tables_names, extension_name = "")
 
 #################
-# OPTIONAL: Report the number of rows per table, this is useful for early detection of missing records
+# OPTIONAL: Report the number of rows per table, this is useful for early
+# detection of missing records
 ################
 
 count_rows_flag <- TRUE

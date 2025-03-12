@@ -71,7 +71,8 @@ create_dap_specific_codelist <- function(
     invisible(lapply(list_cols_names, function(x) {
       start_unique_codelist[
         ori_length_str >= x,
-         as.character(x) := substr(code_no_dot, 1, as.numeric(x))]
+        as.character(x) := substr(code_no_dot, 1, as.numeric(x))
+      ]
     }))
 
     # Melting the dataset

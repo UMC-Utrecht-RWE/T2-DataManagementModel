@@ -17,7 +17,7 @@ A data frame with 263 rows and 6 columns:
 }
 }
 \source{
-<https://docs.google.com/spreadsheets/d/1hc-TBOfEzRBthGP78ZWIa13C0RdhU7bK/edit#gid=439480870>
+<https://docs.google.com/spreadsheets/d/1hc-TBOfEzRBthGP78ZWIa13C0RdhU7bK/edit#gid=439480870> #nolint
 }
 \usage{
 concePTION_metadata_v2

@@ -12,10 +12,10 @@ print(lint_results)
 
 # Run `styler` to check for formatting issues
 cat("\nRunning styler (code formatting checks)...\n")
-styler::style_pkg(dry = False)  # Dry run to check if reformatting is needed
+styler::style_pkg(dry = "off")  # Dry run to check if reformatting is needed
 
 # Run `roxygen2` to check if documentation is properly generated
 cat("\nRunning roxygen2 (documentation checks)...\n")
 roxygen2::roxygenise()
 
-cat("\nAll checks completed!\n")
+cat("\nAll checks completed!")

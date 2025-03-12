@@ -42,8 +42,9 @@ create_dap_specific_concept <- function(
   values <- codelist[, ..value_names]
   for (name in scheme) {
     name_edited <- paste0(name, "_EDITED")
-    to_upper_cols <- na.omit(unique(unlist(codelist[get(table_name) %in%
-      name, ..cols_names])))
+    to_upper_cols <- na.omit(
+      unique(unlist(codelist[get(table_name) %in% name, ..cols_names]))
+    )
     query_columns_table <- paste0("
             SELECT column_name
             FROM information_schema.columns
@@ -52,8 +53,9 @@ create_dap_specific_concept <- function(
     columns_db_table <- DBI::dbGetQuery(
       save_db, query_columns_table
     )$column_name
-    rest_cols <- na.omit(columns_db_table[!columns_db_table %in%
-      to_upper_cols])
+    rest_cols <- na.omit(
+      columns_db_table[!columns_db_table %in% to_upper_cols]
+    )
     to_upper_query <- paste0(paste0(
       "UPPER(", to_upper_cols,
       ") AS ", to_upper_cols

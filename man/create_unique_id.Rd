@@ -16,9 +16,9 @@ create_unique_id(
 \arguments{
 \item{db_connection}{Database connection object (SQLiteConnection).}
 
-\item{cdm_tables_names}{List of CDM tables names to be imported into the database.}
+\item{cdm_tables_names}{List of CDM tables names to be imported to database.}
 
-\item{extension_name}{String to be added to the name of the tables, useful when
+\item{extension_name}{String to be added to name of the tables, useful when
 loading different CDM instances in the same database.}
 
 \item{id_name}{String that defines the name of the unique identifier.
@@ -27,7 +27,8 @@ By default is set as "ori_id".}
 \item{separator_id}{String that defines the separators between the table name
 and the ROWID number.}
 
-\item{order_by_cols}{List of vector with column names which you can apply an order by. E.g list(EVENTS = c('person_id','event_code'))}
+\item{order_by_cols}{List of vector with column names which you can apply an
+order by. E.g list(EVENTS = c('person_id','event_code'))}
 }
 \description{
 This function generates a unique CDM ID for each data record of the specified

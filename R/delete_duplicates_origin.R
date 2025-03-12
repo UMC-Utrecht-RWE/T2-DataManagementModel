@@ -44,8 +44,9 @@ delete_duplicates_origin <- function(
         db_connection, case_name
       )) &&
         all(!scheme[[case_name]] %in% "*")) {
-        wrong_cols <- scheme[[case_name]][!scheme[[case_name]] %in%
-          DBI::dbListFields(db_connection, case_name)]
+        wrong_cols <- scheme[[case_name]][
+          !scheme[[case_name]] %in% DBI::dbListFields(db_connection, case_name)
+        ]
         print(paste0(
           "[delete_duplicates_origin]: Table ", case_name,
           " columns -> ", wrong_cols,

@@ -25,8 +25,9 @@ get_value_origin_dapspecific <- function(cases_dt, db_connection, codelist) {
 
   # Check if there are matching coding systems
   if (any(cases_coding_system %in% unlist(available_coding_system))) {
-    current_dap_specific_codelist <- codelist["DAP_SPEC_ID" %in%
-      cases_coding_system]
+    current_dap_specific_codelist <- codelist[
+      "DAP_SPEC_ID" %in% cases_coding_system
+    ]
   } else {
     print(paste0(
       "[GetValueOriginDatabase]: There are no coding systems ",
@@ -79,5 +80,5 @@ get_value_origin_dapspecific <- function(cases_dt, db_connection, codelist) {
 
   # Return unique values
   unique_updated_values <- unique(updated_values)
-  return(unique_updated_values)
+  unique_updated_values
 }

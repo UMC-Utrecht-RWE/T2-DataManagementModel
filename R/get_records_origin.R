@@ -40,15 +40,18 @@ get_records_origin <- function(db_connection, unique_id_dt,
   }
 
   # Split the unique identifier into cdm_table and rowid
-  unique_id_dt <- unique_id_dt[, c("cdm_table", "rowid") :=
-    data.table::tstrsplit(unique_id_dt[, get(unique_id_name)],
+  unique_id_dt <- unique_id_dt[
+    , c("cdm_table", "rowid") := data.table::tstrsplit(
+      unique_id_dt[, get(unique_id_name)],
       separator_id,
       fixed = TRUE
-    )]
+    )
+  ]
 
   # Check if separator_id is present in the unique identifier
   if (all.equal(unique_id_dt$ID, unique_id_dt$cdm_table) == TRUE &&
-    all.equal(unique_id_dt$ID, unique_id_dt$rowid) == TRUE) {
+    all.equal(unique_id_dt$ID, unique_id_dt$rowid) == TRUE
+  ) {
     print(paste0(
       "[get_records_origin_cdm_sql] The  ", separator_id,
       " does not exist in the unique identifier"
