@@ -50,3 +50,6 @@ rsconnect/
 
 # Mac-specfic files
 .DS_Store
+
+# R Virtual Environment
+renv
