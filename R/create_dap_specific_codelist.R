@@ -53,7 +53,7 @@ create_dap_specific_codelist <- function(
 
   # Dividing code lists into exact matches and start with codes
   # Start with any start_with_cols
-  start_unique_codelist <- start_unique_codelist[
+  start_unique_codelist <- unique_codelist[
     grep(
       paste0("^", start_with_cols, collapse = "|"),
       unique_codelist$coding_system
@@ -108,15 +108,14 @@ create_dap_specific_codelist <- function(
       max_code_length
     ))
 
-
-
-
     # Splitting start with codes into different lengths
     list_cols_names <- seq(min_length_study_codelist, max_code_length)
     invisible(lapply(list_cols_names, function(x) {
       start_unique_codelist[
         ori_length_str >= x,
-        as.character(x) := substr(code_no_dot, 1, as.numeric(x))
+        as.character(x) := substr(
+          code_no_dot, 1, as.numeric(x)
+        )
       ]
     }))
 
@@ -206,7 +205,9 @@ create_dap_specific_codelist <- function(
 
   # Adding Comment column
   dap_specific_codelist[, Comment := "BOTH"]
-  dap_specific_codelist[is.na(code.DAP_UNIQUE_CODELIST), Comment := "CODELIST"]
+  dap_specific_codelist[
+    is.na(code.DAP_UNIQUE_CODELIST), Comment := "CODELIST"
+  ]
   dap_specific_codelist[is.na(code.CDM_CODELIST), Comment := "CDM"]
 
   return(dap_specific_codelist)
