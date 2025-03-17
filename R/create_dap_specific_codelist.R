@@ -1,3 +1,4 @@
+library(dplyr)
 #' Create DAP-Specific Codelist
 #'
 #' This function merges the unique codelist from a database
@@ -23,50 +24,100 @@
 #' }
 #'
 #' @export
-create_dap_specific_codelist <- function(unique_codelist, study_codelist,
-                                         start_with_colls = c("ICD10CM", "ICD10", "ICD10DA", "ICD9CM", "MTHICD9", "ICPC", "ICPC2P", "ICPC2EENG", "ATC", "vx_atc"),
-                                         additional_columns = NA, priority = NA) {
+create_dap_specific_codelist <- function(
+  unique_codelist,
+  study_codelist,
+  start_with_cols = c( #TODO: Should that be cols?
+    "ICD10CM", "ICD10", "ICD10DA", "ICD9CM", "MTHICD9",
+    "ICPC", "ICPC2P", "ICPC2EENG", "ATC", "vx_atc"
+  ),
+  additional_columns = NA,
+  priority = NA
+) {
+  # get error if unique_codelist and study_codelist are not data.tables
+  if (!is.data.table(unique_codelist))
+    stop("unique_codelist must be a data.table")
+  if (!is.data.table(study_codelist))
+    stop("study_codelist must be a data.table")
+
+
   # Preprocessing the study_codelist
-  study_codelist[, code_no_dot := gsub("\\.", "", code)]
-  study_codelist[, length_str := stringr::str_length(code_no_dot)]
-  data.table::setnames(study_codelist, "code", "code.CDM_CODELIST")
+  study_codelist <- study_codelist %>%
+    dplyr::mutate(code_no_dot = gsub("\\.", "", .data$code)) %>%
+    dplyr::mutate(
+      length_str = stringr::str_length(.data$code_no_dot)
+    ) %>%
+    dplyr::mutate(code.CDM_CODELIST = .data$code)
+
   min_length_study_codelist <- min(study_codelist$length_str, na.rm = TRUE)
 
-  # Dividing code lists into exact and start with codes
-  start_unique_codelist <- unique_codelist[coding_system %in% start_with_colls]
-  start_study_codelist <- study_codelist[coding_system %in% start_with_colls]
-  exact_unique_codelist <- unique_codelist[!coding_system %in% start_with_colls]
-  exact_study_codelist <- study_codelist[!coding_system %in% start_with_colls]
+  # Dividing code lists into exact matches and start with codes
+  # Start with any start_with_cols
+  start_unique_codelist <- start_unique_codelist[
+    grep(
+      paste0("^", start_with_cols, collapse = "|"),
+      unique_codelist$coding_system
+    )
+  ]
+  start_study_codelist <- study_codelist[
+    grep(
+      paste0("^", start_with_cols, collapse = "|"),
+      study_codelist$coding_system
+    )
+  ]
+  # Perfect match
+  exact_unique_codelist <- unique_codelist %>%
+    dplyr::filter(unique_codelist$coding_system %in% start_with_cols)
+  exact_study_codelist <- study_codelist %>%
+    dplyr::filter(study_codelist$coding_system %in% start_with_cols)
+
+  print(c( #TODO: It should be logged.
+    dim(start_unique_codelist),
+    dim(start_study_codelist),
+    dim(exact_unique_codelist),
+    dim(exact_study_codelist)
+  ))
 
   # Finding exact matches
-  exact_match <- NULL
-  if (nrow(exact_unique_codelist) > 0) {
-    exact_match <- merge(exact_unique_codelist, exact_study_codelist,
+  exact_match <- exact_unique_codelist %>%
+    dplyr::inner_join(
+      exact_study_codelist,
       by = c("coding_system", "code_no_dot")
     )
-  }
 
+  if (nrow(exact_match) == 0) {
+    exact_match <- NULL
+  }
 
   if (nrow(start_unique_codelist) > 0) {
     # Finding start with matches
-    # TODO check merge is intersect join; result is a smaller set
-    start_exact_match <- merge(start_unique_codelist, start_study_codelist,
-      by = c("coding_system", "code_no_dot")
-    )
+    start_exact_match <- start_unique_codelist %>%
+      dplyr::inner_join(
+        start_study_codelist,
+        by = c("coding_system", "code_no_dot")
+      )
 
     # Preprocessing start with codes
-    start_unique_codelist[, ori_length_str := stringr::str_length(code_no_dot)]
+    start_unique_codelist <- start_unique_codelist %>%
+      dplyr::mutate(ori_length_str = stringr::str_length(.data$code_no_dot))
+
     max_code_length <- max(start_unique_codelist$ori_length_str)
+
     print(paste0(
       "[SetCodesheets] Max length of code from the DAP is : ",
       max_code_length
     ))
 
+
+
+
     # Splitting start with codes into different lengths
     list_cols_names <- seq(min_length_study_codelist, max_code_length)
     invisible(lapply(list_cols_names, function(x) {
-      start_unique_codelist[ori_length_str >= x, as.character(x) :=
-        substr(code_no_dot, 1, as.numeric(x))]
+      start_unique_codelist[
+        ori_length_str >= x,
+        as.character(x) := substr(code_no_dot, 1, as.numeric(x))
+      ]
     }))
 
     # Melting the dataset
@@ -105,7 +156,9 @@ create_dap_specific_codelist <- function(unique_codelist, study_codelist,
         by = cols_by
       ]
     } else {
-      results_startwith2 <- data.table::copy(results_startwith)[order(-length_str),
+      results_startwith2 <- data.table::copy(
+        results_startwith
+      )[order(-length_str),
         .SD[1],
         by = cols_by
       ]
@@ -127,14 +180,19 @@ create_dap_specific_codelist <- function(unique_codelist, study_codelist,
   }
 
   # Finding missing codes
-  missing_from_cdm <- data.table::as.data.table(dplyr::anti_join(unique_codelist,
-    dap_specific_codelist,
-    by = c("coding_system", "code_no_dot")
-  ))
-  missing_from_codelist <- data.table::as.data.table(dplyr::anti_join(study_codelist,
-    dap_specific_codelist,
-    by = c("coding_system", "code_no_dot")
-  ))
+  missing_from_cdm <- data.table::as.data.table(
+    dplyr::anti_join(
+      unique_codelist,dap_specific_codelist,
+      by = c("coding_system", "code_no_dot")
+    )
+  )
+  missing_from_codelist <- data.table::as.data.table(
+    dplyr::anti_join(
+      study_codelist,
+      dap_specific_codelist,
+      by = c("coding_system", "code_no_dot")
+    )
+  )
 
   # Combining all results
   dap_specific_codelist <- data.table::rbindlist(
