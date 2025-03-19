@@ -78,13 +78,13 @@ create_dap_specific_codelist <- function(
   #########################################
   # Finding exact matches: aka, merging imput file without cols.
   #########################################
-  exact_match <- exact_unique %>%
-    dplyr::inner_join(
-      exact_study,
-      by = c("coding_system", "code_no_dot")
-    )
-
-  if (nrow(exact_match) == 0) {
+  if (nrow(exact_unique) > 0) {
+    exact_match <- exact_unique %>%
+      dplyr::inner_join(
+        exact_study,
+        by = c("coding_system", "code_no_dot")
+      )
+  } else {
     exact_match <- NULL
   }
 

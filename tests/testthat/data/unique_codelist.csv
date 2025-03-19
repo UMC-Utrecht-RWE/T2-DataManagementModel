@@ -1,0 +1,11 @@
+code,coding_system,COUNT,variable,code_no_dot,code.DAP_UNIQUE_CODELIST
+R22.9,ICD10CM,113,event_code,R229,R22.9
+J91.0,ICD10CM,2,event_code,J910,J91.0
+N10,ICD10CM,46,event_code,N10,N10
+M79.10,ICD10CM,66,event_code,M7910,M79.10
+J00,ICD10CM,1783,event_code,J00,J00
+R50.83,ICD10CM,2,event_code,R5083,R50.83
+H26.9,ICD10CM,82,event_code,H269,H26.9
+N64.4,ICD10CM,66,event_code,N644,N64.4
+E61.1,ICD10CM,69,event_code,E611,E61.1
+R41.3,ICD10CM,38,event_code,R413,R41.3
