@@ -5,8 +5,8 @@
 #' are formatted as 'table_name-row_id'.
 #'
 #' @param db_connection Database connection object (DBIConnection).
-#' @param unique_id_dt A data.frame or data.table containing unique identifiers.
-#' @param unique_id_name Column name in unique_id_dt containing the identifiers. Default is "ID".
+#' @param ids A data.table containing unique identifiers.
+#' @param id_name Column name in ids containing the identifiers. Default is "ID".
 #' @param separator_id Character that separates table name from row ID in the unique identifier. Default is "-".
 #'
 #' @return A named list where each element contains the records from a CDM table
@@ -35,7 +35,7 @@
 #' # Retrieve records
 #' results <- get_origin_row(
 #'   db_connection = db_connection,
-#'   unique_id_dt = cases,
+#'   ids = cases,
 #'   separator_id = "-"
 #' )
 #' 
@@ -44,29 +44,38 @@
 #' }
 #'
 #' @export
-get_origin_row <- function(db_connection, unique_id_dt,
-                           unique_id_name = "ID", separator_id = "-") {
-  unique_id_dt <- data.table::as.data.table(unique_id_dt)
-  return_values <- list()
+get_origin_row <- function(db_connection, ids,
+                           id_name = "ori_id", separator_id = "-") {
   
-  # Check if the specified unique identifier exists in unique_id_dt
-  if (!unique_id_name %in% names(unique_id_dt)) {
+  return_values <- list()
+  # Check if the specified unique identifier exists in ids
+  if (nrow(ids) == 0) {
+    message(
+      "[get_origin_row] The data.table ids is empty '"
+    )
+    return(return_values)
+  }
+  
+  ids <- data.table::as.data.table(ids)
+  
+  # Check if the specified unique identifier exists in ids
+  if (!id_name %in% names(ids)) {
     message(paste0(
       "[get_origin_row] The unique identifier '",
-      unique_id_name, "' does not exist in the unique_id_dt"
+      id_name, "' does not exist in the ids"
     ))
     return(return_values)
   }
   
-  # Split the unique identifier into cdm_table and rowid
-  unique_id_dt[, c("cdm_table", "rowid") :=
-                 data.table::tstrsplit(get(unique_id_name),
+  # Split the unique identifier into ori_table and rowid
+  ids[, c("ori_table", "rowid") :=
+                 data.table::tstrsplit(get(id_name),
                                        separator_id,
                                        fixed = TRUE
                  )]
   
   # Check if separator_id is present in the unique identifier
-  if (is.null(unique_id_dt$rowid) || all(is.na(unique_id_dt$rowid))) {
+  if (is.null(ids$rowid) || all(is.na(ids$rowid))) {
     message(paste0(
       "[get_origin_row] The separator '", separator_id,
       "' does not exist in the unique identifiers"
@@ -75,7 +84,7 @@ get_origin_row <- function(db_connection, unique_id_dt,
   }
   
   # Loop through unique cdm_tables
-  for (table in unique(unique_id_dt$cdm_table)) {
+  for (table in unique(ids$ori_table)) {
     # Skip if table is NA
     if (is.na(table)) {
       next
@@ -91,10 +100,10 @@ get_origin_row <- function(db_connection, unique_id_dt,
     
     col_names_db <- DBI::dbListFields(db_connection, table)
     
-    # Check if unique_id_name exists in the table
-    if (!unique_id_name %in% col_names_db) {
+    # Check if id_name exists in the table
+    if (!id_name %in% col_names_db) {
       message(paste0(
-        "[get_origin_row] Column '", unique_id_name,
+        "[get_origin_row] Column '", id_name,
         "' does not exist in table '", table, "'"
       ))
       return_values[[table]] <- data.table::data.table()
@@ -102,7 +111,7 @@ get_origin_row <- function(db_connection, unique_id_dt,
     }
     
     # Get IDs for this table
-    table_ids <- unique_id_dt[cdm_table == table, get(unique_id_name)]
+    table_ids <- ids[ori_table == table, get(id_name)]
     
     if (length(table_ids) == 0) {
       return_values[[table]] <- data.table::data.table()
@@ -114,7 +123,7 @@ get_origin_row <- function(db_connection, unique_id_dt,
     
     # Retrieve records from the table based on the unique identifier
     query <- paste0(
-      "SELECT * FROM ", DBI::SQL(table), " WHERE ", DBI::SQL(unique_id_name), " IN (",
+      "SELECT * FROM ", DBI::SQL(table), " WHERE ", DBI::SQL(id_name), " IN (",
       paste0(formatted_ids, collapse = ","),
       ")"
     )
