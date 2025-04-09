@@ -6,8 +6,8 @@ library(duckdb)
 # Source the function file - you'll need to adjust this path
 # source("path/to/your/function.R")
 
-# Test suite for get_value_origin function
-test_that("get_value_origin returns correct values", {
+# Test suite for get_origin_value function
+test_that("get_origin_value returns correct values", {
   # Create a temporary DuckDB connection for testing
   db_connection <- DBI::dbConnect(duckdb::duckdb())
   
@@ -27,7 +27,7 @@ test_that("get_value_origin returns correct values", {
   
   # Test with valid columns parameter
   search_scheme <- list("cdm_table1" = "Column1", "cdm_table1" = "Column2", "cdm_table2" = "Column2")
-  result <- get_value_origin(cases_dt, db_connection, search_scheme = search_scheme)
+  result <- get_origin_value(cases_dt, db_connection, search_scheme = search_scheme)
   
   # Check result structure
   expect_s3_class(result, "data.table")
@@ -54,7 +54,7 @@ test_that("get_value_origin returns correct values", {
   DBI::dbDisconnect(db_connection, shutdown = TRUE)
 })
 
-test_that("get_value_origin handles multiple tables correctly", {
+test_that("get_origin_value handles multiple tables correctly", {
   # Create a temporary DuckDB connection for testing
   db_connection <-  DBI::dbConnect(duckdb::duckdb(), dir = temp())
   
@@ -76,7 +76,7 @@ test_that("get_value_origin handles multiple tables correctly", {
   
   # Test with columns for all tables
   search_scheme <- list("TableA" = "ColumnA", "TableB" = "ColumnB", "TableC" = "ColumnC")
-  result <- get_value_origin(cases_dt, db_connection, search_scheme = search_scheme)
+  result <- get_origin_value(cases_dt, db_connection, search_scheme = search_scheme)
   
   # Check overall result
   expect_equal(nrow(result), 5)
@@ -92,7 +92,7 @@ test_that("get_value_origin handles multiple tables correctly", {
 })
 
 
-test_that("get_value_origin throws error with NULL columns", {
+test_that("get_origin_value throws error with NULL columns", {
   # Create a temporary DuckDB connection
   db_connection <- DBI::dbConnect(duckdb::duckdb())
   
@@ -101,15 +101,15 @@ test_that("get_value_origin throws error with NULL columns", {
   
   # Test with NULL columns
   expect_error(
-    get_value_origin(cases_dt, db_connection, search_scheme = NULL),
-    "\\[get_value_origin\\] search_scheme need to be defined"
+    get_origin_value(cases_dt, db_connection, search_scheme = NULL),
+    "\\[get_origin_value\\] search_scheme need to be defined"
   )
   
   # Clean up
   dbDisconnect(db_connection, shutdown = TRUE)
 })
 
-test_that("get_value_origin handles empty cases data table", {
+test_that("get_origin_value handles empty cases data table", {
   # Create a temporary DuckDB connection
   db_connection <- DBI::dbConnect(duckdb::duckdb())
   
@@ -122,7 +122,7 @@ test_that("get_value_origin handles empty cases data table", {
   # Test with valid columns parameter but empty cases
   columns <- list("EmptyTest" = "Column1")
   
-  result <- suppressWarnings(get_value_origin(cases_dt, db_connection, search_scheme = columns))
+  result <- suppressWarnings(get_origin_value(cases_dt, db_connection, search_scheme = columns))
   # Check the result is an empty data table with correct structure
   expect_s3_class(result, "data.table")
   expect_equal(nrow(result), 0)
@@ -131,7 +131,7 @@ test_that("get_value_origin handles empty cases data table", {
   dbDisconnect(db_connection, shutdown = TRUE)
 })
 
-test_that("get_value_origin handles table not in columns list", {
+test_that("get_origin_value handles table not in columns list", {
   # Create a temporary DuckDB connection
   db_connection <-  DBI::dbConnect(duckdb::duckdb(), dir = temp())
   
@@ -152,8 +152,8 @@ test_that("get_value_origin handles table not in columns list", {
   
   # This should run without error, but only return results for Table1
   expect_warning(
-    result <- get_value_origin(cases_dt, db_connection, search_scheme),
-    "\\[get_value_origin\\] Column 'InventedColumn' does not exist in the 'Table1' table"  # No warning expecte
+    result <- get_origin_value(cases_dt, db_connection, search_scheme),
+    "\\[get_origin_value\\] Column 'InventedColumn' does not exist in the 'Table1' table"  # No warning expecte
   )
  
   # Check result only includes Table1

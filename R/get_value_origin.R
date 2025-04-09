@@ -15,49 +15,49 @@
 #' @examples
 #' \dontrun{
 #' # Example usage:
-#' get_value_origin(
+#' get_origin_value(
 #'   cases_dt, db_connection,
 #'   list("Table1" = "Column1", "Table2" = "Column2")
 #' )
 #' }
 #' 
 #' @export
-get_value_origin <- function(cases_dt, db_connection, search_scheme = NULL) {
+get_origin_value <- function(cases_dt, db_connection, search_scheme = NULL) {
   # Input validation
   # Check if cases_dt is a data.table
   if (!data.table::is.data.table(cases_dt)) {
-    stop("[get_value_origin] 'cases_dt' must be a data.table")
+    stop("[get_origin_value] 'cases_dt' must be a data.table")
   }
   
   # Check if required search_scheme exist in cases_dt
   required_cols <- c("ROWID", "ori_table")
   missing_cols <- required_cols[!required_cols %in% names(cases_dt)]
   if (length(missing_cols) > 0) {
-    stop(sprintf("[get_value_origin] 'cases_dt' is missing required search_scheme: %s", 
+    stop(sprintf("[get_origin_value] 'cases_dt' is missing required search_scheme: %s", 
                  paste(missing_cols, collapse = ", ")))
   }
   
   # Check if db_connection is valid
   if (!inherits(db_connection, "duckdb_connection") || !duckdb::dbIsValid(db_connection)) {
-    stop("[get_value_origin] 'db_connection' must be a valid DuckDB connection")
+    stop("[get_origin_value] 'db_connection' must be a valid DuckDB connection")
   }
   
   # Check if search_scheme parameter is provided and valid
   if (is.null(search_scheme)) {
-    stop("[get_value_origin] search_scheme need to be defined")
+    stop("[get_origin_value] search_scheme need to be defined")
   }
   
   if (!is.list(search_scheme) || length(search_scheme) == 0) {
-    stop("[get_value_origin] 'search_scheme' must be a non-empty list")
+    stop("[get_origin_value] 'search_scheme' must be a non-empty list")
   }
   
   if (!all(sapply(search_scheme, is.character)) || !all(sapply(search_scheme, length) == 1)) {
-    stop("[get_value_origin] Each element in 'search_scheme' must be a single character string")
+    stop("[get_origin_value] Each element in 'search_scheme' must be a single character string")
   }
   
   # Check if cases_dt is empty
   if (nrow(cases_dt) == 0) {
-    warning("[get_value_origin] 'cases_dt' is empty, returning empty result")
+    warning("[get_origin_value] 'cases_dt' is empty, returning empty result")
     return(data.table::data.table(ori_table = character(0), 
                                   ROWID = integer(0), 
                                   Value = character(0)))
@@ -69,7 +69,7 @@ get_value_origin <- function(cases_dt, db_connection, search_scheme = NULL) {
   # Check if all ori_tables exist in search_scheme list
   missing_tables <- ori_tables[!ori_tables %in% unique(names(search_scheme))]
   if (length(missing_tables) > 0) {
-    warning(sprintf("[get_value_origin] The following tables are not defined in 'search_scheme': %s", 
+    warning(sprintf("[get_origin_value] The following tables are not defined in 'search_scheme': %s", 
                     paste(missing_tables, collapse = ", ")))
   }
   
@@ -77,7 +77,7 @@ get_value_origin <- function(cases_dt, db_connection, search_scheme = NULL) {
   tryCatch({
     DBI::dbWriteTable(db_connection, "cases_tmp", cases_dt, overwrite = TRUE, temp = TRUE)
   }, error = function(e) {
-    stop(sprintf("[get_value_origin] Failed to write temporary table: %s", e$message))
+    stop(sprintf("[get_origin_value] Failed to write temporary table: %s", e$message))
   })
   
   # Initialize an empty list to store updated values
@@ -95,19 +95,19 @@ get_value_origin <- function(cases_dt, db_connection, search_scheme = NULL) {
     table_exists <- tryCatch({
       DBI::dbExistsTable(db_connection, ori_table)
     }, error = function(e) {
-      warning(sprintf("[get_value_origin] Error checking if table '%s' exists: %s", 
+      warning(sprintf("[get_origin_value] Error checking if table '%s' exists: %s", 
                       ori_table, e$message))
       return(FALSE)
     })
     
     if (!table_exists) {
-      warning(sprintf("[get_value_origin] Table '%s' does not exist in the database", ori_table))
+      warning(sprintf("[get_origin_value] Table '%s' does not exist in the database", ori_table))
       next
     }
     
     #Verify column exists in the table
     if (!column %in% DBI::dbListFields(db_connection, ori_table)) {
-      warning(sprintf("[get_value_origin] Column '%s' does not exist in the '%s' table", column, ori_table))
+      warning(sprintf("[get_origin_value] Column '%s' does not exist in the '%s' table", column, ori_table))
       next
     }
     
@@ -122,7 +122,7 @@ get_value_origin <- function(cases_dt, db_connection, search_scheme = NULL) {
     rs <- tryCatch({
       data.table::as.data.table(DBI::dbGetQuery(db_connection, query))
     }, error = function(e) {
-      warning(sprintf("[get_value_origin] Query failed for table '%s': %s", 
+      warning(sprintf("[get_origin_value] Query failed for table '%s': %s", 
                       ori_table, e$message))
       return(NULL)
     })
@@ -143,7 +143,7 @@ get_value_origin <- function(cases_dt, db_connection, search_scheme = NULL) {
   tryCatch({
     DBI::dbRemoveTable(db_connection, "cases_tmp")
   }, error = function(e) {
-    warning(sprintf("[get_value_origin] Failed to remove temporary table: %s", e$message))
+    warning(sprintf("[get_origin_value] Failed to remove temporary table: %s", e$message))
   })
   
   # Return unique values or empty data.table if no results
