@@ -79,11 +79,12 @@ create_dap_specific_codelist <- function(
   # Finding exact matches: aka, merging imput file without cols.
   #########################################
   if (nrow(exact_unique) > 0) {
-    exact_match <- exact_unique %>%
-      dplyr::inner_join(
-        exact_study,
-        by = c("coding_system", "code_no_dot")
-      )
+    exact_match <- data.table::merge(
+      exact_unique,
+      exact_study,
+      by = c("coding_system", "code_no_dot"),
+      all = FALSE  # ensure inner join
+    )
   } else {
     exact_match <- NULL
   }
@@ -146,11 +147,12 @@ create_dap_specific_codelist <- function(
     ]
 
     # Inner joining start with codes with the study codelist
-    results_startwith <- merge(
+    results_startwith <- data.table::merge(
       x = start_unique,
       y = start_study,
       by.x = c("coding_system", "code_no_dot2", "length_str"),
-      by.y = c("coding_system", "code_no_dot", "length_str")
+      by.y = c("coding_system", "code_no_dot", "length_str"),
+      all = FALSE # ensure inner join
     )
 
     # Selecting the top priority matches
@@ -159,7 +161,7 @@ create_dap_specific_codelist <- function(
       cols_by <- c(cols_by, additional_columns)
     }
 
-    if (!is.na(priority)) { #Is ordering something needed?
+    if (!is.na(priority)) {
       results_startwith2 <- data.table::copy(results_startwith)[
         order(
           -length_str,  #nolint
@@ -185,7 +187,7 @@ create_dap_specific_codelist <- function(
     dap_specific_codelist <- data.table::rbindlist( #Row-wise merging
       list(
         dap_specific_codelist,
-        results_startwith2[, .SD, .SDcols = names(start_match)]
+        results_startwith2[, names(start_match), with = FALSE]
       ),
       use.names = TRUE
     )
