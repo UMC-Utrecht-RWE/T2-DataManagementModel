@@ -4,19 +4,14 @@
 \alias{get_origin_row}
 \title{Get Records from Origin CDM Tables by Unique Identifier}
 \usage{
-get_origin_row(
-  db_connection,
-  unique_id_dt,
-  unique_id_name = "ID",
-  separator_id = "-"
-)
+get_origin_row(db_connection, ids, id_name = "ori_id", separator_id = "-")
 }
 \arguments{
 \item{db_connection}{Database connection object (DBIConnection).}
 
-\item{unique_id_dt}{A data.frame or data.table containing unique identifiers.}
+\item{ids}{A data.table containing unique identifiers.}
 
-\item{unique_id_name}{Column name in unique_id_dt containing the identifiers. Default is "ID".}
+\item{id_name}{Column name in ids containing the identifiers. Default is "ID".}
 
 \item{separator_id}{Character that separates table name from row ID in the unique identifier. Default is "-".}
 }
@@ -53,7 +48,7 @@ cases <- data.table(ID = c("EVENTS-1", "EVENTS-2"))
 # Retrieve records
 results <- get_origin_row(
   db_connection = db_connection,
-  unique_id_dt = cases,
+  ids = cases,
   separator_id = "-"
 )
 
