@@ -1,7 +1,7 @@
 # Author: RWE - UMC Utrecht
-# email: a.cidroyo@umcutrecht.com & Y.Mao@umcutrecht.nl
+# email: a.cidroyo@umcutrecht.com & Y.Mao@umcutrecht.nl #nolint
 # Organisation: UMC Utrecht, Utrecht, The Netherlands
-# Date: 19/02/2024
+# Date: 19/02/2024 #nolint
 
 # Load of packages needed for the T2 Transformation step
 

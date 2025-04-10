@@ -1,7 +1,7 @@
 # Author: RWE - UMC Utrecht
 # email: Y.Mao@umcutrecht.nl
 # Organisation: UMC Utrecht, Utrecht, The Netherlands
-# Date: 20/02/2024
+# Date: 20/02/2024 #nolint
 
 # Load of functions from folder "source_code/functions"
 

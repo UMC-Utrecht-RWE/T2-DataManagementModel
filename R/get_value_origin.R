@@ -112,6 +112,7 @@ get_origin_value <- function(cases_dt, db_connection, search_scheme = NULL) {
     }
     
     # Query the database to get values based on the specified column and ori_table
+
     query <- paste0(
       "SELECT t2.ori_table, t1.ROWID, '",column,"' AS column_origin, t1.", column, " AS value 
        FROM ", ori_table, " t1",

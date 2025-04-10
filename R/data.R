@@ -12,5 +12,5 @@
 #'   \item{TABLE}{name of the table in the database containing the variable}
 #'   \item{cols_list}{column name for this variable}
 #' }
-#' @source <https://docs.google.com/spreadsheets/d/1hc-TBOfEzRBthGP78ZWIa13C0RdhU7bK/edit#gid=439480870>
+#' @source <https://docs.google.com/spreadsheets/d/1hc-TBOfEzRBthGP78ZWIa13C0RdhU7bK/edit#gid=439480870> #nolint
 "concePTION_metadata_v2"
