@@ -38,13 +38,16 @@ import_file <- function(path, cols = NULL, cols_new = NULL, exprs = NULL,
     # Now you have a good fixed starting point
     if (!is.null(cols)) {
       loaded_file <- fread(path,
-        stringsAsFactors = FALSE, select = cols,
-        na.strings = c("", NA), colClasses = c("character")
+        stringsAsFactors = F, select = cols,
+        na.strings = c("", NA), colClasses = c("character"),
+        encoding = "UTF-8"
       )
     } else {
       loaded_file <- fread(path,
-        stringsAsFactors = FALSE, na.strings = c("", NA),
-        colClasses = c("character")
+        stringsAsFactors = F, na.strings = c("", NA),
+        colClasses = c("character"),
+        encoding = "UTF-8"
+
       )
     }
 

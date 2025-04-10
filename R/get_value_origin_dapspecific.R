@@ -12,11 +12,11 @@
 #' @examples
 #' \dontrun{
 #' # Example usage:
-#' get_value_origin_dapspecific(cases_dt, db_connection, codelist)
+#' get_origin_value_dapspecific(cases_dt, db_connection, codelist)
 #' }
 #'
 #' @export
-get_value_origin_dapspecific <- function(cases_dt, db_connection, codelist) {
+get_origin_value_dapspecific <- function(cases_dt, db_connection, codelist) {
   # Extract unique coding systems from the DAP-specific code list
   available_coding_system <- unique(codelist[, "DAP_SPEC_ID"])
 
