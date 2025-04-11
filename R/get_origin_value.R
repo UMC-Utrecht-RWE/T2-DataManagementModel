@@ -1,15 +1,17 @@
-#' Get values from the origin database based on specified columns
-#'
-#' This function retrieves values from the origin database for specified columns
+#' Get values from the origin database based on specified search_scheme
+#' 
+#' This function retrieves values from the origin database for specified search_scheme
 #' and tables.
-#'
+#' 
 #' @param cases_dt Data table containing information about cases.
-#' @param db_connection Database connection object.
-#' @param search_scheme A list specifying the columns to retrieve for each unique
-#'   ori_table.
-#'
+#'        Must be a data.table with at least the search_scheme "ROWID" and "ori_table".
+#' @param db_connection Database connection object. Must be an active DuckDB connection.
+#' @param search_scheme A list specifying the search_scheme to retrieve for each unique
+#'        ori_table. Each element name must correspond to a table in the database,
+#'        and each value must be a single column name as character.
+#' 
 #' @return A data table with the collected values.
-#'
+#' 
 #' @examples
 #' \dontrun{
 #' # Example usage:
@@ -18,7 +20,7 @@
 #'   list("Table1" = "Column1", "Table2" = "Column2")
 #' )
 #' }
-#'
+#' 
 #' @export
 get_origin_value <- function(cases_dt, db_connection, search_scheme = NULL) {
   # Input validation
@@ -111,9 +113,10 @@ get_origin_value <- function(cases_dt, db_connection, search_scheme = NULL) {
     
     # Query the database to get values based on the specified column and ori_table
     query <- paste0(
-      "SELECT t2.ori_table, t1.ROWID, ", column,
-      " FROM ", ori_table, " t1",
-      " INNER JOIN cases_tmp t2 ON t1.ROWID = t2.ROWID"
+      "SELECT t2.ori_table, t1.ROWID, '",column,"' AS column_origin, t1.", column, " AS value 
+       FROM ", ori_table, " t1",
+      " INNER JOIN (SELECT * FROM cases_tmp WHERE ori_table = '",ori_table,"') t2 
+      ON t1.ROWID = t2.ROWID"
     )
     
     rs <- tryCatch({
@@ -135,7 +138,7 @@ get_origin_value <- function(cases_dt, db_connection, search_scheme = NULL) {
       rm(rs)
     }
   }
-
+  
   # Remove the temporary table from the database
   tryCatch({
     DBI::dbRemoveTable(db_connection, "cases_tmp")
