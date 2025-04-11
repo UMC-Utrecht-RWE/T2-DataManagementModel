@@ -2,23 +2,25 @@
 % Please edit documentation in R/get_origin_value.R
 \name{get_origin_value}
 \alias{get_origin_value}
-\title{Get values from the origin database based on specified columns}
+\title{Get values from the origin database based on specified search_scheme}
 \usage{
 get_origin_value(cases_dt, db_connection, search_scheme = NULL)
 }
 \arguments{
-\item{cases_dt}{Data table containing information about cases.}
+\item{cases_dt}{Data table containing information about cases.
+Must be a data.table with at least the search_scheme "ROWID" and "ori_table".}
 
-\item{db_connection}{Database connection object.}
+\item{db_connection}{Database connection object. Must be an active DuckDB connection.}
 
-\item{search_scheme}{A list specifying the columns to retrieve for each unique
-ori_table.}
+\item{search_scheme}{A list specifying the search_scheme to retrieve for each unique
+ori_table. Each element name must correspond to a table in the database,
+and each value must be a single column name as character.}
 }
 \value{
 A data table with the collected values.
 }
 \description{
-This function retrieves values from the origin database for specified columns
+This function retrieves values from the origin database for specified search_scheme
 and tables.
 }
 \examples{
