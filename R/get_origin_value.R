@@ -5,7 +5,7 @@
 #'
 #' @param cases_dt Data table containing information about cases.
 #' @param db_connection Database connection object.
-#' @param columns A list specifying the columns to retrieve for each unique
+#' @param search_scheme A list specifying the columns to retrieve for each unique
 #'   ori_table.
 #'
 #' @return A data table with the collected values.
