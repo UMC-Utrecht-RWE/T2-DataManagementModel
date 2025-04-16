@@ -1,0 +1,21 @@
+{
+    "data_model": "ConcePTION",
+    "operations_path": "R/scripts/operations",
+    "operations": {
+      "DuplicateRemover": true,
+      "MissingRemover": false,
+      "UniqueIdGenerator": true,
+      "ReportGenerator": true
+    },
+    "cdm_tables_names": [
+      "PERSONS",
+      "VACCINES",
+      "OBSERVATION_PERIODS",
+      "MEDICAL_OBSERVATIONS",
+      "MEDICINES",
+      "EVENTS",
+      "SURVEY_OBSERVATIONS",
+      "SURVEY_ID",
+      "VISIT_OCCURRENCE"
+    ]
+  }
