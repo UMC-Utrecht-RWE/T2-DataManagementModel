@@ -1,81 +1,118 @@
-# Author: Albert Cid Royo
-# email: a.cidroyo@umcutrecht.com & Y.Mao@umcutrecht.nl
-# Organisation: UMC Utrecht, Utrecht, The Netherlands
-# Date: 05/12/2022
+DatabaseLoader <- R6::R6Class("DatabaseLoader", #nolint
+  public = list(
+    # Public attributes
+    db_path = NULL,
+    config_path = NULL,
+    cdm_metadata = NULL,
+    # interanl attributes
+    config = NULL,
+    metadata = NULL,
+    db = NULL,
 
-# This script uses the different functions from the package
-# The aim of the script is to:
-# Load all the tables of interest from the CDM into a SQLite Database
-# by:
-# 1. Connecting to a new Database ori (origin)
-# 2. Reading the cdm_metadata.rds file
-# 3. Loading all CSV files form the D2 folder to the d2.db
-# 4. Option: Exclude duplicate rows
-# 5. Create unique id per row
+    initialize = function(
+        db_path = "somewhere/d2.db",
+        config_path = "configuration/set_db.json",
+        cdm_metadata = "somewhere/CDM_metadata.rds") {
+      # Initialize the class with the provided parameters
+      self$db_path <- db_path
+      self$config <- jsonlite::fromJSON(config_path)
+      self$metadata <- data.table::as.data.table(
+        base::readRDS(cdm_metadata)
+      )
+      tryCatch({
+        self$db <-  duckdb::dbConnect(duckdb::duckdb(), self$db_path)
+      },
+      error = function(e) {
+        print(paste("Error connecting to database:", e))
+      })
+    },
 
-print(paste0("[Set Data Base]: Starting import into Data Base "))
+    set_database = function() {
+      print("Setting up the database")
+      # Loading files into the origin database
+      tryCatch({
+        T2.DMM::load_db(
+          db_connection = self$db,
+          csv_path_dir = self$db_path,
+          cdm_metadata = self$metadata,
+          cdm_tables_names = self$config$cdm_tables_names
+        )
+      },
+      error = function(e) {
+        print(paste("Error loading database:", e))
+      })
+    },
 
-#################
-# Loading files into the origin database
-################
+    run_db_ops = function(ops = NULL) {
+      if (is.null(ops)) {
+        ops <- private$get_all_operations()
+      }
+      for (op in ops) {
+        print(glue::glue("Running class: {op$classname}"))
+        op$run(self)
+      }
+      DBI::dbDisconnect(self$db)
+      gc()
+    }
+  ),
 
-cdm_metadata <- as.data.table(readRDS(file.path(transformations_common_configuration, "CDM_metadata.rds")))
+  private = list(
+    clean_files = function(dir) {
+      files_to_remove <- Sys.glob(dir)
+      if (length(files_to_remove) > 0) {
+        print(paste("Removing files in:", dir))
+        unlink(files_to_remove, recursive = TRUE)
+      } else {
+        print(paste("No files to remove in:", dir))
+      }
+    },
 
-dir_d2_db <- file.path(transformations_T2_semantic_harmonization_intermediate_data_file, "d2.db")
+    get_all_operations = function() {
+      print(glue::glue(
+        "Getting all operations from folder: {self$config$operations_path}"
+      ))
+      ops <- list()
+      op_files <- list.files(
+        self$config$operations_path, pattern = "\\.R$", full.names = TRUE
+      )
 
-if (file.exists(dir_d2_db)) {
-  file.remove(dir_d2_db)
-}
-db_connection_origin <- dbConnect(RSQLite::SQLite(), dir_d2_db)
+      # Ensure operations are loaded in the order specified in the configuration
+      ordered_operations <- names(self$config$operations)
 
-cdm_tables_names <- c(
-  "PERSONS", "VACCINES", "OBSERVATION_PERIODS", "MEDICAL_OBSERVATIONS",
-  "MEDICINES", "EVENTS", "SURVEY_OBSERVATIONS", "SURVEY_ID", "VISIT_OCCURRENCE"
-)
-load_db(
-  db_connection = db_connection_origin, csv_path_dir = data_D2_cdm,
-  cdm_metadata = cdm_metadata, cdm_tables_names = cdm_tables_names
-)
+      for (operation in ordered_operations) {
+        operation_file <- op_files[
+          grepl(paste0("^", operation, "\\.R$"), basename(op_files))
+        ]
+        if (length(operation_file) == 1) {
+          source(operation_file)
+          class_obj <- get(operation, envir = .GlobalEnv)
 
-#################
-# OPTIONAL: Deleting duplicates
-################
+          # Check if class inherits from DatabaseOperation and is enabled
+          # in the configuration file.
+          inherits_from_dbop <- !is.null(class_obj$inherit) &&
+            class_obj$inherit == "DatabaseOperation"
+          is_enabled <- isTRUE(self$config$operations[[class_obj$classname]])
 
-delete_duplicates_flag <- TRUE
-if (delete_duplicates_flag == TRUE) {
-  # The scheme defines the columns names (* = all) used for identifying unique records. The scheme is defined for every table in the CDM
-  scheme <- setNames(rep("*", length(cdm_tables_names)), cdm_tables_names)
-  delete_duplicates_origin(
-    db_connection = db_connection_origin, scheme, save_deleted = TRUE,
-    save_path = transformations_T2_semantic_harmonization_intermediate_data_file
+          if (inherits_from_dbop && is_enabled) {
+            print(glue::glue(("Loading operation: {class_obj$classname}")))
+            ops[[length(ops) + 1]] <- class_obj$new()
+          } else {
+            print(glue::glue("Skipped operation: {class_obj$classname}"))
+          }
+        } else {
+          print(
+            glue::glue("Operation file not found or ambiguous for: {operation}")
+          )
+        }
+      }
+      ops
+    }
   )
-}
-
-#################
-# Generate Unique ID of each record.
-################
-
-create_unique_id(db_connection_origin, cdm_tables_names, extension_name = "")
-
-#################
-# OPTIONAL: Report the number of rows per table, this is useful for early detection of missing records
-################
-
-count_rows_flag <- TRUE
-
-if (count_rows_flag == TRUE) {
-  count_rows_origin <- get_rows_tables(db_connection_origin)
-  print("[GetRowsTablesDataBase] Origin Database values")
-  print(count_rows_origin)
-
-  dir_save_count_row <- file.path(
-    transformations_T2_semantic_harmonization_intermediate_data_file,
-    "count_rows_origin.rds"
-  )
-  saveRDS(count_rows_origin, dir_save_count_row)
-}
+)
 
 
-dbDisconnect(db_connection_origin)
 
-print(paste0("[Set Data Base]: IMPORT ACCOMPLISHED"))
+loader <- DatabaseLoader$new()
+loader$set_database()
+# print(loader$db)
+loader$run_db_ops()
