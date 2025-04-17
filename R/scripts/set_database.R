@@ -29,6 +29,7 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", #nolint
 
     set_database = function() {
       print("Setting up the database")
+      # Loading files into the origin database
       tryCatch({
         T2.DMM::load_db(
           db_connection = self$db,
@@ -50,7 +51,8 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", #nolint
         print(glue::glue("Running class: {op$classname}"))
         op$run(self)
       }
-      # DBI::dbDisconnect(self$db)
+      DBI::dbDisconnect(self$db)
+      gc()
     }
   ),
 
