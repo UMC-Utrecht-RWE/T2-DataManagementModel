@@ -155,7 +155,7 @@ test_that("get_origin_value handles table not in columns list", {
     result <- get_origin_value(cases_dt, db_connection, search_scheme),
     "\\[get_origin_value\\] Column 'InventedColumn' does not exist in the 'Table1' table"  # No warning expecte
   )
- 
+  
   # Check result only includes Table1
   expect_equal(nrow(result), 1)
   expect_equal(result$ori_table, "Table1")
