@@ -87,7 +87,7 @@ get_origin_row <- function(db_connection, ids,
   for (table in unique(ids$ori_table)) {
     # Skip if table is NA
     if (is.na(table)) {
-      next
+      next ()
     }
     
     # Verify table exists in database
