@@ -31,7 +31,7 @@
       "VISIT_OCCURRENCE": ["person_id"]
     },
     "report": {
-      "report_path": "",
+      "report_path": "data",
       "report_name": "count_rows_origin.fst"
     }
   }

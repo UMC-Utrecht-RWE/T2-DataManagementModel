@@ -37,16 +37,16 @@ ReportGenerator <- R6::R6Class("ReportGenerator", #nolint
   public = list(
     classname = "ReportGenerator",
     run = function(db_loader) {
-      print(glue::glue("Generating reports for {db_loader$instance_name}"))
+      print(
+        glue::glue("Generating reports for: {db_loader$config$instance_name}")
+      )
 
       count_rows_origin <- T2.DMM::get_rows_tables(db_loader$db)
       dir_save_count_row <- file.path(
         db_loader$config$report$report_path,
-        db_loader$config$report$report_name,
+        db_loader$config$report$report_name
       )
       fst::write_fst(count_rows_origin, dir_save_count_row)
-
-      duckdb::dbDisconnect(db_loader$db, shutdown = TRUE)
 
       print("Reports generated.")
     }

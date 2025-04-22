@@ -29,6 +29,7 @@ source("R/scripts/operations/DatabaseOperation.R")
 UniqueIdGenerator <- R6::R6Class("UniqueIdGenerator", #nolint
   inherit = DatabaseOperation,
   public = list(
+    classname = "UniqueIdGenerator",
     run = function(db_loader) {
       T2.DMM::create_unique_id(
         db_loader$db,
