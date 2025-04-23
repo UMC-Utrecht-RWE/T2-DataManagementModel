@@ -47,18 +47,26 @@ MissingRemover <- R6::R6Class("MissingRemover", #nolint
           ))
 
           lapply(db_loader$config$list_colums_clean[index], function(x) {
-            rs <- DBI::dbSendStatement(
-              db_loader$db,
-              paste0(
-                "DELETE FROM ", table_to_clean, " WHERE ", x,
-                " IS NULL OR ", x, " = '' OR ", x, " = 'NA'"
-              )
+            query <- paste0(
+              "DELETE FROM ", table_to_clean,
+              " WHERE ", x, " IS NULL OR ", x, " = '' OR ", x, " = 'NA'"
             )
-            num_rows <- duckdb::dbGetRowsAffected(rs)
-            duckdb::dbClearResult(rs)
+
+            result <- tryCatch({
+              affected <- DBI::dbExecute(db_loader$db, query)
+              if (affected == 0) {
+                message(glue::glue("No missing rows in {table_to_clean}.{x}"))
+              } else {
+                message(glue::glue("Deleted rows from {table_to_clean}.{x}"))
+              }
+            }, error = function(e) {
+              warning(glue::glue(
+                "Failed to clean {table_to_clean}.{x}: {e$message}"
+              ))
+            })
           })
         } else {
-          print(glue::glue(" Table {table_to_clean} does not exist"))
+          print(glue::glue("Table {table_to_clean} does not exist"))
         }
       }
       print(glue::glue("Missing values removed."))
