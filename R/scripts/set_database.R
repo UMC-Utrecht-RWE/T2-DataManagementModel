@@ -167,13 +167,13 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", #nolint
 )
 
 
-
-loader <- DatabaseLoader$new(
-  db_path = "somewhere/d2.duckdb",
-  config_path = "configuration/set_db.json",
-  # cdm_metadata = "somewhere/CDM_metadata.rds"
-  cdm_metadata = "data/TP_CIP_COV_synthetic.rds"
-)
-loader$set_database()
-# print(loader$db)
-loader$run_db_ops()
+# source("R/scripts/operations/DatabaseOperation.R")
+# loader <- DatabaseLoader$new(
+#   db_path = "somewhere/d2.duckdb",
+#   config_path = "configuration/set_db.json",
+#   # cdm_metadata = "somewhere/CDM_metadata.rds"
+#   cdm_metadata = "data/TP_CIP_COV_synthetic.rds"
+# )
+# loader$set_database()
+# # print(loader$db)
+# loader$run_db_ops()

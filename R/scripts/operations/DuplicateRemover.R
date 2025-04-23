@@ -27,7 +27,6 @@
 #' duplicate_remover$run(loader)
 #'
 #' @importFrom T2.DMM delete_duplicates_origin
-source("R/scripts/operations/DatabaseOperation.R")
 DuplicateRemover <- R6::R6Class("DuplicateRemover", #nolint
   inherit = DatabaseOperation,
   public = list(
