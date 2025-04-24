@@ -37,7 +37,7 @@ table_definitions <- list(
   MEDICAL_OBSERVATIONS = "id TEXT, observation TEXT, patient_id INTEGER",
   MEDICINES = "id TEXT, medicine_name TEXT, dosage TEXT",
   OBSERVATION_PERIODS = "id TEXT, start_date DATE, end_date DATE",
-  PERSONS = "person_id INTEGER, name TEXT, birth_date DATE",
+  PERSONS = "id INTEGER, name TEXT, birth_date DATE",
   SURVEY_ID = "id TEXT, survey_name TEXT",
   SURVEY_OBSERVATIONS = "id TEXT, survey_id INTEGER, observation TEXT",
   VACCINES = "id TEXT, vaccine_name TEXT, manufacturer TEXT",
