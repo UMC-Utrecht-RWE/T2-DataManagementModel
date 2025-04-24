@@ -31,8 +31,9 @@
 #' @importFrom duckdb dbGetRowsAffected dbClearResult
 #' @importFrom glue glue
 #' @keywords internal
+#' @export
 MissingRemover <- R6::R6Class("MissingRemover", #nolint
-  inherit = DatabaseOperation,
+  inherit = T2.DMM::DatabaseOperation,
   public = list(
     classname = "MissingRemover",
     run = function(db_loader) {

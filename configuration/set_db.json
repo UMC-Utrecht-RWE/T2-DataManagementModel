@@ -1,6 +1,6 @@
 {
     "data_model": "ConcePTION",
-    "operations_path": "R/scripts/operations",
+    "operations_path": "R",
     "operations": {
       "DuplicateRemover": true,
       "MissingRemover": false,

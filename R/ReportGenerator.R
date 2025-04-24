@@ -32,8 +32,9 @@
 #' @importFrom glue glue
 #' @importFrom duckdb dbDisconnect
 #' @keywords internal
+#' @export
 ReportGenerator <- R6::R6Class("ReportGenerator", #nolint
-  inherit = DatabaseOperation,
+  inherit = T2.DMM::DatabaseOperation,
   public = list(
     classname = "ReportGenerator",
     run = function(db_loader) {

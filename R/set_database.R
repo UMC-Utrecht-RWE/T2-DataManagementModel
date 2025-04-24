@@ -55,6 +55,7 @@
 #' @importFrom DBI dbDisconnect
 #' @importFrom glue glue
 #' @keywords internal
+#' @export
 DatabaseLoader <- R6::R6Class("DatabaseLoader", #nolint
   public = list(
     # Public attributes
@@ -140,6 +141,7 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", #nolint
         operation_file <- op_files[
           grepl(paste0("^", operation, "\\.R$"), basename(op_files))
         ]
+
         if (length(operation_file) == 1) {
           source(operation_file)
           class_obj <- get(operation, envir = .GlobalEnv)
@@ -166,3 +168,13 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", #nolint
     }
   )
 )
+
+loader <- DatabaseLoader$new(
+  db_path = "somewhere/d2.duckdb",
+  config_path = "configuration/set_db.json",
+  # cdm_metadata = "somewhere/CDM_metadata.rds"
+  cdm_metadata = "data/TP_CIP_COV_synthetic.rds"
+)
+loader$set_database()
+# print(loader$db)
+loader$run_db_ops()
