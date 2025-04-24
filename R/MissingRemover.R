@@ -35,6 +35,7 @@
 #' @importFrom DBI dbListTables dbSendStatement
 #' @importFrom duckdb dbGetRowsAffected dbClearResult
 #' @importFrom glue glue
+#' @docType class
 #' @keywords internal
 #' @export
 MissingRemover <- R6::R6Class("MissingRemover", # nolint

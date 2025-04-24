@@ -22,6 +22,7 @@
 #'   }
 #' }
 #'
+#' @docType class
 #' @keywords internal
 #' @export
 DuplicateRemover <- R6::R6Class("DuplicateRemover", # nolint

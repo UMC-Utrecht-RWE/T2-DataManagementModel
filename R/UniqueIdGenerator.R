@@ -38,6 +38,7 @@
 #' unique_id_generator$run(loader)
 #' }
 #'
+#' @docType class
 #' @keywords internal
 #' @export
 UniqueIdGenerator <- R6::R6Class("UniqueIdGenerator", # nolint

@@ -35,6 +35,7 @@
 #' @importFrom fst write_fst
 #' @importFrom glue glue
 #' @importFrom duckdb dbDisconnect
+#' @docType class
 #' @keywords internal
 #' @export
 ReportGenerator <- R6::R6Class("ReportGenerator", # nolint

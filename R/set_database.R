@@ -58,7 +58,7 @@
 #' @importFrom duckdb dbConnect dbDisconnect
 #' @importFrom DBI dbDisconnect
 #' @importFrom glue glue
-#' @keywords internal
+#' @docType class
 #' @export
 DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
   public = list(
