@@ -8,7 +8,9 @@ setwd("temp")
 testthat::test_that(
   "ReportGenerator calls generate_report with expected arguments",
   {
-    testthat::expect_true(ReportGenerator$inherit == "DatabaseOperation")
+    testthat::expect_true(
+      ReportGenerator$inherit == "T2.DMM::DatabaseOperation"
+    )
 
     generator <- ReportGenerator$new()
     testthat::expect_s3_class(generator, "ReportGenerator")

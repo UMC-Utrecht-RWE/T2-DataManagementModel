@@ -8,7 +8,9 @@ setwd("temp")
 testthat::test_that(
   "DuplicateRemover calls delete_duplicates_origin with expected arguments",
   {
-    testthat::expect_true(DuplicateRemover$inherit == "DatabaseOperation")
+    testthat::expect_true(
+      DuplicateRemover$inherit == "T2.DMM::DatabaseOperation"
+    )
 
     remover <- DuplicateRemover$new()
     testthat::expect_s3_class(remover, "DuplicateRemover")

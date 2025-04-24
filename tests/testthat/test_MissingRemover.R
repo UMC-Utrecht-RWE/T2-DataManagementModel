@@ -8,7 +8,9 @@ setwd("temp")
 testthat::test_that(
   "MissingRemover calls delete_missing_origin with expected arguments",
   {
-    testthat::expect_true(MissingRemover$inherit == "DatabaseOperation")
+    testthat::expect_true(
+      MissingRemover$inherit == "T2.DMM::DatabaseOperation"
+    )
 
     remover <- MissingRemover$new()
     testthat::expect_s3_class(remover, "MissingRemover")

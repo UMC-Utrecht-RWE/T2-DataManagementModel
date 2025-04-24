@@ -8,7 +8,9 @@ setwd("temp")
 testthat::test_that(
   "UniqueIdGenerator calls generate_unique_id with expected arguments",
   {
-    testthat::expect_true(UniqueIdGenerator$inherit == "DatabaseOperation")
+    testthat::expect_true(
+      UniqueIdGenerator$inherit == "T2.DMM::DatabaseOperation"
+    )
 
     generator <- UniqueIdGenerator$new()
     testthat::expect_s3_class(generator, "UniqueIdGenerator")
