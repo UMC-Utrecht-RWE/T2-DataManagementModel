@@ -22,7 +22,6 @@
 #'   }
 #' }
 #'
-#' @importFrom T2.DMM delete_duplicates_origin
 #' @keywords internal
 #' @export
 DuplicateRemover <- R6::R6Class("DuplicateRemover", # nolint

@@ -32,7 +32,6 @@
 #' report_generator$run(loader)
 #' }
 #'
-#' @importFrom T2.DMM get_rows_tables
 #' @importFrom fst write_fst
 #' @importFrom glue glue
 #' @importFrom duckdb dbDisconnect
