@@ -33,15 +33,15 @@ conn <- dbConnect(duckdb::duckdb(), db_path)
 
 # Define table schemas
 table_definitions <- list(
-  EVENTS = "id INTEGER, event_name TEXT, event_date DATE",
-  MEDICAL_OBSERVATIONS = "id INTEGER, observation TEXT, patient_id INTEGER",
-  MEDICINES = "id INTEGER, medicine_name TEXT, dosage TEXT",
-  OBSERVATION_PERIODS = "id INTEGER, start_date DATE, end_date DATE",
+  EVENTS = "id TEXT, event_name TEXT, event_date DATE",
+  MEDICAL_OBSERVATIONS = "id TEXT, observation TEXT, patient_id INTEGER",
+  MEDICINES = "id TEXT, medicine_name TEXT, dosage TEXT",
+  OBSERVATION_PERIODS = "id TEXT, start_date DATE, end_date DATE",
   PERSONS = "person_id INTEGER, name TEXT, birth_date DATE",
-  SURVEY_ID = "id INTEGER, survey_name TEXT",
-  SURVEY_OBSERVATIONS = "id INTEGER, survey_id INTEGER, observation TEXT",
-  VACCINES = "id INTEGER, vaccine_name TEXT, manufacturer TEXT",
-  VISIT_OCCURRENCE = "id INTEGER, visit_date DATE, patient_id INTEGER"
+  SURVEY_ID = "id TEXT, survey_name TEXT",
+  SURVEY_OBSERVATIONS = "id TEXT, survey_id INTEGER, observation TEXT",
+  VACCINES = "id TEXT, vaccine_name TEXT, manufacturer TEXT",
+  VISIT_OCCURRENCE = "id TEXT, visit_date DATE, patient_id INTEGER"
 )
 
 # Create tables
