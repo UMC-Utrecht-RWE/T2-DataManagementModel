@@ -6,7 +6,8 @@ if (!file.exists("temp")) {
 setwd("temp")
 
 testthat::test_that(
-  "UniqueIdGenerator calls generate_unique_id with expected arguments", {
+  "UniqueIdGenerator calls generate_unique_id with expected arguments",
+  {
     testthat::expect_true(UniqueIdGenerator$inherit == "DatabaseOperation")
 
     generator <- UniqueIdGenerator$new()

@@ -2,26 +2,28 @@ library(data.table)
 library(DBI)
 library(duckdb)
 
-#====================
+# ====================
 # 1. SHARED METADATA
-#====================
+# ====================
 
 shared_metadata <- data.table(
   person_id = sprintf("#ID-%08d#", 1:5),
   Date = seq(18000, by = 123, length.out = 5),
   Voc = rep("ICD10", 5),
   Value = rep(1, 5),
-  Outcome = c("FAKE_COV_1", "FAKE_COV_2", "FAKE_COV_3",
-              "FAKE_COV_1", "FAKE_COV_2")
+  Outcome = c(
+    "FAKE_COV_1", "FAKE_COV_2", "FAKE_COV_3",
+    "FAKE_COV_1", "FAKE_COV_2"
+  )
 )
 
 shared_metadata_path <- file.path(tempdir(), "shared_metadata.rds")
 saveRDS(shared_metadata, shared_metadata_path)
 Sys.setenv(SHARED_METADATA_PATH = shared_metadata_path)
 
-#====================
+# ====================
 # 2. TEMP DATABASE
-#====================
+# ====================
 
 # Define a persistent database path
 db_path <- tempfile(fileext = ".duckdb")
@@ -69,9 +71,9 @@ lapply(insert_statements, dbExecute, conn = conn)
 assign("SYNTHETIC_DB_CONN", conn, envir = .GlobalEnv)
 Sys.setenv(SYNTHETIC_DB_PATH = db_path)
 
-#====================
+# ====================
 # 3. TEST CONFIGURATION FILE
-#====================
+# ====================
 config_json <- '{
   "data_model": "ConcePTION",
   "operations_path": "R/scripts/operations",

@@ -7,7 +7,6 @@ setwd("temp")
 
 # test-database-operation.R
 testthat::test_that("DatabaseOperation abstract methods behave as expected", {
-
   # Instantiate the abstract class
   db_op <- DatabaseOperation$new()
 
@@ -21,7 +20,7 @@ testthat::test_that("DatabaseOperation abstract methods behave as expected", {
 
 testthat::test_that("Subclass of DatabaseOperation can override run()", {
   # Define dummy subclass inline
-  DummyOp <- R6::R6Class("DummyOp", #nolint
+  DummyOp <- R6::R6Class("DummyOp", # nolint
     inherit = DatabaseOperation,
     public = list(
       run = function(db_loader) {

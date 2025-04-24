@@ -20,24 +20,27 @@
 #' @field metadata A `data.table` object containing the metadata loaded.
 #' @field db A database connection object created using the `duckdb` package.
 #'
-#' @method initialize
-#' @param db_path A string representing the path to the database file.
-#' @param config_path String representing the path to configuration file JSON.
-#' @param cdm_metadata A string representing the path to the metadata RDS file
-#' @return None. Initializes the class and sets up the database connection.
-#'
-#' @method set_database
-#' @description Loads the database with the required data using the
-#' configuration and metadata provided during initialization.
-#' @return None. Prints messages to the console during the process.
-#'
-#' @method run_db_ops
-#' @param ops A list of operation objects to execute. If `NULL`, the operations
-#' are retrieved using the `get_all_operations` method.
-#' @description Executes a series of database operations in the order specified
-#' in the configuration file. Each operation is an R6 class that inherits from
-#' `DatabaseOperation`.
-#' @return None. Prints messages to the console during the process.
+#' @section Methods:
+#' \describe{
+#'   \item{`initialize(db_path, config_path, cdm_metadata)`}{
+#'     Initializes the class with the provided parameters.
+#'     \itemize{
+#'       \item `db_path`: A string representing the path to the database file.
+#'       \item `config_path`: A string representing the path to configuration.
+#'       \item `cdm_metadata`: A string representing the path to the metadata.
+#'     }
+#'   }
+#'   \item{`set_database()`}{
+#'     Loads the database with the required data.
+#'   }
+#'   \item{`run_db_ops(ops)`}{
+#'     Executes a series of database operations in the order of config file.
+#'     \itemize{
+#'       \item `ops`: A list of operation objects to execute. If `NULL, they
+#'       are retrieved using the `get_all_operations` method.
+#'     }
+#'   }
+#' }
 #'
 #' @examples
 #' # Example usage:
@@ -56,51 +59,60 @@
 #' @importFrom glue glue
 #' @keywords internal
 #' @export
-DatabaseLoader <- R6::R6Class("DatabaseLoader", #nolint
+DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
   public = list(
     # Public attributes
     db_path = NULL,
     config_path = NULL,
     cdm_metadata = NULL,
-    # interanl attributes
+    # Internal attributes
     config = NULL,
     metadata = NULL,
     db = NULL,
-
-    initialize = function(
-        db_path = NULL,
-        config_path = NULL,
-        cdm_metadata = NULL) {
-      # Initialize the class with the provided parameters
+    #' @description
+    #' Initializes the class with the provided parameters.
+    #' @param db_path A string representing the path to the database file.
+    #' @param config_path A string representing the path to configuration file.
+    #' @param cdm_metadata A string representing the path to the metadata file.
+    initialize = function(db_path = NULL,
+                          config_path = NULL,
+                          cdm_metadata = NULL) {
       self$db_path <- db_path
       self$config <- jsonlite::fromJSON(config_path)
       self$metadata <- data.table::as.data.table(
         base::readRDS(cdm_metadata)
       )
-      tryCatch({
-        self$db <-  duckdb::dbConnect(duckdb::duckdb(), self$db_path)
-      },
-      error = function(e) {
-        print(paste("Error connecting to database:", e))
-      })
+      tryCatch(
+        {
+          self$db <- duckdb::dbConnect(duckdb::duckdb(), self$db_path)
+        },
+        error = function(e) {
+          print(paste("Error connecting to database:", e))
+        }
+      )
     },
-
+    #' @description
+    #' Loads the database with the required data using config and metadata.
     set_database = function() {
       print("Setting up the database")
-      # Loading files into the origin database
-      tryCatch({
-        T2.DMM::load_db(
-          db_connection = self$db,
-          csv_path_dir = self$db_path,
-          cdm_metadata = self$metadata,
-          cdm_tables_names = self$config$cdm_tables_names
-        )
-      },
-      error = function(e) {
-        print(paste("Error loading database:", e))
-      })
+      tryCatch(
+        {
+          T2.DMM::load_db(
+            db_connection = self$db,
+            csv_path_dir = self$db_path,
+            cdm_metadata = self$metadata,
+            cdm_tables_names = self$config$cdm_tables_names
+          )
+        },
+        error = function(e) {
+          print(paste("Error loading database:", e))
+        }
+      )
     },
-
+    #' @description
+    #' Executes a series of database operations in order specified in config.
+    #' @param ops A list of operation objects to execute. If `NULL`, operations
+    #' are retrieved using the `get_all_operations` method.
     run_db_ops = function(ops = NULL) {
       if (is.null(ops)) {
         ops <- private$get_all_operations()
@@ -113,7 +125,6 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", #nolint
       gc()
     }
   ),
-
   private = list(
     clean_files = function(dir) {
       files_to_remove <- Sys.glob(dir)
@@ -124,17 +135,16 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", #nolint
         print(paste("No files to remove in:", dir))
       }
     },
-
     get_all_operations = function() {
       print(glue::glue(
         "Getting all operations from folder: {self$config$operations_path}"
       ))
       ops <- list()
       op_files <- list.files(
-        self$config$operations_path, pattern = "\\.R$", full.names = TRUE
+        self$config$operations_path,
+        pattern = "\\.R$", full.names = TRUE
       )
 
-      # Ensure operations are loaded in the order specified in the configuration
       ordered_operations <- names(self$config$operations)
 
       for (operation in ordered_operations) {
@@ -146,8 +156,6 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", #nolint
           source(operation_file)
           class_obj <- get(operation, envir = .GlobalEnv)
 
-          # Check if class inherits from DatabaseOperation and is enabled
-          # in the configuration file.
           inherits_from_dbop <- !is.null(class_obj$inherit) &&
             class_obj$inherit == "DatabaseOperation"
           is_enabled <- isTRUE(self$config$operations[[class_obj$classname]])
@@ -168,13 +176,3 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", #nolint
     }
   )
 )
-
-loader <- DatabaseLoader$new(
-  db_path = "somewhere/d2.duckdb",
-  config_path = "configuration/set_db.json",
-  # cdm_metadata = "somewhere/CDM_metadata.rds"
-  cdm_metadata = "data/TP_CIP_COV_synthetic.rds"
-)
-loader$set_database()
-# print(loader$db)
-loader$run_db_ops()

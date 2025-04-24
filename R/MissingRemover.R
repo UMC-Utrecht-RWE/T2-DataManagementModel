@@ -11,15 +11,19 @@
 #' it deletes rows where the specified columns contain `NULL`,
 #' empty strings (`''`), or the string `'NA'`.
 #'
+#' @section Methods:
+#' \describe{
+#'   \item{`run(db_loader)`}{
+#'     Executes the missing value removal process.
+#'     \itemize{
+#'       \item `db_loader`: A `DatabaseLoader` object provides db connection,
+#'       the list of tables and columns to clean, and other configuration
+#'     }
+#'   }
+#' }
+#'
 #' @field classname A string representing the name of the class.
 #' Default is `"MissingRemover"`.
-#'
-#' @method run
-#' @param db_loader An instance of the `DatabaseLoader` class. This object
-#' provides the database connection (`db`), the list of tables and columns
-#' to clean (`list_colums_clean`), and other configuration details required
-#' for the operation.
-#' @return None.
 #'
 #' @examples
 #' # Example usage:
@@ -32,10 +36,14 @@
 #' @importFrom glue glue
 #' @keywords internal
 #' @export
-MissingRemover <- R6::R6Class("MissingRemover", #nolint
+MissingRemover <- R6::R6Class("MissingRemover", # nolint
   inherit = T2.DMM::DatabaseOperation,
   public = list(
     classname = "MissingRemover",
+    #' @description
+    #' Executes the missing value removal process.
+    #' @param db_loader A `DatabaseLoader` object provides database connection,
+    #' the list of tables and columns to clean, and other configuration details.
     run = function(db_loader) {
       print(glue::glue("Removing missing values from tables."))
       tables_available <- DBI::dbListTables(db_loader$db)
@@ -54,18 +62,21 @@ MissingRemover <- R6::R6Class("MissingRemover", #nolint
               " WHERE ", x, " IS NULL OR ", x, " = '' OR ", x, " = 'NA'"
             )
 
-            result <- tryCatch({
-              affected <- DBI::dbExecute(db_loader$db, query)
-              if (affected == 0) {
-                message(glue::glue("No missing rows in {table_to_clean}.{x}"))
-              } else {
-                message(glue::glue("Deleted rows from {table_to_clean}.{x}"))
+            result <- tryCatch(
+              {
+                affected <- DBI::dbExecute(db_loader$db, query)
+                if (affected == 0) {
+                  message(glue::glue("No missing rows in {table_to_clean}.{x}"))
+                } else {
+                  message(glue::glue("Deleted rows from {table_to_clean}.{x}"))
+                }
+              },
+              error = function(e) {
+                warning(glue::glue(
+                  "Failed to clean {table_to_clean}.{x}: {e$message}"
+                ))
               }
-            }, error = function(e) {
-              warning(glue::glue(
-                "Failed to clean {table_to_clean}.{x}: {e$message}"
-              ))
-            })
+            )
           })
         } else {
           print(glue::glue("Table {table_to_clean} does not exist"))

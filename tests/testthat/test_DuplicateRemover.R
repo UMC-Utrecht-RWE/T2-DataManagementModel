@@ -6,8 +6,8 @@ if (!file.exists("temp")) {
 setwd("temp")
 
 testthat::test_that(
-  "DuplicateRemover calls delete_duplicates_origin with expected arguments", {
-
+  "DuplicateRemover calls delete_duplicates_origin with expected arguments",
+  {
     testthat::expect_true(DuplicateRemover$inherit == "DatabaseOperation")
 
     remover <- DuplicateRemover$new()
@@ -21,7 +21,6 @@ testthat::test_that(
     )
 
     remover$run(loader)
-
   }
 )
 

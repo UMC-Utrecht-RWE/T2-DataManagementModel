@@ -11,37 +11,41 @@
 #' schema provided by the `db_loader` object. Optionally, the deleted records
 #' can be saved to an intermediate file for auditing or debugging purposes.
 #'
-#' @field classname A string representing the name of the class.
-#' Default is `"DuplicateRemover"`.
-#'
-#' @method run
-#' @param db_loader An instance of the `DatabaseLoader` class. This object
-#' provides the database connection (`db`), table names (`cdm_tables_names`),
-#' and other configuration details required for the operation.
-#' @return None.
-#'
-#' @examples
-#' # Example usage:
-#' loader <- DatabaseLoader$new()
-#' duplicate_remover <- DuplicateRemover$new()
-#' duplicate_remover$run(loader)
+#' @section Methods:
+#' \describe{
+#'   \item{`run(db_loader)`}{
+#'     Executes the duplicate removal process.
+#'     \itemize{
+#'       \item `db_loader`: A `DatabaseLoader` object provides db connection,
+#'       table names, and configuration details required for the operation.
+#'     }
+#'   }
+#' }
 #'
 #' @importFrom T2.DMM delete_duplicates_origin
 #' @keywords internal
 #' @export
-DuplicateRemover <- R6::R6Class("DuplicateRemover", #nolint
+DuplicateRemover <- R6::R6Class("DuplicateRemover", # nolint
   inherit = T2.DMM::DatabaseOperation,
   public = list(
+    #' @field classname A string representing the name of the class.
+    #' Default is `"DuplicateRemover"`.
     classname = "DuplicateRemover",
+    #' @description
+    #' Executes the duplicate removal process.
+    #' @param db_loader A `DatabaseLoader` object provides database connection,
+    #' table names, and other configuration details required for the operation.
     run = function(db_loader) {
       print(glue::glue("Removing duplicates from tables."))
-      scheme <- setNames(rep("*", length(db_loader$config$cdm_tables_names)),
-                         db_loader$config$cdm_tables_names)
+      scheme <- setNames(
+        rep("*", length(db_loader$config$cdm_tables_names)),
+        db_loader$config$cdm_tables_names
+      )
       T2.DMM::delete_duplicates_origin(
         db_connection = db_loader$db,
         scheme = scheme,
         save_deleted = TRUE,
-        save_path = "intermediate_data_file" #TODO add in config file
+        save_path = "intermediate_data_file" # TODO add in config file
       )
       print(glue::glue("Duplicates removed."))
     }

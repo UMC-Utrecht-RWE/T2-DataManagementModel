@@ -6,7 +6,8 @@ if (!file.exists("temp")) {
 setwd("temp")
 
 testthat::test_that(
-  "ReportGenerator calls generate_report with expected arguments", {
+  "ReportGenerator calls generate_report with expected arguments",
+  {
     testthat::expect_true(ReportGenerator$inherit == "DatabaseOperation")
 
     generator <- ReportGenerator$new()

@@ -6,8 +6,8 @@ if (!file.exists("temp")) {
 setwd("temp")
 
 testthat::test_that(
-  "MissingRemover calls delete_missing_origin with expected arguments", {
-
+  "MissingRemover calls delete_missing_origin with expected arguments",
+  {
     testthat::expect_true(MissingRemover$inherit == "DatabaseOperation")
 
     remover <- MissingRemover$new()
@@ -21,7 +21,6 @@ testthat::test_that(
     )
 
     remover$run(loader)
-
   }
 )
 

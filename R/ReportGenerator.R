@@ -11,15 +11,19 @@
 #' directory specified in the `report` configuration of the `db_loader` object.
 #' The database connection is closed after the report is generated.
 #'
+#' @section Methods:
+#' \describe{
+#'   \item{`run(db_loader)`}{
+#'     Executes the report generation process.
+#'     \itemize{
+#'       \item `db_loader`: A `DatabaseLoader` object provides db connection,
+#'       the instance name, and the configuration details for saving the report.
+#'     }
+#'   }
+#' }
+#'
 #' @field classname A string representing the name of the class.
 #' Default is `"ReportGenerator"`.
-#'
-#' @method run
-#' @param db_loader An instance of the `DatabaseLoader` class. This object
-#' provides the database connection (`db`), the instance name (`instance_name`),
-#' and the configuration details for saving the report (`report_path` and
-#' `report_name`).
-#' @return None.
 #'
 #' @examples
 #' # Example usage:
@@ -33,10 +37,14 @@
 #' @importFrom duckdb dbDisconnect
 #' @keywords internal
 #' @export
-ReportGenerator <- R6::R6Class("ReportGenerator", #nolint
+ReportGenerator <- R6::R6Class("ReportGenerator", # nolint
   inherit = T2.DMM::DatabaseOperation,
   public = list(
     classname = "ReportGenerator",
+    #' @description
+    #' Executes the report generation process.
+    #' @param db_loader A `DatabaseLoader` object provides database connection,
+    #' the instance name, and the configuration details for saving the report.
     run = function(db_loader) {
       print(
         glue::glue("Generating reports for: {db_loader$config$instance_name}")

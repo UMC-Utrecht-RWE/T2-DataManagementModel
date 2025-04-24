@@ -25,8 +25,8 @@ that match provided unique identifiers. The function assumes that unique identif
 are formatted as 'table_name-row_id'.
 }
 \details{
-The function splits each unique identifier into a table name and row ID 
-         using the specified separator. It then queries each unique table to retrieve 
+The function splits each unique identifier into a table name and row ID
+         using the specified separator. It then queries each unique table to retrieve
          the corresponding records. Tables without matching records return empty lists.
 }
 \examples{

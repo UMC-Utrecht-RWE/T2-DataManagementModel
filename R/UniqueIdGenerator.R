@@ -11,12 +11,25 @@
 #' configuration of the `db_loader` object. The unique IDs are generated
 #' based on the instance name provided in the `db_loader` object.
 #'
-#' @method run
-#' @param db_loader An instance of the `DatabaseLoader` class.
-#' This object provides the database connection (`db_con`), the list of tables
-#' to process (`cdm_tables_names`), and the instance name (`instance_name`)
-#' used for generating unique IDs.
-#' @return None.
+#' @section Fields:
+#' \describe{
+#'   \item{`classname`}{
+#'     A string representing the name of the class.
+#'     Default is `"UniqueIdGenerator"`.
+#'   }
+#' }
+#'
+#' @section Methods:
+#' \describe{
+#'   \item{`run(db_loader)`}{
+#'     Executes the unique ID generation process.
+#'     \itemize{
+#'       \item `db_loader`: A `DatabaseLoader` object that provides the
+#'        database connection, the list of tables to process, and the
+#'        instance name used for generating unique IDs.
+#'     }
+#'   }
+#' }
 #'
 #' @examples
 #' # Example usage:
@@ -27,10 +40,14 @@
 #' @importFrom T2.DMM create_unique_id
 #' @keywords internal
 #' @export
-UniqueIdGenerator <- R6::R6Class("UniqueIdGenerator", #nolint
+UniqueIdGenerator <- R6::R6Class("UniqueIdGenerator", # nolint
   inherit = T2.DMM::DatabaseOperation,
   public = list(
+    #' @field classname A string representing the name of the class.
     classname = "UniqueIdGenerator",
+    #' @description
+    #' Executes the unique ID generation process.
+    #' @param db_loader A `DatabaseLoader` object provides database connection.
     run = function(db_loader) {
       T2.DMM::create_unique_id(
         db_loader$db,
