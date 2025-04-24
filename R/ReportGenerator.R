@@ -26,10 +26,11 @@
 #' Default is `"ReportGenerator"`.
 #'
 #' @examples
-#' # Example usage:
+#' \dontrun{
 #' loader <- DatabaseLoader$new()
 #' report_generator <- ReportGenerator$new()
 #' report_generator$run(loader)
+#' }
 #'
 #' @importFrom T2.DMM get_rows_tables
 #' @importFrom fst write_fst

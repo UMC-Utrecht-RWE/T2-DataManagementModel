@@ -32,10 +32,11 @@
 #' }
 #'
 #' @examples
-#' # Example usage:
+#' \dontrun{
 #' loader <- DatabaseLoader$new()
 #' unique_id_generator <- UniqueIdGenerator$new()
 #' unique_id_generator$run(loader)
+#' }
 #'
 #' @importFrom T2.DMM create_unique_id
 #' @keywords internal

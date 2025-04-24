@@ -26,10 +26,11 @@
 #' Default is `"MissingRemover"`.
 #'
 #' @examples
-#' # Example usage:
+#' \dontrun{
 #' loader <- DatabaseLoader$new()
 #' missing_remover <- MissingRemover$new()
 #' missing_remover$run(loader)
+#' }
 #'
 #' @importFrom DBI dbListTables dbSendStatement
 #' @importFrom duckdb dbGetRowsAffected dbClearResult

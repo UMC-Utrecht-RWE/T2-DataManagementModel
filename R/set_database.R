@@ -43,7 +43,7 @@
 #' }
 #'
 #' @examples
-#' # Example usage:
+#' \dontrun{
 #' loader <- DatabaseLoader$new(
 #'   db_path = "path/to/database.db",
 #'   config_path = "path/to/set_db.json",
@@ -51,6 +51,7 @@
 #' )
 #' loader$set_database()
 #' loader$run_db_ops()
+#' }
 #'
 #' @importFrom jsonlite fromJSON
 #' @importFrom data.table as.data.table
