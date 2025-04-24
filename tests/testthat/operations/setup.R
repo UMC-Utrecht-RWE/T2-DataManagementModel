@@ -2,13 +2,6 @@ library(data.table)
 library(DBI)
 library(duckdb)
 
-source(here::here("R/scripts/set_database.R"))
-source(here::here("R/scripts/operations/DatabaseOperation.R"))
-source(here::here("R/scripts/operations/DuplicateRemover.R"))
-source(here::here("R/scripts/operations/MissingRemover.R"))
-source(here::here("R/scripts/operations/UniqueIdGenerator.R"))
-source(here::here("R/scripts/operations/ReportGenerator.R"))
-
 #====================
 # 1. SHARED METADATA
 #====================

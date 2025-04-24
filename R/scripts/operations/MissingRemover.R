@@ -30,6 +30,7 @@
 #' @importFrom DBI dbListTables dbSendStatement
 #' @importFrom duckdb dbGetRowsAffected dbClearResult
 #' @importFrom glue glue
+#' @keywords internal
 MissingRemover <- R6::R6Class("MissingRemover", #nolint
   inherit = DatabaseOperation,
   public = list(

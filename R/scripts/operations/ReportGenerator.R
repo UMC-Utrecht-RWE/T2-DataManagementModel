@@ -31,6 +31,7 @@
 #' @importFrom fst write_fst
 #' @importFrom glue glue
 #' @importFrom duckdb dbDisconnect
+#' @keywords internal
 ReportGenerator <- R6::R6Class("ReportGenerator", #nolint
   inherit = DatabaseOperation,
   public = list(

@@ -25,6 +25,7 @@
 #' unique_id_generator$run(loader)
 #'
 #' @importFrom T2.DMM create_unique_id
+#' @keywords internal
 UniqueIdGenerator <- R6::R6Class("UniqueIdGenerator", #nolint
   inherit = DatabaseOperation,
   public = list(
