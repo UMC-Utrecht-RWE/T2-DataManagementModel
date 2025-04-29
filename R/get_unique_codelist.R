@@ -32,7 +32,7 @@
 #' )
 #'
 #' # Replace 'your_db_connection' with your actual database connection
-#' db_connection_origin <- DBI::dbConnect(RSQLite::SQLite(), dbname = "your_database.db")
+#' db_connection_origin <- DBI::dbConnect(duckdb::duckdb(), dbname = "your_database.db")
 #'
 #' # Call the function with the database connection and column information list
 #' result_list <- get_unique_codelist(db_connection_origin, column_info_list)
