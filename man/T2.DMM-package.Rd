@@ -16,7 +16,7 @@ Authors:
   \item Yinan Mao \email{Y.Mao@umcutrecht.nl}
   \item Roel Elbers
   \item Barbara Vreede \email{B.M.I.Vreede@umcutrecht.nl} (\href{https://orcid.org/0000-0002-5023-4601}{ORCID})
-  \item Mattia Cinelli \email{m.cinelli@umcutrecht.nl}
+  \item Mattia Cinelli \email{m.cinelli@umcutrecht.nl} (\href{https://orcid.org/0000-0001-9306-8079}{ORCID})
 }
 
 }

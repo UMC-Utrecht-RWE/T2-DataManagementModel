@@ -14,6 +14,7 @@
 #' and retrieving all operations from a specified folder.
 #'
 #' @field db_path A string representing the path to the database file.
+#' @field data_instance A string representing the path to the data instance.
 #' @field config_path A string representing the path to the configuration file.
 #' @field cdm_metadata A string representing the path to the metadata file.
 #' @field config A list containing the configuration from `config_path` file.
@@ -64,6 +65,7 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
   public = list(
     # Public attributes
     db_path = NULL,
+    data_instance = NULL,
     config_path = NULL,
     cdm_metadata = NULL,
     # Internal attributes
@@ -73,12 +75,15 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
     #' @description
     #' Initializes the class with the provided parameters.
     #' @param db_path A string representing the path to the database file.
+    #' @param data_instance A string representing the path to the data instance.
     #' @param config_path A string representing the path to configuration file.
     #' @param cdm_metadata A string representing the path to the metadata file.
     initialize = function(db_path = NULL,
+                          data_instance = NULL,
                           config_path = NULL,
                           cdm_metadata = NULL) {
       self$db_path <- db_path
+      self$data_instance <- data_instance
       self$config <- jsonlite::fromJSON(config_path)
       self$metadata <- data.table::as.data.table(
         base::readRDS(cdm_metadata)
@@ -100,7 +105,7 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
         {
           T2.DMM::load_db(
             db_connection = self$db,
-            csv_path_dir = self$db_path,
+            csv_path_dir = self$data_instance,
             cdm_metadata = self$metadata,
             cdm_tables_names = self$config$cdm_tables_names
           )

@@ -58,6 +58,8 @@ loader$run_db_ops()
 \describe{
 \item{\code{db_path}}{A string representing the path to the database file.}
 
+\item{\code{data_instance}}{A string representing the path to the data instance.}
+
 \item{\code{config_path}}{A string representing the path to the configuration file.}
 
 \item{\code{cdm_metadata}}{A string representing the path to the metadata file.}
@@ -85,13 +87,20 @@ loader$run_db_ops()
 \subsection{Method \code{new()}}{
 Initializes the class with the provided parameters.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DatabaseLoader$new(db_path = NULL, config_path = NULL, cdm_metadata = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DatabaseLoader$new(
+  db_path = NULL,
+  data_instance = NULL,
+  config_path = NULL,
+  cdm_metadata = NULL
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{db_path}}{A string representing the path to the database file.}
+
+\item{\code{data_instance}}{A string representing the path to the data instance.}
 
 \item{\code{config_path}}{A string representing the path to configuration file.}
 

@@ -35,7 +35,7 @@ library(DBI)
 library(data.table)
 
 # Create a database connection
-db_connection <- dbConnect(RSQLite::SQLite(), ":memory:")
+db_connection <- dbConnect(duckdb::duckdb(), ":memory:")
 
 # Create and populate a sample table
 dbExecute(db_connection, "CREATE TABLE EVENTS (ID TEXT, value TEXT)")

@@ -39,7 +39,7 @@ for the specified CDM tables.
 \examples{
 \dontrun{
 # Example usage of create_unique_id
-db_connection <- dbConnect(RSQLite::SQLite(), ":memory:")
+db_connection <- dbConnect(duckdb::duckdb(), ":memory:")
 cdm_tables_names <- c("PERSONS", "VISITS", "OBSERVATIONS")
 create_unique_id(db_connection, cdm_tables_names,
   extension_name = "_CDM1",
