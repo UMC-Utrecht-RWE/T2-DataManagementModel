@@ -29,7 +29,7 @@ test_that("Checking the ROWID is the same as the number of rows of the table", {
   )
   persons_db <- DBI::dbReadTable(db_connection_origin, "persons")
   max_rowID <- max(persons_db$ROWID)
-  expect_equal(nrow(persons_db)-1, max_rowID)
+  expect_equal(nrow(persons_db) - 1, max_rowID)
 })
 
 test_that("Checking the OriTable is the same as the included table", {

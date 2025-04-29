@@ -25,8 +25,8 @@ that match provided unique identifiers. The function assumes that unique identif
 are formatted as 'table_name-row_id'.
 }
 \details{
-The function splits each unique identifier into a table name and row ID 
-         using the specified separator. It then queries each unique table to retrieve 
+The function splits each unique identifier into a table name and row ID
+         using the specified separator. It then queries each unique table to retrieve
          the corresponding records. Tables without matching records return empty lists.
 }
 \examples{
@@ -35,7 +35,7 @@ library(DBI)
 library(data.table)
 
 # Create a database connection
-db_connection <- dbConnect(RSQLite::SQLite(), ":memory:")
+db_connection <- dbConnect(duckdb::duckdb(), ":memory:")
 
 # Create and populate a sample table
 dbExecute(db_connection, "CREATE TABLE EVENTS (ID TEXT, value TEXT)")

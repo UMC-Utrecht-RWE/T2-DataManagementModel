@@ -19,7 +19,7 @@
 #' @examples
 #' \dontrun{
 #' # Example 1: Deleting duplicate rows in specified columns
-#' db_connection <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
+#' db_connection <- DBI::dbConnect(duckdb::duckdb(), ":memory:")
 #' scheme <- list("EVENTS" = c("*"), "PERSONS" = c("person_id", "age"))
 #' delete_duplicates_origin(db_connection, scheme)
 #'

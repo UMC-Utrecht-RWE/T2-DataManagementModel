@@ -30,7 +30,7 @@ columns, and imports it into a database table.
 # Example usage:
 codelist_path <- "path/to/codelist.rds"
 codelist_name_db <- "CodelistTable"
-db_connection <- dbConnect(RSQLite::SQLite(), "your_database.db")
+db_connection <- dbConnect(duckdb::duckdb(), "your_database.db")
 columns_to_import <- c("code", "description") # Add desired column names
 import_dap_specific_codelist(
   codelist_path, codelist_name_db, db_connection,

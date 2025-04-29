@@ -84,6 +84,6 @@ import_file <- function(path, cols = NULL, cols_new = NULL, exprs = NULL,
         " rows after evaluation of exprs"
       ))
     }
-    return( data.table::as.data.table(loaded_file))
+    return(data.table::as.data.table(loaded_file))
   }
 }

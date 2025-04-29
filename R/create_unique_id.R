@@ -20,7 +20,7 @@
 #' @examples
 #' \dontrun{
 #' # Example usage of create_unique_id
-#' db_connection <- dbConnect(RSQLite::SQLite(), ":memory:")
+#' db_connection <- dbConnect(duckdb::duckdb(), ":memory:")
 #' cdm_tables_names <- c("PERSONS", "VISITS", "OBSERVATIONS")
 #' create_unique_id(db_connection, cdm_tables_names,
 #'   extension_name = "_CDM1",
@@ -51,23 +51,23 @@ create_unique_id <- function(db_connection, cdm_tables_names,
     ))
     print(cdm_tables_names[!cdm_tables_names %in% list_existing_tables])
   }
-  
+
   order_by_flag <- FALSE
-  if(length(order_by_cols) > 0){
+  if (length(order_by_cols) > 0) {
     order_by_flag <- TRUE
   }
-  
+
   # Loop through each existing CDM table
   for (table in cdm_tables_names_existing) {
     # Rename the table and create a new one with the unique identifier
-    
-    
-    if(order_by_flag & !is.null(order_by_cols[[table]])){
-      columns_in_table <- dbListFields(db_connection,table)
+
+
+    if (order_by_flag & !is.null(order_by_cols[[table]])) {
+      columns_in_table <- dbListFields(db_connection, table)
       cols <- order_by_cols[[table]]
       available_order_by_cols <- columns_in_table[columns_in_table %in% cols]
-      order_by <- paste0(" ORDER BY ",paste0(available_order_by_cols, collapse =', '))
-    }else{
+      order_by <- paste0(" ORDER BY ", paste0(available_order_by_cols, collapse = ", "))
+    } else {
       order_by <- ""
     }
     DBI::dbExecute(db_connection, paste0(
