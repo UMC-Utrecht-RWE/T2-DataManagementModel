@@ -1,0 +1,11 @@
+concept_id,code,coding_system,tags,priority
+BLUFF,P07.23,FOO,narrow,1
+CONICAL,Z3A.24,FOO,narrow,1
+DINNER,B20,FOO,narrow,1
+EMU,J45,FOO,narrow,1
+EMU,J44.1,FOO,possible,2
+EMU,J44.0,FOO,possible,2
+EMU,J44.9,FOO,possible,2
+EMU,J60,FOO,possible,2
+EMU,J45.991,FOO,narrow,1
+EMU,J82.83,FOO,narrow,1
