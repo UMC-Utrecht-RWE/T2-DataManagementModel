@@ -22,57 +22,7 @@ saveRDS(shared_metadata, shared_metadata_path)
 Sys.setenv(SHARED_METADATA_PATH = shared_metadata_path)
 
 # ====================
-# 2. TEMP DATABASE
-# ====================
-
-# Define a persistent database path
-db_path <- tempfile(fileext = ".duckdb")
-
-# Connect to DuckDB with file backing
-conn <- dbConnect(duckdb::duckdb(), db_path)
-
-# Define table schemas
-table_definitions <- list(
-  EVENTS = "person_id TEXT, event_name TEXT, event_date DATE",
-  MEDICAL_OBSERVATIONS = "person_id TEXT, observation TEXT, patient_id INTEGER",
-  MEDICINES = "person_id TEXT, medicine_name TEXT, dosage TEXT",
-  OBSERVATION_PERIODS = "person_id TEXT, start_date DATE, end_date DATE",
-  PERSONS = "person_id TEXT, name TEXT, birth_date DATE",
-  SURVEY_ID = "person_id TEXT, survey_name TEXT",
-  SURVEY_OBSERVATIONS = "person_id TEXT, survey_id INTEGER, observation TEXT",
-  VACCINES = "person_id TEXT, vaccine_name TEXT, manufacturer TEXT",
-  VISIT_OCCURRENCE = "person_id TEXT, visit_date DATE, patient_id INTEGER"
-)
-
-# Create tables
-lapply(names(table_definitions), function(tbl) {
-  dbExecute(
-    conn,
-    sprintf("CREATE TABLE %s (%s);", tbl, table_definitions[[tbl]])
-  )
-})
-
-# Insert minimal dummy records
-insert_statements <- list(
-  "INSERT INTO EVENTS VALUES ('1', 'Event A', '2025-01-01')",
-  "INSERT INTO MEDICAL_OBSERVATIONS VALUES ('1', 'Observation A', 1)",
-  "INSERT INTO MEDICINES VALUES ('1', 'Medicine A', '10mg')",
-  "INSERT INTO OBSERVATION_PERIODS VALUES ('1', '2025-01-01', '2025-12-31')",
-  "INSERT INTO PERSONS VALUES ('1', 'John Doe', '1990-01-01'),",
-  "INSERT INTO SURVEY_ID VALUES ('1', 'Survey A')",
-  "INSERT INTO SURVEY_OBSERVATIONS VALUES (1, 1, 'Survey Observation A')",
-  "INSERT INTO VACCINES VALUES ('1', 'Vaccine A', 'Manufacturer A')",
-  "INSERT INTO VISIT_OCCURRENCE VALUES ('1', '2025-04-22', 1)"
-)
-
-lapply(insert_statements, dbExecute, conn = conn)
-
-# Assign connection and DB path to global environment / env vars
-assign("SYNTHETIC_DB_CONN", conn, envir = .GlobalEnv)
-Sys.setenv(SYNTHETIC_DB_PATH = db_path)
-
-# ====================
-# 3. TEST CONFIGURATION FILE
+# 2. TEST CONFIGURATION FILE
 # ====================
 config_json <- '{
   "data_model": "ConcePTION",
@@ -95,6 +45,7 @@ config_json <- '{
     "VISIT_OCCURRENCE"
   ],
   "instance_name": "",
+  "id_name" : "ori_id",
   "list_colums_clean": {
     "PERSONS": ["person_id"],
     "VACCINES": ["person_id"],

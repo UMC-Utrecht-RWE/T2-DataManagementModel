@@ -18,7 +18,11 @@
       "SURVEY_ID",
       "VISIT_OCCURRENCE"
     ],
+    "save_path": "intermediate_data_file",
     "instance_name": "",
+    "id_name" : "ori_id",
+    "separator_id" : "-",
+    "order_by_cols" : [],
     "list_colums_clean": {
       "PERSONS": ["person_id"],
       "VACCINES": ["person_id"],

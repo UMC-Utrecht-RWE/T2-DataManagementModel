@@ -51,7 +51,7 @@ ReportGenerator <- R6::R6Class("ReportGenerator", # nolint
         glue::glue("Generating reports for: {db_loader$config$instance_name}")
       )
 
-      count_rows_origin <- T2.DMM::get_rows_tables(db_loader$db)
+      count_rows_origin <- T2.DMM::get_rows_tables(db_connection = db_loader$db)
       dir_save_count_row <- file.path(
         db_loader$config$report$report_path,
         db_loader$config$report$report_name
