@@ -18,15 +18,16 @@ Imports:
     data.table (>= 1.15.2),
     DBI (>= 1.2.2),
     dplyr (>= 1.1.4),
-    duckdb,
-    fst,
-    glue,
-    jsonlite,
+    duckdb (>= 1.2.0),
+    fst (>= 0.9.8),
+    glue (>= 1.8.0),
+    jsonlite (>= 2.0.0),
     logr (>= 1.3.6),
     stringr (>= 1.5.1),
     R6 (>= 2.6.1)
 Suggests:
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    withr (>= 3.0.2)
 Config/testthat/edition: 3
 Depends: 
     R (>= 3.5)

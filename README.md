@@ -3,6 +3,7 @@
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/UMC-Utrecht-RWE/T2-DataManagementModel/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/UMC-Utrecht-RWE/T2-DataManagementModel/actions/workflows/R-CMD-check.yaml)
+[![Codecov test coverage](https://codecov.io/gh/UMC-Utrecht-RWE/T2-DataManagementModel/graph/badge.svg)](https://app.codecov.io/gh/UMC-Utrecht-RWE/T2-DataManagementModel)
 <!-- badges: end -->
 
 T2.DMM is an R package that provides a data model and functionality for processing Real World Data (RWD).
