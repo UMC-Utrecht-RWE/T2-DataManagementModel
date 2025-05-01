@@ -10,7 +10,7 @@
 #' @param return if TRUE, the function returns the resulting data frame
 #' @param sqlite_temp if TRUE, the SQL table created is temporary
 #'
-#' @export
+#' @keywords internal
 append_tables <- function(db, tables, name, dt_coll = "date",
                           colls = "*", return = TRUE, sqlite_temp = FALSE) {
   # Check for missing tables in the database

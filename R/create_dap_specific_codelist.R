@@ -22,7 +22,7 @@
 #' )
 #' }
 #'
-#' @export
+#' @keywords internal
 create_dap_specific_codelist <- function(unique_codelist, study_codelist,
                                          start_with_colls = c("ICD10CM", "ICD10", "ICD10DA", "ICD9CM", "MTHICD9", "ICPC", "ICPC2P", "ICPC2EENG", "ATC", "vx_atc"),
                                          additional_columns = NA, priority = NA) {

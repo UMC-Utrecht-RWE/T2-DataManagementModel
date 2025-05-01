@@ -37,9 +37,8 @@
 #' @importFrom duckdb dbDisconnect
 #' @docType class
 #' @keywords internal
-#' @export
 ReportGenerator <- R6::R6Class("ReportGenerator", # nolint
-  inherit = T2.DMM::DatabaseOperation,
+  inherit = T2.DMM:::DatabaseOperation,
   public = list(
     classname = "ReportGenerator",
     #' @description

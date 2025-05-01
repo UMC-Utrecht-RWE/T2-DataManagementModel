@@ -163,7 +163,7 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
           class_obj <- get(operation, envir = .GlobalEnv)
 
           inherits_from_dbop <- !is.null(class_obj$inherit) &&
-            class_obj$inherit == "DatabaseOperation"
+            class_obj$inherit == "T2.DMM:::DatabaseOperation"
           is_enabled <- isTRUE(self$config$operations[[class_obj$classname]])
 
           if (inherits_from_dbop && is_enabled) {

@@ -27,3 +27,4 @@ specs <- list(
 create_indexes(db_conn, specs)
 }
 }
+\keyword{internal}
