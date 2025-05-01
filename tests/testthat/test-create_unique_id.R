@@ -2,7 +2,7 @@ dbname <- tempfile(fileext = ".duckdb")
 db_connection_origin <- DBI::dbConnect(duckdb::duckdb(), dbname)
 load_db(
   db_connection = db_connection_origin,
-  csv_path_dir = "dbtest",
+  data_instance_path = "dbtest",
   cdm_metadata = concePTION_metadata_v2,
   cdm_tables_names = c("PERSONS", "VACCINES")
 )
