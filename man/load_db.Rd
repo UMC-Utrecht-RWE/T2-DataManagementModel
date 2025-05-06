@@ -28,3 +28,4 @@ when loading different CDM instances in the same DB.}
 This function is designed for loading a CDM data set instance from CSV files
 into a database.
 }
+\keyword{internal}

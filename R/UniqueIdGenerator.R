@@ -40,9 +40,8 @@
 #'
 #' @docType class
 #' @keywords internal
-#' @export
 UniqueIdGenerator <- R6::R6Class("UniqueIdGenerator", # nolint
-  inherit = T2.DMM::DatabaseOperation,
+  inherit = T2.DMM:::DatabaseOperation,
   public = list(
     #' @field classname A string representing the name of the class.
     classname = "UniqueIdGenerator",
@@ -51,9 +50,12 @@ UniqueIdGenerator <- R6::R6Class("UniqueIdGenerator", # nolint
     #' @param db_loader A `DatabaseLoader` object provides database connection.
     run = function(db_loader) {
       T2.DMM::create_unique_id(
-        db_loader$db,
-        db_loader$config$cdm_tables_names,
-        db_loader$config$instance_name
+        db_connection = db_loader$db,
+        cdm_tables_names = db_loader$config$cdm_tables_names,
+        extension_name = db_loader$config$instance_name,
+        id_name = db_loader$config$id_name,
+        separator_id = db_loader$config$separator_id,
+        order_by_cols = db_loader$config$order_by_cols
       )
       print("Unique IDs created.")
     }

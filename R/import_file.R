@@ -26,7 +26,7 @@
 #' )
 #' }
 #'
-#' @export
+#' @keywords internal
 import_file <- function(path, cols = NULL, cols_new = NULL, exprs = NULL,
                         date_cols = NULL) {
   if (!file.exists(path)) {

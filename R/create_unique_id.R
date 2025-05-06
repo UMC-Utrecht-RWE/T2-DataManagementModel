@@ -28,7 +28,7 @@
 #' )
 #' }
 #'
-#' @export
+#' @keywords internal
 create_unique_id <- function(db_connection, cdm_tables_names,
                              extension_name = "", id_name = "ori_id",
                              separator_id = "-",

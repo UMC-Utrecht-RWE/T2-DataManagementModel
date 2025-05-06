@@ -24,3 +24,4 @@ get_rows_tables(db_connection)
 }
 
 }
+\keyword{internal}

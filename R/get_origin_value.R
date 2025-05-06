@@ -21,7 +21,7 @@
 #' )
 #' }
 #'
-#' @export
+#' @keywords internal
 get_origin_value <- function(cases_dt, db_connection, search_scheme = NULL) {
   # Input validation
   # Check if cases_dt is a data.table

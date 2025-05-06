@@ -32,3 +32,4 @@ append_tables(
 \description{
 Functions for appending tables into a new table in a database.
 }
+\keyword{internal}

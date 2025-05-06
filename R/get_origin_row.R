@@ -43,7 +43,7 @@
 #' dbDisconnect(db_connection)
 #' }
 #'
-#' @export
+#' @keywords internal
 get_origin_row <- function(db_connection, ids,
                            id_name = "ori_id", separator_id = "-") {
   return_values <- list()
