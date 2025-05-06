@@ -23,6 +23,9 @@
       "VACCINES": ["person_id", "vx_manufacturer"]
     },
     "instance_name": "",
+    "id_name" : "ori_id",
+    "separator_id" : "-",
+    "order_by_cols" : [],
     "list_colums_clean": {
       "PERSONS": ["person_id"],
       "VACCINES": ["person_id"],

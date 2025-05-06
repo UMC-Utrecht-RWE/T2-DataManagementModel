@@ -1,13 +1,8 @@
-unlink("temp", recursive = TRUE)
-
-if (!file.exists("temp")) {
-  dir.create("temp")
-}
-setwd("temp")
-
 testthat::test_that(
   "ReportGenerator calls generate_report with expected arguments",
   {
+    temp_dir <- withr::local_tempdir()
+    setwd(temp_dir)
     testthat::expect_true(
       ReportGenerator$inherit == "T2.DMM:::DatabaseOperation"
     )
@@ -16,6 +11,3 @@ testthat::test_that(
     testthat::expect_s3_class(generator, "ReportGenerator")
   }
 )
-
-setwd("../")
-unlink("temp", recursive = TRUE)

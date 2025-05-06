@@ -1,10 +1,3 @@
-unlink("temp", recursive = TRUE) ## Create a temporary folder where to test
-
-if (!file.exists("temp")) {
-  dir.create("temp")
-}
-setwd("temp")
-
 # test-database-operation.R
 testthat::test_that("DatabaseOperation abstract methods behave as expected", {
   # Instantiate the abstract class
@@ -35,7 +28,3 @@ testthat::test_that("Subclass of DatabaseOperation can override run()", {
   testthat::expect_true(dummy$is_enabled())
   testthat::expect_s3_class(dummy, "DummyOp")
 })
-
-## We conclude by exiting the file
-setwd("../")
-unlink("temp", recursive = TRUE)
