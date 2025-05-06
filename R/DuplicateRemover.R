@@ -58,7 +58,8 @@ DuplicateRemover <- R6::R6Class("DuplicateRemover", # nolint
         db_connection = db_loader$db,
         scheme = scheme,
         save_deleted = TRUE,
-        save_path = db_loader$config$save_path
+        save_path = db_loader$config$save_path,
+        add_postfix = db_loader$config$add_postfix
       )
       print(glue::glue("Duplicates removed."))
     }

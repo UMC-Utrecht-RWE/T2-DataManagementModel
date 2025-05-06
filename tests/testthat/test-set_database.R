@@ -1,13 +1,8 @@
-unlink("temp", recursive = TRUE) ## Create a temporary folder where to test
-
-if (!file.exists("temp")) {
-  dir.create("temp")
-}
-setwd("temp")
-
 testthat::test_that("DatabaseLoader initializes with environment variables", {
+
   loader <- DatabaseLoader$new(
-    db_path = Sys.getenv("SYNTHETIC_DB_PATH"),
+    db_path = "",
+    data_instance = "dbtest",
     config_path = Sys.getenv("CONFIG_PATH"),
     cdm_metadata = Sys.getenv("SHARED_METADATA_PATH")
   )
@@ -21,8 +16,12 @@ testthat::test_that("DatabaseLoader initializes with environment variables", {
 })
 
 testthat::test_that("DatabaseLoader runs set_database() without error", {
+  db_con <- create_loaded_test_db()
+  withr::defer(DBI::dbDisconnect(db_con))
+
   loader <- DatabaseLoader$new(
-    db_path = Sys.getenv("SYNTHETIC_DB_PATH"),
+    db_path = "",
+    data_instance = "dbtest",
     config_path = Sys.getenv("CONFIG_PATH"),
     cdm_metadata = Sys.getenv("SHARED_METADATA_PATH")
   )
@@ -38,7 +37,8 @@ testthat::test_that("DatabaseLoader runs set_database() without error", {
 
 testthat::test_that("DatabaseLoader runs enabled operations in config", {
   loader <- DatabaseLoader$new(
-    db_path = Sys.getenv("SYNTHETIC_DB_PATH"),
+    db_path = "",
+    data_instance = "dbtest",
     config_path = Sys.getenv("CONFIG_PATH"),
     cdm_metadata = Sys.getenv("SHARED_METADATA_PATH")
   )
@@ -51,6 +51,3 @@ testthat::test_that("DatabaseLoader runs enabled operations in config", {
 
   testthat::expect_false(DBI::dbIsValid(loader$db))
 })
-
-setwd("../")
-unlink("temp", recursive = TRUE)
