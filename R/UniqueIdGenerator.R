@@ -40,9 +40,8 @@
 #'
 #' @docType class
 #' @keywords internal
-#' @export
 UniqueIdGenerator <- R6::R6Class("UniqueIdGenerator", # nolint
-  inherit = T2.DMM::DatabaseOperation,
+  inherit = T2.DMM:::DatabaseOperation,
   public = list(
     #' @field classname A string representing the name of the class.
     classname = "UniqueIdGenerator",

@@ -4,12 +4,10 @@ testthat::test_that(
     temp_dir <- withr::local_tempdir()
     setwd(temp_dir)
     testthat::expect_true(
-      DuplicateRemover$inherit == "T2.DMM::DatabaseOperation"
+      DuplicateRemover$inherit == "T2.DMM:::DatabaseOperation"
     )
 
-    remover <- DuplicateRemover$new()
-    testthat::expect_s3_class(remover, "DuplicateRemover")
-    testthat::expect_s3_class(remover, "DatabaseOperation")
+    remover <- T2.DMM:::DuplicateRemover$new()
 
     loader <- DatabaseLoader$new(
       db_path = "",

@@ -10,7 +10,7 @@
 #' @param extension_name String to be added to the name of the tables, useful
 #'   when loading different CDM instances in the same DB.
 #'
-#' @export
+#' @keywords internal
 load_db <- function(db_connection, csv_path_dir, cdm_metadata,
                     cdm_tables_names, extension_name = "") {
   # Loop through each table in cdm_tables_names
