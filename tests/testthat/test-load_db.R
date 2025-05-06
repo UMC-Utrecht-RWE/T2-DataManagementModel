@@ -4,7 +4,7 @@ db_connection_origin <- duckdb::dbConnect(duckdb::duckdb())
 test_that("database gets loaded", {
   load_db(
     db_connection = db_connection_origin,
-    csv_path_dir = "dbtest",
+    data_instance_path = "dbtest",
     cdm_metadata = concePTION_metadata_v2,
     cdm_tables_names = c("PERSONS", "VACCINES", "MEDICINES")
   )
@@ -24,7 +24,7 @@ test_that("load foreign characters", {
   expect_error(
     load_db(
       db_connection = db_connection_origin,
-      csv_path_dir = "dbtest",
+      data_instance_path = "dbtest",
       cdm_metadata = concePTION_metadata_v2,
       cdm_tables_names = c("latin1")
     ),
@@ -34,7 +34,7 @@ test_that("load foreign characters", {
   # now with UTF-8 encoding
   load_db(
     db_connection = db_connection_origin,
-    csv_path_dir = "dbtest",
+    data_instance_path = "dbtest",
     cdm_metadata = concePTION_metadata_v2,
     cdm_tables_names = c("EVENTS")
   )

@@ -105,7 +105,7 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
         {
           T2.DMM::load_db(
             db_connection = self$db,
-            csv_path_dir = self$data_instance,
+            data_instance_path = self$data_instance,
             cdm_metadata = self$metadata,
             cdm_tables_names = self$config$cdm_tables_names,
             extension_name = self$config$extension_name

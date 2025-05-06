@@ -4,14 +4,14 @@
 #' into a database.
 #'
 #' @param db_connection A database connection object (SQLiteConnection).
-#' @param csv_path_dir Path to the CSV CDM database.
+#' @param data_instance_path Path to the CSV CDM database.
 #' @param cdm_metadata Data.table with Table name, Variable name, and Format.
 #' @param cdm_tables_names List of CDM tables names to be imported into the DB.
 #' @param extension_name String to be added to the name of the tables, useful
 #'   when loading different CDM instances in the same DB.
 #'
 #' @keywords internal
-load_db <- function(db_connection, csv_path_dir, cdm_metadata,
+load_db <- function(db_connection, data_instance_path, cdm_metadata,
                     cdm_tables_names, extension_name = "") {
   # Loop through each table in cdm_tables_names
   for (table in cdm_tables_names) {
@@ -20,7 +20,7 @@ load_db <- function(db_connection, csv_path_dir, cdm_metadata,
 
     # Check if there is a file matching our table name
     matching_files <- list.files(
-      path = csv_path_dir,
+      path = data_instance_path,
       pattern = paste0(table, ".*\\.csv$"),
       full.names = TRUE
     )
@@ -33,7 +33,7 @@ load_db <- function(db_connection, csv_path_dir, cdm_metadata,
 
     # The query that will read the data into DuckDB. The union_by_name = true will mean it will try to ignore differences
     # between files.
-    path_files_with_patt <- file.path(csv_path_dir, table)
+    path_files_with_patt <- file.path(data_instance_path, table)
     query <- paste0("CREATE OR REPLACE TABLE ", table, ' AS
                     SELECT * FROM read_csv_auto("', path_files_with_patt, '*.csv",
                     union_by_name = true,
