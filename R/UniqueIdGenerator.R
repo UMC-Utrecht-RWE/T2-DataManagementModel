@@ -49,7 +49,7 @@ UniqueIdGenerator <- R6::R6Class("UniqueIdGenerator", # nolint
     #' Executes the unique ID generation process.
     #' @param db_loader A `DatabaseLoader` object provides database connection.
     run = function(db_loader) {
-      T2.DMM::create_unique_id(
+      T2.DMM:::create_unique_id(
         db_connection = db_loader$db,
         cdm_tables_names = db_loader$config$cdm_tables_names,
         extension_name = db_loader$config$instance_name,

@@ -29,7 +29,7 @@
 #' Default is `"FSTReportGenerator"`.
 #'
 #' @importFrom fst write_fst
-#' @export
+#' @keywords internal
 FSTReportGenerator <- R6::R6Class("FSTReportGenerator", # nolint
   inherit = ReportGenerator,
   public = list(

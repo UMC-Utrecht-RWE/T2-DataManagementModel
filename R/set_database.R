@@ -68,10 +68,12 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
     data_instance = NULL,
     config_path = NULL,
     cdm_metadata = NULL,
+
     # Internal attributes
     config = NULL,
     metadata = NULL,
     db = NULL,
+
     #' @description
     #' Initializes the class with the provided parameters.
     #' @param db_path A string representing the path to the database file.
