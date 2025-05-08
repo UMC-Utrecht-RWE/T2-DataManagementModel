@@ -23,9 +23,15 @@
 #' }
 #'
 #' @keywords internal
-create_dap_specific_codelist <- function(unique_codelist, study_codelist,
-                                         start_with_colls = c("ICD10CM", "ICD10", "ICD10DA", "ICD9CM", "MTHICD9", "ICPC", "ICPC2P", "ICPC2EENG", "ATC", "vx_atc"),
-                                         additional_columns = NA, priority = NA) {
+create_dap_specific_codelist <- function(
+  unique_codelist,
+  study_codelist,
+  start_with_colls = c(
+    "ICD10CM", "ICD10", "ICD10DA", "ICD9CM", "MTHICD9", "ICPC", "ICPC2P",
+    "ICPC2EENG", "ATC", "vx_atc"
+  ),
+  additional_columns = NA, priority = NA
+) {
   # Preprocessing the study_codelist
   study_codelist[, code_no_dot := gsub("\\.", "", code)]
   study_codelist[, length_str := stringr::str_length(code_no_dot)]
@@ -105,7 +111,8 @@ create_dap_specific_codelist <- function(unique_codelist, study_codelist,
         by = cols_by
       ]
     } else {
-      results_startwith2 <- data.table::copy(results_startwith)[order(-length_str),
+      results_startwith2 <- data.table::copy(results_startwith)[
+        order(-length_str),
         .SD[1],
         by = cols_by
       ]
@@ -127,14 +134,20 @@ create_dap_specific_codelist <- function(unique_codelist, study_codelist,
   }
 
   # Finding missing codes
-  missing_from_cdm <- data.table::as.data.table(dplyr::anti_join(unique_codelist,
-    dap_specific_codelist,
-    by = c("coding_system", "code_no_dot")
-  ))
-  missing_from_codelist <- data.table::as.data.table(dplyr::anti_join(study_codelist,
-    dap_specific_codelist,
-    by = c("coding_system", "code_no_dot")
-  ))
+  missing_from_cdm <- data.table::as.data.table(
+    dplyr::anti_join(
+      unique_codelist,
+      dap_specific_codelist,
+      by = c("coding_system", "code_no_dot")
+    )
+  )
+  missing_from_codelist <- data.table::as.data.table(
+    dplyr::anti_join(
+      study_codelist,
+      dap_specific_codelist,
+      by = c("coding_system", "code_no_dot")
+    )
+  )
 
   # Combining all results
   dap_specific_codelist <- data.table::rbindlist(
