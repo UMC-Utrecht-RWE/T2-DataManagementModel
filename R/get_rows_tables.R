@@ -14,7 +14,7 @@
 #' get_rows_tables(db_connection)
 #' }
 #'
-#' @export
+#' @keywords internal
 get_rows_tables <- function(db_connection) {
   # Retrieve the names of all tables in the database
   tables <- DBI::dbListTables(db_connection)

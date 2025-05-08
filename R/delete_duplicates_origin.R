@@ -31,7 +31,7 @@
 #' )
 #' }
 #'
-#' @export
+#' @keywords internal
 delete_duplicates_origin <- function(db_connection, scheme, save_deleted = FALSE,
                                      save_path = NULL, add_postfix = NA) {
   f_paste <- function(vec) sub(",\\s+([^,]+)$", " , \\1", toString(vec))

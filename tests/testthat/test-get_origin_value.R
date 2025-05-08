@@ -1,23 +1,36 @@
-library(testthat)
-library(data.table)
-library(DBI)
-library(duckdb)
-
-# Source the function file - you'll need to adjust this path
-# source("path/to/your/function.R")
-
 # Test suite for get_origin_value function
 test_that("get_origin_value returns correct values", {
   # Create a temporary DuckDB connection for testing
   db_connection <- DBI::dbConnect(duckdb::duckdb())
 
   # Setup test tables
-  DBI::dbExecute(db_connection, "CREATE TABLE cdm_table1 (ori_table TEXT, ROWID INTEGER, Column1 TEXT, Column2 TEXT)")
-  DBI::dbExecute(db_connection, "CREATE TABLE cdm_table2 (ori_table TEXT, ROWID INTEGER, Column2 TEXT)")
+  DBI::dbExecute(
+    db_connection,
+    paste0(
+      "CREATE TABLE cdm_table1 (ori_table TEXT, ROWID ",
+      "INTEGER, Column1 TEXT, Column2 TEXT)"
+    )
+  )
+  DBI::dbExecute(
+    db_connection,
+    "CREATE TABLE cdm_table2 (ori_table TEXT, ROWID INTEGER, Column2 TEXT)"
+  )
 
   # Insert test data
-  DBI::dbExecute(db_connection, "INSERT INTO cdm_table1 VALUES ('cdm_table1',1, 'Value1','Value3'), ('cdm_table1',2, 'Value2','Value4')")
-  DBI::dbExecute(db_connection, "INSERT INTO cdm_table2 VALUES ('cdm_table2',1, 100), ('cdm_table2',2, 200), ('cdm_table2',3, 300)")
+  DBI::dbExecute(
+    db_connection,
+    paste0(
+      "INSERT INTO cdm_table1 VALUES ('cdm_table1',1, 'Value1','Value3'), ",
+      "('cdm_table1',2, 'Value2','Value4')"
+    )
+  )
+  DBI::dbExecute(
+    db_connection,
+    paste0(
+      "INSERT INTO cdm_table2 VALUES ('cdm_table2',1, 100), ",
+      "('cdm_table2',2, 200), ('cdm_table2',3, 300)"
+    )
+  )
 
   # Create test cases data table
   cases_dt <- data.table::data.table(
@@ -26,8 +39,12 @@ test_that("get_origin_value returns correct values", {
   )
 
   # Test with valid columns parameter
-  search_scheme <- list("cdm_table1" = "Column1", "cdm_table1" = "Column2", "cdm_table2" = "Column2")
-  result <- get_origin_value(cases_dt, db_connection, search_scheme = search_scheme)
+  search_scheme <- list(
+    "cdm_table1" = "Column1", "cdm_table1" = "Column2", "cdm_table2" = "Column2"
+  )
+  result <- get_origin_value(
+    cases_dt, db_connection, search_scheme = search_scheme
+  )
 
   # Check result structure
   expect_s3_class(result, "data.table")
@@ -40,15 +57,25 @@ test_that("get_origin_value returns correct values", {
   # Find records for Table1
   table1_records <- result[ori_table == "cdm_table1"]
   expect_equal(nrow(table1_records), 4)
-  expect_equal(table1_records[ROWID == 1 & column_origin == "Column1", value], "Value1")
-  expect_equal(table1_records[ROWID == 2 & column_origin == "Column1", value], "Value2")
-  expect_equal(table1_records[ROWID == 1 & column_origin == "Column2", value], "Value3")
-  expect_equal(table1_records[ROWID == 2 & column_origin == "Column2", value], "Value4")
+  expect_equal(
+    table1_records[ROWID == 1 & column_origin == "Column1", value], "Value1"
+  )
+  expect_equal(
+    table1_records[ROWID == 2 & column_origin == "Column1", value], "Value2"
+  )
+  expect_equal(
+    table1_records[ROWID == 1 & column_origin == "Column2", value], "Value3"
+  )
+  expect_equal(
+    table1_records[ROWID == 2 & column_origin == "Column2", value], "Value4"
+  )
 
   # Find records for Table2
   table2_records <- result[ori_table == "cdm_table2"]
   expect_equal(nrow(table2_records), 1)
-  expect_equal(table2_records[ROWID == 3 & column_origin == "Column2", value], "300")
+  expect_equal(
+    table2_records[ROWID == 3 & column_origin == "Column2", value], "300"
+  )
 
   # Clean up
   DBI::dbDisconnect(db_connection, shutdown = TRUE)
@@ -59,14 +86,41 @@ test_that("get_origin_value handles multiple tables correctly", {
   db_connection <- DBI::dbConnect(duckdb::duckdb(), dir = temp())
 
   # Setup test tables
-  DBI::dbExecute(db_connection, "CREATE TABLE TableA (ori_table TEXT, ROWID INTEGER, ColumnA TEXT)")
-  DBI::dbExecute(db_connection, "CREATE TABLE TableB (ori_table TEXT, ROWID INTEGER, ColumnB INTEGER)")
-  DBI::dbExecute(db_connection, "CREATE TABLE TableC (ori_table TEXT,ROWID INTEGER, ColumnC BOOLEAN)")
+  DBI::dbExecute(
+    db_connection,
+    "CREATE TABLE TableA (ori_table TEXT, ROWID INTEGER, ColumnA TEXT)"
+  )
+  DBI::dbExecute(
+    db_connection,
+    "CREATE TABLE TableB (ori_table TEXT, ROWID INTEGER, ColumnB INTEGER)"
+  )
+  DBI::dbExecute(
+    db_connection,
+    "CREATE TABLE TableC (ori_table TEXT,ROWID INTEGER, ColumnC BOOLEAN)"
+  )
 
   # Insert test data
-  DBI::dbExecute(db_connection, "INSERT INTO TableA VALUES ('TableA',1, 'A1'), ('TableA',2, 'A2'), ('TableA',3, 'A3')")
-  DBI::dbExecute(db_connection, "INSERT INTO TableB VALUES ('TableB',1, 10), ('TableB',2, 20), ('TableB',3, 30)")
-  DBI::dbExecute(db_connection, "INSERT INTO TableC VALUES ('TableC',1, TRUE), ('TableC',2, FALSE), ('TableC',3, TRUE)")
+  DBI::dbExecute(
+    db_connection,
+    paste0(
+      "INSERT INTO TableA VALUES ('TableA',1, 'A1'), ",
+      "('TableA',2, 'A2'), ('TableA',3, 'A3')"
+    )
+  )
+  DBI::dbExecute(
+    db_connection,
+    paste0(
+      "INSERT INTO TableB VALUES ('TableB',1, 10), ",
+      "('TableB',2, 20), ('TableB',3, 30)"
+    )
+  )
+  DBI::dbExecute(
+    db_connection,
+    paste0(
+      "INSERT INTO TableC VALUES ('TableC',1, TRUE), ",
+      "('TableC',2, FALSE), ('TableC',3, TRUE)"
+    )
+  )
 
   # Create test cases data table with multiple tables
   cases_dt <- data.table::data.table(
@@ -75,8 +129,13 @@ test_that("get_origin_value handles multiple tables correctly", {
   )
 
   # Test with columns for all tables
-  search_scheme <- list("TableA" = "ColumnA", "TableB" = "ColumnB", "TableC" = "ColumnC")
-  result <- get_origin_value(cases_dt, db_connection, search_scheme = search_scheme)
+  search_scheme <- list(
+    "TableA" = "ColumnA", "TableB" = "ColumnB", "TableC" = "ColumnC"
+  )
+  result <- get_origin_value(
+    cases_dt, db_connection,
+    search_scheme = search_scheme
+  )
 
   # Check overall result
   expect_equal(nrow(result), 5)
@@ -114,15 +173,22 @@ test_that("get_origin_value handles empty cases data table", {
   db_connection <- DBI::dbConnect(duckdb::duckdb())
 
   # Create empty test cases data table
-  cases_dt <- data.table::data.table(ROWID = integer(0), ori_table = character(0))
+  cases_dt <- data.table::data.table(
+    ROWID = integer(0), ori_table = character(0)
+  )
 
   # Setup a test table
-  DBI::dbExecute(db_connection, "CREATE TABLE EmptyTest (ori_table TEXT, ROWID INTEGER, Column1 TEXT)")
+  DBI::dbExecute(
+    db_connection,
+    "CREATE TABLE EmptyTest (ori_table TEXT, ROWID INTEGER, Column1 TEXT)"
+  )
 
   # Test with valid columns parameter but empty cases
   columns <- list("EmptyTest" = "Column1")
 
-  result <- suppressWarnings(get_origin_value(cases_dt, db_connection, search_scheme = columns))
+  result <- suppressWarnings(
+    get_origin_value(cases_dt, db_connection, search_scheme = columns)
+  )
   # Check the result is an empty data table with correct structure
   expect_s3_class(result, "data.table")
   expect_equal(nrow(result), 0)
@@ -136,10 +202,15 @@ test_that("get_origin_value handles table not in columns list", {
   db_connection <- DBI::dbConnect(duckdb::duckdb(), dir = temp())
 
   # Setup test tables
-  DBI::dbExecute(db_connection, "CREATE TABLE Table1 (ori_table TEXT, ROWID INTEGER, Column1 TEXT)")
+  DBI::dbExecute(
+    db_connection,
+    "CREATE TABLE Table1 (ori_table TEXT, ROWID INTEGER, Column1 TEXT)"
+  )
 
   # Insert test data
-  DBI::dbExecute(db_connection, "INSERT INTO Table1 VALUES ('Table1',1, 'Value1')")
+  DBI::dbExecute(
+    db_connection, "INSERT INTO Table1 VALUES ('Table1',1, 'Value1')"
+  )
 
   # Create test cases data table including a table not in columns list
   cases_dt <- data.table::data.table(
@@ -153,7 +224,10 @@ test_that("get_origin_value handles table not in columns list", {
   # This should run without error, but only return results for Table1
   expect_warning(
     result <- get_origin_value(cases_dt, db_connection, search_scheme),
-    "\\[get_origin_value\\] Column 'InventedColumn' does not exist in the 'Table1' table" # No warning expecte
+    paste0(
+      "\\[get_origin_value\\] Column 'InventedColumn' does not exist ",
+      "in the 'Table1' table"
+    )# No warning expected
   )
 
   # Check result only includes Table1
