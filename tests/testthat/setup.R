@@ -26,7 +26,6 @@ Sys.setenv(SHARED_METADATA_PATH = shared_metadata_path)
 # ====================
 config_json <- '{
   "data_model": "ConcePTION",
-  "operations_path": "R/scripts/operations",
   "operations": {
     "DuplicateRemover": true,
     "MissingRemover": true,
