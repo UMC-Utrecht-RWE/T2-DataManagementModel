@@ -43,7 +43,8 @@ test_that("get_origin_value returns correct values", {
     "cdm_table1" = "Column1", "cdm_table1" = "Column2", "cdm_table2" = "Column2"
   )
   result <- get_origin_value(
-    cases_dt, db_connection, search_scheme = search_scheme
+    cases_dt, db_connection,
+    search_scheme = search_scheme
   )
 
   # Check result structure
@@ -227,7 +228,7 @@ test_that("get_origin_value handles table not in columns list", {
     paste0(
       "\\[get_origin_value\\] Column 'InventedColumn' does not exist ",
       "in the 'Table1' table"
-    )# No warning expected
+    ) # No warning expected
   )
 
   # Check result only includes Table1

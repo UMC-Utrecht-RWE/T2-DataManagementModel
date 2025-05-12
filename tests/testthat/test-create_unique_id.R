@@ -13,7 +13,6 @@ test_that("Names and number of new columns added", {
 
   persons_db <- DBI::dbReadTable(db_con, "persons")
   expect_contains(names(persons_db), c("ori_id", "ROWID", "ori_table"))
-
 })
 
 test_that("Checking the ROWID is the same as the number of rows of the table", {

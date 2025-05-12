@@ -12,11 +12,11 @@
 #'
 #' @keywords internal
 load_db <- function(
-  db_connection,
-  data_instance_path,
-  cdm_metadata,
-  cdm_tables_names,
-  extension_name = "") {
+    db_connection,
+    data_instance_path,
+    cdm_metadata,
+    cdm_tables_names,
+    extension_name = "") {
   # Loop through each table in cdm_tables_names
   for (table in cdm_tables_names) {
     # What table are we going to read

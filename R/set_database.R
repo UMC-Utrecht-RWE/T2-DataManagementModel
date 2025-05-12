@@ -146,13 +146,13 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
     },
     get_all_operations = function() {
       ordered_operations <- names(self$config$operations)
-      ops <- list()  # Initialize an empty list to store operation objects
+      ops <- list() # Initialize an empty list to store operation objects
 
       for (operation in ordered_operations) {
         # Check if the operation is enabled in the JSON config
         is_enabled <- isTRUE(self$config$operations[[operation]])
         if (!is_enabled) {
-          next  # Skip this operation if it's not enabled
+          next # Skip this operation if it's not enabled
         }
 
         # Attempt to retrieve the class object from the T2.DMM package

@@ -38,7 +38,7 @@
 #' \dontrun{
 #' loader <- DatabaseLoader$new()
 #' report_generator <- ReportGenerator$new()
-#' report_generator$run(loader)  # Delegates to the correct subclass
+#' report_generator$run(loader) # Delegates to the correct subclass
 #' }
 #'
 #' @importFrom glue glue
@@ -72,7 +72,6 @@ ReportGenerator <- R6::R6Class("ReportGenerator", # nolint
       stop("write_report() must be implemented in a subclass.")
     }
   ),
-
   private = list(
     find_saving_class = function(data, db_loader) {
       report_name <- db_loader$config$report$report_name
@@ -80,21 +79,23 @@ ReportGenerator <- R6::R6Class("ReportGenerator", # nolint
       r_files <- list.files("R", pattern = "\\.R$", full.names = TRUE)
 
       for (file in r_files) {
-        source(file, local = TRUE)  # Avoid global namespace pollution
+        source(file, local = TRUE) # Avoid global namespace pollution
       }
 
       # Get all R6 classes currently in the environment
       classes <- mget(ls(), envir = .GlobalEnv, ifnotfound = NA)
-      r6_classes <- Filter(function(x) {
-        inherits(x, "R6ClassGenerator") &&
-          "ReportGenerator" %in% names(x$inherit)
-      },
-      classes)
+      r6_classes <- Filter(
+        function(x) {
+          inherits(x, "R6ClassGenerator") &&
+            "ReportGenerator" %in% names(x$inherit)
+        },
+        classes
+      )
 
       for (class_obj in r6_classes) {
         instance <- class_obj$new()
         if (!is.null(instance$supported_ext) &&
-              ext %in% instance$supported_ext()) {
+          ext %in% instance$supported_ext()) {
           return(instance$write_report(data, db_loader))
         }
       }

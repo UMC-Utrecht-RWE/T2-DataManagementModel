@@ -169,7 +169,8 @@ test_that("get_origin_row works with custom separator", {
 })
 
 test_that(
-  "get_origin_row returns empty list when ori_id column does not exist", {
+  "get_origin_row returns empty list when ori_id column does not exist",
+  {
     # Setup
     con <- setup_test_db()
     on.exit(dbDisconnect(con, shutdown = TRUE))

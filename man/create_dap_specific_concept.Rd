@@ -36,4 +36,3 @@ create_dap_specific_concept(
 This function Creates DAP-specific concepts into a database using a DAP-specifc concept map (codelist).
 The function modifies the specified save_db by creating edited tables and Creating DAP-specific concepts.
 }
-\keyword{internal}

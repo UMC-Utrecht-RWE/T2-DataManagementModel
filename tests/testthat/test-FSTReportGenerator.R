@@ -1,5 +1,4 @@
 testthat::test_that("FSTReportGenerator creates a valid .fst file", {
-
   # Create the generator
   fst_report_generator <- FSTReportGenerator$new()
 
@@ -38,5 +37,4 @@ testthat::test_that("FSTReportGenerator creates a valid .fst file", {
   # Verify content integrity
   result <- fst::read_fst(full_path)
   testthat::expect_equal(result, test_data)
-
 })

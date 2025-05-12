@@ -54,7 +54,6 @@ DuplicateRemover <- R6::R6Class("DuplicateRemover", # nolint
       )
 
       T2.DMM:::delete_duplicates_origin(
-
         db_connection = db_loader$db,
         scheme = scheme,
         save_deleted = TRUE,

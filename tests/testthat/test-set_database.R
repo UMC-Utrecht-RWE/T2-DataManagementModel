@@ -1,5 +1,4 @@
 testthat::test_that("DatabaseLoader initializes with environment variables", {
-
   loader <- DatabaseLoader$new(
     db_path = "",
     data_instance = "dbtest",
