@@ -40,7 +40,7 @@ the target file extension.
 \dontrun{
 loader <- DatabaseLoader$new()
 report_generator <- ReportGenerator$new()
-report_generator$run(loader)  # Delegates to the correct subclass
+report_generator$run(loader) # Delegates to the correct subclass
 }
 
 }

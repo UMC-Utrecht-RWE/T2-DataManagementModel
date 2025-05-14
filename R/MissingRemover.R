@@ -37,9 +37,8 @@
 #' @importFrom glue glue
 #' @docType class
 #' @keywords internal
-#' @export
 MissingRemover <- R6::R6Class("MissingRemover", # nolint
-  inherit = T2.DMM::DatabaseOperation,
+  inherit = T2.DMM:::DatabaseOperation,
   public = list(
     classname = "MissingRemover",
     #' @description

@@ -8,16 +8,4 @@
 \description{
 RWE-DataManagementModel is an R package that provides a data model and functionality for processing RWD. T2 stands for the semantic harmonization transformation step.
 }
-\author{
-\strong{Maintainer}: Albert Cid Royo \email{A.CidRoyo@umcutrecht.nl} (\href{https://orcid.org/0000-0002-1863-3450}{ORCID})
-
-Authors:
-\itemize{
-  \item Yinan Mao \email{Y.Mao@umcutrecht.nl}
-  \item Roel Elbers
-  \item Barbara Vreede \email{B.M.I.Vreede@umcutrecht.nl} (\href{https://orcid.org/0000-0002-5023-4601}{ORCID})
-  \item Mattia Cinelli \email{m.cinelli@umcutrecht.nl} (\href{https://orcid.org/0000-0001-9306-8079}{ORCID})
-}
-
-}
 \keyword{internal}
