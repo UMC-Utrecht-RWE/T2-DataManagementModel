@@ -2,7 +2,7 @@
 db_connection_origin <- duckdb::dbConnect(duckdb::duckdb())
 
 test_that("database gets loaded", {
-  load_db(
+  T2.DMM:::load_db(
     db_connection = db_connection_origin,
     data_instance_path = "dbtest",
     cdm_metadata = concePTION_metadata_v2,

@@ -31,7 +31,7 @@
 #' @importFrom fst write_fst
 #' @keywords internal
 FSTReportGenerator <- R6::R6Class("FSTReportGenerator", # nolint
-  inherit = ReportGenerator,
+  inherit = T2.DMM:::ReportGenerator,
   public = list(
     classname = "FSTReportGenerator",
 

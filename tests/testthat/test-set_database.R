@@ -15,8 +15,8 @@ testthat::test_that("DatabaseLoader initializes with environment variables", {
 })
 
 testthat::test_that("DatabaseLoader runs set_database() without error", {
-  db_con <- create_loaded_test_db()
-  withr::defer(DBI::dbDisconnect(db_con))
+  # db_con <- create_loaded_test_db()
+  # withr::defer(DBI::dbDisconnect(db_con))
 
   loader <- DatabaseLoader$new(
     db_path = "",
@@ -35,14 +35,14 @@ testthat::test_that("DatabaseLoader runs set_database() without error", {
 })
 
 testthat::test_that("DatabaseLoader runs enabled operations in config", {
-  loader <- DatabaseLoader$new(
+  loader <- T2.DMM::DatabaseLoader$new(
     db_path = "",
     data_instance = "dbtest",
     config_path = Sys.getenv("CONFIG_PATH"),
     cdm_metadata = Sys.getenv("SHARED_METADATA_PATH")
   )
 
-  # Suppress output and check no error is raised
+  # # Suppress output and check no error is raised
   # testthat::expect_error(
   #   suppressMessages(loader$run_db_ops()),
   #   NA

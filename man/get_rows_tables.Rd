@@ -4,7 +4,7 @@
 \alias{get_rows_tables}
 \title{Get Row Counts for Tables in a Database}
 \usage{
-get_rows_tables(db_connection, verbose = FALSE)
+get_rows_tables(db_connection, verbose = TRUE)
 }
 \arguments{
 \item{db_connection}{Database connection object (SQLiteConnection).}

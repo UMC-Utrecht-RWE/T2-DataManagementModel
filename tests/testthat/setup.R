@@ -6,7 +6,7 @@ library(duckdb)
 # 1. SHARED METADATA
 # ====================
 
-shared_metadata <- data.table(
+shared_metadata <- data.table::data.table(
   person_id = sprintf("#ID-%08d#", 1:5),
   Date = seq(18000, by = 123, length.out = 5),
   Voc = rep("ICD10", 5),

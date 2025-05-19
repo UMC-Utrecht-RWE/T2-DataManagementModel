@@ -93,7 +93,7 @@ the instance name, and the configuration details for saving the report.}
 \if{html}{\out{<a id="method-ReportGenerator-write_report"></a>}}
 \if{latex}{\out{\hypertarget{method-ReportGenerator-write_report}{}}}
 \subsection{Method \code{write_report()}}{
-Placeholder for report writing logic. Should be overridden in subclass.
+Dispatches to the subclass to write the report based on extension.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ReportGenerator$write_report(data, db_loader)}\if{html}{\out{</div>}}
 }
@@ -103,8 +103,7 @@ Placeholder for report writing logic. Should be overridden in subclass.
 \describe{
 \item{\code{data}}{A data frame containing the data to be saved.}
 
-\item{\code{db_loader}}{A `DatabaseLoader` object that provides the
-configuration details for saving the report.}
+\item{\code{db_loader}}{A `DatabaseLoader` object.}
 }
 \if{html}{\out{</div>}}
 }

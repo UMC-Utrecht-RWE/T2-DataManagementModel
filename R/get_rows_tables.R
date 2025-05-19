@@ -22,12 +22,11 @@ get_rows_tables <- function(db_connection, verbose = TRUE) {
   print("Getting tables from the database")
   tables <- DBI::dbListTables(db_connection)
 
-  if (verbose) {
-    print(glue::glue("Tables found: {paste(tables, collapse = ', ')}"))
-  }
-
   if (length(tables) == 0) {
     stop("No tables found in the database.")
+  }
+  if (verbose) {
+    print(glue::glue("Tables found: {paste(tables, collapse = ', ')}"))
   }
 
   # Construct the query to get row counts
@@ -46,5 +45,5 @@ get_rows_tables <- function(db_connection, verbose = TRUE) {
   }
 
   # Execute the query and retrieve the result
-  DBI::dbGetQuery(db_connection, full_query)
+  return(DBI::dbGetQuery(db_connection, full_query))
 }

@@ -35,11 +35,13 @@ load_db <- function(
       next
     }
 
-    # The query that will read the data into DuckDB. The union_by_name = true will mean it will try to ignore differences
+    # The query that will read the data into DuckDB.
+    # The union_by_name = true will mean it will try to ignore differences
     # between files.
     path_files_with_patt <- file.path(data_instance_path, table)
     query <- paste0("CREATE OR REPLACE TABLE ", table, ' AS
-                    SELECT * FROM read_csv_auto("', path_files_with_patt, '*.csv",
+                    SELECT * FROM read_csv_auto("',
+                    path_files_with_patt, '*.csv",
                     union_by_name = true,
                     ALL_VARCHAR = true,
                     nullstr = "NA" );')
@@ -63,7 +65,8 @@ load_db <- function(
     # If any mandatory colum is missing, then create it
     if (length(mandatory_missing_in_db) > 0) {
       print(paste0(
-        "[load_db]: The following mandatory columns are missing in table: ", table
+        "[load_db]: The following mandatory columns are missing in table: ",
+        table
       ))
       print(paste(mandatory_missing_in_db, collapse = ", "))
 
@@ -74,9 +77,12 @@ load_db <- function(
       }))
     }
 
-    additional_columns <- cols_in_table[!cols_in_table %in% standard_cdm_table_columns]
+    additional_columns <- cols_in_table[
+      !cols_in_table %in% standard_cdm_table_columns
+    ]
     print(paste0(
-      "[load_db]: The following columns are not part of the CDM table but are in the files : ", additional_columns
+      "[load_db]: The following columns are not part of the CDM table but are in the files : ",
+      additional_columns
     ))
     invisible(lapply(additional_columns, function(new_column) {
       DBI::dbExecute(db_connection, paste0(
@@ -103,13 +109,15 @@ load_db <- function(
           # Nullify invalid values first
           DBI::dbExecute(db_connection, paste0(
             "UPDATE ", table,
-            " SET ", new_column, " = NULL WHERE ", new_column, " NOT SIMILAR TO '^[0-9]{8}$';"
+            " SET ", new_column, " = NULL WHERE ",
+            new_column, " NOT SIMILAR TO '^[0-9]{8}$';"
           ))
 
           # Apply STRPTIME to reformat valid date strings
           DBI::dbExecute(db_connection, paste0(
             "UPDATE ", table,
-            " SET ", new_column, " = STRPTIME(", new_column, ", '%Y%m%d') WHERE ", new_column, " IS NOT NULL;"
+            " SET ", new_column, " = STRPTIME(", new_column,
+            ", '%Y%m%d') WHERE ", new_column, " IS NOT NULL;"
           ))
 
           # Retry altering the column type to DATE
@@ -123,7 +131,9 @@ load_db <- function(
     }))
 
     character_cols_not_date <- character_cols[!character_cols %in% date_cols]
-    available_character_cols <- cols_in_table[cols_in_table %in% character_cols_not_date]
+    available_character_cols <- cols_in_table[
+      cols_in_table %in% character_cols_not_date
+    ]
     invisible(lapply(available_character_cols, function(new_column) {
       # Attempt to change the column type to DATE directly
       update_query <- paste0("UPDATE ", table, "
