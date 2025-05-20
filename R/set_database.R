@@ -135,6 +135,7 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
     }
   ),
   private = list(
+
     clean_files = function(dir) {
       files_to_remove <- Sys.glob(dir)
       if (length(files_to_remove) > 0) {
@@ -144,6 +145,7 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
         print(paste("No files to remove in:", dir))
       }
     },
+
     get_all_operations = function() {
       ordered_operations <- names(self$config$operations)
       ops <- list() # Initialize an empty list to store operation objects

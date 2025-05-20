@@ -38,10 +38,9 @@ load_db <- function(
     # The query that will read the data into DuckDB.
     # The union_by_name = true will mean it will try to ignore differences
     # between files.
-    path_files_with_patt <- file.path(data_instance_path, table)
     query <- paste0("CREATE OR REPLACE TABLE ", table, ' AS
                     SELECT * FROM read_csv_auto("',
-                    path_files_with_patt, '*.csv",
+                    file.path(data_instance_path, table), '*.csv",
                     union_by_name = true,
                     ALL_VARCHAR = true,
                     nullstr = "NA" );')
@@ -56,11 +55,41 @@ load_db <- function(
     # Checking if any mandatory columns are missing within the database.
     cols_in_table <- DBI::dbListFields(db_connection, table)
 
-    standard_cdm_table_columns <- unique(cdm_metadata[TABLE %in% table, Variable])
-    mandatory_colums <- unique(cdm_metadata[TABLE %in% table & stringr::str_detect(Mandatory, "Yes") == TRUE, Variable])
-    mandatory_missing_in_db <- unique(mandatory_colums[!mandatory_colums %in% cols_in_table])
-    date_cols <- cdm_metadata[TABLE %in% table & stringr::str_detect(Format, "yyyymmdd") == TRUE, Variable]
-    character_cols <- cdm_metadata[TABLE %in% table & stringr::str_detect(Format, "Character") == TRUE, Variable]
+    standard_cdm_table_columns <- unique(
+      cdm_metadata[TABLE %in% table, .SD, .SDcols = Variable]
+    )
+    # library(dplyr)
+    # standard_cdm_table_columns <- cdm_metadata %>% filter(.data$TABLE %in% table) %>% select("Variable")
+
+    mandatory_colums <- unique(cdm_metadata[
+      TABLE %in% table & stringr::str_detect(Mandatory, "Yes") == TRUE, Variable
+    ])
+    # mandatory_colums <- cdm_metadata %>%
+    #   dplyr::filter(.data$TABLE %in% table) %>%
+    #   dplyr::filter(.data$Mandatory == "Yes") %>%
+    #   dplyr::select("Variable") # %>% dplyr::pull()
+
+
+    mandatory_missing_in_db <- unique(
+      mandatory_colums[!mandatory_colums %in% cols_in_table]
+    )
+
+    date_cols <- cdm_metadata[
+      TABLE %in% table & stringr::str_detect(Format, "yyyymmdd") == TRUE,
+      Variable
+    ]
+    # date_cols <- cdm_metadata %>%
+    #   dplyr::filter(.data$TABLE %in% table) %>%
+    #   dplyr::filter(stringr::str_detect(.data$Format, "yyyymmdd") == TRUE) %>%
+    #   dplyr::select("Variable") # %>% dplyr::pull()
+    character_cols <- cdm_metadata[
+      TABLE %in% table & stringr::str_detect(Format, "Character") == TRUE,
+      Variable
+    ]
+    # character_cols <- cdm_metadata %>%
+    #   dplyr::filter(.data$TABLE %in% table) %>%
+    #   dplyr::filter(stringr::str_detect(.data$Format, "Character") == TRUE) %>%
+    #   dplyr::select("Variable") # %>% dplyr::pull()
 
     # If any mandatory colum is missing, then create it
     if (length(mandatory_missing_in_db) > 0) {
@@ -81,7 +110,9 @@ load_db <- function(
       !cols_in_table %in% standard_cdm_table_columns
     ]
     print(paste0(
-      "[load_db]: The following columns are not part of the CDM table but are in the files : ",
+      paste0("[load_db]: The following columns are not part",
+        " of the CDM table but are in the files : "
+      ),
       additional_columns
     ))
     invisible(lapply(additional_columns, function(new_column) {
