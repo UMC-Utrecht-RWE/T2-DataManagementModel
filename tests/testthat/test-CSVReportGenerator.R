@@ -1,5 +1,4 @@
 testthat::test_that("CSVReportGenerator creates a valid .csv file", {
-
   csv_report_generator <- CSVReportGenerator$new()
 
   # Confirm inheritance
@@ -37,5 +36,4 @@ testthat::test_that("CSVReportGenerator creates a valid .csv file", {
   # Read result and normalize class
   result <- as.data.frame(readr::read_csv(full_path, col_types = readr::cols()))
   testthat::expect_equal(result, test_data)
-
 })

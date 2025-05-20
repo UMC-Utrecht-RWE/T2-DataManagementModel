@@ -13,7 +13,6 @@
 #' @param add_meaning An optional boolean that defines whether the possibility to save the meaning of any CDM table -if available- in the results of the function. This is specific for the ConcePTION CDM.
 #'
 #' @export
-
 create_dap_specific_concept <- function(codelist, name_attachment, save_db, date_col_filter = NULL,
                                         table_name = "cdm_table_name", column_name_prefix = "column_name",
                                         expected_value_prefix = "expected_value", add_meaning = FALSE) {
