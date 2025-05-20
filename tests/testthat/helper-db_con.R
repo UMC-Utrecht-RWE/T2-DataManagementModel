@@ -13,3 +13,12 @@ create_loaded_test_db <- function(csv_dir = "dbtest",
 
   return(con)
 }
+
+create_database_loader <- function(config_path) {
+  DatabaseLoader$new(
+    db_path = "",
+    data_instance = "dbtest",
+    cdm_metadata = concePTION_metadata_v2,
+    config_path = Sys.getenv(config_path)
+  )
+}

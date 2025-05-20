@@ -10,12 +10,7 @@ testthat::test_that(
     generator <- T2.DMM:::UniqueIdGenerator$new()
     testthat::expect_s3_class(generator, "UniqueIdGenerator")
 
-    loader <- DatabaseLoader$new(
-      db_path = "",
-      data_instance = "dbtest",
-      config_path = Sys.getenv("CONFIG_PATH"),
-      cdm_metadata = Sys.getenv("SHARED_METADATA_PATH")
-    )
+    loader <- create_database_loader(config_path = "CONFIG_SET_DB")
 
     generator$run(loader)
   }

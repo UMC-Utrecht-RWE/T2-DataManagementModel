@@ -22,9 +22,37 @@ saveRDS(shared_metadata, shared_metadata_path)
 Sys.setenv(SHARED_METADATA_PATH = shared_metadata_path)
 
 # ====================
-# 2. TEST CONFIGURATION FILE
+# 2. TEST CONFIGURATION FILE FOR set_database
 # ====================
 config_json <- '{
+  "data_model": "ConcePTION",
+  "operations": {
+    "DuplicateRemover": false,
+    "MissingRemover": false,
+    "UniqueIdGenerator": false,
+    "ReportGenerator": false
+  },
+  "cdm_tables_names": [
+    "PERSONS",
+    "VACCINES",
+    "OBSERVATION_PERIODS",
+    "MEDICAL_OBSERVATIONS",
+    "MEDICINES",
+    "EVENTS",
+    "SURVEY_OBSERVATIONS",
+    "SURVEY_ID",
+    "VISIT_OCCURRENCE"
+  ]
+}'
+
+config_set_database <- file.path(tempdir(), "set_database.json")
+writeLines(config_json, config_set_database)
+Sys.setenv(CONFIG_SET_DB = config_set_database)
+
+# ====================
+# 3. TEST CONFIGURATION FILE
+# ====================
+config_json_dupl <- '{
   "data_model": "ConcePTION",
   "operations": {
     "DuplicateRemover": true,
@@ -62,6 +90,6 @@ config_json <- '{
   }
 }'
 
-config_path <- file.path(tempdir(), "set_db.json")
-writeLines(config_json, config_path)
-Sys.setenv(CONFIG_PATH = config_path)
+config_path_dupl <- file.path(tempdir(), "set_db_dupl.json")
+writeLines(config_json_dupl, config_path_dupl)
+Sys.setenv(CONFIG_PATH_DUPL = config_path_dupl)

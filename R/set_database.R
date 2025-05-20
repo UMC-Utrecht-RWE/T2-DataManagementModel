@@ -87,9 +87,10 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
       self$db_path <- db_path
       self$data_instance <- data_instance
       self$config <- jsonlite::fromJSON(config_path)
-      self$metadata <- data.table::as.data.table(
-        base::readRDS(cdm_metadata)
-      )
+      self$metadata <- cdm_metadata
+      # self$metadata <- data.table::as.data.table(
+      #   base::readRDS(cdm_metadata)
+      # )
       tryCatch(
         {
           self$db <- duckdb::dbConnect(duckdb::duckdb(), self$db_path)
@@ -105,7 +106,7 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
       print("Setting up the database")
       tryCatch(
         {
-          T2.DMM::load_db(
+          T2.DMM:::load_db(
             db_connection = self$db,
             data_instance_path = self$data_instance,
             cdm_metadata = self$metadata,

@@ -1,21 +1,20 @@
 testthat::test_that(
   "DuplicateRemover calls delete_duplicates_origin with expected arguments",
   {
-    temp_dir <- withr::local_tempdir()
-    setwd(temp_dir)
+    loader <- create_database_loader(config_path = "CONFIG_SET_DB")
+
     testthat::expect_true(
       DuplicateRemover$inherit == "T2.DMM:::DatabaseOperation"
     )
 
     remover <- T2.DMM:::DuplicateRemover$new()
-
-    loader <- DatabaseLoader$new(
-      db_path = "",
-      data_instance = "dbtest",
-      config_path = Sys.getenv("CONFIG_PATH"),
-      cdm_metadata = Sys.getenv("SHARED_METADATA_PATH")
+    testthat::expect_error(
+      remover$run(loader),
+      NA # means expect no error
     )
 
-    remover$run(loader)
+    # To check if table are removed check function test delete_duplicates_origin
+
+    DBI::dbDisconnect(loader$db)
   }
 )

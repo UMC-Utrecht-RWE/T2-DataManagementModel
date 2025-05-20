@@ -20,7 +20,7 @@ load_db <- function(
   # Loop through each table in cdm_tables_names
   for (table in cdm_tables_names) {
     # What table are we going to read
-    cat(paste0("Reading ", table, "..."))
+    cat(paste0("Reading for table: ", table, "\n"))
 
     # Check if there is a file matching our table name
     matching_files <- list.files(
@@ -31,7 +31,9 @@ load_db <- function(
 
     # Skip this loop if there are no files to read
     if (length(matching_files) == 0) {
-      cat(paste0("\rSkipping ", table, ", no files found.\n"))
+      cat(paste0(
+        "\rNo files found for ", table, ", in: ", data_instance_path, ".\n"
+      ))
       next
     }
 
@@ -51,45 +53,28 @@ load_db <- function(
     # Yeah, done
     cat(paste0("\rFinished reading ", table, ".\n"))
 
-
     # Checking if any mandatory columns are missing within the database.
     cols_in_table <- DBI::dbListFields(db_connection, table)
-
     standard_cdm_table_columns <- unique(
-      cdm_metadata[TABLE %in% table, .SD, .SDcols = Variable]
+      cdm_metadata[TABLE %in% table, Variable]
     )
-    # library(dplyr)
-    # standard_cdm_table_columns <- cdm_metadata %>% filter(.data$TABLE %in% table) %>% select("Variable")
-
-    mandatory_colums <- unique(cdm_metadata[
-      TABLE %in% table & stringr::str_detect(Mandatory, "Yes") == TRUE, Variable
-    ])
-    # mandatory_colums <- cdm_metadata %>%
-    #   dplyr::filter(.data$TABLE %in% table) %>%
-    #   dplyr::filter(.data$Mandatory == "Yes") %>%
-    #   dplyr::select("Variable") # %>% dplyr::pull()
-
-
+    mandatory_colums <- unique(
+      cdm_metadata[
+        TABLE %in% table & stringr::str_detect(Mandatory, "Yes") == TRUE,
+        Variable
+      ]
+    )
     mandatory_missing_in_db <- unique(
       mandatory_colums[!mandatory_colums %in% cols_in_table]
     )
-
     date_cols <- cdm_metadata[
       TABLE %in% table & stringr::str_detect(Format, "yyyymmdd") == TRUE,
       Variable
     ]
-    # date_cols <- cdm_metadata %>%
-    #   dplyr::filter(.data$TABLE %in% table) %>%
-    #   dplyr::filter(stringr::str_detect(.data$Format, "yyyymmdd") == TRUE) %>%
-    #   dplyr::select("Variable") # %>% dplyr::pull()
     character_cols <- cdm_metadata[
       TABLE %in% table & stringr::str_detect(Format, "Character") == TRUE,
       Variable
     ]
-    # character_cols <- cdm_metadata %>%
-    #   dplyr::filter(.data$TABLE %in% table) %>%
-    #   dplyr::filter(stringr::str_detect(.data$Format, "Character") == TRUE) %>%
-    #   dplyr::select("Variable") # %>% dplyr::pull()
 
     # If any mandatory colum is missing, then create it
     if (length(mandatory_missing_in_db) > 0) {
