@@ -1,4 +1,9 @@
 testthat::test_that("CSVReportGenerator creates a valid .csv file", {
+
+  temp_dir <- withr::local_tempdir()
+  setwd(temp_dir)
+
+  # Create the generator
   csv_report_generator <- CSVReportGenerator$new()
 
   # Confirm inheritance
@@ -13,16 +18,15 @@ testthat::test_that("CSVReportGenerator creates a valid .csv file", {
   )
 
   # Use temp directory
-  report_path <- withr::local_tempdir()
+  report_path <- getwd()
   report_name <- "test_output.csv"
-  full_path <- file.path(report_path, report_name)
 
   # Call write_report
   csv_report_generator$write_report(
     data = test_data,
     db_loader = list(
       config = list(
-        report = list(
+        report_generator = list(
           report_path = report_path,
           report_name = report_name
         )
@@ -31,6 +35,7 @@ testthat::test_that("CSVReportGenerator creates a valid .csv file", {
   )
 
   # File exists
+  full_path <- file.path(report_path, report_name)
   testthat::expect_true(file.exists(full_path))
 
   # Read result and normalize class

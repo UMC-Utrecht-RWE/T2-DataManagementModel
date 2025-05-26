@@ -1,6 +1,7 @@
 library(data.table)
 library(DBI)
 library(duckdb)
+library(T2.DMM)
 
 # ====================
 # 1. SHARED METADATA
@@ -24,7 +25,7 @@ Sys.setenv(SHARED_METADATA_PATH = shared_metadata_path)
 # ====================
 # 2. TEST CONFIGURATION FILE FOR set_database
 # ====================
-config_json <- '{
+set_database <- '{
   "data_model": "ConcePTION",
   "operations": {
     "DuplicateRemover": false,
@@ -46,13 +47,13 @@ config_json <- '{
 }'
 
 config_set_database <- file.path(tempdir(), "set_database.json")
-writeLines(config_json, config_set_database)
+writeLines(set_database, config_set_database)
 Sys.setenv(CONFIG_SET_DB = config_set_database)
 
 # ====================
 # 3. TEST CONFIGURATION FILE
 # ====================
-config_json_dupl <- '{
+config_json <- '{
   "data_model": "ConcePTION",
   "operations": {
     "DuplicateRemover": true,
@@ -71,25 +72,33 @@ config_json_dupl <- '{
     "SURVEY_ID",
     "VISIT_OCCURRENCE"
   ],
-  "instance_name": "",
-  "id_name" : "ori_id",
-  "list_colums_clean": {
-    "PERSONS": ["person_id"],
-    "VACCINES": ["person_id"],
-    "OBSERVATION_PERIODS": ["person_id"],
-    "MEDICAL_OBSERVATIONS": ["person_id"],
-    "MEDICINES": ["person_id"],
-    "EVENTS": ["person_id"],
-    "SURVEY_OBSERVATIONS": ["person_id"],
-    "SURVEY_ID": ["person_id"],
-    "VISIT_OCCURRENCE": ["person_id"]
+  "duplicate_remover": {
+    "save_path": "intermediate_data_file",
+    "add_postfix": null,
+    "save_deleted": true,
+    "cdm_tables_columns": {
+      "PERSONS": ["person_id", "country_of_birth"],
+      "VACCINES": ["person_id", "vx_manufacturer"]
+    }
   },
-  "report": {
-    "report_path": "data",
-    "report_name": "count_rows_origin.fst"
-  }
+  "missing_remover": {
+    "columns": {
+      "PERSONS": ["country_of_birth"],
+      "VACCINES": ["vx_lot_num"]
+    }
+  },
+    "unique_id_generator":{
+      "order_by_cols" : [],
+      "id_name" : "ori_id",
+      "separator_id" : "-",
+      "instance_name": ""
+    },
+    "report_generator": {
+      "report_path": ".",
+      "report_name": "count_rows_origin.fst"
+    }
 }'
 
-config_path_dupl <- file.path(tempdir(), "set_db_dupl.json")
-writeLines(config_json_dupl, config_path_dupl)
-Sys.setenv(CONFIG_PATH_DUPL = config_path_dupl)
+config_path <- file.path(tempdir(), "config_path.json")
+writeLines(config_json, config_path)
+Sys.setenv(CONFIG_PATH = config_path)

@@ -10,8 +10,12 @@ testthat::test_that(
     generator <- T2.DMM:::UniqueIdGenerator$new()
     testthat::expect_s3_class(generator, "UniqueIdGenerator")
 
-    loader <- create_database_loader(config_path = "CONFIG_SET_DB")
+    loader <- create_database_loader(config_path = "CONFIG_PATH")
+    loader$set_database()
 
-    generator$run(loader)
+    testthat::expect_error(
+      generator$run(loader),
+      NA # means expect no error
+    )
   }
 )

@@ -52,10 +52,11 @@ UniqueIdGenerator <- R6::R6Class("UniqueIdGenerator", # nolint
       T2.DMM:::create_unique_id(
         db_connection = db_loader$db,
         cdm_tables_names = db_loader$config$cdm_tables_names,
-        extension_name = db_loader$config$instance_name,
-        id_name = db_loader$config$id_name,
-        separator_id = db_loader$config$separator_id,
-        order_by_cols = db_loader$config$order_by_cols
+        # UniqueIdGenerator unique properties
+        extension_name = db_loader$config$unique_id_generator$instance_name,
+        id_name = db_loader$config$unique_id_generator$id_name,
+        separator_id = db_loader$config$unique_id_generator$separator_id,
+        order_by_cols = db_loader$config$unique_id_generator$order_by_cols
       )
       print("Unique IDs created.")
     }

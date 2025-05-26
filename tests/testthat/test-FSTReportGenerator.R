@@ -1,4 +1,8 @@
 testthat::test_that("FSTReportGenerator creates a valid .fst file", {
+
+  temp_dir <- withr::local_tempdir()
+  setwd(temp_dir)
+
   # Create the generator
   fst_report_generator <- FSTReportGenerator$new()
 
@@ -14,7 +18,7 @@ testthat::test_that("FSTReportGenerator creates a valid .fst file", {
   )
 
   # Use a temp directory for safe, isolated testing
-  report_path <- withr::local_tempdir()
+  report_path <- getwd()
   report_name <- "test_output.fst"
 
   # Call write_report
@@ -22,7 +26,7 @@ testthat::test_that("FSTReportGenerator creates a valid .fst file", {
     data = test_data,
     db_loader = list(
       config = list(
-        report = list(
+        report_generator = list(
           report_path = report_path,
           report_name = report_name
         )
@@ -37,4 +41,7 @@ testthat::test_that("FSTReportGenerator creates a valid .fst file", {
   # Verify content integrity
   result <- fst::read_fst(full_path)
   testthat::expect_equal(result, test_data)
+
+  # remove the test file after the test
+  file.remove(full_path)
 })
