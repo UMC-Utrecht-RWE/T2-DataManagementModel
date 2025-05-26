@@ -38,7 +38,7 @@ DuplicateRemover <- R6::R6Class("DuplicateRemover", # nolint
       print(glue::glue("Removing duplicates from tables."))
 
       # Retrieve distinct column info from config or default to '*'
-      distinct_config <- db_loader$config$cdm_tables_distinct_columns
+      distinct_config <- db_loader$config$duplicate_remover$cdm_tables_columns
       table_names <- db_loader$config$cdm_tables_names
 
       scheme <- setNames(
@@ -56,9 +56,9 @@ DuplicateRemover <- R6::R6Class("DuplicateRemover", # nolint
       T2.DMM:::delete_duplicates_origin(
         db_connection = db_loader$db,
         scheme = scheme,
-        save_deleted = TRUE,
-        save_path = db_loader$config$save_path,
-        add_postfix = db_loader$config$add_postfix
+        save_deleted = db_loader$config$duplicate_remover$save_deleted,
+        save_path = db_loader$config$duplicate_remover$save_path,
+        add_postfix = db_loader$config$duplicate_remover$add_postfix
       )
       print(glue::glue("Duplicates removed."))
     }
