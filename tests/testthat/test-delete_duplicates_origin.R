@@ -15,5 +15,6 @@ test_that("Checking if the function delete the duplicates cases", {
   )
 
   vx_db <- DBI::dbReadTable(db_con, "VACCINES")
+  # The first 10 rows of vx1 are duplicates of vx2
   expect_equal(nrow(vx_db), nrow(vx1))
 })
