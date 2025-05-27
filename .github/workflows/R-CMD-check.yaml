@@ -48,13 +48,10 @@ jobs:
 
       - name: Install dependencies for test coverage
         run: |
-          install.packages(c("remotes", "covr"))
-          remotes::install_deps(dependencies = TRUE)
-        shell: Rscript
+          Rscript -e 'install.packages(c("remotes", "covr"))'
+          Rscript -e 'remotes::install_deps(dependencies = TRUE)'
 
       - name: Run test coverage
         run: |
-          print("Running test coverage...")
-          covr::package_coverage()
-        shell: Rscript
-
+          Rscript -e 'print("Running test coverage...")'
+          Rscript -e 'covr::package_coverage()'
