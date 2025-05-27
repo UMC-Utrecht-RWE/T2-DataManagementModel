@@ -27,3 +27,45 @@ testthat::test_that(
 
   }
 )
+
+testthat::test_that(
+  "ReportGenerator with report_name without extension throws an error",
+  {
+    reporter <- T2.DMM:::ReportGenerator$new()
+
+    loader <- create_database_loader(config_path = "CONFIG_PATH")
+    loader$config$report_generator$report_name <- "count_rows_origin"
+    loader$set_database()
+    testthat::expect_error(reporter$run(loader),
+      "Invalid or missing file extension in report_name: count_rows_origin"
+    )
+  }
+)
+
+testthat::test_that(
+  "ReportGenerator with report_name missing throws an error",
+  {
+    reporter <- T2.DMM:::ReportGenerator$new()
+
+    loader <- create_database_loader(config_path = "CONFIG_PATH")
+    loader$config$report_generator$report_name <- ""
+    loader$set_database()
+    testthat::expect_error(reporter$run(loader),
+      "The report_name in report_generator is missing or empty."
+    )
+  }
+)
+
+testthat::test_that(
+  "ReportGenerator with a not-implemented extension throws an error",
+  {
+    reporter <- T2.DMM:::ReportGenerator$new()
+
+    loader <- create_database_loader(config_path = "CONFIG_PATH")
+    loader$config$report_generator$report_name <- "count_rows_origin.txt"
+    loader$set_database()
+    testthat::expect_error(reporter$run(loader),
+      "No ReportGenerator subclass found for extension: txt"
+    )
+  }
+)

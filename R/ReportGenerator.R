@@ -131,13 +131,7 @@ ReportGenerator <- R6::R6Class("ReportGenerator", # nolint
               "Extensions for {cls$classname}: {
               paste(supported, collapse = ', ')}"
             ))
-            # Ensure result is a clean character vector
-            if (!is.character(supported)) {
-              supported <- character(0)
-            }
           }
-        }, error = function(e) {
-          warning(glue::glue("Skipping class {cls$classname}: {e$message}"))
         })
 
         # Ensure supported does not contain NA values
