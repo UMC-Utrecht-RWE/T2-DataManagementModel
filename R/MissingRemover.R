@@ -72,11 +72,6 @@ MissingRemover <- R6::R6Class("MissingRemover", # nolint
                 } else {
                   message(glue::glue("Deleted rows from {table_to_clean}.{x}"))
                 }
-              },
-              error = function(e) {
-                warning(glue::glue(
-                  "Failed to clean {table_to_clean}.{x}: {e$message}"
-                ))
               }
             )
           })

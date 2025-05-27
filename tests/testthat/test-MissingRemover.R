@@ -26,3 +26,30 @@ testthat::test_that(
     )
   }
 )
+
+testthat::test_that("No missing rows message", {
+  loader <- create_database_loader(config_path = "CONFIG_PATH")
+  loader$set_database()
+  remover <- T2.DMM:::MissingRemover$new()
+
+  loader$config$missing_remover$columns$PERSONS <- "person_id"
+
+  testthat::expect_message(
+    remover$run(loader),
+    "No missing rows in PERSONS.person_id"
+  )
+
+})
+
+testthat::test_that("Table to clean does not exist", {
+  loader <- create_database_loader(config_path = "CONFIG_PATH")
+  loader$set_database()
+  remover <- T2.DMM:::MissingRemover$new()
+
+  loader$config$missing_remover$columns$NON_EXISTENT <- "non_existent_column"
+
+  testthat::expect_output(
+    remover$run(loader),
+    "Table NON_EXISTENT does not exist."
+  )
+})
