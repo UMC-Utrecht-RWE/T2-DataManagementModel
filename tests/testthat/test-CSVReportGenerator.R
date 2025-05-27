@@ -45,3 +45,24 @@ testthat::test_that("CSVReportGenerator creates a valid .csv file", {
   # remove the test file after the test
   file.remove(full_path)
 })
+
+testthat::test_that("report_path is missing", {
+  csv_report_generator <- CSVReportGenerator$new()
+  # The error should indicate that the directory does not exist
+  expect_error(
+    csv_report_generator$write_report(
+      data = data.frame(),
+      db_loader = list(
+        config = list(
+          report_generator = list(
+            report_path = "non_existent_directory",
+            report_name = "test_output.csv"
+          )
+        )
+      )
+    ),
+    glue::glue(
+      "The directory non_existent_directory does not exist."
+    )
+  )
+})

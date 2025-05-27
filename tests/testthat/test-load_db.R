@@ -42,4 +42,30 @@ test_that("load foreign characters", {
   expect_equal(dim(utf8_db), c(5, 12))
 })
 
+test_that("database gets loaded and mandatory columns are created", {
+  # Create minimal test metadata with two mandatory columns
+  test_metadata <- data.table::data.table(
+    TABLE = c("PERSONS", "PERSONS"),
+    Variable = c("mandatory_column_1", "mandatory_column_2"),
+    Mandatory = c("Yes", "Yes"),
+    Format = c("Character", "Character")
+  )
+
+  # Run the function
+  T2.DMM:::load_db(
+    db_connection = db_connection_origin,
+    data_instance_path = "dbtest",
+    cdm_metadata = test_metadata,
+    cdm_tables_names = c("PERSONS")
+  )
+
+  # Get resulting columns
+  cols_in_table <- DBI::dbListFields(db_connection_origin, "PERSONS")
+
+  # Check that the mandatory columns were added
+  testthat::expect_true("mandatory_column_1" %in% cols_in_table)
+  testthat::expect_true("mandatory_column_2" %in% cols_in_table)
+})
+
+
 DBI::dbDisconnect(db_connection_origin)

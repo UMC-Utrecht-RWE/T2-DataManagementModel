@@ -48,7 +48,7 @@ CSVReportGenerator <- R6::R6Class("CSVReportGenerator", # nolint
       )
       message(glue::glue("Saving report to {report_path}"))
       if (!dir.exists(dirname(dir_save))) {
-        stop(glue::glue("The directory {dir_save} does not exist."))
+        stop(glue::glue("The directory {dirname(dir_save)} does not exist."))
       }
       readr::write_csv(data, dir_save)
       message(glue::glue("Report saved successfully."))

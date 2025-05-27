@@ -45,3 +45,24 @@ testthat::test_that("FSTReportGenerator creates a valid .fst file", {
   # remove the test file after the test
   file.remove(full_path)
 })
+
+testthat::test_that("report_path is missing", {
+  fst_report_generator <- FSTReportGenerator$new()
+  # The error should indicate that the directory does not exist
+  expect_error(
+    fst_report_generator$write_report(
+      data = data.frame(),
+      db_loader = list(
+        config = list(
+          report_generator = list(
+            report_path = "non_existent_directory",
+            report_name = "test_output.fst"
+          )
+        )
+      )
+    ),
+    glue::glue(
+      "The directory non_existent_directory does not exist."
+    )
+  )
+})
