@@ -87,10 +87,17 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
       self$db_path <- db_path
       self$data_instance <- data_instance
       self$config <- jsonlite::fromJSON(config_path)
-      self$metadata <- cdm_metadata
-      # self$metadata <- data.table::as.data.table(
-      #   base::readRDS(cdm_metadata)
-      # )
+      # Load cdm_metadata
+      if (is.character(cdm_metadata) && grepl("\\.rds$", cdm_metadata)) {
+        self$metadata <- data.table::as.data.table(
+          base::readRDS(cdm_metadata)
+        )
+      } else if (is.data.table(cdm_metadata)) {
+        self$metadata <- cdm_metadata
+      } else {
+        stop("cdm_metadata not valid data.table object.")
+      }
+
       tryCatch(
         {
           self$db <- duckdb::dbConnect(duckdb::duckdb(), self$db_path)

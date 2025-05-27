@@ -12,4 +12,12 @@ test_that("Checking that number of rows match with original csvs", {
     nrow(vx1) + nrow(vx2)
   )
   expect_equal(unique(count_rows_origin$name), c("PERSONS", "VACCINES"))
+
+  # Expect an error when calling the function
+  dbname <- tempfile(fileext = ".duckdb")
+  con <- DBI::dbConnect(duckdb::duckdb(), dbname)
+  expect_error(
+    get_rows_tables(con),
+    "No tables found in the database."
+  )
 })

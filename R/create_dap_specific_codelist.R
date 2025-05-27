@@ -27,11 +27,20 @@ create_dap_specific_codelist <- function(
     unique_codelist,
     study_codelist,
     start_with_colls = c(
-      "ICD10CM", "ICD10", "ICD10DA", "ICD9CM", "MTHICD9", "ICPC", "ICPC2P",
-      "ICPC2EENG", "ATC", "vx_atc"
+      "ICD10CM", "ICD10", "ICD10DA", "ICD9CM", "MTHICD9",
+      "ICPC", "ICPC2P", "ICPC2EENG", "ATC", "vx_atc"
     ),
     additional_columns = NA,
     priority = NA) {
+
+  # Ensure entries are data.table
+  if (!data.table::is.data.table(unique_codelist)) {
+    unique_codelist <- data.table::as.data.table(unique_codelist)
+  }
+  if (!data.table::is.data.table(study_codelist)) {
+    study_codelist <- data.table::as.data.table(study_codelist)
+  }
+
   # Preprocessing the study_codelist
   study_codelist[, code_no_dot := gsub("\\.", "", code)]
   study_codelist[, length_str := stringr::str_length(code_no_dot)]

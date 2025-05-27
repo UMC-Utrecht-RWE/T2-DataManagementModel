@@ -1,20 +1,26 @@
 #' Get Records from Origin CDM Tables by Unique Identifier
 #'
-#' This function retrieves records from Common Data Model (CDM) tables in a database
-#' that match provided unique identifiers. The function assumes that unique identifiers
+#' This function retrieves records from Common Data Model (CDM)
+#'  tables in a database
+#' that match provided unique identifiers. The function assumes
+#'  that unique identifiers
 #' are formatted as 'table_name-row_id'.
 #'
 #' @param db_connection Database connection object (DBIConnection).
 #' @param ids A data.table containing unique identifiers.
-#' @param id_name Column name in ids containing the identifiers. Default is "ID".
-#' @param separator_id Character that separates table name from row ID in the unique identifier. Default is "-".
+#' @param id_name Column name in ids containing the identifiers.
+#'  Default is "ID".
+#' @param separator_id Character that separates table name from row
+#'  ID in the unique identifier.
+#'  Default is "-".
 #'
 #' @return A named list where each element contains the records from a CDM table
-#'         matching the provided identifiers. List names correspond to table names.
+#' matching the provided identifiers. List names correspond to table names.
 #'
-#' @details The function splits each unique identifier into a table name and row ID
-#'          using the specified separator. It then queries each unique table to retrieve
-#'          the corresponding records. Tables without matching records return empty lists.
+#' @details The function splits each unique identifier into a table name and
+#' row ID using the specified separator. It then queries each unique table to
+#' retrieve the corresponding records. Tables without matching records return
+#' empty lists.
 #'
 #' @examples
 #' \dontrun{
@@ -68,10 +74,10 @@ get_origin_row <- function(db_connection, ids,
 
   # Split the unique identifier into ori_table and rowid
   ids[, c("ori_table", "rowid") :=
-    data.table::tstrsplit(get(id_name),
-      separator_id,
-      fixed = TRUE
-    )]
+        data.table::tstrsplit(get(id_name),
+          separator_id,
+          fixed = TRUE
+        )]
 
   # Check if separator_id is present in the unique identifier
   if (is.null(ids$rowid) || all(is.na(ids$rowid))) {
@@ -92,7 +98,11 @@ get_origin_row <- function(db_connection, ids,
     # Verify table exists in database
     table_exists <- DBI::dbExistsTable(db_connection, table)
     if (!table_exists) {
-      message(paste0("[get_origin_row] Table '", table, "' does not exist in the database"))
+      message(paste0(
+        "[get_origin_row] Table '",
+        table,
+        "' does not exist in the database"
+      ))
       return_values[[table]] <- data.table::data.table()
       next()
     }
@@ -132,7 +142,9 @@ get_origin_row <- function(db_connection, ids,
         data.table::as.data.table(DBI::dbGetQuery(db_connection, query))
       },
       error = function(e) {
-        message(paste0("[get_origin_row] Error querying table '", table, "': ", e$message))
+        message(paste0(
+          "[get_origin_row] Error querying table '", table, "': ", e$message
+        ))
         data.table::data.table()
       }
     )

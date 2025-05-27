@@ -11,23 +11,29 @@ get_origin_row(db_connection, ids, id_name = "ori_id", separator_id = "-")
 
 \item{ids}{A data.table containing unique identifiers.}
 
-\item{id_name}{Column name in ids containing the identifiers. Default is "ID".}
+\item{id_name}{Column name in ids containing the identifiers.
+Default is "ID".}
 
-\item{separator_id}{Character that separates table name from row ID in the unique identifier. Default is "-".}
+\item{separator_id}{Character that separates table name from row
+ID in the unique identifier.
+Default is "-".}
 }
 \value{
 A named list where each element contains the records from a CDM table
-        matching the provided identifiers. List names correspond to table names.
+matching the provided identifiers. List names correspond to table names.
 }
 \description{
-This function retrieves records from Common Data Model (CDM) tables in a database
-that match provided unique identifiers. The function assumes that unique identifiers
+This function retrieves records from Common Data Model (CDM)
+ tables in a database
+that match provided unique identifiers. The function assumes
+ that unique identifiers
 are formatted as 'table_name-row_id'.
 }
 \details{
-The function splits each unique identifier into a table name and row ID
-         using the specified separator. It then queries each unique table to retrieve
-         the corresponding records. Tables without matching records return empty lists.
+The function splits each unique identifier into a table name and
+row ID using the specified separator. It then queries each unique table to
+retrieve the corresponding records. Tables without matching records return
+empty lists.
 }
 \examples{
 \dontrun{
