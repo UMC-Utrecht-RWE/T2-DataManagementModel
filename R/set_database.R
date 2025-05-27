@@ -188,13 +188,3 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
     }
   )
 )
-
-
-# loader <- T2.DMM::DatabaseLoader$new(
-#   db_path = "/Users/mcinelli/repos/RSV-1026/somewhere/d2.duckdb",
-#   data_instance = NULL,
-#   config_path = "configuration/set_db.json",
-#   cdm_metadata = "/Users/mcinelli/repos/RSV-1026/somewhere/CDM_metadata.rds"
-# )
-
-# loader$run_db_ops()
