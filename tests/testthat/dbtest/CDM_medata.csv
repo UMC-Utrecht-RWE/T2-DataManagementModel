@@ -1,0 +1,541 @@
+"";"Variable";"Mandatory";"Description";"Format";"TABLE";"NA";"cols_list"
+"1";"person_id";"Yes";"A foreign key to the person in PERSONS table";"Character";"VISIT_OCCURRENCE";NA;"person_id"
+"2";"visit_occurrence_id";"Yes";"Visit identifier";"Character";"VISIT_OCCURRENCE";NA;"visit_occurrence_id"
+"3";"visit_start_date";"Yes";"Date when the visit starts, or, if it is just a one-day visit, date of the visit";"Character yyyymmdd";"VISIT_OCCURRENCE";NA;"visit_start_date"
+"4";"visit_end_date";"No";"Date when the visit ends (only for visits that may last more than one day, such as a hospital admission)";"Character yyyymmdd";"VISIT_OCCURRENCE";NA;"visit_end_date"
+"5";"specialty_of_visit";"No";"Specialty of the visit, or if this is a hospital admission, specialty of the discharge ward";"Character";"VISIT_OCCURRENCE";NA;"specialty_of_visit"
+"6";"specialty_of_visit_vocabulary";"No";"Coding system of the specialty";"Character";"VISIT_OCCURRENCE";NA;"specialty_of_visit_vocabulary"
+"7";"status_at_discharge";"No";"outcome of the visit";"Character";"VISIT_OCCURRENCE";NA;"status_at_discharge"
+"8";"status_at_discharge_vocabulary";"No";"vocabulary of outcome of the visit";"Character";"VISIT_OCCURRENCE";NA;"status_at_discharge_vocabulary"
+"9";"meaning_of_visit";"Yes";NA;"Character";"VISIT_OCCURRENCE";NA;"meaning_of_visit"
+"10";"origin_of_visit";"Yes";"name of the source table that originated the record";"Character";"VISIT_OCCURRENCE";NA;"origin_of_visit"
+"11";"person_id";"Yes";"A foreign key to the person in PERSONS table";"Character";"VISIT_OCCURRENCE";NA;"person_id"
+"12";"visit_occurrence_id";"Yes";"Visit identifier";"Character";"VISIT_OCCURRENCE";NA;"visit_occurrence_id"
+"13";"visit_start_date";"Yes";"Date when the visit starts, or, if it is just a one-day visit, date of the visit";"Character yyyymmdd";"VISIT_OCCURRENCE";NA;"visit_start_date"
+"14";"visit_end_date";"No";"Date when the visit ends (only for visits that may last more than one day, such as a hospital admission)";"Character yyyymmdd";"VISIT_OCCURRENCE";NA;"visit_end_date"
+"15";"specialty_of_visit";"No";"Specialty of the visit, or if this is a hospital admission, specialty of the discharge ward";"Character";"VISIT_OCCURRENCE";NA;"specialty_of_visit"
+"16";"specialty_of_visit_vocabulary";"No";"Coding system of the specialty";"Character";"VISIT_OCCURRENCE";NA;"specialty_of_visit_vocabulary"
+"17";"status_at_discharge";"No";"outcome of the visit";"Character";"VISIT_OCCURRENCE";NA;"status_at_discharge"
+"18";"status_at_discharge_vocabulary";"No";"vocabulary of outcome of the visit";"Character";"VISIT_OCCURRENCE";NA;"status_at_discharge_vocabulary"
+"19";"meaning_of_visit";"Yes";NA;"Character";"VISIT_OCCURRENCE";NA;"meaning_of_visit"
+"20";"origin_of_visit";"Yes";"name of the source table that originated the record";"Character";"VISIT_OCCURRENCE";NA;"origin_of_visit"
+"21";"person_id";"Yes";"A foreign key to the person in PERSONS table who experienced the event";"Character";"EVENTS";NA;"person_id"
+"22";"start_date_record";"Yes";"Start date of the visit that lead to the recording of the event code or free text";"Character yyyymmdd";"EVENTS";NA;"start_date_record"
+"23";"end_date_record";"No";"End date of the visit that lead to the recording of the event code or free text";"Character yyyymmdd";"EVENTS";NA;"end_date_record"
+"24";"event_code";"Yes, unless 'event_free_text' is filled in";"Code characterizing the event according to the vocabulary defined in ""event_record_vocabulary""";"Character";"EVENTS";NA;"event_code"
+"25";"event_record_vocabulary";"Yes";"Vocabulary to which the 'event_code' belongs to; or, if ths record contains 'event_free_text' , this column contains the indication 'free_text'";"Character";"EVENTS";NA;"event_record_vocabulary"
+"26";"text_linked_to_event_code";"No";"If in the original record the code is modified by a text, include this text here";"Character";"EVENTS";NA;"text_linked_to_event_code"
+"27";"event_free_text";"No";"Use this cell if in the record there is no code, just a text";"Character";"EVENTS";NA;"event_free_text"
+"28";"present_on_admission";"No";"Indicates the presence of the event at the start of the visit or hospital admission";"Character";"EVENTS";NA;"present_on_admission"
+"29";"laterality_of_event";"No";"Laterality of the event";"Character";"EVENTS";NA;"laterality_of_event"
+"30";"meaning_of_event";"Yes";"This is a ConcePTION classification of the nature of the original record associated with this event";"Character";"EVENTS";NA;"meaning_of_event"
+"31";"origin_of_event";"Yes";"name of the source table that originated the record";"Character";"EVENTS";NA;"origin_of_event"
+"32";"visit_occurrence_id";"No";"A foreign key linking this record to the VISIT_OCCURRENCE table";"Character";"EVENTS";NA;"visit_occurrence_id"
+"33";"person_id";"Yes";"A foreign key to the person in PERSONS table";"Character";"MEDICINES";NA;"person_id"
+"34";"medicinal_product_id";"No";"Foreign key to the PRODUCTS table. The medicinal_product_id should be a unique identifier of a specific medicinal product.";"Character";"MEDICINES";NA;"medicinal_product_id"
+"35";"medicinal_product_atc_code";"Yes";"ATC classification system code attributed to the medicinal product.";"Character";"MEDICINES";NA;"medicinal_product_atc_code"
+"36";"date_dispensing";"Yes, unless 'date_prescription' is populated";"Date when the medicinal product that lead to the recording was dispensed or administrated to the patient";"Character yyyymmdd";"MEDICINES";NA;"date_dispensing"
+"37";"date_prescription";"Yes, unless 'date_dispensing' is populated";"Date when the medicinal product that lead to the recording was prescribed";"Character yyyymmdd";"MEDICINES";NA;"date_prescription"
+"38";"disp_number_medicinal_product";"No";"Number of dispensed units of medicinal_product_id.";"Numeric";"MEDICINES";NA;"disp_number_medicinal_product"
+"39";"presc_quantity_per_day";"No";"Prescribed quantity of medicinal product to be taken daily.";"Numeric";"MEDICINES";NA;"presc_quantity_per_day"
+"40";"presc_quantity_unit";"No";"Unit of measure of the prescribed daily quantity.";"Character";"MEDICINES";NA;"presc_quantity_unit"
+"41";"presc_duration_days";"No";"Number of days of medication as prescribed.";"Numeric";"MEDICINES";NA;"presc_duration_days"
+"42";"product_lot_number";"No";"An identifier assigned to a particular quantity or lot of medicinal product from the manufacturer.";"Character";"MEDICINES";NA;"product_lot_number"
+"43";"indication_code";"No";"Single identifier of a condition/indication for which the medicinal product was prescribed/dispensed.";"Character";"MEDICINES";NA;"inidication_code"
+"44";"indication_code_vocabulary";"No";"Coding system referring to indication code";"Character";"MEDICINES";NA;"indication_code_vocabulary"
+"45";"meaning_of_drug_record";"Yes";"nature of the original record having originated the drug record";"Character";"MEDICINES";NA;"meaning_of_drug_record"
+"46";"origin_of_drug_record";"Yes";"name of the source table that originated the record";"Character";"MEDICINES";NA;"origin_of_drug_record"
+"47";"prescriber_speciality";"No";"Profile of the healthcare professional who has prescribed the medicinal product.";"Character";"MEDICINES";NA;"prescriber_speciality"
+"48";"prescriber_speciality_vocabulary";"No";"Coding system of the specialty";"Character";"MEDICINES";NA;"prescriber_speciality_vocabulary"
+"49";"visit_occurrence_id";"No";"Identifier of the prescription. A foreign key linking this record to the VISIT_OCCURRENCE table, indicating the visit where the drug was prescribed or dispensed.";"Character";"MEDICINES";NA;"visit_occurrence_id"
+"50";"person_id";"Yes";"A foreign key to the person in PERSONS table";"Character";"PROCEDURES";NA;"person_id"
+"51";"procedure_date";"Yes";NA;"Character yyyymmdd";"PROCEDURES";NA;"procedure_date"
+"52";"procedure_code";"Yes";NA;"Character";"PROCEDURES";NA;"procedure_code"
+"53";"procedure_code_vocabulary";"Yes";NA;"Character";"PROCEDURES";NA;"procedure_code_vocabulary"
+"54";"meaning_of_procedure";"Yes";NA;"Character";"PROCEDURES";NA;"meaning_of_procedure"
+"55";"origin_of_procedure";"Yes";"name of the source table that originated the record";"Character";"PROCEDURES";NA;"origin_of_procedure"
+"56";"visit_occurrence_id";"No";"A foreign key linking this record to the VISIT_OCCURRENCE table";"Character";"PROCEDURES";NA;"visit_occurrence_id"
+"57";"person_id";"Yes";"A foreign key to the person in PERSONS table";"Character";"VACCINES";NA;"person_id"
+"58";"vx_record_date";"Yes, if vx_admin_date is missing";NA;"Character yyyymmdd";"VACCINES";NA;"vx_record_date"
+"59";"vx_admin_date";"Yes, if vs_record_date is missing";NA;"Character yyyymmdd";"VACCINES";NA;"vx_admin_date"
+"60";"vx_atc";"Yes, if vx_type is missing";NA;"Character";"VACCINES";NA;"vx_atc"
+"61";"vx_type";"Yes, if vx_atc is missing";NA;"Character";"VACCINES";NA;"vx_type"
+"62";"vx_text";"No";NA;"Character";"VACCINES";NA;"vx_text"
+"63";"medicinal_product_id";"No";"Foreign key to the PRODUCTS table.";"Character";"VACCINES";NA;"medicinal_product_id"
+"64";"vx_dose";"No";"Dose, particularly for childhood vaccines (1, 2, 3, Booster, etc)";"Character";"VACCINES";NA;"vx_dose"
+"65";"vx_manufacturer";"No";"Name of vaccine manufacturer";"Character";"VACCINES";NA;"vx_manufacturer"
+"66";"vx_lot_num";"No";NA;"Character";"VACCINES";NA;"vx_lot_num"
+"67";"meaning_of_vx_record";"Yes";NA;"Character";"VACCINES";NA;"meaning_of_vx_record"
+"68";"origin_of_vx_record";"Yes";"name of the source table that originated the record";"Character";"VACCINES";NA;"origin_of_vx_record"
+"69";"visit_occurrence_id";"No";"external key to VISIT_OCCURRENCE";"Character";"VACCINES";NA;"visit_occurrence_id"
+"70";"person_id";"Yes";"A foreign key to the person in PERSONS table";"Character";"MEDICAL_OBSERVATIONS";NA;"person_id"
+"71";"mo_date";"Yes";NA;"Character yyyymmdd";"MEDICAL_OBSERVATIONS";NA;"mo_date"
+"72";"mo_code";"No";NA;"Character";"MEDICAL_OBSERVATIONS";NA;"mo_code"
+"73";"mo_record_vocabulary";"No";NA;"Character";"MEDICAL_OBSERVATIONS";NA;"mo_record_vocabulary"
+"74";"mo_source_table";"No";NA;"Character";"MEDICAL_OBSERVATIONS";NA;"mo_source_table"
+"75";"mo_source_column";"No";NA;"Character";"MEDICAL_OBSERVATIONS";NA;"mo_source_column"
+"76";"mo_source_value";"Yes";NA;"Character";"MEDICAL_OBSERVATIONS";NA;"mo_source_value"
+"77";"mo_unit";"No";NA;"Character";"MEDICAL_OBSERVATIONS";NA;"mo_unit"
+"78";"mo_meaning";"Yes";NA;"Character";"MEDICAL_OBSERVATIONS";NA;"mo_meaning"
+"79";"mo_origin";"Yes";"name of the source table that originated the record";"Character";"MEDICAL_OBSERVATIONS";NA;"mo_origin"
+"80";"visit_occurrence_id";"No";NA;"Character";"MEDICAL_OBSERVATIONS";NA;"visit_occurrence_id"
+"81";"centre";"Yes";"CENTRE NUMBER";NA;"EUROCAT";NA;"centre"
+"82";"numloc";"Yes";"LOCAL ID 
+Each case has a unique identification. This number is a maximum of 11 characters long, consisting of either numbers, letters or both.
+ID numbers should not repeat themselves in different years.";NA;"EUROCAT";NA;"numloc"
+"83";"birthdate";"Yes";"DATE OF BIRTH 
+Please enter dates as a numeric string, not in date format (eg. do not use 28/02/89 or 28-02-89, instead use 280289).";NA;"EUROCAT";NA;"birthdate"
+"84";"sex";"Yes";"SEX
+Indicate chromosomal sex, if known, in case of ambiguous genitalia and code malformations in variables 29-44.
+Indicate indeterminate sex in case of ambiguous genitalia with unknown or abnormal sex chromosome complement.
+If sex could not be determined at autopsy due to maceration or other problems, indicate as “not known”.";NA;"EUROCAT";NA;"sex"
+"85";"nbrbaby";"Yes";"NUMBER OF BABIES/FETUSES DELIVERED
+Fill out a separate form for each malformed baby/fetus in a multiple set.
+Only one form to be completed for conjoined twins (Siamese).  The code is “2” for a conjoined twin, unless another baby was delivered at the same time (code “3”).
+Conjoined twins have a specific ICD/BPA code, to be coded under “syndrome” (variable 27).  Give full description of type of conjoined twinning in syndrome text field (variables 28).
+Any other malformations are coded in variables 29-44.
+Notes. If code 8 is used, please specify in variable sp_twin the gestational age at which last known to be a multiple pregnancy and/or first known to be a singleton. The purpose of this coding system is to allow us to distinguish malformed cases which would have civil registration as singleton births from malformed cases which would have civil registration as multiple births. Please specify the sex and outcome (live, still) of the malformed/non-malformed co-twin and zygosity.";NA;"EUROCAT";NA;"nbrbaby"
+"86";"sp_twin";"No";"SPECIFY TWIN TYPE OF BIRTH (malformed and non-malformed),
+like or unlike sex, zygosity";NA;"EUROCAT";NA;"sp_twin"
+"87";"nbrmalf";"Yes";"NUMBER OF MALFORMED IN MULTIPLE SET
+To be completed for multiple delivery only.
+Complete one form for each malformed baby in a multiple set.  
+Remember to give local ID of co-twin in SIB1 field (variable 69) if more than one malformed.";NA;"EUROCAT";NA;"nbrmalf"
+"88";"type";"Yes";"TYPE OF BIRTH
+Birth with type of birth not known should be transmitted to EUROCAT, but will be excluded from routine EUROCAT analysis.
+EUROCAT includes all livebirths, fetal deaths with gestational age (GA) ≥20 weeks and terminations of pregnancy (at any gestational age) after prenatal diagnosis of malformation.  Fetal deaths with GA < 20 weeks (code =
+3) may be reported to EUROCAT but will not be included in prevalence data.
+The distinction between stillbirth and spontaneous abortion should follow the definitions in use in your country (to be specified in your Registry Description).  There is usually a lower gestational age limit or birthweight limit for stillbirths.  This varies from country to country.  Below this limit fetal deaths are called spontaneous abortions.
+Terminations of pregnancy refer to cases where prenatal diagnosis was made of malformation in a live fetus and the pregnancy was then terminated.  If the fetus died spontaneously in utero either before or after prenatal diagnosis of malformation then it should be coded as spontaneous abortion or stillbirth, not as termination of pregnancy.  If a termination was performed for other reasons than malformation, the case should not be transmitted to Central Registry.  This means that early terminations where there was no suspicion of malformation before termination should be excluded from the case files.
+Stillbirths or perinatal deaths resulting from termination of pregnancy following prenatal diagnosis must be coded as terminations (value = 4), irrespective of civil registration status.
+For a non-natural fetal reduction in a multiple pregnancy where one fetus is malformed, code 4 (in that case gestlength = gestational age at reduction; date of birth = date of reduction; and code carefully all multiple birth
+variables).";NA;"EUROCAT";NA;"type"
+"89";"civreg";"Yes";"CIVIL REGISTRATION STATUS
+Livebirths and stillbirths are civilly registered leading to either a birth or stillbirth certificate and appear in official birth statistics for your region.
+Code here whether this case fulfilled the conditions for live or stillbirth registration in your country.";NA;"EUROCAT";NA;"civreg"
+"90";"weight";"Yes";"BIRTH WEIGHT
+Give weight in grams.";NA;"EUROCAT";NA;"weight"
+"91";"gestlength";"Yes";"LENGTH OF GESTATION IN COMPLETED WEEKS
+Give best estimate based on last menstrual period (LMP) and/or ultrasound determination.  If the case is the result of fetal reduction give GA at fetocide.";NA;"EUROCAT";NA;"gestlength"
+"92";"survival";"Yes";"SURVIVAL BEYOND ONE WEEK OF AGE
+Yes = Child known to be alive after one week.
+No = Child known to have died before or during first week (including stillbirths and abortions).
+Alive at discharge <1 week refers to cases that are alive at discharge from maternity units before one week of age. Please specify in your Registry Description the day when discharge from maternity units usually takes place.
+If survival at one week is unknown, but survival at discharge from maternity unit less than one week is known, use the latter.
+The definition of first week of life varies between countries. Follow your country’s perinatal mortality definition and specify this in your Registry Description.
+Not known = Not known if child has died during first week.";NA;"EUROCAT";NA;"survival"
+"93";"death_date";"No";"DATE OF DEATH
+For livebirths only.
+Please enter dates as a numeric string, not in date format (eg. do not use 28/02/89 or 28-02-89, instead use 280289).";NA;"EUROCAT";NA;"death_date"
+"94";"datemo";"No";"DATE OF BIRTH OF MOTHER
+Give as much information as is known eg. Feb 1963 = 990263, 1963 = 999963.
+Please enter dates as a numeric string, not in date format (eg. do not use 28/02/89 or 28-02-89, instead use 280289).
+This variable can be used to calculate maternal age at Expected Date of Delivery for preterm deliveries and terminations.";NA;"EUROCAT";NA;"datemo"
+"95";"agemo";"Yes";"AGE OF THE MOTHER AT DELIVERY
+In completed years at the time of delivery.  If only the year of birth is available, assume that the mother was born on
+30 June.";NA;"EUROCAT";NA;"agemo"
+"96";"bmi";"No";"MATERNAL BODY MASS INDEX
+Enter BMI (2 digits). The EDMP will also allow entry of maternal height (in centimetres) and weight (in kilograms) and calculate BMI automatically. Values measured at first antenatal visit are preferred, but pre-pregnancy self-reported values may be given. If mother known to be obese, enter code for obesity E660 in maternal illness before pregnancy (variable 60)
+Whilst BMI is a new variable in Guide 1.4 (for cases born from 2013 onwards) if any registry has this information for previous cases, EUROCAT is interested in collecting this information from 2005 onwards";NA;"EUROCAT";NA;"bmi"
+"97";"residmo";"No";"MOTHER’S RESIDENCE CODE
+Use local code for locality of residence at time of delivery.";NA;"EUROCAT";NA;"residmo"
+"98";"totpreg";"No";"TOTAL NUMBER OF PREVIOUS PREGNANCIES
+NOTE – The current reported pregnancy is NOT included.
+Include all previous abortions whether spontaneous or induced.  Multiple pregnancies count as 1 in the total";NA;"EUROCAT";NA;"totpreg"
+"99";"whendisc";"Yes";"WHEN DISCOVERED
+When the baby was first suspected to be malformed.
+For prenatal diagnosis: when a major malformation was first suspected (EXCLUDING soft markers).  If prenatal diagnosis is made when fetus is dead code 1 (for stillbirths) or 7 (for spontaneous abortions).
+For livebirths: when first suspicion malformation was at death OR at postmortem, when discovered is age at death (eg. At birth, < 1 week, 1-4 weeks etc).
+For stillbirths: when first suspicion of a malformation was at birth OR at postmortem, when discovered is at birth (eg.
+Code = 1).
+All cases MUST have been confirmed as having a congenital anomaly
+Please also complete variables 12 “SURVIVAL”, 13 “DEATH- DATE”, 19 “CONDISC” and 25 “PM”.";NA;"EUROCAT";NA;"whendisc"
+"100";"condisc";"No";"CONDITION AT DISCOVERY
+Condition of fetus or baby when malformation was first
+suspected.";NA;"EUROCAT";NA;"condisc"
+"101";"agedisc";"Yes";"IF PRENATALLY DIAGNOSED, GESTATIONAL AGE AT DISCOVERY IN COMPLETED WEEKS
+GA as defined in variable gestlength.
+Gestational age at which the fetus was first suspected to be malformed (EXCLUDING soft markers).  Indicate time of examination rather than time when result known.
+If no prenatal diagnosis please leave blank.";NA;"EUROCAT";NA;"agedisc"
+"102";"firstpre";"No";"FIRST POSITIVE PRENATAL TEST
+This refers to the first prenatal test whether screening procedure or diagnostic test which indicated a possible congenital anomaly or need for further tests.
+For code 7 = other specified test, give information in text field (variable 22).
+If test performed and result negative, then the “When discovered” variable cannot be coded 6 (prenatal diagnosis).
+This field is to record what DID happen, not any possible plans or intentions. Ultrasound < 14 weeks means only ultrasound performed which may include a nuchal measurement. The serum/combined screening must involve a biochemical test";NA;"EUROCAT";NA;"firstpre"
+"103";"sp_firstpre";"No";"SPECIFY “OTHER” FIRST PRENATAL TEST
+If FIRSTPRE = 7, specify which positive prenatal test";NA;"EUROCAT";NA;"sp_firstpre"
+"104";"karyo";"No";"KARYOTYPE OF INFANT/FETUS
+Specify result in variable 25. Array results count as a karyotype test
+Report only clearly pathogenic variants and if uncertain, include only copy number variants (CNVs) (duplications or deletions) larger than 1 MB. Only report cases with de novo CNVs unless the parent in familial cases also has clinical manifestations of the condition (dysmorphic features or congenital anomalies). (Coding Committee 2015)
+If performed and results known, please specify (according to the latest ISCN edition.
+“Probe test performed” refers to FISH, PCR, or other analyses restricted to specific chromosomal regions .
+“Failed” refers to a technical failure where a repeat examination could not be done and the karyotype is therefore unknown.";NA;"EUROCAT";NA;"karyo"
+"105";"sp_karyo";"No";"SPECIFY KARYOTYPE OR CHROMOSOMAL MICROARRAY
+EXAMPLES:
+47,XY,+21
+46,XX,del(2)(p13p23)mat Description: An interstitial deletion resulting from mal-segregation of a maternal insertion
+46,XY,der(5)ins(5;2)(q31;p23p13)mat Description : A derivative chromosome 5 resulting from mal-segregation of a maternal insertion from chromosome 2
+arr(1–22)×3,(X)×2,(Y)×1 Description: Microarray analysis shows triploidy 69,XXY
+arr(8)×3,(21)×3 Description: Microarray analysis shows a single copy gain of chromosomes 8 and 21.
+46,XY.rsa(13,18,21)×2,(X,Y)×1 Descritption: normal chromosomes, only chromosome 13,18,21, X and Y investigated
+rsa 22q11.2(‘kit name’)×1 Description: microdeletion 22q.11.2 diagnosed by multiple ligation probe amplification method (MLPA)";NA;"EUROCAT";NA;"sp_karyo"
+"106";"gentest";"No";"GENETIC TEST
+For syndromes and single gene disorders, a genetic test may have confirmed the clinical diagnosis either prenatally or postnatally. Please complete for these cases. Karyotype should still be completed as per variables 24 & 25
+Whilst GENETIC TEST is a new variable in Guide 1.4 (for cases born from 2013 onwards) if any registry has this information for previous cases, EUROCAT is interested in collecting this information from 2005 onwards
+If the test is performed but the result not yet known, please wait for the result before reporting";NA;"EUROCAT";NA;"gentest"
+"107";"sp_gentest";"No";"SPECIFY TYPE OF GENETIC TEST
+Give method used and the result of the test (type of mutation and which gene)
+Examples: Single gene analysis, exome sequencing, whole genome sequencing";NA;"EUROCAT";NA;"sp_gentest"
+"108";"pm";"No";"POST MORTEM EXAMINATION
+If performed record the malformation(s) discovered in the “malformation” section in the form.  If other findings record in the “comments” space (variable 80).
+“Results known” means that the autopsy record has been reviewed by the registry.
+“Results not known” means that the autopsy record was not available to the registry.
+“Macerated fetus” means that although a post mortem was performed, maceration of the fetus prevented a full protocol from being followed.";NA;"EUROCAT";NA;"pm"
+"109";"surgery";"Yes";"FIRST SURGICAL PROCEDURE FOR MALFORMATION (PERFORMED OREXPECTED)
+If your registry does not have the resources to complete this variable for all cases, concentrate on malformations where a) performed or expected surgery indicates level of severity, for example hydrocephalus and hypospadias or b) where active decisions to withhold surgery may impact survival for example hypoplastic left heart
+The variable surgery does not include insertions of catheters.  Performed (or expected) means that this case has already, or will at the appropriate age, have surgery for one or more of the listed malformations.
+“No surgery required” means that this case does not have a severe enough malformation, or that the malformation is not correctable by surgery.
+“Too severe for surgery” means that there has been an
+active decision to withhold surgery due to low chances of survival or very poor prognosis.";NA;"EUROCAT";NA;"surgery"
+"110";"syndrome";"Yes";"SYNDROME OR ASSOCIATION
+Refer to EUROCAT Guide on syndromes.  Give name of syndrome or association in text variable 28.  All the anomalies observed by the local clinician should be coded in the remaining boxes for malformations.
+If not a recognised syndrome or association, leave blank.
+When 2 syndromes are present in the same subject, code the more important one in the syndrome variables 27 and 28, and include the other one in variables 29 and 30 MALF01.
+Ensure karyotype information is given in variables 23 and 24, and that autopsy and medical genetics reports have been reviewed, where appropriate.
+In case of conjoined twins, give full description in syndrome text variable 28.
+Local registries are advised to keep photographs and x-ray images of all syndrome cases, as the diagnosis is predominantly established on the basis of specific facial
+dysmorphism.";NA;"EUROCAT";NA;"syndrome"
+"111";"sp-syndrome";"Yes";"SPECIFY SYNDROME 
+Written text description of the ICD10 code in variable 30";NA;"EUROCAT";NA;"sp-syndrome"
+"112";"malfo1";"Yes";"MALFORMATION 
+A baby/fetus with ONLY minor anomalies (see exclusion list, chapter 7) should not be transmitted to Central Registry. 
+When a major anomaly is present, code both major and minor anomalies. 
+In case of conjoined twins, give full description in text in variable 33 
+Up to 8 malformations can be coded – if more than 8 are present, specify additional anomalies in the text variable for the 8th anomaly (text variable 47 SP_MALFO8). 
+Include in the 8 specified codes the most important ones, or those tabulated in EUROCAT Reports. 
+Give written description of the malformations available in malformation text variables 33, 35, 37, 39, 41, 43, 45 and 47.";NA;"EUROCAT";NA;"malfo1"
+"113";"sp_malfo1";"Yes";"SPECIFY MALFORMATION	";NA;"EUROCAT";NA;"sp_malfo1"
+"114";"malfo2";"Yes";"AS MALFO1	";NA;"EUROCAT";NA;"malfo2"
+"115";"sp_malfo2";"Yes";"SPECIFY MALFORMATION	";NA;"EUROCAT";NA;"sp_malfo2"
+"116";"malfo3";"Yes";"AS MALFO1	";NA;"EUROCAT";NA;"malfo3"
+"117";"sp_malfo3";"Yes";"SPECIFY MALFORMATION	";NA;"EUROCAT";NA;"sp_malfo3"
+"118";"malfo4";"Yes";"AS MALFO1	";NA;"EUROCAT";NA;"malfo4"
+"119";"sp_malfo4";"Yes";"SPECIFY MALFORMATION	";NA;"EUROCAT";NA;"sp_malfo4"
+"120";"malfo5";"Yes";"AS MALFO1	";NA;"EUROCAT";NA;"malfo5"
+"121";"sp_malfo5";"Yes";"SPECIFY MALFORMATION	";NA;"EUROCAT";NA;"sp_malfo5"
+"122";"malfo6";"Yes";"AS MALFO1	";NA;"EUROCAT";NA;"malfo6"
+"123";"sp_malfo6";"Yes";"SPECIFY MALFORMATION	";NA;"EUROCAT";NA;"sp_malfo6"
+"124";"malfo7";"Yes";"AS MALFO1	";NA;"EUROCAT";NA;"malfo7"
+"125";"sp_malfo7";"Yes";"SPECIFY MALFORMATION	";NA;"EUROCAT";NA;"sp_malfo7"
+"126";"malfo8";"Yes";"AS MALFO1	";NA;"EUROCAT";NA;"malfo8"
+"127";"sp_malfo8";"Yes";"SPECIFY MALFORMATION	";NA;"EUROCAT";NA;"sp_malfo8"
+"128";"presyn";"No";"PRENATAL DIAGNOSIS FOR SYNDROME
+When each anomaly was first diagnosed.
+The basis for this variable is to record whether the prenatal findings strongly suggest the postnatal diagnosis. This variable is not designed for fetal medicine specialists to assess the accuracy of their prenatal diagnosis. Thus the finding of a significant heart anomaly prenatally is considered to be prenatally detected, even if the exact anomaly was not correctly diagnosed. ‘Yes, prenatally diagnosed’, should be used when the prenatal finding is nearly 100% predictive of the congenital anomaly. ‘Partially’ means that the prenatal finding is consistent with the postnatal anomaly but has a lesser predictive value, being suggestive of more than one type of anomaly, an example here would be increased nuchal translucency. The examples below are to illustrate this principle and ensure consistency of coding. Queries about individual cases can be send to Central registry";NA;"EUROCAT";NA;"presyn"
+"129";"premal1";"No";"PRENATAL DIAGNOSIS FOR MALFORMATION
+AS PRESYN";NA;"EUROCAT";NA;"premal1"
+"130";"premal2";"No";"PRENATAL DIAGNOSIS FOR MALFORMATION
+AS PRESYN";NA;"EUROCAT";NA;"premal2"
+"131";"premal3";"No";"PRENATAL DIAGNOSIS FOR MALFORMATION
+AS PRESYN";NA;"EUROCAT";NA;"premal3"
+"132";"premal4";"No";"PRENATAL DIAGNOSIS FOR MALFORMATION
+AS PRESYN";NA;"EUROCAT";NA;"premal4"
+"133";"premal5";"No";"PRENATAL DIAGNOSIS FOR MALFORMATION
+AS PRESYN";NA;"EUROCAT";NA;"premal5"
+"134";"premal6";"No";"PRENATAL DIAGNOSIS FOR MALFORMATION
+AS PRESYN";NA;"EUROCAT";NA;"premal6"
+"135";"premal7";"No";"PRENATAL DIAGNOSIS FOR MALFORMATION
+AS PRESYN";NA;"EUROCAT";NA;"premal7"
+"136";"premal8";"No";"PRENATAL DIAGNOSIS FOR MALFORMATION
+AS PRESYN";NA;"EUROCAT";NA;"premal8"
+"137";"omim";"No";"OMIM / TYPE OF MENDELIAN INHERITANCE
+To be coded by medical geneticist or after advice from medical geneticist.
+This code is to be used for cases with single gene origin only – Refer to EUROCAT Syndrome Guide.
+The first digit may be filled in without the rest of the code if the full OMIM code is not known.
+Full codes can be found on the OMIM website
+http://www.ncbi.nlm.nih.gov/omim/";NA;"EUROCAT";NA;"omim"
+"138";"orpha";"No";"This code is to be used for rare diseases including congenital anomalies, chromosomal, teratogenic and genetic syndromes.
+Use the link and enter the name of the condition. if more than one code/disease appears, select the most specific orpha code. If you do not have specific information about genetic background or phenotype, select the most general orpha code.
+https://www.orpha.net/consor/cgi-bin/Disease.php?lng=EN";NA;"EUROCAT";NA;"orpha"
+"139";"assconcept";"No";"ASSISTED CONCEPTION
+IVF = In vitro fertilization
+GIFT = Gamete intra fallopian transfer
+ICSI = Intracytoplasmic sperm injection";NA;"EUROCAT";NA;"assconcept"
+"140";"occupmo";"No";"MOTHER’S OCCUPATION AT TIME OF CONCEPTION
+Code main occupation at time of conception (or earliest known time in first trimester). Note that the main purpose of the variable relates to potential teratogenic occupational exposures in early pregnancy. Be as precise as possible.
+Code according to 2008 (ISCO-08) Classification for births with birth dates from 2013.
+Code according to the 1988 International Standard Classification of Occupations (ISCO-88) for births with birth dates up to 2012.
+Links for ISCO classifications: http://www.ilo.org/public/english/bureau/stat/isco/isco08/index.htm
+Available in many languages.
+The 4 digit codes give the necessary specificity. They are grouped into the following main groups:
+0 = Armed Forces (NB – do not preface your codes with zero UNLESS it is an armed forces occupation. All database systems must accept a leading zero and not drop it).
+1 = Managers
+2 = Professionals
+3 = Technicians and Associate Professionals
+4 = Clerical Support Workers
+5 = Service and Sales Workers
+6 = Skilled agricultural, forestry and fishery workers
+7 = Craft and related trades workers
+8 = Plant and machine operators, and assemblers
+9 = Elementary occupations
+EUROCAT Supplement:
+9991 = Employed (including self-employed), but occupation unknown
+9995 = Housewife
+9996 = Student
+9997 = Unemployed
+9999 = Not known whether employed or not";NA;"EUROCAT";NA;"occupmo"
+"141";"illbef1";"No";"ILLNESS BEFORE PREGNANCY 1
+Record any illness whether chronic or acute with onset before pregnancy and that may affect fetal development (eg. childhood cancer, metabolic and endocrine disease, severe congenital anomaly). Code according to ICD10. The codes mentioned below are only examples.
+Historic maternal diseases may be coded using the Z-chapter in ICD10, example Z853 “Personal history of breast cancer”.
+Any additional details may be entered in the general comments section (variable 95). Do not insert the decimal point in the code (e.g. Code E05.0 as E050)
+Abridged list:
+Hyperthyroidism E050 - E059
+Hypothyroidism E000 - E039
+Diabetes Type 1 E100 - E109
+Diabetes Type 2 E110 - E119
+Obesity E660 - E669
+If maternal BMI ≥ 30 give code for obesity
+Metabolic disorders E700 – E889
+Anorexia /eating disorders F500-F509
+Depression F320 – F339
+Epilepsy G400 - G409
+Hypertension I100 - I159
+Asthma J450 - J459
+Chronic alcoholism F102
+Drug addict F112 - F122 - F132 - F142";NA;"EUROCAT";NA;"illbef1"
+"142";"illbef2";"No";"ILLNESS BEFORE PREGNANCY 2 - AS FOR ILLBEF1";NA;"EUROCAT";NA;"illbef2"
+"143";"matdiab";"No";"MATERNAL PREGESTATIONAL DIABETES
+This variable is specifically for pregestational diabetes. Gestational diabetes is dealt with under the ‘illness during pregnancy’ variable (variable 64)
+Type 1 diabetes: characterized by hyperglycemia due to an absolute deficiency of the insulin hormone produced by the pancreas
+An HbA1c of 48mmol/mol is recommended as the cut-off point for diagnosing diabetes.
+Type 2 diabetes: characterized by hyperglycemia due to a defect in insulin secretion
+An HbA1c of 48mmol/mol is recommended as the cut-off point for diagnosing diabetes.
+*Maturity Onset Diabetes in the Young (MODY) displays an autosomal dominant pattern of inheritance
+An HbA1c of 48mmol/mol is recommended as the cut-off point for diagnosing diabetes.
+Impaired Glucose Intolerance is a state of higher than normal blood (or plasma) glucose concentration, but less than the diagnostic cut-off for diabetes. Diagnosed before pregnancy. Diagnosed by fasting plasma glucose from 6.1 – 6.9 mmol/L (WHO criteria) http://www.who.int/diabetes/publications/en/";NA;"EUROCAT";NA;"matdiab"
+"144";"hba1c";"No";"GLYCATED HAEMOGLOBIN (HbA1c) VALUE
+Give the first HbA1c value measured in the first trimester (in mmol/mol units)
+Normal values for non-diabetic individuals <48mmol/mol";NA;"EUROCAT";NA;"hba1c"
+"145";"illdur1";"No";"ILLNESS DURING PREGNANCY
+Record illnesses with chronic or acute onset during the first 20 weeks of pregnancy including asymptomatic maternal infections. For gestational diabetes include at any point in pregnancy
+For early pregnancy complications use the O chapter in ICD10. For maternal infections, use chapters A and B. (4 digits). Fetal infections and associated malformations should be coded under syndrome and malformation 1-8 codes (variable 30-47). Do not insert the decimal point in the code (eg. Code B34.1 as B341)
+Gestational Diabetes O244 – O249
+Haemorrhage early pregnancy O200 – O209
+Hyperemesis O210 - O219
+Coxsackie’s B341
+Cytomegalic Inclusion Diseases B250 - B259
+Herpes Simplex B000 - B009
+HIV (AIDS) B200 - B249
+Influenza J100 - J119
+Listeria A320 - A329
+Mumps B260 - B269
+Rubella B060 - B069
+Syphillis A530 - A539
+Toxoplasmosis B580 - B589
+Varicella (Chicken Pox) B010 - B019
+Viral Hepatitis B190 - B199
+Zika virus A928
+Drug poisoning T360-T509";NA;"EUROCAT";NA;"illdur1"
+"146";"illdur2";"No";"ILLNESS DURING PREGNANCY
+AS FOR ILLDUR1";NA;"EUROCAT";NA;"illdur2"
+"147";"folic_g14";"No";"FOLIC ACID SUPPLEMENTATION
+Recommend to your local maternity hospitals or midwives to collect these data.
+Folic acid supplementations include folic acid only tablets, a multivitamin preparation which contains folic acid or contraceptive pills which contain folic acid.
+If the folic acid dose is high, please add the code B03BB01 in the drugs variable";NA;"EUROCAT";NA;"folic_g14"
+"148";"firsttri";"No";"FIRST TRIMESTER MEDICATION
+“Yes” means that the data sources clearly state that medication was taken in the first trimester. “No” means that the data sources clearly state that no medication was taken in the first trimester.
+“Undetermined” means that the usual data sources were consulted, but
+ it was not clearly stated that medication was either taken or not taken
+ the information regarding medication use was illegible
+ Type of medication is unknown.
+“Medication taken but timing unknown” means that the usual data sources stated that medication was taken but the timing of use was not stated for some or all of the medications.
+Use this option also for cases in which the data sources clearly state that certain medication was taken in the first trimester, but for other medication the timing was unknown. Use SP_DRUGS fields to explain for each recorded medication whether it was taken in the first trimester, or if timing was unknown.
+“Not Known” means that the usual data sources were not found.
+Only fill in DRUGS1-5 and EXTRADRUGS if you have coded FIRSTTRI = 1 (Yes medication taken) or = 4 (Medication taken, but timing unknown).
+If you have coded FIRSTTRI = 2 (no medication taken), FIRSTTRI = 3 (undetermined) or FIRSTTRI = 9 (unknown), there shouldn’t be any ATC codes in any of the DRUGS variables
+ Include any medication that was taken by the mother during the first trimester of pregnancy (from the 1st day of the last menstrual period up to the 12th week of gestation). Medication with long elimination half time and taken before conception should be included (eg. Acitretin, Etretinate, etc.).
+ Use of folic acid (either as folic acid only tablets or a multivitamin preparation which contains folic acid) should be registered in the folic acid variable
+ Do not include usual vitamins and mineral supplementation, but include unusual intakes of vitamins or minerals (eg. Vitamin A mega doses).
+ Only medication taken at physiologic doses should be included.
+Whilst FIRSTTRI is a new variable in Guide 1.4 (for cases born from 2013 onwards) if any registry has this information for previous cases, EUROCAT is interested in collecting this information from 2005 onwards";NA;"EUROCAT";NA;"firsttri"
+"149";"drugs1";"No";"DRUGS - 7 DIGITS MAXIMUM
+Record any drug taken by the mother during the first trimester of pregnancy (from the 1st day of last menstrual period up to the 12th week of gestation). Drugs with long elimination half time and taken before conception should also be recorded (eg. Acitretin, etretinate etc).
+If it is not known in which trimester the drug was taken, and this information cannot be obtained, code it but write in the space for comments that it is not sure whether the drug was taken in the first trimester.
+Use ATC-coding and use as many digits as possible (from 3 to 7). Website http://www.whocc.no/atcddd/.
+Do not record usual vitamins and mineral supplementation, but record unusual intakes of vitamins or minerals (eg. Vitamin A mega doses). The ATC coding system does not have a code for alternative drugs or herbs. If these are used, give the main code Z.
+ATC example:
+N03A: antiepileptic drug
+N03AF01: carbamazepine
+Details on the dosage and timing should be given in text variable 55. Do not forget to mention in the appropriate section (disease during or before pregnancy) the indication for drug use.
+Only drugs taken at physiologic doses to be recorded.
+If a drug overdose or self-poisoning, this MUST be explained in text in Variable 55.";NA;"EUROCAT";NA;"drugs1"
+"150";"spdrugs1";"No";"SPECIFY DRUG EXPOSURES";NA;"EUROCAT";NA;"spdrugs1"
+"151";"drugs2";"No";"AS FOR DRUGS1
+Please give details in text variable 57 SP_DRUGS2.";NA;"EUROCAT";NA;"drugs2"
+"152";"spdrugs2";"No";"SPECIFY DRUG EXPOSURES";NA;"EUROCAT";NA;"spdrugs2"
+"153";"drugs3";"No";"AS FOR DRUGS1
+Please give details in text variable 59 SP_DRUGS3.";NA;"EUROCAT";NA;"drugs3"
+"154";"spdrugs3";"No";"SPECIFY DRUG EXPOSURES";NA;"EUROCAT";NA;"spdrugs3"
+"155";"drugs4";"No";"AS FOR DRUGS1
+Please give details in text variable 61 SP_DRUGS3.";NA;"EUROCAT";NA;"drugs4"
+"156";"spdrugs4";"No";"SPECIFY DRUG EXPOSURES";NA;"EUROCAT";NA;"spdrugs4"
+"157";"drugs5";"No";"AS FOR DRUGS1
+Please give details in text variable 63 SP_DRUGS3.";NA;"EUROCAT";NA;"drugs5"
+"158";"spdrugs5";"No";"SPECIFY DRUG EXPOSURES";NA;"EUROCAT";NA;"spdrugs5"
+"159";"extra-drugs";"No";"EXTRA DRUGS
+This field is only to be used if drug fields 1-5 have already been filled.
+Record any drug taken by the mother during the first trimester of pregnancy (from the 1st day of last menstrual period up to the 12th week of gestation). Drugs with long elimination half time and taken before conception should also be recorded (eg. Acitretin, etretinate etc).
+If it is not known in which trimester the drug was taken, and this information cannot be obtained, code it but write in the space for comments that it is not sure whether the drug was taken in the first trimester.
+Use ATC-coding and use as many digits as possible (from 3 to 7). Website http://www.whocc.no/atcddd/.
+Do not record usual vitamins and mineral supplementation, but record unusual intakes of vitamins or minerals (eg. Vitamin A mega doses). The ATC coding system does not have a code for alternative drugs or herbs. If these are used, give the main code Z.
+ATC example:
+N03A: antiepileptic drug
+N03AF01: carbamazepine
+Details on the dosage and timing should be given in the drug description. Do not forget to mention in the appropriate section (disease during or before pregnancy) the indication for drug use.
+Only drugs taken at physiologic doses to be recorded.
+If a drug overdose or self-poisoning, this MUST be explained in the drug description.
+If importing data from a local program, enter the ATC code and text description in the following format:
+<ATC code|text description>
+If more than one extra drug is to be imported for a single case, then enter the ATC codes in the extra drugs field as follows:
+<ATC code|text description><ATC code|text description>
+For example a case with valproate and lamotrigine exposure is entered in the extra_drugs field as:
+<N03AG01|Valproate><N03AX09|Lamotrigine>
+(See chapter 2.4 of EDMP User Guide for further guidance)";NA;"EUROCAT";NA;"extra-drugs"
+"160";"consang";"No";"CONSANGUINITY
+Restrictive definition of consanguinity: where the parents of the malformed case have one or more ancestors in common no more remote than a great-grandparent (=second cousins)";NA;"EUROCAT";NA;"consang"
+"161";"sp_consang";"No";"SPECIFY TEXT INFORMATION ON CONSANGUINITY";NA;"EUROCAT";NA;"sp_consang"
+"162";"sibanom";"No";"SIBS WITH ANOMALIES
+If the sibling (including twin) was notified to EUROCAT fill in variables 68-71 below. Make sure that the local identification numbers given correspond to those in the central database; otherwise give more information in text here.
+If previous siblings were not notified to EUROCAT specify in text SP_SIBANOM the year of birth and malformations of each sibling.
+If one sibling has both the same anomaly and a different anomaly, code under “same”. If one sibling has the same anomaly and another sibling has a different anomaly, code under “same and other”
+Always give details in text variable 66 SP_SIBANOM";NA;"EUROCAT";NA;"sibanom"
+"163";"sp_sibanom";"No";"SPECIFY TYPE OF ANOMALY OF SIBLINGS";NA;"EUROCAT";NA;"sp_sibanom"
+"164";"prevsib";"No";"PREVIOUS MALFORMED SIBLINGS NOTIFIED TO EUROCAT
+If yes, give the local ID number in variables SIB1, SIB2 or SIB3 (variables 69-71).
+Include malformed co-twins or siblings from the same pregnancy, irrespective of birth order within multiple set.
+Exclude, conjoined twin.";NA;"EUROCAT";NA;"prevsib"
+"165";"sib1";"No";"SIB LOCAL ID NUMBER NOTIFIED TO THE CENTRAL REGISTRY
+Enter here also the code numbers of co-twins or siblings from the same pregnancy, irrespective of birth order within multiple sets.
+Leave blank if no previous siblings notified to EUROCAT.";NA;"EUROCAT";NA;"sib1"
+"166";"sib2";"No";"AS SIB1";NA;"EUROCAT";NA;"sib2"
+"167";"sib3";"No";"AS SIB1";NA;"EUROCAT";NA;"sib3"
+"168";"moanom";"No";"MOTHER’S FAMILY WITH ANOMALIES
+Include mother herself as well as mother’s family. Specify type of anomaly in written text and relation to the infant.
+If the aetiology is known, “same” means the same aetiology, even if the spectrum of malformations present is slightly different.
+If the aetiology is unknown or multifactorial, “same” is a matter of judgment by a qualified coder, but full specification of the anomaly should be given, whether other or the same.
+“Same and other” refers to two different relatives. If a relative has both the same and another anomaly, code “same”.
+Restrict the family to first, second and third degree relatives (mother, father, siblings, grandparents, aunts, uncles, half-siblings, first cousins).
+Always give details in text variable 73 SP_MOANOM.";NA;"EUROCAT";NA;"moanom"
+"169";"sp_moanom";"No";"SPECIFY TYPE OF ANOMALY AND DESCRIBE THE MALFORMATION";NA;"EUROCAT";NA;"sp_moanom"
+"170";"faanom";"No";"FATHER’S FAMILY WITH ANOMALIES
+As MOANOM
+Please give details in text variable 90 SP_FAANOM";NA;"EUROCAT";NA;"faanom"
+"171";"sp_faanom";"No";"SPECIFY TYPE OF ANOMALY AND DESCRIBE THE MALFORMATION";NA;"EUROCAT";NA;"sp_faanom"
+"172";"matedu";"No";"MATERNAL EDUCATION
+Refer to International Standard Classification of Education 1997 for more information and Kunst et al (2001).
+Assign according to the highest level of education completed (or for full-time students, level in progress).
+Elementary and lower secondary refers to the period of compulsory education, usually to age 15/16. Upper secondary refers to the last two school or college years (usually to age 18) preparing students for tertiary education or the workforce. Tertiary refers to Bachelor’s degree (English), Diploma (German), License (French) or equivalent, and to higher degrees (eg. doctorates), or to other forms of higher education.";NA;"EUROCAT";NA;"matedu"
+"173";"socm";"No";"SOCIOECONOMIC STATUS OF MOTHER
+Current or last occupation.
+Upper non-manual – professionals, administrators and managers eg. doctor, architect, lawyer, banker, manager, teacher, nurse, performer.
+Lower non-manual – routine non-manual eg. Book-keeper, salesman, receptionist, secretary, computer operator, clerk, waiter.
+Skilled manual – cook, butcher, carpenter.
+Unskilled manual – semi and unskilled manual eg. factory worker, driver, agricultural worker, porter.
+Self employed/artisan – owner of shop, restaurant or hotel, independent artisan.
+Farmer – eg. self-employed farmer or fisherman.
+If code 8 (“other/student”), please specify in text in space for general comments (variable 80).
+For further information see Kunst et al (2001)";NA;"EUROCAT";NA;"socm"
+"174";"socf";"No";"SOCIOECONOMIC STATUS OF FATHER
+As SOCM.";NA;"EUROCAT";NA;"socf"
+"175";"migrant";"No";"MIGRANT STATUS 
+ This variable is included to allow assessment of the extent to which services such as prenatal screening are reaching migrants. It does not ask for ethnicity. 
+ 
+If code 4, give text details in the general comments section (variable 79).";NA;"EUROCAT";NA;"migrant"
+"176";"genrem";"No";"General additional comments.";NA;"EUROCAT";NA;"genrem"
+"177";"person_id_child";"No";"If the datasource contains other tables beyond EUROCAT, indicate here the identifier of the child that is used in the other tables";NA;"EUROCAT";NA;"person_id_child"
+"178";"person_id_mother";"No";"If the datasource contains other tables beyond EUROCAT, indicate here the identifier of the mother that is used in the other tables";NA;"EUROCAT";NA;"person_id_mother"
+"179";"survey_id";"No";"external key to a SURVEY_ID.";NA;"EUROCAT";NA;"survey_id"
+"180";"person_id";"Yes";"Person whose information is collected in this survey";"Character";"SURVEY_ID";NA;"person_id"
+"181";"survey_id";"Yes";"Identifier of the survey";"Character";"SURVEY_ID";NA;"survey_id"
+"182";"survey_date";"Yes";"Date when the survey is recorded";"Character yyyymmdd";"SURVEY_ID";NA;"survey_date"
+"183";"survey_meaning";"Yes";"The meaning of this survey for this person";"Character";"SURVEY_ID";NA;"survey_meaning"
+"184";"survey_origin";"Yes";"name of the source table that originated the record";NA;"SURVEY_ID";NA;"survey_origin"
+"185";"person_id";"Yes";NA;"Character";"SURVEY_OBSERVATIONS";NA;"person_id"
+"186";"so_date";"Yes";NA;"Character yyyymmdd";"SURVEY_OBSERVATIONS";NA;"so_date"
+"187";"so_source_table";"Yes";NA;"Character";"SURVEY_OBSERVATIONS";NA;"so_source_table"
+"188";"so_source_column";"Yes";NA;"Character";"SURVEY_OBSERVATIONS";NA;"so_source_column"
+"189";"so_source_value";"Yes";NA;"Character";"SURVEY_OBSERVATIONS";NA;"so_source_value"
+"190";"so_unit";"No";NA;"Character";"SURVEY_OBSERVATIONS";NA;"so_unit"
+"191";"so_meaning";"Yes";NA;"Character";"SURVEY_OBSERVATIONS";NA;"so_meaning"
+"192";"so_origin";"Yes";"name of the source table that originated the record";"Character";"SURVEY_OBSERVATIONS";NA;"so_origin"
+"193";"survey_id";"Yes";NA;"Character";"SURVEY_OBSERVATIONS";NA;"survey_id"
+"194";"person_id";"Yes";NA;"Character";"PERSONS";NA;"person_id"
+"195";"day_of_birth";"No";NA;"Character dd";"PERSONS";NA;"day_of_birth"
+"196";"month_of_birth";"No";NA;"Character mm";"PERSONS";NA;"month_of_birth"
+"197";"year_of_birth";"Yes";NA;"Character yyyy";"PERSONS";NA;"year_of_birth"
+"198";"day_of_death";"No";NA;"Character dd";"PERSONS";NA;"day_of_death"
+"199";"month_of_death";"No";NA;"Character mm";"PERSONS";NA;"month_of_death"
+"200";"year_of_death";"Yes";NA;"Character yyyy";"PERSONS";NA;"year_of_death"
+"201";"sex_at_instance_creation";"Yes";"Sex of the person in the moment when in the instance of the CDM is created";"Character";"PERSONS";NA;"sex_at_instance_creation"
+"202";"race";"No";NA;"Character";"PERSONS";NA;"race"
+"203";"country_of_birth";"No";NA;"Character";"PERSONS";NA;"country_of_birth"
+"204";"quality";"No";"A judgement on the quality of the variables recorded in this table";"Character";"PERSONS";NA;"quality"
+"205";"person_id";"Yes";"A foreign key to the person in PERSONS table";"Character";"OBSERVATION_PERIODS";NA;"person_id"
+"206";"op_start_date";"Yes";NA;"Character yyyymmdd";"OBSERVATION_PERIODS";NA;"op_start_date"
+"207";"op_end_date";"Yes";NA;"Character yyyymmdd";"OBSERVATION_PERIODS";NA;"op_end_date"
+"208";"op_meaning";"Yes";"represents the semantic of the record";"Character";"OBSERVATION_PERIODS";NA;"op_meaning"
+"209";"op_origin";"Yes";"name of the source table that originated the record";"Character";"OBSERVATION_PERIODS";NA;"op_origin"
+"210";"person_id";"Yes";"A foreign key to the person in PERSONS table";"Character";"PERSON_RELATIONSHIPS";NA;"person_id"
+"211";"related_id";"Yes";NA;"Character";"PERSON_RELATIONSHIPS";NA;"related_id"
+"212";"meaning_of_relationship";"Yes";"Which type of  relationship related_it has with person_id";"Character";"PERSON_RELATIONSHIPS";NA;"meaning_of_relationship"
+"213";"origin_of_relationship";"Yes";"name of the source table that originated the record";"Character";"PERSON_RELATIONSHIPS";NA;"origin_of_relationship"
+"214";"method_of_linkage";"Yes";"How the linkage was performed";"Character";"PERSON_RELATIONSHIPS";NA;"method_of_linkage"
+"215";"medicinal_product_id";"No";"Primary key. The medicinal_product_id should be a unique identifier of a specific medicinal product.";"Character";"PRODUCTS";NA;"medicinal_product_id"
+"216";"medicinal_product_name";"Yes";"Any substance or combination of substances, which may be administered for treating or preventing disease, with the view to making a medical diagnosis or to restore, correct or modify physiological functions.";"Character";"PRODUCTS";NA;"medicinal_product_name"
+"217";"unit_of_presentation_type";"No";"Qualitative term describing the discrete countable entity in which a pharmaceutical product or manufactured item is presented, in cases where strength or quantity is expressed referring to one instance of this countable entity.";"Character";"PRODUCTS";NA;"unit_of_presentation_type"
+"218";"unit_of_presentation_num";"No";"Number of unit of presentation type within a medicinal product.";"Numeric";"PRODUCTS";NA;"unit_of_presentation_num"
+"219";"administration_dose_form";"No";"Pharmaceutical dose form for administration to the patient.";"Character";"PRODUCTS";NA;"administration_dose_form"
+"220";"administration_route";"No";"Route of administration of the pharmaceutical product.";"Character";"PRODUCTS";NA;"administration_route"
+"221";"medicinal_product_atc_code";"Yes";"Unique standardized identification code from the ATC classification system from WHO associated to the medicinal product.";"Character";"PRODUCTS";NA;"medicinal_product_atc_code"
+"222";"subst1_atc_code";"No";"Unique standardized identification code from the ATC classification system from WHO associated to the active priciple.";"Character";"PRODUCTS";NA;"subst1_atc_code"
+"223";"subst2_atc_code";"No";"Unique standardized identification code from the ATC classification system from WHO associated to the active priciple.";"Character";"PRODUCTS";NA;"subst2_atc_code"
+"224";"subst3_atc_code";"No";"Unique standardized identification code from the ATC classification system from WHO associated to the active priciple.";"Character";"PRODUCTS";NA;"subst3_atc_code"
+"225";"subst1_amount_per_form";"No";"Quantity of the first active principle contained in the medicinal product";"Numeric";"PRODUCTS";NA;"subst1_amount_per_form"
+"226";"subst2_amount_per_form";"No";"Quantity of the second active principle contained in the medicinal product";"Numeric";"PRODUCTS";NA;"subst2_amount_per_form"
+"227";"subst3_amount_per_form";"No";"Quantity of the third active principle contained in the medicinal product";"Numeric";"PRODUCTS";NA;"subst3_amount_per_form"
+"228";"subst1_amount_unit";"No";"Unit of measure of the quantity of the first active principle contained in the medicinal product";"Character";"PRODUCTS";NA;"subst1_amount_unit"
+"229";"subst2_amount_unit";"No";"Unit of measure of the quantity of the second active principle contained in the medicinal product";"Character";"PRODUCTS";NA;"subst2_amount_unit"
+"230";"subst3_amount_unit";"No";"Unit of measure of the quantity of the third active principle contained in the medicinal product";"Character";"PRODUCTS";NA;"subst3_amount_unit"
+"231";"subst1_concentration";"No";"Strength or quantity contained into a single unit of presentation or dose form.";"Numeric";"PRODUCTS";NA;"subst1_concentration"
+"232";"subst2_concentration";"No";"Strength or quantity contained into a single unit of presentation or dose form.";"Numeric";"PRODUCTS";NA;"subst2_concentration"
+"233";"subst3_concentration";"No";"Strength or quantity contained into a single unit of presentation or dose form.";"Numeric";"PRODUCTS";NA;"subst3_concentration"
+"234";"subst1_concentration_unit";"No";"Unit of measure of the strength or quantity by which a particular type of unit of presentation or dose form is described.";"Character";"PRODUCTS";NA;"subst1_concentration_unit"
+"235";"subst2_concentration_unit";"No";"Unit of measure of the strength or quantity by which a particular type of unit of presentation or dose form is described.";"Character";"PRODUCTS";NA;"subst2_concentration_unit"
+"236";"subst3_concentration_unit";"No";"Unit of measure of the strength or quantity by which a particular type of unit of presentation or dose form is described.";"Character";"PRODUCTS";NA;"subst3_concentration_unit"
+"237";"concentration_total_content";"No";"Total content of a single unit such as particular type of pharmaceutical unit of presentation or dose form.";"Numeric";"PRODUCTS";NA;"concentration_total_content"
+"238";"concentration_total_content_unit";"No";"Unit of measure of the concentration total content.";"Character";"PRODUCTS";NA;"concentration_total_content_unit"
+"239";"medicinal_product_manufacturer";"No";"Name of the manufactured of the pharmaceutical product.";"Character";"PRODUCTS";NA;"medicinal_product_manufacturer"
+"240";"type_of_metadata";"Yes";"There are different types of metadata that are recorded, they may be associated with a table or a tble/column, or other";"Character";"METADATA";NA;"type_of_metadata"
+"241";"tablename";"Yes";"Name of the table whose metadata is recorded";"Character";"METADATA";NA;"tablename"
+"242";"columnname";"Yes";"Name of the column whose metadata is recorded";"Character";"METADATA";NA;"columnname"
+"243";"other";"Yes";"Other characteristic of the metadata";"Character";"METADATA";NA;"other"
+"244";"value";"Yes";"Value of the metadata";"Character";"METADATA";NA;"value"
+"245";"data_access_provider_code";"Yes";"Code of this DAP organization in the ConcePTION coding system";"Character";"CDM_SOURCE";NA;"data_access_provider_code"
+"246";"data_access_provider_name";"Yes";"Name of the DAP organization";"Character";"CDM_SOURCE";NA;"data_access_provider_name"
+"247";"data_source_name";"Yes";"Name of the DAP datasource whose subset populates this instance of the CDM (if any)";"Character";"CDM_SOURCE";NA;"data_source_name"
+"248";"data_dictionary_link";"No";"link to a source where the data dictionary of the original data source can be found";"Character";"CDM_SOURCE";NA;"data_dictionary_link"
+"249";"etl_link";"No";"link to a source where the current version of the ETL document of this datasurce can be found";"Character";"CDM_SOURCE";NA;"etl_link"
+"250";"cdm_vocabulary_version";"Yes";"version of the ConcePTION CDM this instance conforms to. ";"Character";"CDM_SOURCE";NA;"cdm_vocabulary_version"
+"251";"cdm_version";"Yes";"version of the ConcePTION CDM  vocabularythis instance conforms to. ";"Character";"CDM_SOURCE";NA;"cdm_version"
+"252";"instance_number";"Yes";"Sequential number of the instances of the CDM that the DAP data_access_provider_code has created on date_creation date from the datasource data_source_name it has access to";"Integer";"CDM_SOURCE";NA;"instance_number"
+"253";"date_creation";"Yes";"date when this CDM instance is populated";"Character yyyymmdd";"CDM_SOURCE";NA;"date_creation"
+"254";"recommended_end_date";"Yes";"recommended end date for studies using this instance";"Character yyyymmdd";"CDM_SOURCE";NA;"recommended_end_date"
+"255";"source_table_name";"Yes";"Table of the local dictionary that is used in ETL";"Character";"INSTANCE";NA;"source_table_name"
+"256";"source_column_name";"Yes";"Column of the local dictionary that is used in ETL";"Character";"INSTANCE";NA;"source_column_name"
+"257";"included_in_instance";"Yes";"Specify whether this column of this table was used to populate this specific instance of the CDM";"Character";"INSTANCE";NA;"included_in_instance"
+"258";"date_when_data_last_updated";"Yes, if included_in_instance='yes'";"Date when the DAP last received this column";"Character yyyymmdd";"INSTANCE";NA;"date_when_data_last_updated"
+"259";"since_when_data_complete";"Yes, if included_in_instance='yes'";"Date since when the DAP considers this column to contain complete data";"Character yyyymmdd";"INSTANCE";NA;"since_when_data_complete"
+"260";"up_to_when_data_complete";"Yes, if included_in_instance='yes'";"Date up to when the DAP considers this column to contain complete data";"Character yyyymmdd";"INSTANCE";NA;"up_to_when_data_complete"
+"261";"restriction_in_values";"Yes, if included_in_instance='yes'";"Whether the data uploaded in the CDM were selected based on values of this column";"Character";"INSTANCE";NA;"restriction_in_values"
+"262";"list_of_values";"No";"List of values of this column that are included in this instance of the CDM";"Character";"INSTANCE";NA;"list_of_values"
+"263";"restriction_condition";"No";"Condition involving this column that restricted the data uploaded to the instance of the CDM";"Character";"INSTANCE";NA;"restriction_condition"

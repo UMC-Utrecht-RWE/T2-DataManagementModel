@@ -11,8 +11,15 @@
 #' @param sqlite_temp if TRUE, the SQL table created is temporary
 #'
 #' @keywords internal
-append_tables <- function(db, tables, name, dt_coll = "date",
-                          colls = "*", return = TRUE, sqlite_temp = FALSE) {
+append_tables <- function(
+  db,
+  tables,
+  name,
+  dt_coll = "date",
+  colls = "*",
+  return = TRUE,
+  sqlite_temp = FALSE
+) {
   # Check for missing tables in the database
   lists_tables_available <- DBI::dbListTables(db)
   missing <- tables[!tables %in% lists_tables_available]
@@ -48,14 +55,21 @@ append_tables <- function(db, tables, name, dt_coll = "date",
     # Check if tables have zero cases and log a message
     for (i in tables) {
       if (DBI::dbGetQuery(db, paste0("SELECT count(*) FROM ", i)) == 0) {
-        logr::log_print(paste0("0 cases in ", i, " for the Appended TABLE", name))
+        logr::log_print(paste0(
+          "0 cases in ",
+          i,
+          " for the Appended TABLE",
+          name
+        ))
       }
     }
-    # Execute the query statement and return the result as a data.table if needed
+    # Execute the query statement and return result as a data.table if needed
     p <- DBI::dbSendStatement(db, query_statement)
     DBI::dbClearResult(p)
     if (return == TRUE) {
-      results <- data.table::as.data.table(DBI::dbGetQuery(db, paste0("SELECT * FROM ", name)))
+      results <- data.table::as.data.table(
+        DBI::dbGetQuery(db, paste0("SELECT * FROM ", name))
+      )
       results[, eval(dt_coll) := as.Date(get(dt_coll), origin = "1970-01-01")]
       return(results)
     }

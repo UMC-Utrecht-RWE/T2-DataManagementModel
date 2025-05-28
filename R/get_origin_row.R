@@ -1,10 +1,9 @@
 #' Get Records from Origin CDM Tables by Unique Identifier
 #'
 #' This function retrieves records from Common Data Model (CDM)
-#'  tables in a database
-#' that match provided unique identifiers. The function assumes
-#'  that unique identifiers
-#' are formatted as 'table_name-row_id'.
+#'  tables in a database that match provided unique identifiers.
+#' The function assumes that unique identifiers are formatted
+#' as 'table_name-row_id'.
 #'
 #' @param db_connection Database connection object (DBIConnection).
 #' @param ids A data.table containing unique identifiers.
@@ -50,8 +49,17 @@
 #' }
 #'
 #' @keywords internal
-get_origin_row <- function(db_connection, ids,
-                           id_name = "ori_id", separator_id = "-") {
+get_origin_row <- function(
+  db_connection,
+  ids,
+  id_name = "ori_id",
+  separator_id = "-"
+) {
+  ###################
+  # Validate inputs
+  ###################
+  ids <- data.table::as.data.table(ids)
+
   return_values <- list()
   # Check if the specified unique identifier exists in ids
   if (nrow(ids) == 0) {
@@ -60,8 +68,6 @@ get_origin_row <- function(db_connection, ids,
     )
     return(return_values)
   }
-
-  ids <- data.table::as.data.table(ids)
 
   # Check if the specified unique identifier exists in ids
   if (!id_name %in% names(ids)) {
@@ -72,6 +78,18 @@ get_origin_row <- function(db_connection, ids,
     return(return_values)
   }
 
+  # # Check if the separator_id is present in id_name
+  # if (!any(grepl(separator_id, ids[[id_name]]))) {
+  #   message(paste0(
+  #     "[get_origin_row] The separator '", separator_id,
+  #     "' does not exist in the unique identifiers"
+  #   ))
+  #   return(return_values)
+  # }
+
+  ###################
+  # Process unique identifiers
+  ###################
   # Split the unique identifier into ori_table and rowid
   ids[, c("ori_table", "rowid") :=
         data.table::tstrsplit(get(id_name),
