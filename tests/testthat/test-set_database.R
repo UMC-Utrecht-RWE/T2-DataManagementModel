@@ -87,3 +87,39 @@ testthat::test_that("DatabaseLoader runs set_database() without error", {
   )
   DBI::dbDisconnect(loader$db)
 })
+
+testthat::test_that("With imported cdm_metadata", {
+  testthat::expect_error(
+    loader <- create_loader_from_file("CONFIG_SET_DB"),
+    NA # means expect no error
+  )
+})
+
+testthat::test_that("With imported cdm_metadata", {
+  testthat::expect_error(
+    loader <- create_loader_from_wrong_file("CONFIG_SET_DB"),
+    "cdm_metadata not valid data.table object."
+  )
+})
+
+testthat::test_that("With error in the loading function", {
+  loader <- create_loader_from_file("CONFIG_SET_DB")
+  loader$data_instance <- NULL # Simulate no database connection
+  testthat::expect_error(loader$set_database(), NA)
+})
+
+testthat::test_that("Running run_db_ops", {
+  loader <- create_database_loader("CONFIG_SET_DB")
+  loader$set_database()
+  testthat::expect_no_error(
+    loader$run_db_ops()
+  )
+})
+
+testthat::test_that("Absent operation", {
+  loader <- create_database_loader("CONFIG_ABSENT")
+  loader$set_database()
+  testthat::expect_no_error(
+    loader$run_db_ops()
+  )
+})

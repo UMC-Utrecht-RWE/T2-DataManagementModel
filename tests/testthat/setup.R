@@ -29,9 +29,9 @@ set_database <- '{
   "data_model": "ConcePTION",
   "operations": {
     "DuplicateRemover": false,
-    "MissingRemover": false,
+    "MissingRemover": true,
     "UniqueIdGenerator": false,
-    "ReportGenerator": false
+    "ReportGenerator":false
   },
   "cdm_tables_names": [
     "PERSONS",
@@ -43,7 +43,13 @@ set_database <- '{
     "SURVEY_OBSERVATIONS",
     "SURVEY_ID",
     "VISIT_OCCURRENCE"
-  ]
+  ],
+  "missing_remover": {
+    "columns": {
+      "PERSONS": ["country_of_birth"],
+      "VACCINES": ["vx_lot_num"]
+    }
+  }
 }'
 
 config_set_database <- file.path(tempdir(), "set_database.json")
@@ -102,3 +108,29 @@ config_json <- '{
 config_path <- file.path(tempdir(), "config_path.json")
 writeLines(config_json, config_path)
 Sys.setenv(CONFIG_PATH = config_path)
+
+
+# ====================
+# 4. TEST CONFIGURATION FILE FOR set_database
+# ====================
+set_absent <- '{
+  "data_model": "ConcePTION",
+  "operations": {
+    "AbsentOperation": true
+  },
+  "cdm_tables_names": [
+    "PERSONS",
+    "VACCINES",
+    "OBSERVATION_PERIODS",
+    "MEDICAL_OBSERVATIONS",
+    "MEDICINES",
+    "EVENTS",
+    "SURVEY_OBSERVATIONS",
+    "SURVEY_ID",
+    "VISIT_OCCURRENCE"
+  ]
+}'
+
+config_set_absent <- file.path(tempdir(), "set_absent.json")
+writeLines(set_absent, config_set_absent)
+Sys.setenv(CONFIG_ABSENT = config_set_absent)

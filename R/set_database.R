@@ -98,14 +98,7 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
         stop("cdm_metadata not valid data.table object.")
       }
 
-      tryCatch(
-        {
-          self$db <- duckdb::dbConnect(duckdb::duckdb(), self$db_path)
-        },
-        error = function(e) {
-          print(paste("Error connecting to database:", e))
-        }
-      )
+      self$db <- duckdb::dbConnect(duckdb::duckdb(), self$db_path)
     },
     #' @description
     #' Loads the database with the required data using config and metadata.
@@ -143,17 +136,6 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
     }
   ),
   private = list(
-
-    clean_files = function(dir) {
-      files_to_remove <- Sys.glob(dir)
-      if (length(files_to_remove) > 0) {
-        print(paste("Removing files in:", dir))
-        unlink(files_to_remove, recursive = TRUE)
-      } else {
-        print(paste("No files to remove in:", dir))
-      }
-    },
-
     get_all_operations = function() {
       ordered_operations <- names(self$config$operations)
       ops <- list() # Initialize an empty list to store operation objects
