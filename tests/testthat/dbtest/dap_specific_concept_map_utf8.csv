@@ -1,0 +1,3 @@
+concept_id,dap_name,cdm_name,cdm_table_name,column_name_1,column_name_2,expected_value_1,expected_value_2,keep_value_column_name,keep_date_column_name,IR1,Comments
+COVID19TESTPOS,SIDIAP,CONCEPTION,MEDICAL_OBSERVATIONS,mo_source_column,mo_source_value,ANTIGEN,Positiu,mo_source_value,mo_date,TRUE,
+COVID19TESTPOS,SIDIAP,CONCEPTION,MEDICAL_OBSERVATIONS,mo_source_column,mo_source_value,Test rˆpid,Positiu,mo_source_value,mo_date,TRUE,

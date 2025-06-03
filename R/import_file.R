@@ -38,12 +38,14 @@ import_file <- function(path, cols = NULL, cols_new = NULL, exprs = NULL,
     if (!is.null(cols)) {
       loaded_file <- fread(path,
         stringsAsFactors = F, select = cols,
-        na.strings = c("", NA), colClasses = c("character")
+        na.strings = c("", NA), colClasses = c("character"),
+        encoding = "UTF-8"
       )
     } else {
       loaded_file <- fread(path,
         stringsAsFactors = F, na.strings = c("", NA),
-        colClasses = c("character")
+        colClasses = c("character"),
+        encoding = "UTF-8"
       )
     }
 
@@ -82,6 +84,6 @@ import_file <- function(path, cols = NULL, cols_new = NULL, exprs = NULL,
         " rows after evaluation of exprs"
       ))
     }
-    return( data.table::as.data.table(loaded_file))
+    return(data.table::as.data.table(loaded_file))
   }
 }

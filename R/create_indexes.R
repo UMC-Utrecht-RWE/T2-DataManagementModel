@@ -10,7 +10,7 @@
 #' @examples
 #' \dontrun{
 #' # Example usage of create_indexes
-#' db_conn <- dbConnect(RSQLite::SQLite(), ":memory:")
+#' db_conn <- dbConnect(duckdb::duckdb(), ":memory:")
 #' specs <- list(
 #'   persons = list("1" = "person_id", "2" = c("person_id", "sex_at_instance_creation")),
 #'   medicines = list("1" = "person_id", "2" = c("person_id", "date_dispensing"))

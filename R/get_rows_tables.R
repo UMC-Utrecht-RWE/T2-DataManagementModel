@@ -10,7 +10,7 @@
 #' @examples
 #' \dontrun{
 #' # Example usage:
-#' db_connection <- DBI::dbConnect(RSQLite::SQLite(), "your_database.db")
+#' db_connection <- DBI::dbConnect(duckdb::duckdb(), "your_database.db")
 #' get_rows_tables(db_connection)
 #' }
 #'

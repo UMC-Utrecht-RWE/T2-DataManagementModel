@@ -20,7 +20,7 @@ list_of_packages <- c(
   "rlist",
   "DBI",
   "sqldf",
-  "RSQLite",
+  "duckdb",
   "tidyverse"
 )
 lapply(list_of_packages, function(package_name) {
