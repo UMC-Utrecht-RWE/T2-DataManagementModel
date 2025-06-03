@@ -5,7 +5,6 @@ Version: 0.1.0
 Author: c(
   person("Albert", "Cid Royo", email = "A.CidRoyo@umcutrecht.nl", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-1863-3450")),
   person("Yinan", "Mao", email = "Y.Mao@umcutrecht.nl", role = "aut"),
-  person("Roel", "Elbers", role = "aut"),
   person("Barbara", "Vreede", email = "B.M.I.Vreede@umcutrecht.nl", role = "aut", comment = c(ORCID = "0000-0002-5023-4601")),
   person("Mattia", "Cinelli", email = "m.cinelli@umcutrecht.nl", role = "aut", comment = c(ORCID = "0000-0001-9306-8079")))
 Maintainer: Albert Cid Royo <A.CidRoyo@umcutrecht.nl>
