@@ -46,7 +46,6 @@ test_that("Check column names consistency", {
   
   expect_error(
     create_dap_specific_concept(codelist=dap_specific_concept_map,
-                                data_db= d2_db_conn,
                                 name_attachment = attachName, 
                                 save_db= concepts_db_conn, 
                                 date_col_filter = "1900-01-01",
@@ -75,7 +74,6 @@ test_that("retrieve mo concepts", {
     dap_spec_id = "dap_spec_id-1")
   
   create_dap_specific_concept(codelist=dap_specific_concept_map,
-                              data_db= d2_db_conn,
                               name_attachment = attachName, 
                               save_db= concepts_db_conn, 
                               date_col_filter = "1900-01-01",
@@ -109,7 +107,6 @@ test_that("handle NA values in codelist", {
     dap_spec_id = "dap_spec_id-1")
   
   create_dap_specific_concept(codelist=dap_specific_concept_map,
-                              data_db= d2_db_conn,
                               name_attachment = attachName, 
                               save_db= concepts_db_conn, 
                               date_col_filter = "1900-01-01",
