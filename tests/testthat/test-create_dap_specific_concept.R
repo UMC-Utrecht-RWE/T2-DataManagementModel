@@ -3,6 +3,7 @@ mo <- readRDS("dbtest/MEDICAL_OBSERVATIONS.rds")
 dbname <-  tempfile(fileext = ".duckdb")
 d2_db_conn <- DBI::dbConnect(duckdb::duckdb(), dbname)
 DBI::dbWriteTable(d2_db_conn, "MEDICAL_OBSERVATIONS", mo)
+DBI::dbDisconnect(d2_db_conn)
 
 # concept_table
 ctname <- tempfile(fileext = ".duckdb")
@@ -121,5 +122,4 @@ test_that("handle NA values in codelist", {
   
 })
 
-DBI::dbDisconnect(d2_db_conn)
 DBI::dbDisconnect(concepts_db_conn)
