@@ -9,8 +9,8 @@ create_indexes(db_conn, specs)
 \arguments{
 \item{db_conn}{A database connection object.}
 
-\item{specs}{A list containing the table names as keys and lists of column
-names for indexing as values.}
+\item{specs}{A list containing the table names as keys and
+lists of column names for indexing as values.}
 }
 \description{
 This function creates indexes for tables in a database according to the
@@ -22,7 +22,8 @@ provided specifications.
 db_conn <- dbConnect(duckdb::duckdb(), ":memory:")
 specs <- list(
   persons = list(
-     "1" = "person_id", "2" = c("person_id", "sex_at_instance_creation")),
+     "1" = "person_id",
+     "2" = c("person_id", "sex_at_instance_creation")),
   medicines = list(
      "1" = "person_id", "2" = c("person_id", "date_dispensing"))
 )

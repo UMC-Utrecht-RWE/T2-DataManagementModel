@@ -4,8 +4,8 @@
 #' provided specifications.
 #'
 #' @param db_conn A database connection object.
-#' @param specs A list containing the table names as keys and lists of column
-#' names for indexing as values.
+#' @param specs A list containing the table names as keys and
+#' lists of column names for indexing as values.
 #'
 #' @examples
 #' \dontrun{
@@ -13,7 +13,8 @@
 #' db_conn <- dbConnect(duckdb::duckdb(), ":memory:")
 #' specs <- list(
 #'   persons = list(
-#'      "1" = "person_id", "2" = c("person_id", "sex_at_instance_creation")),
+#'      "1" = "person_id",
+#'      "2" = c("person_id", "sex_at_instance_creation")),
 #'   medicines = list(
 #'      "1" = "person_id", "2" = c("person_id", "date_dispensing"))
 #' )
