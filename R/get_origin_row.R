@@ -58,7 +58,7 @@ get_origin_row <- function(
   ###################
   # Validate inputs
   ###################
-  ids <- data.table::as.data.table(ids)
+  ids <- T2.DMM:::ensure_data_table(ids)
 
   return_values <- list()
   # Check if the specified unique identifier exists in ids

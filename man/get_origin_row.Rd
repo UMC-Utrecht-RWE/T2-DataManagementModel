@@ -24,10 +24,9 @@ matching the provided identifiers. List names correspond to table names.
 }
 \description{
 This function retrieves records from Common Data Model (CDM)
- tables in a database
-that match provided unique identifiers. The function assumes
- that unique identifiers
-are formatted as 'table_name-row_id'.
+ tables in a database that match provided unique identifiers.
+The function assumes that unique identifiers are formatted
+as 'table_name-row_id'.
 }
 \details{
 The function splits each unique identifier into a table name and

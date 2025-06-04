@@ -10,27 +10,25 @@ get_origin_value(cases_dt, db_connection, search_scheme = NULL)
 \item{cases_dt}{Data table containing information about cases.
 Must be a data.table with at least the search_scheme "ROWID" and "ori_table".}
 
-\item{db_connection}{Database connection object. Must be an active DuckDB connection.}
+\item{db_connection}{Database connection object.
+Must be an active DuckDB connection.}
 
-\item{search_scheme}{A list specifying the search_scheme to retrieve for each unique
-ori_table. Each element name must correspond to a table in the database,
-and each value must be a single column name as character.}
+\item{search_scheme}{A list specifying the search_scheme to retrieve}
 }
 \value{
 A data table with the collected values.
 }
 \description{
-This function retrieves values from the origin database for specified search_scheme
-and tables.
+This function retrieves values from the origin database for specified
+search_scheme and tables.
 }
 \examples{
 \dontrun{
-# Example usage:
 get_origin_value(
-  cases_dt, db_connection,
+  cases_dt,
+  db_connection,
   list("Table1" = "Column1", "Table2" = "Column2")
-)
-}
+)}
 
 }
 \keyword{internal}

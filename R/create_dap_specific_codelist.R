@@ -34,12 +34,8 @@ create_dap_specific_codelist <- function(
     priority = NA) {
 
   # Ensure entries are data.table
-  if (!data.table::is.data.table(unique_codelist)) {
-    unique_codelist <- data.table::as.data.table(unique_codelist)
-  }
-  if (!data.table::is.data.table(study_codelist)) {
-    study_codelist <- data.table::as.data.table(study_codelist)
-  }
+  unique_codelist <- T2.DMM:::ensure_data_table(unique_codelist)
+  study_codelist <- T2.DMM:::ensure_data_table(study_codelist)
 
   # Preprocessing the study_codelist
   study_codelist[, code_no_dot := gsub("\\.", "", code)]

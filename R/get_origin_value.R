@@ -29,9 +29,10 @@ get_origin_value <- function(
 ) {
   # Input validation
   # Check if cases_dt is a data.table
-  if (!data.table::is.data.table(cases_dt)) {
-    stop("[get_origin_value] 'cases_dt' must be a data.table")
-  }
+  cases_dt <- T2.DMM:::ensure_data_table(
+    cases_dt,
+    error_message = "[get_origin_value] 'cases_dt' must be a data.table"
+  )
 
   # Check if required search_scheme exist in cases_dt
   required_cols <- c("ROWID", "ori_table")
