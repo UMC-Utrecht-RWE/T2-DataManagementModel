@@ -126,7 +126,7 @@ test_that("handle NA values in codelist", {
 })
 
 test_that("empty codelist", {
-  codelist <- tibble::tibble(test = c())
+  codelist <- data.frame(test = c())
   expect_error(
     create_dap_specific_concept(codelist, name_attachment = attachName, save_db= concepts_db_conn), 
     "Codelist does not contain any data.")
@@ -134,7 +134,7 @@ test_that("empty codelist", {
 
 test_that("created MEDICAL_OBSERVATIONS_EDITED", {
   
-  DBI::dbWriteTable(concepts_db_conn, "MEDICAL_OBSERVATIONS_EDITED", tibble::tibble(test = 1), overwrite = TRUE)
+  DBI::dbWriteTable(concepts_db_conn, "MEDICAL_OBSERVATIONS_EDITED", data.frame(test = 1), overwrite = TRUE)
   create_dap_specific_concept(codelist=good_input,
                               name_attachment = attachName, 
                               save_db= concepts_db_conn, 
