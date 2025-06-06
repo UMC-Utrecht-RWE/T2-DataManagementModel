@@ -98,13 +98,7 @@ create_dap_specific_concept <- function(codelist, name_attachment, save_db, date
           ", ", meaning_column_name,
           " AS meaning "
         )
-      } else {
-        print(paste0(
-          "[create_dap_specific_concept] Meaning not identified for: ",
-          name_edited
-        ))
-        meaning_clause <- paste0(", NULL AS meaning ")
-      }
+      } 
     } else {
       meaning_clause <- ""
     }
@@ -130,18 +124,7 @@ create_dap_specific_concept <- function(codelist, name_attachment, save_db, date
           date_col, " >= DATE '", date_col_filter, "'"
         )
       }
-    } else {
-      where_statement <- paste(paste(cols_temp, paste0(
-        "'",
-        values_temp, "'"
-      ), sep = " = "), collapse = " AND ")
-      if (!is.null(date_col_filter) & date_col != "NULL") {
-        where_statement <- paste0(
-          where_statement, " AND ",
-          date_col, " >= ", as.integer(date_col_filter)
-        )
-      }
-    }
+    } 
     rs <- DBI::dbSendStatement(save_db, paste0(
       "INSERT INTO concept_table\n              SELECT t1.ori_id, t1.ori_table, ROWID, t1.person_id, ",
       coding_system, " AS code, ", coding_system, " AS coding_system, ",
