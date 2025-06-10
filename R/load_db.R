@@ -20,7 +20,7 @@ load_db <- function(
   # Loop through each table in cdm_tables_names
   for (table in cdm_tables_names) {
     # What table are we going to read
-    cat(paste0("Reading for table: ", table, "\n"))
+    message(paste0("[load_db]: Reading for table: ", table))
 
     # Check if there is a file matching our table name
     matching_files <- list.files(
@@ -31,8 +31,8 @@ load_db <- function(
 
     # Skip this loop if there are no files to read
     if (length(matching_files) == 0) {
-      cat(paste0(
-        "\rNo files found for ", table, ", in: ", data_instance_path, ".\n"
+      message(paste0(
+        "[load_db]: No files found for ", table, ", in: ", data_instance_path
       ))
       next
     }
@@ -51,7 +51,7 @@ load_db <- function(
     DBI::dbExecute(db_connection, query)
 
     # Yeah, done
-    cat(paste0("\rFinished reading ", table, ".\n"))
+    message(paste0("[load_db]: Finished reading ", table))
 
     # Checking if any mandatory columns are missing within the database.
     cols_in_table <- DBI::dbListFields(db_connection, table)
@@ -78,11 +78,11 @@ load_db <- function(
 
     # If any mandatory colum is missing, then create it
     if (length(mandatory_missing_in_db) > 0) {
-      print(paste0(
+      message(paste0(
         "[load_db]: The following mandatory columns are missing in table: ",
         table
       ))
-      print(paste(mandatory_missing_in_db, collapse = ", "))
+      message(paste(mandatory_missing_in_db, collapse = ", "))
 
       invisible(lapply(mandatory_missing_in_db, function(new_column) {
         DBI::dbExecute(db_connection, paste0(
@@ -94,23 +94,41 @@ load_db <- function(
     additional_columns <- cols_in_table[
       !cols_in_table %in% standard_cdm_table_columns
     ]
-    print(paste0(
-      paste0("[load_db]: The following columns are not part",
-        " of the CDM table but are in the files : "
-      ),
-      additional_columns
-    ))
+    if (length(additional_columns) > 0) {
+      message(paste0(
+        paste0("[load_db]: The following columns are not part",
+          " of the CDM table but are in the files : "
+        )
+        , paste(additional_columns, collapse = ',')
+      ))
+    
     invisible(lapply(additional_columns, function(new_column) {
-      DBI::dbExecute(db_connection, paste0(
-        "ALTER TABLE ", table, " DROP COLUMN ", new_column, " ;"
+      message(paste0(
+        "    Dropping column : ", new_column
       ))
-      print(paste0(
-        "[load_db]: Dropping table : ", new_column
-      ))
+      tryCatch(
+        {
+          DBI::dbExecute(db_connection, paste0(
+            "ALTER TABLE ", table, " DROP COLUMN ", new_column, " ;"
+          ))
+        },
+        error = function(e) {
+          message(paste0(
+            "    ACTION FAILED "
+          ))
+        })
+      
     }))
-
+    }
+    
     available_date_cols <- cols_in_table[cols_in_table %in% date_cols]
-    invisible(lapply(available_date_cols, function(new_column) {
+    
+    if (length(available_date_cols) > 0) {
+      message(paste0("[load_db]: The following columns are identified with date format: "
+        , paste(available_date_cols, collapse = ',')
+      ))
+      invisible(lapply(available_date_cols, function(new_column) {
+        message(paste0('Converting: ', new_column))
       tryCatch(
         {
           # Attempt to change the column type to DATE directly
@@ -120,7 +138,7 @@ load_db <- function(
         },
         error = function(e) {
           # If direct conversion fails
-          message("Direct conversion failed. Attempting to fix with STRPTIME.")
+          message("      Direct conversion failed. Attempting to fix with STRPTIME.")
 
           # Nullify invalid values first
           DBI::dbExecute(db_connection, paste0(
@@ -141,10 +159,11 @@ load_db <- function(
             "ALTER TABLE ", table, " ALTER ", new_column, " TYPE DATE;"
           ))
 
-          message("Column successfully converted to DATE after fixing format.")
+          message("      Column successfully converted to DATE after fixing format.")
         }
       )
     }))
+    }
 
     character_cols_not_date <- character_cols[!character_cols %in% date_cols]
     available_character_cols <- cols_in_table[
