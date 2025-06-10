@@ -58,15 +58,18 @@ load_db <- function(
     standard_cdm_table_columns <- unique(
       cdm_metadata[TABLE %in% table, Variable]
     )
+    # Identify mandatory columns according to CDM specification
     mandatory_colums <- unique(
       cdm_metadata[
         TABLE %in% table & stringr::str_detect(Mandatory, "Yes") == TRUE,
         Variable
       ]
     )
+    # Find mandatory columns that are missing from the loaded data
     mandatory_missing_in_db <- unique(
       mandatory_colums[!mandatory_colums %in% cols_in_table]
     )
+    # Extract date and character column specifications from metadata
     date_cols <- cdm_metadata[
       TABLE %in% table & stringr::str_detect(Format, "yyyymmdd") == TRUE,
       Variable
@@ -76,7 +79,8 @@ load_db <- function(
       Variable
     ]
 
-    # If any mandatory colum is missing, then create it
+    # ===== ADD MISSING MANDATORY COLUMNS =====
+    # Create any mandatory columns that are missing from the data files
     if (length(mandatory_missing_in_db) > 0) {
       message(paste0(
         "[load_db]: The following mandatory columns are missing in table: ",
@@ -90,7 +94,8 @@ load_db <- function(
         ))
       }))
     }
-
+    # ===== REMOVE NON-STANDARD COLUMNS =====
+    # Identify columns in the data that are not part of the CDM specification
     additional_columns <- cols_in_table[
       !cols_in_table %in% standard_cdm_table_columns
     ]
@@ -121,6 +126,8 @@ load_db <- function(
     }))
     }
     
+    # ===== DATE COLUMN TYPE CONVERSION =====
+    # Find date columns that actually exist in the loaded table
     available_date_cols <- cols_in_table[cols_in_table %in% date_cols]
     
     if (length(available_date_cols) > 0) {
@@ -164,17 +171,28 @@ load_db <- function(
       )
     }))
     }
-
+    # ===== CHARACTER COLUMN CLEANUP =====
+    # Identify character columns that are not date columns
+    
     character_cols_not_date <- character_cols[!character_cols %in% date_cols]
     available_character_cols <- cols_in_table[
       cols_in_table %in% character_cols_not_date
     ]
+    
+    # Clean character columns by converting empty strings to NULL
     invisible(lapply(available_character_cols, function(new_column) {
-      # Attempt to change the column type to DATE directly
-      update_query <- paste0("UPDATE ", table, "
-                        SET ", new_column, " = NULL
-                        WHERE ", new_column, " = '';")
-      DBI::dbExecute(db_connection, update_query)
-    }))
+      message(paste0("  Cleaning character column from empty spaces: ", new_column))
+      tryCatch(
+        {
+          # Replace empty strings with NULL for proper data handling
+          update_query <- paste0("UPDATE ", table, "
+                            SET ", new_column, " = NULL
+                            WHERE ", new_column, " = '';")
+          DBI::dbExecute(db_connection, update_query)
+            },error = function(e) {
+              message(" ACTION FAILED ")
+            }
+      )
+      }))
   }
 }
