@@ -160,7 +160,9 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
           message(glue::glue("Loading operation: {operation}"))
           ops[[length(ops) + 1]] <- class_obj$new()
         } else {
-          message(glue::glue("{operation} not a valid DatabaseOperation class."))
+          message(
+            glue::glue("{operation} not a valid DatabaseOperation class.")
+          )
         }
       }
 
