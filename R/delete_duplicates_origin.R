@@ -49,7 +49,7 @@ delete_duplicates_origin <- function(
         wrong_cols <- scheme[[case_name]][
           !scheme[[case_name]] %in% DBI::dbListFields(db_connection, case_name)
         ]
-        print(paste0(
+        message(paste0(
           "[delete_duplicates_origin]: Table ", case_name,
           " columns -> ", wrong_cols,
           " do not exist in the DB instance table"
@@ -90,7 +90,7 @@ delete_duplicates_origin <- function(
         rs <- DBI::dbSendStatement(db_connection, query)
         DBI::dbHasCompleted(rs)
         num_rows <- DBI::dbGetRowsAffected(rs)
-        print(paste0(
+        message(paste0(
           "[delete_duplicates_origin] Number of record deleted: ",
           num_rows
         ))
@@ -99,7 +99,7 @@ delete_duplicates_origin <- function(
         rs <- DBI::dbGetQuery(db_connection, paste0(query, " RETURNING *;"))
         rs <- data.table::as.data.table(rs)
         num_rows <- nrow(rs)
-        print(paste0(
+        message(paste0(
           "[delete_duplicates_origin] Number of record deleted: ",
           num_rows
         ))

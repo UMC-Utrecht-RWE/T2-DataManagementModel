@@ -52,11 +52,11 @@ create_unique_id <- function(
   if (
     length(cdm_tables_names[!cdm_tables_names %in% list_existing_tables]) > 0
   ) {
-    print(paste0(
+    message(paste0(
       "[CreateUniqueIDCDM] Can not create unique IDs on the following ",
       "CDM table because they do not exist in the database "
     ))
-    print(cdm_tables_names[!cdm_tables_names %in% list_existing_tables])
+    message(cdm_tables_names[!cdm_tables_names %in% list_existing_tables])
   }
 
   order_by_flag <- FALSE
@@ -96,6 +96,6 @@ create_unique_id <- function(
       db_connection,
       paste0("ALTER TABLE temporal_table RENAME TO ", table)
     )
-    print(paste0("[CreateUniqueIDCDM] Unique ID create for table: ", table))
+    message(paste0("[CreateUniqueIDCDM] Unique ID create for table: ", table))
   }
 }

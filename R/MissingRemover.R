@@ -46,7 +46,7 @@ MissingRemover <- R6::R6Class("MissingRemover", # nolint
     #' @param db_loader A `DatabaseLoader` object provides database connection,
     #' the list of tables and columns to clean, and other configuration details.
     run = function(db_loader) {
-      print(glue::glue("Removing missing values from tables."))
+      message(glue::glue("Removing missing values from tables."))
       tables_available <- DBI::dbListTables(db_loader$db)
 
       cols_to_remove_miss <- db_loader$config$missing_remover$columns
@@ -54,7 +54,7 @@ MissingRemover <- R6::R6Class("MissingRemover", # nolint
         table_to_clean <- names(cols_to_remove_miss[index])
 
         if (table_to_clean %in% tables_available) {
-          print(glue::glue(
+          message(glue::glue(
             "Deleting rows with missing values: {table_to_clean}"
           ))
 
@@ -76,10 +76,10 @@ MissingRemover <- R6::R6Class("MissingRemover", # nolint
             )
           })
         } else {
-          print(glue::glue("Table {table_to_clean} does not exist."))
+          message(glue::glue("Table {table_to_clean} does not exist."))
         }
       }
-      print(glue::glue("Missing values removed."))
+      message(glue::glue("Missing values removed."))
     }
   )
 )

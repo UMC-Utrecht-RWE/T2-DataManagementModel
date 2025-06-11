@@ -58,7 +58,7 @@ UniqueIdGenerator <- R6::R6Class("UniqueIdGenerator", # nolint
         separator_id = db_loader$config$unique_id_generator$separator_id,
         order_by_cols = db_loader$config$unique_id_generator$order_by_cols
       )
-      print("Unique IDs created.")
+      message("Unique IDs created.")
     }
   )
 )

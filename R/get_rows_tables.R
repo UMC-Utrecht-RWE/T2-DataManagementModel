@@ -19,14 +19,14 @@
 #' @export
 get_rows_tables <- function(db_connection, verbose = TRUE) {
   # Get the list of tables
-  print("Getting tables from the database")
+  message("Getting tables from the database")
   tables <- DBI::dbListTables(db_connection)
 
   if (length(tables) == 0) {
     stop("No tables found in the database.")
   }
   if (verbose) {
-    print(glue::glue("Tables found: {paste(tables, collapse = ', ')}"))
+    message(glue::glue("Tables found: {paste(tables, collapse = ', ')}"))
   }
 
   # Construct the query to get row counts
@@ -41,7 +41,7 @@ get_rows_tables <- function(db_connection, verbose = TRUE) {
   full_query <- paste(queries, collapse = " UNION ALL ")
 
   if (verbose) {
-    print(glue::glue("Generated query: {full_query}"))
+    message(glue::glue("Generated query: {full_query}"))
   }
 
   # Execute the query and retrieve the result

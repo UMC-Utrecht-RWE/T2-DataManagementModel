@@ -82,7 +82,7 @@ import_file <- function(path, cols = NULL, cols_new = NULL, exprs = NULL,
       rem1 <- nrow(loaded_file)
       loaded_file <- loaded_file[eval(exprs), ]
       rem2 <- nrow(loaded_file)
-      print(paste0(
+      message(paste0(
         rem2, " selected rows from ", rem1,
         " rows after evaluation of exprs"
       ))

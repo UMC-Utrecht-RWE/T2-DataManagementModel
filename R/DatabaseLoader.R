@@ -101,7 +101,7 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
     #' @description
     #' Loads the database with the required data using config and metadata.
     set_database = function() {
-      print("Setting up the database")
+      message("Setting up the database")
       tryCatch(
         {
           T2.DMM:::load_db(
@@ -113,7 +113,7 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
           )
         },
         error = function(e) {
-          print(paste("Error loading database:", e))
+          message(paste("Error loading database:", e))
         }
       )
     },
@@ -126,7 +126,7 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
         ops <- private$get_all_operations()
       }
       for (op in ops) {
-        print(glue::glue("Running class: {op$classname}"))
+        message(glue::glue("Running class: {op$classname}"))
         op$run(self)
       }
       DBI::dbDisconnect(self$db)
@@ -157,10 +157,10 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
           class_obj$inherit == "T2.DMM:::DatabaseOperation"
 
         if (inherits_from_dbop) {
-          print(glue::glue("Loading operation: {operation}"))
+          message(glue::glue("Loading operation: {operation}"))
           ops[[length(ops) + 1]] <- class_obj$new()
         } else {
-          print(glue::glue("{operation} not a valid DatabaseOperation class."))
+          message(glue::glue("{operation} not a valid DatabaseOperation class."))
         }
       }
 
