@@ -59,7 +59,7 @@ create_dap_specific_concept <- function(
             WHERE table_name = '", name, "'
           ")
     columns_db_table <- DBI::dbGetQuery(
-      ave_db, query_columns_table
+      save_db, query_columns_table
     )$column_name
 
     rest_cols <- na.omit(columns_db_table[!columns_db_table %in% to_upper_cols])
