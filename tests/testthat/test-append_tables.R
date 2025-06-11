@@ -37,7 +37,7 @@ testthat::test_that("append_tables appends tables correctly", {
   DBI::dbDisconnect(db)
 })
 
-testthat::test_that("append_tables does not appends empthy tables", {
+testthat::test_that("append_tables raise message if appends empthy tables", {
   # Create a temporary SQLite database
   db <- DBI::dbConnect(duckdb::duckdb(), tempfile(fileext = ".duckdb"))
 
@@ -46,12 +46,13 @@ testthat::test_that("append_tables does not appends empthy tables", {
     CREATE TABLE table1 (
       id INTEGER,
       name TEXT,
+      date DATE,
       created_at TIMESTAMP
     )
   ")
 
   # Append tables
-  testthat::expect_error(
+  testthat::expect_message(
     append_tables(
       db, "table1", "result_table", return = TRUE
     ),
