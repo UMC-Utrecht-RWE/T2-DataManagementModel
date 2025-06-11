@@ -113,7 +113,7 @@ create_dap_specific_concept <- function(
           " AS meaning "
         )
       } else {
-        print(paste0(
+        message(paste0(
           "[create_dap_specific_concept] Meaning not identified for: ",
           name_edited
         ))

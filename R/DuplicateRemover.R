@@ -35,7 +35,7 @@ DuplicateRemover <- R6::R6Class("DuplicateRemover", # nolint
     #' @param db_loader A `DatabaseLoader` object provides database connection,
     #' table names, and other configuration details required for the operation.
     run = function(db_loader) {
-      print(glue::glue("Removing duplicates from tables."))
+      message(glue::glue("Removing duplicates from tables."))
 
       # Retrieve distinct column info from config or default to '*'
       distinct_config <- db_loader$config$duplicate_remover$cdm_tables_columns
@@ -61,7 +61,7 @@ DuplicateRemover <- R6::R6Class("DuplicateRemover", # nolint
         save_path = db_loader$config$duplicate_remover$save_path,
         add_postfix = db_loader$config$duplicate_remover$add_postfix
       )
-      print(glue::glue("Duplicates removed."))
+      message(glue::glue("Duplicates removed."))
     }
   )
 )

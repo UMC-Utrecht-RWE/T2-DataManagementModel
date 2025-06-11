@@ -68,7 +68,7 @@ create_dap_specific_codelist <- function(
     # Preprocessing start with codes
     start_unique_codelist[, ori_length_str := stringr::str_length(code_no_dot)]
     max_code_length <- max(start_unique_codelist$ori_length_str)
-    print(paste0(
+    message(paste0(
       "[SetCodesheets] Max length of code from the DAP is : ",
       max_code_length
     ))
