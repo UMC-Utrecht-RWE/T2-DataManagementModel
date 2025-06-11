@@ -21,7 +21,7 @@
 #'   list("Table1" = "Column1", "Table2" = "Column2")
 #' )}
 #'
-#' @keywords internal
+#' @export
 get_origin_value <- function(
   cases_dt,
   db_connection,

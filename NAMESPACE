@@ -3,6 +3,8 @@
 export(DatabaseLoader)
 export(create_dap_specific_codelist)
 export(create_dap_specific_concept)
+export(get_origin_row)
+export(get_origin_value)
 export(get_rows_tables)
 import(data.table)
 importFrom(DBI,dbDisconnect)

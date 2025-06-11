@@ -48,7 +48,7 @@
 #' dbDisconnect(db_connection)
 #' }
 #'
-#' @keywords internal
+#' @export
 get_origin_row <- function(
   db_connection,
   ids,
