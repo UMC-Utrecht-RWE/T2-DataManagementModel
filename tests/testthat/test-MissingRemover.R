@@ -48,7 +48,7 @@ testthat::test_that("Table to clean does not exist", {
 
   loader$config$missing_remover$columns$NON_EXISTENT <- "non_existent_column"
 
-  testthat::expect_output(
+  testthat::expect_message(
     remover$run(loader),
     "Table NON_EXISTENT does not exist."
   )
