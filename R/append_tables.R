@@ -55,7 +55,7 @@ append_tables <- function(
   # Check if tables have zero cases and log a message
   for (i in tables) {
     if (DBI::dbGetQuery(db, paste0("SELECT count(*) FROM ", i)) == 0) {
-      stop(paste0(
+      message(paste0(
         "0 cases in ",
         i,
         " for the Appended TABLE ",
