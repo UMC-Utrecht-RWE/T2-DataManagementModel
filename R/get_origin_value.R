@@ -82,15 +82,6 @@ get_origin_value <- function(
   # Extract unique ori_tables from the cases data table
   ori_tables <- unique(cases_dt[, ori_table])
 
-  # Check if all ori_tables exist in search_scheme list
-  missing_tables <- ori_tables[!ori_tables %in% unique(names(search_scheme))]
-  if (length(missing_tables) > 0) {
-    warning(sprintf(
-      "[get_origin_value] The following tables are not in 'search_scheme': %s",
-      paste(missing_tables, collapse = ", ")
-    ))
-  }
-
   # Write cases data table to a temporary table in the database
   tryCatch(
     {
