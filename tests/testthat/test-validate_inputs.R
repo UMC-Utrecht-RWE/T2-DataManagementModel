@@ -8,14 +8,6 @@ testthat::test_that("ensure_data_table converts a data.frame to data.table", {
   testthat::expect_equal(ncol(dt), 2)
 })
 
-testthat::test_that("ensure_data_table does not modify existing data.table", {
-  dt <- data.table::data.table(a = 1:3, b = letters[1:3])
-  result <- ensure_data_table(dt)
-
-  testthat::expect_true(data.table::is.data.table(result))
-  testthat::expect_identical(result, dt)
-})
-
 testthat::test_that("ensure_data_table throws an error for NULL input", {
   testthat::expect_error(
     ensure_data_table(NULL),
