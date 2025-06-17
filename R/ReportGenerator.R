@@ -38,65 +38,109 @@
 #' \dontrun{
 #' loader <- DatabaseLoader$new()
 #' report_generator <- ReportGenerator$new()
-#' report_generator$run(loader)  # Delegates to the correct subclass
+#' report_generator$run(loader) # Delegates to the correct subclass
 #' }
 #'
 #' @importFrom glue glue
 #' @importFrom tools file_ext
 #' @keywords internal
-#' @export
 ReportGenerator <- R6::R6Class("ReportGenerator", # nolint
-  inherit = T2.DMM::DatabaseOperation,
+  inherit = T2.DMM:::DatabaseOperation,
   public = list(
     classname = "ReportGenerator",
+
     #' @description
     #' Executes the report generation process.
     #' @param db_loader A `DatabaseLoader` object provides database connection,
     #' the instance name, and the configuration details for saving the report.
     run = function(db_loader) {
-      print(
-        glue::glue("Generating reports for: {db_loader$config$instance_name}")
-      )
-
-      count_rows_origin <- T2.DMM::get_rows_tables(db_loader$db)
+      count_rows_origin <- T2.DMM:::get_rows_tables(db_loader$db)
       self$write_report(count_rows_origin, db_loader)
 
-      print("Reports generated.")
+      count_rows_origin
     },
 
     #' @description
-    #' Placeholder for report writing logic. Should be overridden in subclass.
+    #' Dispatches to the subclass to write the report based on extension.
     #' @param data A data frame containing the data to be saved.
-    #' @param db_loader A `DatabaseLoader` object that provides the
-    #' configuration details for saving the report.
+    #' @param db_loader A `DatabaseLoader` object.
     write_report = function(data, db_loader) {
-      stop("write_report() must be implemented in a subclass.")
+      subclass_instance <- private$find_saving_class(db_loader)
+      message(
+        glue::glue("Using subclass: {subclass_instance$classname}")
+      )
+      subclass_instance$write_report(data, db_loader)
     }
   ),
 
   private = list(
-    find_saving_class = function(data, db_loader) {
-      report_name <- db_loader$config$report$report_name
-      ext <- tools::file_ext(report_name)
-      r_files <- list.files("R", pattern = "\\.R$", full.names = TRUE)
+    find_saving_class = function(db_loader) {
+      report_name <- db_loader$config$report_generator$report_name
+      message(
+        glue::glue("Generating reports for: {report_name}")
+      )
 
-      for (file in r_files) {
-        source(file, local = TRUE)  # Avoid global namespace pollution
+      if (is.null(report_name) || !nzchar(report_name)) {
+        stop("The report_name in report_generator is missing or empty.")
+      }
+      ext <- tools::file_ext(report_name)
+      if (is.na(ext) || !nzchar(ext)) {
+        stop(
+          glue::glue(
+            "Invalid or missing file extension in report_name: {report_name}"
+          )
+        )
       }
 
-      # Get all R6 classes currently in the environment
-      classes <- mget(ls(), envir = .GlobalEnv, ifnotfound = NA)
-      r6_classes <- Filter(function(x) {
-        inherits(x, "R6ClassGenerator") &&
-          "ReportGenerator" %in% names(x$inherit)
-      },
-      classes)
+      pkg_env <- asNamespace("T2.DMM")
+      objs <- mget(ls(pkg_env), envir = pkg_env)
 
-      for (class_obj in r6_classes) {
-        instance <- class_obj$new()
-        if (!is.null(instance$supported_ext) &&
-              ext %in% instance$supported_ext()) {
-          return(instance$write_report(data, db_loader))
+      # Filter for R6 classes in the package environment
+      r6_classes <- Filter(function(x) {
+        inherits(x, "R6ClassGenerator")
+      }, objs)
+      # Print the names of R6 classes found in the package
+      class_names <- sapply(r6_classes, function(cls) cls$classname)
+      formatted_class_names <- paste(class_names, collapse = ", ")
+      message(glue::glue(
+        "R6 classes in T2.DMM package: {formatted_class_names}"
+      ))
+
+      # Load all R6 classes from the package environment
+      subclasses <- Filter(function(cls) {
+        inherits(cls$get_inherit(), "R6ClassGenerator") &&
+          cls$get_inherit()$classname == "ReportGenerator"
+      }, r6_classes)
+      # Print the names of subclasses of ReportGenerator
+      subclass_names <- sapply(subclasses, function(cls) cls$classname)
+      formatted_subclass_names <- paste(subclass_names, collapse = ", ")
+      message(glue::glue(
+        "Subclasses of ReportGenerator: {formatted_subclass_names}"
+      ))
+
+      for (cls in subclasses) {
+        instance <- NULL
+        supported <- character(0)
+
+        tryCatch({
+          instance <- cls$new()
+          if (is.function(instance$supported_ext)) {
+
+            supported <- instance$supported_ext()
+            message(glue::glue(
+              "Extensions for {cls$classname}: {
+              paste(supported, collapse = ', ')}"
+            ))
+          }
+        })
+
+        # Ensure supported does not contain NA values
+        supported <- supported[!is.na(supported)]
+        if (length(supported) > 0 && ext %in% supported) {
+          message(glue::glue(
+            "Found subclass {cls$classname} for extension: {report_name}"
+          ))
+          return(instance)
         }
       }
 

@@ -6,7 +6,7 @@
 \usage{
 load_db(
   db_connection,
-  csv_path_dir,
+  data_instance_path,
   cdm_metadata,
   cdm_tables_names,
   extension_name = ""
@@ -15,7 +15,7 @@ load_db(
 \arguments{
 \item{db_connection}{A database connection object (SQLiteConnection).}
 
-\item{csv_path_dir}{Path to the CSV CDM database.}
+\item{data_instance_path}{Path to the CSV CDM database.}
 
 \item{cdm_metadata}{Data.table with Table name, Variable name, and Format.}
 
@@ -28,3 +28,4 @@ when loading different CDM instances in the same DB.}
 This function is designed for loading a CDM data set instance from CSV files
 into a database.
 }
+\keyword{internal}

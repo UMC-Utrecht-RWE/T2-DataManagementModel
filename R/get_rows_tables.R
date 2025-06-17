@@ -3,6 +3,8 @@
 #' This function retrieves the row counts for all tables in a SQLite database.
 #'
 #' @param db_connection Database connection object (SQLiteConnection).
+#' @param verbose Logical. If `TRUE`, prints intermediate queries
+#' and table names. Default is `FALSE`.
 #'
 #' @return A data frame with two columns: 'name' (table name) and 'row_count'
 #' (number of rows in each table).
@@ -15,25 +17,33 @@
 #' }
 #'
 #' @export
-get_rows_tables <- function(db_connection) {
-  # Retrieve the names of all tables in the database
+get_rows_tables <- function(db_connection, verbose = TRUE) {
+  # Get the list of tables
+  message("Getting tables from the database")
   tables <- DBI::dbListTables(db_connection)
 
-  # Construct the SQLite query to get the row counts for all tables
-  query <- paste0(
-    "SELECT '", tables[1], "' AS name, (SELECT COUNT(1) FROM ",
-    tables[1], ") AS row_count"
-  )
+  if (length(tables) == 0) {
+    stop("No tables found in the database.")
+  }
+  if (verbose) {
+    message(glue::glue("Tables found: {paste(tables, collapse = ', ')}"))
+  }
 
-  for (i in 2:length(tables)) {
-    query <- paste0(
-      query, " UNION ALL SELECT '", tables[i],
-      "' AS name, (SELECT COUNT(1) FROM ", tables[i],
-      ") AS row_count"
+  # Construct the query to get row counts
+  queries <- lapply(tables, function(table) {
+    sprintf(
+      "SELECT '%s' AS name, (SELECT COUNT(1) FROM %s) AS row_count",
+      table, table
     )
+  })
+
+  # Combine all queries using UNION ALL
+  full_query <- paste(queries, collapse = " UNION ALL ")
+
+  if (verbose) {
+    message(glue::glue("Generated query: {full_query}"))
   }
 
   # Execute the query and retrieve the result
-  result <- DBI::dbGetQuery(db_connection, query)
-  return(result)
+  return(DBI::dbGetQuery(db_connection, full_query))
 }

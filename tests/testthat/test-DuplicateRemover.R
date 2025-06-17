@@ -1,31 +1,22 @@
-unlink("temp", recursive = TRUE) ## Create a temporary folder where to test
-
-if (!file.exists("temp")) {
-  dir.create("temp")
-}
-setwd("temp")
-
 testthat::test_that(
   "DuplicateRemover calls delete_duplicates_origin with expected arguments",
   {
+    temp_dir <- withr::local_tempdir()
+    setwd(temp_dir)
+
     testthat::expect_true(
-      DuplicateRemover$inherit == "T2.DMM::DatabaseOperation"
+      DuplicateRemover$inherit == "T2.DMM:::DatabaseOperation"
+    )
+    remover <- T2.DMM:::DuplicateRemover$new()
+
+    loader <- create_database_loader(config_path = "CONFIG_PATH")
+    loader$set_database()
+
+    testthat::expect_error(
+      remover$run(loader),
+      NA # means expect no error
     )
 
-    remover <- DuplicateRemover$new()
-    testthat::expect_s3_class(remover, "DuplicateRemover")
-    testthat::expect_s3_class(remover, "DatabaseOperation")
-
-    loader <- DatabaseLoader$new(
-      db_path = Sys.getenv("SYNTHETIC_DB_PATH"),
-      config_path = Sys.getenv("CONFIG_PATH"),
-      cdm_metadata = Sys.getenv("SHARED_METADATA_PATH")
-    )
-
-    remover$run(loader)
+    # To check if table are removed check function test delete_duplicates_origin
   }
 )
-
-## We conclude by exiting the file
-setwd("../")
-unlink("temp", recursive = TRUE)

@@ -20,7 +20,6 @@
 #'
 #' @docType class
 #' @keywords internal
-#' @export
 DatabaseOperation <- R6::R6Class("DatabaseOperation", # nolint
   public = list(
     #' @description

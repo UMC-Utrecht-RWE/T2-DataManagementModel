@@ -4,20 +4,23 @@
 #' provided specifications.
 #'
 #' @param db_conn A database connection object.
-#' @param specs A list containing the table names as keys and lists of column
-#' names for indexing as values.
+#' @param specs A list containing the table names as keys and
+#' lists of column names for indexing as values.
 #'
 #' @examples
 #' \dontrun{
 #' # Example usage of create_indexes
 #' db_conn <- dbConnect(duckdb::duckdb(), ":memory:")
 #' specs <- list(
-#'   persons = list("1" = "person_id", "2" = c("person_id", "sex_at_instance_creation")),
-#'   medicines = list("1" = "person_id", "2" = c("person_id", "date_dispensing"))
+#'   persons = list(
+#'      "1" = "person_id",
+#'      "2" = c("person_id", "sex_at_instance_creation")),
+#'   medicines = list(
+#'      "1" = "person_id", "2" = c("person_id", "date_dispensing"))
 #' )
 #' create_indexes(db_conn, specs)
 #' }
-#' @export
+#' @keywords internal
 create_indexes <- function(db_conn, specs) {
   # Loop through the table names in the specs list
   for (table_name in names(specs)) {

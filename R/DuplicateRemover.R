@@ -24,9 +24,8 @@
 #'
 #' @docType class
 #' @keywords internal
-#' @export
 DuplicateRemover <- R6::R6Class("DuplicateRemover", # nolint
-  inherit = T2.DMM::DatabaseOperation,
+  inherit = T2.DMM:::DatabaseOperation,
   public = list(
     #' @field classname A string representing the name of the class.
     #' Default is `"DuplicateRemover"`.
@@ -36,10 +35,10 @@ DuplicateRemover <- R6::R6Class("DuplicateRemover", # nolint
     #' @param db_loader A `DatabaseLoader` object provides database connection,
     #' table names, and other configuration details required for the operation.
     run = function(db_loader) {
-      print(glue::glue("Removing duplicates from tables."))
+      message(glue::glue("Removing duplicates from tables."))
 
       # Retrieve distinct column info from config or default to '*'
-      distinct_config <- db_loader$config$cdm_tables_distinct_columns
+      distinct_config <- db_loader$config$duplicate_remover$cdm_tables_columns
       table_names <- db_loader$config$cdm_tables_names
 
       scheme <- setNames(
@@ -54,13 +53,15 @@ DuplicateRemover <- R6::R6Class("DuplicateRemover", # nolint
         table_names
       )
 
-      T2.DMM::delete_duplicates_origin(
+      T2.DMM:::delete_duplicates_origin(
         db_connection = db_loader$db,
         scheme = scheme,
-        save_deleted = TRUE,
-        save_path = db_loader$config$save_path
+        # DuplicateRemover unique properties
+        save_deleted = db_loader$config$duplicate_remover$save_deleted,
+        save_path = db_loader$config$duplicate_remover$save_path,
+        add_postfix = db_loader$config$duplicate_remover$add_postfix
       )
-      print(glue::glue("Duplicates removed."))
+      message(glue::glue("Duplicates removed."))
     }
   )
 )

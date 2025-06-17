@@ -37,9 +37,8 @@
 #' @importFrom glue glue
 #' @docType class
 #' @keywords internal
-#' @export
 MissingRemover <- R6::R6Class("MissingRemover", # nolint
-  inherit = T2.DMM::DatabaseOperation,
+  inherit = T2.DMM:::DatabaseOperation,
   public = list(
     classname = "MissingRemover",
     #' @description
@@ -47,18 +46,19 @@ MissingRemover <- R6::R6Class("MissingRemover", # nolint
     #' @param db_loader A `DatabaseLoader` object provides database connection,
     #' the list of tables and columns to clean, and other configuration details.
     run = function(db_loader) {
-      print(glue::glue("Removing missing values from tables."))
+      message(glue::glue("Removing missing values from tables."))
       tables_available <- DBI::dbListTables(db_loader$db)
 
-      for (index in seq_along(db_loader$config$list_colums_clean)) {
-        table_to_clean <- names(db_loader$config$list_colums_clean[index])
+      cols_to_remove_miss <- db_loader$config$missing_remover$columns
+      for (index in seq_along(cols_to_remove_miss)) {
+        table_to_clean <- names(cols_to_remove_miss[index])
 
         if (table_to_clean %in% tables_available) {
-          print(glue::glue(
+          message(glue::glue(
             "Deleting rows with missing values: {table_to_clean}"
           ))
 
-          lapply(db_loader$config$list_colums_clean[index], function(x) {
+          lapply(cols_to_remove_miss[index], function(x) {
             query <- paste0(
               "DELETE FROM ", table_to_clean,
               " WHERE ", x, " IS NULL OR ", x, " = '' OR ", x, " = 'NA'"
@@ -72,19 +72,14 @@ MissingRemover <- R6::R6Class("MissingRemover", # nolint
                 } else {
                   message(glue::glue("Deleted rows from {table_to_clean}.{x}"))
                 }
-              },
-              error = function(e) {
-                warning(glue::glue(
-                  "Failed to clean {table_to_clean}.{x}: {e$message}"
-                ))
               }
             )
           })
         } else {
-          print(glue::glue("Table {table_to_clean} does not exist"))
+          message(glue::glue("Table {table_to_clean} does not exist."))
         }
       }
-      print(glue::glue("Missing values removed."))
+      message(glue::glue("Missing values removed."))
     }
   )
 )

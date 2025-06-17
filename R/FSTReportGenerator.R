@@ -29,9 +29,9 @@
 #' Default is `"FSTReportGenerator"`.
 #'
 #' @importFrom fst write_fst
-#' @export
+#' @keywords internal
 FSTReportGenerator <- R6::R6Class("FSTReportGenerator", # nolint
-  inherit = ReportGenerator,
+  inherit = T2.DMM:::ReportGenerator,
   public = list(
     classname = "FSTReportGenerator",
 
@@ -42,10 +42,14 @@ FSTReportGenerator <- R6::R6Class("FSTReportGenerator", # nolint
     #' configuration details for saving the report.
     write_report = function(data, db_loader) {
       dir_save <- file.path(
-        db_loader$config$report$report_path,
-        db_loader$config$report$report_name
+        db_loader$config$report_generator$report_path,
+        db_loader$config$report_generator$report_name
       )
+      if (!dir.exists(dirname(dir_save))) {
+        stop(glue::glue("The directory {dirname(dir_save)} does not exist."))
+      }
       fst::write_fst(data, dir_save)
+      message(glue::glue("Report saved successfully."))
     },
 
     #' @description

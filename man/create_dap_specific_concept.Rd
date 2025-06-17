@@ -16,23 +16,36 @@ create_dap_specific_concept(
 )
 }
 \arguments{
-\item{codelist}{A data.table containing information about tables, columns, and values for DAP-specific concepts.}
+\item{codelist}{A data.table containing information about tables,
+columns, and values for DAP-specific concepts.}
 
 \item{name_attachment}{Attachment to the database table names.}
 
-\item{save_db}{The database connection object where the edited tables and concepts will be saved.}
+\item{save_db}{The database connection object where the edited tables
+and concepts will be saved.}
 
-\item{date_col_filter}{An optional filter to subset data based on a specified date column.}
+\item{date_col_filter}{An optional filter to subset data based on
+a specified date column.}
 
-\item{table_name}{Name of the table in the codelist}
+\item{table_name}{Name of the table in the codelist.
+Default: "cdm_table_name".}
 
-\item{column_name_prefix}{An optional string that defines the prefix name of the column name variable column(s) from the DAP-specific concept map}
+\item{column_name_prefix}{An optional string that defines the prefix name
+of the column name variable column(s) from the DAP-specific concept map.
+Default: "column_name".}
 
-\item{expected_value_prefix}{An optional string that defines the prefix name of the expected value variable column(s) from the DAP-specific concept map}
+\item{expected_value_prefix}{An optional string that defines the prefix name
+ of the expected value variable column(s) from the DAP-specific concept map.
+Default: "expected_value".}
 
-\item{add_meaning}{An optional boolean that defines whether the possibility to save the meaning of any CDM table -if available- in the results of the function. This is specific for the ConcePTION CDM.}
+\item{add_meaning}{An optional boolean that defines whether the possibility
+ to save the meaning of any CDM table -if available- in the results of the
+function. This is specific for the ConcePTION CDM.
+Default: FALSE.}
 }
 \description{
-This function Creates DAP-specific concepts into a database using a DAP-specifc concept map (codelist).
-The function modifies the specified save_db by creating edited tables and Creating DAP-specific concepts.
+This function Creates DAP-specific concepts into a database using a
+DAP-specifc concept map (codelist).
+The function modifies the specified save_db by creating edited tables
+and Creating DAP-specific concepts.
 }

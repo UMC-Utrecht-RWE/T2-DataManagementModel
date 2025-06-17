@@ -17,7 +17,7 @@ append_tables(
 \arguments{
 \item{db}{connection to the database}
 
-\item{tables}{vector of table names to append}
+\item{tables}{vector of table present in the db to append}
 
 \item{name}{new name of the resulting table}
 
@@ -32,3 +32,4 @@ append_tables(
 \description{
 Functions for appending tables into a new table in a database.
 }
+\keyword{internal}

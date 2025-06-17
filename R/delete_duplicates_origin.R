@@ -31,19 +31,25 @@
 #' )
 #' }
 #'
-#' @export
-delete_duplicates_origin <- function(db_connection, scheme, save_deleted = FALSE,
-                                     save_path = NULL, add_postfix = NA) {
-  f_paste <- function(vec) sub(",\\s+([^,]+)$", " , \\1", toString(vec))
+#' @keywords internal
+delete_duplicates_origin <- function(
+    db_connection,
+    scheme,
+    save_deleted = FALSE,
+    save_path = NULL,
+    add_postfix = NA) {
 
   # Check if specified columns in the scheme exist in the corresponding tables
   for (case_name in names(scheme)) {
     if (case_name %in% DBI::dbListTables(db_connection)) {
-      if (!all(scheme[[case_name]] %in% DBI::dbListFields(db_connection, case_name)) &&
-        all(!scheme[[case_name]] %in% "*")) {
-        wrong_cols <- scheme[[case_name]][!scheme[[case_name]] %in%
-          DBI::dbListFields(db_connection, case_name)]
-        print(paste0(
+      if (!all(
+        scheme[[case_name]] %in% DBI::dbListFields(db_connection, case_name)
+      ) && all(!scheme[[case_name]] %in% "*")) {
+
+        wrong_cols <- scheme[[case_name]][
+          !scheme[[case_name]] %in% DBI::dbListFields(db_connection, case_name)
+        ]
+        message(paste0(
           "[delete_duplicates_origin]: Table ", case_name,
           " columns -> ", wrong_cols,
           " do not exist in the DB instance table"
@@ -52,6 +58,10 @@ delete_duplicates_origin <- function(db_connection, scheme, save_deleted = FALSE
       }
     }
   }
+
+  # Turns list of string into a string with commas
+  # and spaces, e.g. c("col1", "col2") -> "col1 , col2"
+  f_paste <- function(vec) sub(",\\s+([^,]+)$", " , \\1", toString(vec))
 
   # Loop through each specified table in the scheme
   for (case_name in names(scheme)) {
@@ -74,18 +84,25 @@ delete_duplicates_origin <- function(db_connection, scheme, save_deleted = FALSE
                        FROM ", case_name, "
                        GROUP BY ", cols_to_select, "
                        )")
+
       # Execute the query and handle results
       if (save_deleted == FALSE) {
         rs <- DBI::dbSendStatement(db_connection, query)
         DBI::dbHasCompleted(rs)
         num_rows <- DBI::dbGetRowsAffected(rs)
-        print(paste0("[delete_duplicates_origin] Number of record deleted: ", num_rows))
+        message(paste0(
+          "[delete_duplicates_origin] Number of record deleted: ",
+          num_rows
+        ))
         DBI::dbClearResult(rs)
       } else if (save_deleted == TRUE && !is.null(save_path)) {
         rs <- DBI::dbGetQuery(db_connection, paste0(query, " RETURNING *;"))
         rs <- data.table::as.data.table(rs)
         num_rows <- nrow(rs)
-        print(paste0("[delete_duplicates_origin] Number of record deleted: ", num_rows))
+        message(paste0(
+          "[delete_duplicates_origin] Number of record deleted: ",
+          num_rows
+        ))
         dir.create(file.path(save_path), showWarnings = FALSE) # Create folder
         # Save deleted records with optional postfix
         if (!is.na(add_postfix)) {
