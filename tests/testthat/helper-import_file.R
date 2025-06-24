@@ -1,32 +1,3 @@
-#' Import and Format CSV Data
-#'
-#' This function imports CSV files and applies basic formatting, such as
-#' handling dates, handling missing values, and removing leading and trailing
-#' spaces. It also allows for column selection and subsetting based on specified
-#' criteria.
-#'
-#' @param path Path to the CSV file.
-#' @param cols A vector of strings indicating which columns to import. Optional.
-#' @param cols_new A vector of strings indicating the new column names.
-#'   Optional; must have the same length as cols.
-#' @param exprs A data.table expression (within expression()) for subsetting
-#'   rows. Optional.
-#' @param date_cols Vector of strings indicating variables with 'YYYYMMDD'
-#'   format to be converted to date format. Optional.
-#'
-#' @return A data.table data frame with formatted columns.
-#' @examples
-#' \dontrun{
-#' # Example usage of import_file
-#' path <- "path/to/your/file.csv"
-#' data <- import_file(path,
-#'   cols = c("col1", "col2"),
-#'   cols_new = c("new_col1", "new_col2"), exprs = expression(col1 > 0),
-#'   date_cols = c("date_col")
-#' )
-#' }
-#'
-#' @keywords internal
 import_file <- function(path, cols = NULL, cols_new = NULL, exprs = NULL,
                         date_cols = NULL) {
   if (!file.exists(path)) {
