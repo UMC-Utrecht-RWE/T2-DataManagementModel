@@ -46,7 +46,7 @@ delete_duplicates_origin <- function(
       if (!all(
         scheme[[case_name]] %in% DBI::dbListFields(db_connection, case_name)
       ) && all(!scheme[[case_name]] %in% "*")) {
-        
+
         wrong_cols <- scheme[[case_name]][
           !scheme[[case_name]] %in% DBI::dbListFields(db_connection, case_name)
         ]
@@ -124,6 +124,7 @@ delete_duplicates_origin <- function(
             )
           }
           data.table::fwrite(rs, save_file_name)
+
         }
       }
     }
