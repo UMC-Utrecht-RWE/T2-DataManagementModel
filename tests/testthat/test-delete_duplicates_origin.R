@@ -35,7 +35,11 @@ test_that("Checking if all columns exist in the scheme", {
     db_connection = db_con, scheme, save_deleted = FALSE
     ),
     fixed = TRUE,
-    "[delete_duplicates_origin]: Table PERSONS columns -> test1 do not exist in the DB instance table"
+    paste0(
+      "[delete_duplicates_origin]: Table ", "PERSONS",
+      " columns -> ", "test1",
+      " do not exist in the DB instance table. Removing setting."
+    )
   )
   
 })
