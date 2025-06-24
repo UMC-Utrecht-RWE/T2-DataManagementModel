@@ -64,9 +64,7 @@ delete_duplicates_origin <- function(
   }
   
   scheme <- valid_scheme
-  # Turns list of string into a string with commas
-  # and spaces, e.g. c("col1", "col2") -> "col1 , col2"
-  f_paste <- function(vec) sub(",\\s+([^,]+)$", " , \\1", toString(vec))
+
   
   if(length(scheme) > 0){
     # Loop through each specified table in the scheme
@@ -76,11 +74,11 @@ delete_duplicates_origin <- function(
         # Determine columns to select based on the scheme
         if (all(scheme[[case_name]] %in% "*")) {
           cols_to_select <- DBI::dbListFields(db_connection, case_name)
-          cols_to_select <- f_paste(cols_to_select)
+          #cols_to_select <- f_paste(cols_to_select)
         } else {
           cols_to_select <- scheme[[case_name]]
         }
-        cols_to_select <- f_paste(cols_to_select)
+        cols_to_select <- paste(cols_to_select, collapse = ", ")
         
         # Build the SQL query to delete duplicate rows
         query <- paste0("DELETE FROM ", case_name, "
@@ -102,30 +100,35 @@ delete_duplicates_origin <- function(
           ))
           DBI::dbClearResult(rs)
         } else if (save_deleted == TRUE && !is.null(save_path)) {
-          rs <- DBI::dbGetQuery(db_connection, paste0(query, " RETURNING *;"))
-          rs <- data.table::as.data.table(rs)
-          num_rows <- nrow(rs)
-          message(paste0(
-            "[delete_duplicates_origin] Number of record deleted: ",
-            num_rows
-          ))
-          dir.create(file.path(save_path), showWarnings = FALSE) # Create folder
-          # Save deleted records with optional postfix
-          if (!is.na(add_postfix)) {
-            save_file_name <- paste0(
-              save_path, "/", case_name, "_",
-              format(Sys.Date(), "%Y%m%d"), "_",
-              add_postfix, ".csv"
-            )
-          } else {
-            save_file_name <- paste0(
-              save_path, "/", case_name, "_",
-              format(Sys.Date(), "%Y%m%d"), ".csv"
-            )
+          rs <-  data.table::as.data.table(
+                 DBI::dbGetQuery(db_connection, 
+                                 paste0(query, " RETURNING *;")))
+          if(nrow(rs) > 0){
+              message(paste0(
+                "[delete_duplicates_origin] Number of record deleted: ",
+                nrow(rs)
+              ))
+              dir.create(file.path(save_path), showWarnings = FALSE) # Create folder
+              # Save deleted records with optional postfix
+              if (!is.na(add_postfix) & is.character(add_postfix)) {
+                save_file_name <- paste0(
+                  save_path, "/", case_name, "_",
+                  format(Sys.Date(), "%Y%m%d"), "_",
+                  add_postfix, ".csv"
+                )
+              } else {
+                save_file_name <- paste0(
+                  save_path, "/", case_name, "_",
+                  format(Sys.Date(), "%Y%m%d"), ".csv"
+                )
+              }
+              data.table::fwrite(rs, save_file_name)
+            }else{
+              message(
+                "[delete_duplicates_origin] Number of record deleted: 0"
+              )
+            }
           }
-          data.table::fwrite(rs, save_file_name)
-
-        }
       }
     }
   }
