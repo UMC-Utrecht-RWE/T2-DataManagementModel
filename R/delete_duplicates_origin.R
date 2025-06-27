@@ -55,18 +55,18 @@ delete_duplicates_origin <- function(
           " columns -> ", paste(wrong_cols, collapse = ", "),
           " do not exist in the DB instance table. Removing setting."
         ))
-        
+
         next()
       }
       # Remove this entry from scheme
       valid_scheme[[case_name]] <- scheme[[case_name]]
     }
   }
-  
+
   scheme <- valid_scheme
 
-  
-  if(length(scheme) > 0){
+
+  if (length(scheme) > 0) {
     # Loop through each specified table in the scheme
     for (case_name in names(scheme)) {
       # Check if the table exists in the database
@@ -74,12 +74,11 @@ delete_duplicates_origin <- function(
         # Determine columns to select based on the scheme
         if (all(scheme[[case_name]] %in% "*")) {
           cols_to_select <- DBI::dbListFields(db_connection, case_name)
-          #cols_to_select <- f_paste(cols_to_select)
         } else {
           cols_to_select <- scheme[[case_name]]
         }
         cols_to_select <- paste(cols_to_select, collapse = ", ")
-        
+
         # Build the SQL query to delete duplicate rows
         query <- paste0("DELETE FROM ", case_name, "
                       WHERE rowid NOT IN
@@ -88,7 +87,7 @@ delete_duplicates_origin <- function(
                        FROM ", case_name, "
                        GROUP BY ", cols_to_select, "
                        )")
-        
+
         # Execute the query and handle results
         if (save_deleted == FALSE) {
           rs <- DBI::dbSendStatement(db_connection, query)
@@ -101,37 +100,38 @@ delete_duplicates_origin <- function(
           DBI::dbClearResult(rs)
         } else if (save_deleted == TRUE && !is.null(save_path)) {
           rs <-  data.table::as.data.table(
-                 DBI::dbGetQuery(db_connection, 
-                                 paste0(query, " RETURNING *;")))
-          if(nrow(rs) > 0){
-              message(paste0(
-                "[delete_duplicates_origin] Number of record deleted: ",
-                nrow(rs)
-              ))
-              dir.create(file.path(save_path), showWarnings = FALSE) # Create folder
-              # Save deleted records with optional postfix
-              if (!is.na(add_postfix) & is.character(add_postfix)) {
-                save_file_name <- paste0(
-                  save_path, "/", case_name, "_",
-                  format(Sys.Date(), "%Y%m%d"), "_",
-                  add_postfix, ".csv"
-                )
-              } else {
-                save_file_name <- paste0(
-                  save_path, "/", case_name, "_",
-                  format(Sys.Date(), "%Y%m%d"), ".csv"
-                )
-              }
-              data.table::fwrite(rs, save_file_name)
-            }else{
-              message(
-                "[delete_duplicates_origin] Number of record deleted: 0"
+            DBI::dbGetQuery(
+              db_connection,
+              paste0(query, " RETURNING *;")
+            )
+          )
+          if (nrow(rs) > 0) {
+            message(paste0(
+              "[delete_duplicates_origin] Number of record deleted: ",
+              nrow(rs)
+            ))
+            dir.create(file.path(save_path), showWarnings = FALSE)
+            # Save deleted records with optional postfix
+            if (!is.na(add_postfix) && is.character(add_postfix)) {
+              save_file_name <- paste0(
+                save_path, "/", case_name, "_",
+                format(Sys.Date(), "%Y%m%d"), "_",
+                add_postfix, ".csv"
+              )
+            } else {
+              save_file_name <- paste0(
+                save_path, "/", case_name, "_",
+                format(Sys.Date(), "%Y%m%d"), ".csv"
               )
             }
+            data.table::fwrite(rs, save_file_name)
+          } else {
+            message(
+              "[delete_duplicates_origin] Number of record deleted: 0"
+            )
           }
+        }
       }
     }
   }
-  
-  
 }
