@@ -78,6 +78,16 @@ get_origin_row <- function(
     return(return_values)
   }
 
+  # # Check if the separator_id is present in id_name
+  # if (!any(grepl(separator_id, ids[[id_name]]))) {
+  #   message(paste0(
+  #     "[get_origin_row] The separator '", separator_id,
+  #     "' does not exist in the unique identifiers"
+  #   ))
+  #   return(return_values)
+  # }
+
+
   ###################
   # Process unique identifiers
   ###################
