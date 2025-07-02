@@ -160,8 +160,8 @@ test_that("Checking the check messages of the expected format of the codelist
             
             # Prepare for code column type validation tests
             # Backup original code column and replace with wrong type
-            study_codelist[, code_old := code]
-            study_codelist[, code := as.numeric(1)]
+            study_codelist[, code := NULL]
+            study_codelist[, code := as.integer(1)]
             
             # Test 9: Verify error when study_codelist$code has wrong data type
             testthat::expect_error(dap_specific_codeslist <- T2.DMM::create_dap_specific_codelist(
@@ -175,7 +175,7 @@ test_that("Checking the check messages of the expected format of the codelist
             
           })
 test_that("Checking the check messages of the expected format of the codelist 
-          and unique codelist work v2", {
+          and unique codelist work v3", {
             # Setup: Create a test database connection with MEDICINES table
             db_con <- create_loaded_test_db(tables = c("MEDICINES"))
             # Ensure database connection is closed after test completion
@@ -196,7 +196,8 @@ test_that("Checking the check messages of the expected format of the codelist
             study_codelist <- data.table::as.data.table(import_file("dbtest/codelist_example_medicines.csv"))
             data.table::setnames(x = study_codelist, old = 'drug_abbreviation', 'concept_id')
             data.table::setnames(x = study_codelist, old = 'product_identifier', 'coding_system')
-          
+            
+            unique_codelist[, code := NULL]
             unique_codelist[, code := as.numeric(1)]
             
             # Test 10: Verify error when unique_codelist$code has wrong data type
