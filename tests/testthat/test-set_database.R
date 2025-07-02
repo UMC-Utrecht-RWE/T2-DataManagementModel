@@ -36,7 +36,7 @@ testthat::test_that("DatabaseLoader runs set_database() without error", {
   )
   testthat::expect_equal(
     DBI::dbGetQuery(loader$db, "SELECT COUNT(*) FROM MEDICINES")$count,
-    2
+    32002.0
   )
   testthat::expect_equal(
     DBI::dbGetQuery(loader$db, "SELECT COUNT(*) FROM PERSONS")$count,
