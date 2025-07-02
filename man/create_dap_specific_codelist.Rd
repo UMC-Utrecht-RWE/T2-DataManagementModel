@@ -15,9 +15,11 @@ create_dap_specific_codelist(
 }
 \arguments{
 \item{unique_codelist}{Data.table containing unique code list output
-from the function getUniqueCodeList.}
+from the function getUniqueCodeList. Must contain columns: 'coding_system', 
+'code', 'concept_id', and 'code.unique_condelist'.}
 
-\item{study_codelist}{Data.table containing the study code list.}
+\item{study_codelist}{Data.table containing the study code list.
+Must contain columns: 'coding_system' and 'code'.}
 
 \item{start_with_colls}{Columns to start with}
 
