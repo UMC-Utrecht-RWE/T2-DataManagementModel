@@ -9,7 +9,6 @@
 #' @param study_codelist Data.table containing the study code list.
 #' Must contain columns: 'coding_system' and 'code'.
 #' @param start_with_colls Columns to start with
-#' @param additional_columns Additional columns to be included in the result.
 #' @param priority Priority column for selecting codes when there are
 #' multiple matches.
 #'
@@ -109,19 +108,6 @@ create_dap_specific_codelist <- function(
     warning("study_codelist contains NA values in code column")
   }
   
-  # Validate additional_columns parameter
-  if (!all(is.na(additional_columns))) {
-    if (!is.character(additional_columns)) {
-      stop("additional_columns must be character vector or NA")
-    }
-    
-    missing_additional_cols <- setdiff(additional_columns, names(unique_codelist))
-    if (length(missing_additional_cols) > 0) {
-      stop(paste("additional_columns contains columns not present in unique_codelist:", 
-                 paste(missing_additional_cols, collapse = ", ")))
-    }
-  }
-  
   # Validate priority parameter
   if (!is.na(priority)) {
     if (!is.character(priority) || length(priority) != 1) {
@@ -207,9 +193,7 @@ create_dap_specific_codelist <- function(
     
     # Selecting the top priority matches
     cols_by <- c("code.unique_codelist", "concept_id", "coding_system")
-    if (!all(is.na(additional_columns))) {
-      cols_by <- c(cols_by, additional_columns)
-    }
+
     if (!is.na(priority)) {
       results_startwith2 <- data.table::copy(results_startwith)[
         order(

@@ -23,8 +23,6 @@ Must contain columns: 'coding_system' and 'code'.}
 
 \item{start_with_colls}{Columns to start with}
 
-\item{additional_columns}{Additional columns to be included in the result.}
-
 \item{priority}{Priority column for selecting codes when there are
 multiple matches.}
 }
