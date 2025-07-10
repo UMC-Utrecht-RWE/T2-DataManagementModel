@@ -25,4 +25,4 @@ concePTION_metadata_v2
 \description{
 data.table describing the elements of the concePTION CDM database.
 }
-\keyword{datasets}
+\keyword{internal}

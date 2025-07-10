@@ -1,50 +1,72 @@
-# Test file: test-get_origin_row.R
-
-library(testthat)
-library(DBI)
-library(duckdb)
-library(data.table)
-
-# Source the function to test if not already loaded
-# source("R/get_origin_row.R")
-
 # Helper function to set up test database
 setup_test_db <- function() {
   # Create an in-memory DuckDB database
-  con <- dbConnect(duckdb::duckdb(), ":memory:")
+  con <- DBI::dbConnect(duckdb::duckdb(), ":memory:")
 
   # Create test tables
-  dbExecute(con, "CREATE TABLE EVENTS (ori_id VARCHAR, event_name VARCHAR, event_date DATE)")
-  dbExecute(con, "CREATE TABLE PATIENTS (ori_id VARCHAR, name VARCHAR, age INTEGER)")
+  DBI::dbExecute(
+    con,
+    "CREATE TABLE EVENTS (ori_id VARCHAR, event_name VARCHAR, event_date DATE)"
+  )
+  DBI::dbExecute(
+    con, "CREATE TABLE PATIENTS (ori_id VARCHAR, name VARCHAR, age INTEGER)"
+  )
 
   # Insert test data
-  dbExecute(con, "INSERT INTO EVENTS VALUES ('EVENTS-1', 'admission', '2023-01-01')")
-  dbExecute(con, "INSERT INTO EVENTS VALUES ('EVENTS-2', 'discharge', '2023-01-05')")
-  dbExecute(con, "INSERT INTO EVENTS VALUES ('EVENTS-3', 'test', '2023-01-03')")
+  DBI::dbExecute(
+    con, "INSERT INTO EVENTS VALUES ('EVENTS-1', 'admission', '2023-01-01')"
+  )
+  DBI::dbExecute(
+    con, "INSERT INTO EVENTS VALUES ('EVENTS-2', 'discharge', '2023-01-05')"
+  )
+  DBI::dbExecute(
+    con, "INSERT INTO EVENTS VALUES ('EVENTS-3', 'test', '2023-01-03')"
+  )
 
-  dbExecute(con, "INSERT INTO PATIENTS VALUES ('PATIENTS-101', 'John Doe', 45)")
-  dbExecute(con, "INSERT INTO PATIENTS VALUES ('PATIENTS-102', 'Jane Smith', 32)")
-
-  return(con)
+  DBI::dbExecute(
+    con, "INSERT INTO PATIENTS VALUES ('PATIENTS-101', 'John Doe', 45)"
+  )
+  DBI::dbExecute(
+    con, "INSERT INTO PATIENTS VALUES ('PATIENTS-102', 'Jane Smith', 32)"
+  )
+  con
 }
 # Helper function to set up test database
-setup_test_db_customID <- function() {
+setup_test_db_custom_id <- function() {
   # Create an in-memory DuckDB database
-  con <- dbConnect(duckdb::duckdb(), dir = temp())
+  con <- DBI::dbConnect(duckdb::duckdb(), dir = tempdir())
 
   # Create test tables
-  dbExecute(con, "CREATE TABLE EVENTS (CUSTOM_ID VARCHAR, event_name VARCHAR, event_date DATE)")
-  dbExecute(con, "CREATE TABLE PATIENTS (CUSTOM_ID VARCHAR, name VARCHAR, age INTEGER)")
+  DBI::dbExecute(
+    con,
+    paste0(
+      "CREATE TABLE EVENTS (CUSTOM_ID VARCHAR, ",
+      "event_name VARCHAR, event_date DATE)"
+    )
+  )
+  DBI::dbExecute(
+    con, "CREATE TABLE PATIENTS (CUSTOM_ID VARCHAR, name VARCHAR, age INTEGER)"
+  )
 
   # Insert test data
-  dbExecute(con, "INSERT INTO EVENTS VALUES ('EVENTS-1', 'admission', '2023-01-01')")
-  dbExecute(con, "INSERT INTO EVENTS VALUES ('EVENTS-2', 'discharge', '2023-01-05')")
-  dbExecute(con, "INSERT INTO EVENTS VALUES ('EVENTS-3', 'test', '2023-01-03')")
+  DBI::dbExecute(
+    con, "INSERT INTO EVENTS VALUES ('EVENTS-1', 'admission', '2023-01-01')"
+  )
+  DBI::dbExecute(
+    con, "INSERT INTO EVENTS VALUES ('EVENTS-2', 'discharge', '2023-01-05')"
+  )
+  DBI::dbExecute(
+    con, "INSERT INTO EVENTS VALUES ('EVENTS-3', 'test', '2023-01-03')"
+  )
 
-  dbExecute(con, "INSERT INTO PATIENTS VALUES ('PATIENTS-101', 'John Doe', 45)")
-  dbExecute(con, "INSERT INTO PATIENTS VALUES ('PATIENTS-102', 'Jane Smith', 32)")
+  DBI::dbExecute(
+    con, "INSERT INTO PATIENTS VALUES ('PATIENTS-101', 'John Doe', 45)"
+  )
+  DBI::dbExecute(
+    con, "INSERT INTO PATIENTS VALUES ('PATIENTS-102', 'Jane Smith', 32)"
+  )
 
-  return(con)
+  con
 }
 # Tests
 test_that("get_origin_row correctly retrieves data from a single table", {
@@ -114,7 +136,7 @@ test_that("get_origin_row handles non-existent tables gracefully", {
 
 test_that("get_origin_row works with custom unique ori_id column name", {
   # Setup
-  con <- setup_test_db_customID()
+  con <- setup_test_db_custom_id()
   on.exit(dbDisconnect(con, shutdown = TRUE))
 
   # Create data with custom ori_id column
@@ -132,7 +154,10 @@ test_that("get_origin_row works with custom separator", {
   on.exit(dbDisconnect(con, shutdown = TRUE))
 
   # First add data with different separator
-  dbExecute(con, "INSERT INTO EVENTS VALUES ('EVENTS_4', 'follow-up', '2023-01-10')")
+  dbExecute(
+    con,
+    "INSERT INTO EVENTS VALUES ('EVENTS_4', 'follow-up', '2023-01-10')"
+  )
 
   # Test with underscore separator
   ids <- data.table(ori_id = c("EVENTS_4"))
@@ -143,19 +168,22 @@ test_that("get_origin_row works with custom separator", {
   expect_equal(result$EVENTS$ori_id, "EVENTS_4")
 })
 
-test_that("get_origin_row returns empty list when ori_id column doesn't exist", {
-  # Setup
-  con <- setup_test_db()
-  on.exit(dbDisconnect(con, shutdown = TRUE))
+test_that(
+  "get_origin_row returns empty list when ori_id column does not exist",
+  {
+    # Setup
+    con <- setup_test_db()
+    on.exit(dbDisconnect(con, shutdown = TRUE))
 
-  # Test with non-existent ori_id column
-  ids <- data.table(WRONG_COLUMN = c("EVENTS-1"))
-  result <- get_origin_row(con, ids)
+    # Test with non-existent ori_id column
+    ids <- data.table(WRONG_COLUMN = c("EVENTS-1"))
+    result <- get_origin_row(con, ids)
 
-  # Expectations
-  expect_type(result, "list")
-  expect_length(result, 0)
-})
+    # Expectations
+    expect_type(result, "list")
+    expect_length(result, 0)
+  }
+)
 
 test_that("get_origin_row handles data frames by converting to data.table", {
   # Setup
@@ -197,3 +225,71 @@ test_that("get_origin_row handles empty input gracefully", {
   expect_type(result, "list")
   expect_length(result, 0)
 })
+
+test_that("get_origin_row works reports wrong separator", {
+  # Setup
+  con <- setup_test_db()
+  on.exit(dbDisconnect(con, shutdown = TRUE))
+
+  # Test with underscore separator
+  ids <- data.table(ori_id = c("EVENTS-1"))
+  separator_id <- "_"
+  expect_message(
+    get_origin_row(con, ids, separator_id = "_"),
+                fixed = TRUE,
+               "[get_origin_row] The separator '_' does not exist in the unique identifiers"
+               
+   )
+
+})
+
+test_that("get_origin_row works reports wrong separator version 2", {
+  # Setup
+  con <- setup_test_db()
+  on.exit(dbDisconnect(con, shutdown = TRUE))
+  
+  # Test with underscore separator
+  ids <- data.table(ori_id = c("EVENTS-1", "EVENTS_2"))
+  separator_id <- "_"
+  expect_message(
+    get_origin_row(con, ids, separator_id = "_"),
+    fixed = TRUE,
+    "[get_origin_row] Some cases' unique identifier do not contain the separator '_'"
+  )
+  
+})
+
+test_that(
+  "get_origin_row returns handles wrong ori_id input value",
+  {
+    # Setup
+    con <- setup_test_db()
+    on.exit(dbDisconnect(con, shutdown = TRUE))
+    
+    # Test with underscore separator
+    ids <- data.table(INVENTEDNAME = c("EVENTS-1"))
+    expect_message(
+      get_origin_row(con, ids, id_name = 'INVENTEDNAME'),
+      fixed = TRUE,
+      "[get_origin_row] Column 'INVENTEDNAME' does not exist in table 'EVENTS'"
+      
+    )
+  }
+)
+
+test_that(
+  "get_origin_row returns empty when cases do not exist",
+  {
+    # Setup
+    con <- setup_test_db()
+    on.exit(dbDisconnect(con, shutdown = TRUE))
+    
+    # Test with underscore separator
+    ids <- data.table(ori_id = c("EVENTS-9999"))
+
+    result <- get_origin_row(con, ids)
+    # Expectations
+    expect_equal(nrow(result$EVENTS), 0)
+    
+  }
+)

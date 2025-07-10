@@ -23,11 +23,11 @@
 #' )
 #' }
 #'
-#' @export
+#' @keywords internal
 import_dap_specific_codelist <- function(codelist_path, codelist_name_db,
                                          db_connection, columns) {
   # Read the DAP-specific codelist from the file
-  codelist <- data.table::as.data.table(readRDS(file = codelist_path))
+  codelist <- T2.DMM:::ensure_data_table(readRDS(file = codelist_path))
 
   # Select specified columns and unique rows
   codelist <- unique(codelist[Comment %in% "BOTH", ..columns])

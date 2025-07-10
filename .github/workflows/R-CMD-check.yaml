@@ -45,3 +45,13 @@ jobs:
         with:
           upload-snapshots: true
           build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
+
+      - name: Install dependencies for test coverage
+        run: |
+          Rscript -e 'install.packages(c("remotes", "covr"))'
+          Rscript -e 'remotes::install_deps(dependencies = TRUE)'
+
+      - name: Run test coverage
+        run: |
+          Rscript -e 'print("Running test coverage...")'
+          Rscript -e 'covr::package_coverage()'

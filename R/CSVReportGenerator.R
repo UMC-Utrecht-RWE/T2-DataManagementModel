@@ -29,9 +29,9 @@
 #' Default is `"CSVReportGenerator"`.
 #'
 #' @importFrom readr write_csv
-#' @export
+#' @keywords internal
 CSVReportGenerator <- R6::R6Class("CSVReportGenerator", # nolint
-  inherit = ReportGenerator,
+  inherit = T2.DMM:::ReportGenerator,
   public = list(
     classname = "CSVReportGenerator",
 
@@ -41,11 +41,17 @@ CSVReportGenerator <- R6::R6Class("CSVReportGenerator", # nolint
     #' @param db_loader A `DatabaseLoader` object that provides the
     #' configuration details for saving the report.
     write_report = function(data, db_loader) {
+      report_path <- db_loader$config$report_generator$report_path
       dir_save <- file.path(
-        db_loader$config$report$report_path,
-        db_loader$config$report$report_name
+        report_path,
+        db_loader$config$report_generator$report_name
       )
+      message(glue::glue("Saving report to {report_path}"))
+      if (!dir.exists(dirname(dir_save))) {
+        stop(glue::glue("The directory {dirname(dir_save)} does not exist."))
+      }
       readr::write_csv(data, dir_save)
+      message(glue::glue("Report saved successfully."))
     },
 
     #' @description

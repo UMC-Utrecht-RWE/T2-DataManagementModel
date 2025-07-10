@@ -68,10 +68,12 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
     data_instance = NULL,
     config_path = NULL,
     cdm_metadata = NULL,
+
     # Internal attributes
     config = NULL,
     metadata = NULL,
     db = NULL,
+
     #' @description
     #' Initializes the class with the provided parameters.
     #' @param db_path A string representing the path to the database file.
@@ -85,33 +87,33 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
       self$db_path <- db_path
       self$data_instance <- data_instance
       self$config <- jsonlite::fromJSON(config_path)
-      self$metadata <- data.table::as.data.table(
-        base::readRDS(cdm_metadata)
-      )
-      tryCatch(
-        {
-          self$db <- duckdb::dbConnect(duckdb::duckdb(), self$db_path)
-        },
-        error = function(e) {
-          print(paste("Error connecting to database:", e))
-        }
-      )
+      # Load cdm_metadata
+      if (is.character(cdm_metadata) && grepl("\\.rds$", cdm_metadata)) {
+        self$metadata <- T2.DMM:::ensure_data_table(base::readRDS(cdm_metadata))
+      } else if (is.data.table(cdm_metadata)) {
+        self$metadata <- cdm_metadata
+      } else {
+        stop("cdm_metadata not valid data.table object.")
+      }
+
+      self$db <- duckdb::dbConnect(duckdb::duckdb(), self$db_path)
     },
     #' @description
     #' Loads the database with the required data using config and metadata.
     set_database = function() {
-      print("Setting up the database")
+      message("Setting up the database")
       tryCatch(
         {
-          T2.DMM::load_db(
+          T2.DMM:::load_db(
             db_connection = self$db,
-            csv_path_dir = self$data_instance,
+            data_instance_path = self$data_instance,
             cdm_metadata = self$metadata,
-            cdm_tables_names = self$config$cdm_tables_names
+            cdm_tables_names = self$config$cdm_tables_names,
+            extension_name = self$config$extension_name
           )
         },
         error = function(e) {
-          print(paste("Error loading database:", e))
+          message(paste("Error loading database:", e))
         }
       )
     },
@@ -124,7 +126,7 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
         ops <- private$get_all_operations()
       }
       for (op in ops) {
-        print(glue::glue("Running class: {op$classname}"))
+        message(glue::glue("Running class: {op$classname}"))
         op$run(self)
       }
       DBI::dbDisconnect(self$db)
@@ -132,52 +134,38 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
     }
   ),
   private = list(
-    clean_files = function(dir) {
-      files_to_remove <- Sys.glob(dir)
-      if (length(files_to_remove) > 0) {
-        print(paste("Removing files in:", dir))
-        unlink(files_to_remove, recursive = TRUE)
-      } else {
-        print(paste("No files to remove in:", dir))
-      }
-    },
     get_all_operations = function() {
-      print(glue::glue(
-        "Getting all operations from folder: {self$config$operations_path}"
-      ))
-      ops <- list()
-      op_files <- list.files(
-        self$config$operations_path,
-        pattern = "\\.R$", full.names = TRUE
-      )
-
       ordered_operations <- names(self$config$operations)
+      ops <- list() # Initialize an empty list to store operation objects
 
       for (operation in ordered_operations) {
-        operation_file <- op_files[
-          grepl(paste0("^", operation, "\\.R$"), basename(op_files))
-        ]
+        # Check if the operation is enabled in the JSON config
+        is_enabled <- isTRUE(self$config$operations[[operation]])
+        if (!is_enabled) {
+          next # Skip this operation if it's not enabled
+        }
 
-        if (length(operation_file) == 1) {
-          source(operation_file)
-          class_obj <- get(operation, envir = .GlobalEnv)
+        # Attempt to retrieve the class object from the T2.DMM package
+        class_obj <- tryCatch(
+          get(operation, envir = asNamespace("T2.DMM")),
+          error = function(e) NULL
+        )
 
-          inherits_from_dbop <- !is.null(class_obj$inherit) &&
-            class_obj$inherit == "DatabaseOperation"
-          is_enabled <- isTRUE(self$config$operations[[class_obj$classname]])
+        # Check if the class object inherits from "T2.DMM:::DatabaseOperation"
+        inherits_from_dbop <- !is.null(class_obj) &&
+          !is.null(class_obj$inherit) &&
+          class_obj$inherit == "T2.DMM:::DatabaseOperation"
 
-          if (inherits_from_dbop && is_enabled) {
-            print(glue::glue(("Loading operation: {class_obj$classname}")))
-            ops[[length(ops) + 1]] <- class_obj$new()
-          } else {
-            print(glue::glue("Skipped operation: {class_obj$classname}"))
-          }
+        if (inherits_from_dbop) {
+          message(glue::glue("Loading operation: {operation}"))
+          ops[[length(ops) + 1]] <- class_obj$new()
         } else {
-          print(
-            glue::glue("Operation file not found or ambiguous for: {operation}")
+          message(
+            glue::glue("{operation} not a valid DatabaseOperation class.")
           )
         }
       }
+
       ops
     }
   )
