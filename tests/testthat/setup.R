@@ -27,6 +27,7 @@ Sys.setenv(SHARED_METADATA_PATH = shared_metadata_path)
 # ====================
 set_database <- '{
   "data_model": "ConcePTION",
+  "file_format": "csv",
   "operations": {
     "DuplicateRemover": false,
     "MissingRemover": true,
@@ -61,6 +62,7 @@ Sys.setenv(CONFIG_SET_DB = config_set_database)
 # ====================
 config_json <- '{
   "data_model": "ConcePTION",
+  "file_format": "csv",
   "operations": {
     "DuplicateRemover": true,
     "MissingRemover": true,
@@ -115,6 +117,7 @@ Sys.setenv(CONFIG_PATH = config_path)
 # ====================
 set_absent <- '{
   "data_model": "ConcePTION",
+  "file_format": "csv",
   "operations": {
     "AbsentOperation": true
   },

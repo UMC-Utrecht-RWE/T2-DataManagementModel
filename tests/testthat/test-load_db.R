@@ -38,16 +38,6 @@ test_that("database gets loaded in auto", {
   )
 })
 
-test_that("database gets loaded in auto", {
-  T2.DMM:::load_db(
-    db_connection = db_connection_origin,
-    data_instance_path = "dbtest",
-    cdm_metadata = concePTION_metadata_v2,
-    cdm_tables_names = c("PERSONS", "VACCINES", "MEDICINES"),
-    file_format = 'parquet'
-  )
-})
-
 test_that("load foreign characters", {
   # latin1 character to test error message
   expect_error(
