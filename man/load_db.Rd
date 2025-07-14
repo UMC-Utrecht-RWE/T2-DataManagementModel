@@ -2,20 +2,21 @@
 % Please edit documentation in R/load_db.R
 \name{load_db}
 \alias{load_db}
-\title{Load CDM Data Set Instance from CSV Files into a Database}
+\title{Load CDM Data Set Instance from CSV or Parquet Files into a Database}
 \usage{
 load_db(
   db_connection,
   data_instance_path,
   cdm_metadata,
   cdm_tables_names,
-  extension_name = ""
+  extension_name = "",
+  file_format = "auto"
 )
 }
 \arguments{
 \item{db_connection}{A database connection object (SQLiteConnection).}
 
-\item{data_instance_path}{Path to the CSV CDM database.}
+\item{data_instance_path}{Path to the CSV/Parquet CDM database.}
 
 \item{cdm_metadata}{Data.table with Table name, Variable name, and Format.}
 
@@ -23,9 +24,12 @@ load_db(
 
 \item{extension_name}{String to be added to the name of the tables, useful
 when loading different CDM instances in the same DB.}
+
+\item{file_format}{Character string specifying file format: "csv", "parquet", or "auto".
+If "auto", the function will detect and prioritize parquet files over csv.}
 }
 \description{
-This function is designed for loading a CDM data set instance from CSV files
-into a database.
+This function is designed for loading a CDM data set instance from CSV or 
+Parquet files into a database.
 }
 \keyword{internal}
