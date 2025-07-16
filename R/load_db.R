@@ -185,7 +185,7 @@ load_db <- function(
     # ===== DATE COLUMN TYPE CONVERSION =====
     # Find date columns that actually exist in the loaded table
     convert_date_columns(db_connection, table, cols_in_table, date_cols_format1, date_cols_format2)
-   
+    
     # ===== CHARACTER COLUMN CLEANUP =====
     # Identify character columns that are not date columns
     
@@ -255,12 +255,15 @@ convert_single_date_column <- function(db_connection, table, col_name, date_cols
   tryCatch({
     # Always use string-based conversion assuming YYYYMMDD format
     if(in_format1 == TRUE){
-      convert_yyyymmdd_date_column(db_connection, table, col_name)
+      convert_string_date_column(db_connection, table, col_name)
     }
     
     attempt_direct_conversion(db_connection, table, col_name)
     
-    message(paste0("      Column '", col_name, "' successfully converted to DATE from YYYYMMDD format."))
+    message(paste0("      Column '", col_name, "' successfully converted to DATE from ",
+                   if(in_format1){"YYYYMMDD"}
+                   else{"YYYY-MM-DD"}
+                   ," format."))
     return(list(column = col_name, success = TRUE, method = "yyyymmdd"))
     
   }, error = function(e) {
@@ -294,6 +297,3 @@ attempt_direct_conversion <- function(db_connection, table, col_name) {
   sql <- paste0("ALTER TABLE ", table, " ALTER COLUMN ", col_name, " TYPE DATE;")
   DBI::dbExecute(db_connection, sql)
 }
-
-# Usage example (replace your existing code block with this):
-# 
