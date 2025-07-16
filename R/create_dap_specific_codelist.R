@@ -4,7 +4,7 @@
 #' (you can use the function getUniqueCodeList) with a study code list.
 #'
 #' @param unique_codelist Data.table containing unique code list output
-#' from the function getUniqueCodeList. Must contain columns: 'coding_system', 
+#' from the function getUniqueCodeList. Must contain columns: 'coding_system',
 #' 'code', 'concept_id', and 'code.unique_condelist'.
 #' @param study_codelist Data.table containing the study code list.
 #' Must contain columns: 'coding_system' and 'code'.

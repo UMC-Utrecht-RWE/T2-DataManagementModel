@@ -10,7 +10,7 @@ test_that("Checking the result is a data.table", {
   )
 
   # Extract unique codelist from the MEDICINES table
-  unique_codelist <- get_unique_codelist(
+  unique_codelist <- T2.DMM:::get_unique_codelist(
     db_connection = db_con,
     column_info_list = column_info_list,
     tb_name = "MEDICINES"
@@ -59,7 +59,7 @@ test_that("Checking the check messages of the expected format of the codelist
 
             # Extract unique codelist and ensure it is a data.table
             unique_codelist <- as.data.table(
-              get_unique_codelist(
+              T2.DMM:::get_unique_codelist(
                 db_connection = db_con,
                 column_info_list = column_info_list,
                 tb_name = "MEDICINES"
@@ -195,7 +195,7 @@ test_that("Checking the check messages of the expected format of the codelist
 
             # Extract unique codelist and ensure it is a data.table
             unique_codelist <- as.data.table(
-              get_unique_codelist(
+              T2.DMM:::get_unique_codelist(
                 db_connection = db_con,
                 column_info_list = column_info_list,
                 tb_name = "MEDICINES"
@@ -246,7 +246,7 @@ test_that("Checking the check messages of the expected format of the codelist
 
             # Extract unique codelist and ensure it is a data.table
             unique_codelist <- as.data.table(
-              get_unique_codelist(
+              T2.DMM:::get_unique_codelist(
                 db_connection = db_con,
                 column_info_list = column_info_list,
                 tb_name = "MEDICINES"
