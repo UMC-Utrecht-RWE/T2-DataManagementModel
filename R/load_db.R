@@ -117,11 +117,17 @@ load_db <- function(
     mandatory_missing_in_db <- unique(
       mandatory_colums[!mandatory_colums %in% cols_in_table]
     )
-    # Extract date and character column specifications from metadata
-    date_cols <- cdm_metadata[
+    # Extract date and character column specifications from metadata with format yyyymmdd
+    date_cols_format1 <- cdm_metadata[
       TABLE %in% table & stringr::str_detect(Format, "yyyymmdd") == TRUE,
       Variable
     ]
+    # Extract date and character column specifications from metadata with format yyyy-mm-dd
+    date_cols_format2 <- cdm_metadata[
+      TABLE %in% table & stringr::str_detect(Format, "yyyy-mm-dd") == TRUE,
+      Variable
+    ]
+    date_cols <- c(date_cols_format1, date_cols_format2)
     character_cols <- cdm_metadata[
       TABLE %in% table & stringr::str_detect(Format, "Character") == TRUE,
       Variable
@@ -174,83 +180,12 @@ load_db <- function(
       }))
     }
     
+    
+    
     # ===== DATE COLUMN TYPE CONVERSION =====
     # Find date columns that actually exist in the loaded table
-    available_date_cols <- cols_in_table[cols_in_table %in% date_cols]
-    
-    if (length(available_date_cols) > 0) {
-      message(paste0("[load_db]: The following columns are identified with date format: "
-                     , paste(available_date_cols, collapse = ',')
-      ))
-      invisible(lapply(available_date_cols, function(new_column) {
-        message(paste0('Converting: ', new_column))
-        tryCatch(
-          {
-            # For parquet files, dates might already be in proper format
-            # Try direct conversion first
-            DBI::dbExecute(db_connection, paste0(
-              "ALTER TABLE ", table, " ALTER ", new_column, " TYPE DATE;"
-            ))
-          },
-          error = function(e) {
-            # If direct conversion fails
-            message("      Direct conversion failed. Attempting to fix with STRPTIME.")
-            
-            # Handle different date formats that might come from parquet vs csv
-            if (selected_format == "parquet") {
-              # Parquet might have dates in different formats
-              # Try common parquet date formats first
-              tryCatch({
-                DBI::dbExecute(db_connection, paste0(
-                  "UPDATE ", table,
-                  " SET ", new_column, " = CAST(", new_column, " AS DATE) WHERE ",
-                  new_column, " IS NOT NULL;"
-                ))
-              }, error = function(e2) {
-                # Fall back to string-based conversion
-                DBI::dbExecute(db_connection, paste0(
-                  "UPDATE ", table,
-                  " SET ", new_column, " = NULL WHERE ",
-                  new_column, " NOT SIMILAR TO '^[0-9]{8}$|^[0-9]{4}-[0-9]{2}-[0-9]{2}$';"
-                ))
-                
-                # Handle both YYYYMMDD and YYYY-MM-DD formats
-                DBI::dbExecute(db_connection, paste0(
-                  "UPDATE ", table,
-                  " SET ", new_column, " = CASE 
-                  WHEN ", new_column, " SIMILAR TO '^[0-9]{8}$' THEN STRPTIME(", new_column, ", '%Y%m%d')
-                  WHEN ", new_column, " SIMILAR TO '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' THEN STRPTIME(", new_column, ", '%Y-%m-%d')
-                  ELSE NULL
-                END WHERE ", new_column, " IS NOT NULL;"
-                ))
-              })
-            } else {
-              # CSV format handling (original logic)
-              # Nullify invalid values first
-              DBI::dbExecute(db_connection, paste0(
-                "UPDATE ", table,
-                " SET ", new_column, " = NULL WHERE ",
-                new_column, " NOT SIMILAR TO '^[0-9]{8}$';"
-              ))
-              
-              # Apply STRPTIME to reformat valid date strings
-              DBI::dbExecute(db_connection, paste0(
-                "UPDATE ", table,
-                " SET ", new_column, " = STRPTIME(", new_column,
-                ", '%Y%m%d') WHERE ", new_column, " IS NOT NULL;"
-              ))
-            }
-            
-            # Retry altering the column type to DATE
-            DBI::dbExecute(db_connection, paste0(
-              "ALTER TABLE ", table, " ALTER ", new_column, " TYPE DATE;"
-            ))
-            
-            message("      Column successfully converted to DATE after fixing format.")
-          }
-        )
-      }))
-    }
+    convert_date_columns(db_connection, table, cols_in_table, date_cols_format1, date_cols_format2)
+   
     # ===== CHARACTER COLUMN CLEANUP =====
     # Identify character columns that are not date columns
     
@@ -276,3 +211,89 @@ load_db <- function(
     }))
   }
 }
+
+
+# ===== DATE COLUMN TYPE CONVERSION =====
+convert_date_columns <- function(db_connection, table, cols_in_table, date_cols_format1, date_cols_format2) {
+  
+  date_cols <- c(date_cols_format1,date_cols_format2)
+  # Find date columns that actually exist in the loaded table
+  available_date_cols <- intersect(cols_in_table, date_cols)
+  
+  if (length(available_date_cols) == 0) {
+    message("[load_db]: No date columns found in the table.")
+    return(invisible())
+  }
+  
+  message(paste0("[load_db]: The following columns are identified with date format: ",
+                 paste(available_date_cols, collapse = ', ')))
+  
+  # Process each date column
+  conversion_results <- lapply(available_date_cols, function(col_name) {
+    convert_single_date_column(db_connection, table, col_name, date_cols_format1, date_cols_format2)
+  })
+  
+  # Summary of results
+  successful <- sum(sapply(conversion_results, function(x) x$success))
+  failed <- length(conversion_results) - successful
+  
+  if (failed > 0) {
+    warning(paste0("[load_db]: ", failed, " date column(s) failed to convert properly."))
+  }
+  
+  message(paste0("[load_db]: Date conversion completed. Success: ", successful, 
+                 ", Failed: ", failed))
+  
+  return(invisible(conversion_results))
+}
+
+convert_single_date_column <- function(db_connection, table, col_name, date_cols_format1, date_cols_format2) {
+  message(paste0('Converting: ', col_name))
+  in_format1 <- any(col_name %in% date_cols_format1)
+  in_format2 <- any(col_name %in% date_cols_format2)
+  
+  tryCatch({
+    # Always use string-based conversion assuming YYYYMMDD format
+    if(in_format1 == TRUE){
+      convert_yyyymmdd_date_column(db_connection, table, col_name)
+    }
+    
+    attempt_direct_conversion(db_connection, table, col_name)
+    
+    message(paste0("      Column '", col_name, "' successfully converted to DATE from YYYYMMDD format."))
+    return(list(column = col_name, success = TRUE, method = "yyyymmdd"))
+    
+  }, error = function(e) {
+    warning(paste0("      Failed to convert column '", col_name, "': ", e$message))
+    return(list(column = col_name, success = FALSE, error = e$message))
+  })
+}
+
+attempt_direct_conversion <- function(db_connection, table, col_name) {
+  sql <- paste0("ALTER TABLE ", table, " ALTER COLUMN ", col_name, " TYPE DATE;")
+  DBI::dbExecute(db_connection, sql)
+}
+
+convert_string_date_column <- function(db_connection, table, col_name) {
+  # Nullify invalid values first
+  DBI::dbExecute(db_connection, paste0(
+    "UPDATE ", table,
+    " SET ", col_name, " = NULL WHERE ",
+    col_name, " NOT SIMILAR TO '^[0-9]{8}$';"
+  ))
+  
+  # Apply STRPTIME to reformat valid date strings
+  DBI::dbExecute(db_connection, paste0(
+    "UPDATE ", table,
+    " SET ", col_name, " = STRPTIME(", col_name,
+    ", '%Y%m%d') WHERE ", col_name, " IS NOT NULL;"
+  ))
+}
+
+attempt_direct_conversion <- function(db_connection, table, col_name) {
+  sql <- paste0("ALTER TABLE ", table, " ALTER COLUMN ", col_name, " TYPE DATE;")
+  DBI::dbExecute(db_connection, sql)
+}
+
+# Usage example (replace your existing code block with this):
+# 
