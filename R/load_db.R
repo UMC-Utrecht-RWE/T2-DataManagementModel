@@ -12,7 +12,7 @@
 #' @param file_format Character string specifying file format: "csv", "parquet", or "auto".
 #'   If "auto", the function will detect and prioritize parquet files over csv.
 #'
-#' @keywords internal
+#' @export
 load_db <- function(
     db_connection,
     data_instance_path,
