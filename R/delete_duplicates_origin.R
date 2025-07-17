@@ -31,7 +31,7 @@
 #' )
 #' }
 #'
-#' @keywords internal
+#' @export
 delete_duplicates_origin <- function(
     db_connection,
     scheme,

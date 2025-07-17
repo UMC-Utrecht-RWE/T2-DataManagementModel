@@ -20,7 +20,7 @@
 #' )
 #' create_indexes(db_conn, specs)
 #' }
-#' @keywords internal
+#' @export
 create_indexes <- function(db_conn, specs) {
   # Loop through the table names in the specs list
   for (table_name in names(specs)) {

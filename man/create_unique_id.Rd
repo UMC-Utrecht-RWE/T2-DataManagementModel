@@ -49,4 +49,3 @@ create_unique_id(db_connection, cdm_tables_names,
 }
 
 }
-\keyword{internal}

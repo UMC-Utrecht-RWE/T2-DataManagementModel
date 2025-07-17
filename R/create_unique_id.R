@@ -28,7 +28,7 @@
 #' )
 #' }
 #'
-#' @keywords internal
+#' @export
 create_unique_id <- function(
   db_connection,
   cdm_tables_names,

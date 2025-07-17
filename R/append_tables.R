@@ -10,7 +10,7 @@
 #' @param return if TRUE, the function returns the resulting data frame
 #' @param sqlite_temp if TRUE, the SQL table created is temporary
 #'
-#' @keywords internal
+#' @export
 append_tables <- function(
   db,
   tables,
