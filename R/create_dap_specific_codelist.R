@@ -19,7 +19,7 @@
 #' \dontrun{
 #' # Example usage:
 #' result <- create_dap_specific_codelist(unique_codelist, study_codelist,
-#'   additional_columns = NA, priority = NA
+#'   priority = NA
 #' )
 #' }
 #'
@@ -31,11 +31,11 @@ create_dap_specific_codelist <- function(
       "ICD10CM", "ICD10", "ICD10DA", "ICD9CM", "MTHICD9",
       "ICPC", "ICPC2P", "ICPC2EENG", "ATC", "vx_atc"
     ),
-    additional_columns = NA,
     priority = NA) {
 
+  ############################
   # Data Input Requirements Validation
-
+  ############################
   # Check if inputs are provided
   if (missing(unique_codelist) || is.null(unique_codelist)) {
     stop("unique_codelist is required and cannot be NULL or missing")
@@ -59,16 +59,20 @@ create_dap_specific_codelist <- function(
   }
 
   # Required columns for unique_codelist
-  required_unique_cols <- c("coding_system", "code")
-  missing_unique_cols <- setdiff(required_unique_cols, names(unique_codelist))
+  missing_unique_cols <- setdiff(
+    c("coding_system", "code"),
+    names(unique_codelist)
+  )
   if (length(missing_unique_cols) > 0) {
     stop(paste("unique_codelist is missing required columns:",
                paste(missing_unique_cols, collapse = ", ")))
   }
 
   # Required columns for study_codelist
-  required_study_cols <- c("coding_system", "code", "concept_id")
-  missing_study_cols <- setdiff(required_study_cols, names(study_codelist))
+  missing_study_cols <- setdiff(
+    c("coding_system", "code", "concept_id"),
+    names(study_codelist)
+  )
   if (length(missing_study_cols) > 0) {
     stop(paste("study_codelist is missing required columns:",
                paste(missing_study_cols, collapse = ", ")))
@@ -85,11 +89,13 @@ create_dap_specific_codelist <- function(
     stop("study_codelist$coding_system must be character or factor")
   }
 
-  if (!is.character(unique_codelist$code) && !is.factor(unique_codelist$code)) {
+  if (!is.character(unique_codelist$code) &&
+        !is.factor(unique_codelist$code)) {
     stop("unique_codelist$code must be character or factor")
   }
 
-  if (!is.character(study_codelist$code) && !is.factor(study_codelist$code)) {
+  if (!is.character(study_codelist$code) &&
+        !is.factor(study_codelist$code)) {
     stop("study_codelist$code must be character or factor")
   }
 
@@ -129,6 +135,9 @@ create_dap_specific_codelist <- function(
   if (!is.character(start_with_colls)) {
     stop("start_with_colls must be a character vector")
   }
+  ############################
+  # End of Validation
+  ############################
 
   # Preprocessing the study_codelist
   study_codelist[, code_no_dot := gsub("\\.", "", code)]
@@ -223,14 +232,11 @@ create_dap_specific_codelist <- function(
   }
 
   # Compile all results into one output
-  dap_specific_codelist <- exact_match
-
   if (nrow(start_unique_codelist) > 0) {
-    cols_sel <- names(start_exact_match)
     dap_specific_codelist <- data.table::rbindlist(
       list(
-        dap_specific_codelist,
-        results_startwith2[, ..cols_sel]
+        exact_match,
+        results_startwith2[, names(start_exact_match)]
       ),
       use.names = TRUE
     )

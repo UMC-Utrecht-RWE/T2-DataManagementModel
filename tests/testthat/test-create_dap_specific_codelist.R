@@ -2,7 +2,7 @@ testthat::test_that("Checking the result is a data.table", {
   # Setup: Create a test database connection with MEDICINES table
   db_con <- create_loaded_test_db(tables = c("MEDICINES"))
   # Ensure database connection is closed after test completion
-  withr::defer(DBI::dbDisconnect(db_con))
+  # withr::defer(DBI::dbDisconnect(db_con))
 
   # Define column mapping for extracting unique codes from the database
   column_info_list <- list(
