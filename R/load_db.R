@@ -237,7 +237,8 @@ load_db <- function(
               DBI::dbExecute(db_connection, paste0(
                 "UPDATE ", table,
                 " SET ", new_column, " = STRPTIME(", new_column,
-                ", '%Y%m%d') WHERE ", new_column, " IS NOT NULL;"
+                ", '%Y%m%d') WHERE ", new_column, " IS NOT NULL AND ",
+                new_column, " <> '';"))
               ))
             }
             
