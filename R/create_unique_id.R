@@ -16,7 +16,11 @@
 #' and the ROWID number.
 #' @param order_by_cols List of vector with column names which you can apply an
 #'  order by. E.g list(EVENTS = c('person_id','event_code'))
-#'
+#' @param scheme_name Optional schema name to prepend to table and view names.
+#' Default is `NULL`.
+#' @param on_view Logical. If `TRUE` (default), creates a view with the unique ID column.
+#' If `FALSE`, overwrites the original table.
+#' 
 #' @examples
 #' \dontrun{
 #' # Example usage of create_unique_id
@@ -30,24 +34,26 @@
 #'
 #' @keywords internal
 create_unique_id <- function(
-  db_connection,
-  cdm_tables_names,
-  extension_name = "",
-  id_name = "ori_id",
-  separator_id = "-",
-  order_by_cols = list()
+    db_connection,
+    cdm_tables_names,
+    extension_name = "",
+    id_name = "ori_id",
+    separator_id = "-",
+    order_by_cols = list(),
+    scheme_name = NULL,
+    on_view = TRUE
 ) {
   # Append the extension to CDM table names
   cdm_tables_names <- paste0(cdm_tables_names, extension_name)
-
+  
   # Retrieve the names of all tables in the database
   list_existing_tables <- DBI::dbListTables(db_connection)
-
+  
   # Get the existing tables among the specified CDM tables
   cdm_tables_names_existing <- cdm_tables_names[
     cdm_tables_names %in% list_existing_tables
   ]
-
+  
   # Check if tables exist in the database
   if (
     length(cdm_tables_names[!cdm_tables_names %in% list_existing_tables]) > 0
@@ -58,17 +64,17 @@ create_unique_id <- function(
     ))
     message(cdm_tables_names[!cdm_tables_names %in% list_existing_tables])
   }
-
+  
   order_by_flag <- FALSE
   if (length(order_by_cols) > 0) {
     order_by_flag <- TRUE
   }
-
+  
   # Loop through each existing CDM table
   for (table in cdm_tables_names_existing) {
     # Rename the table and create a new one with the unique identifier
-
-
+    
+    
     if (order_by_flag && !is.null(order_by_cols[[table]])) {
       columns_in_table <- DBI::dbListFields(db_connection, table)
       cols <- order_by_cols[[table]]
@@ -79,23 +85,37 @@ create_unique_id <- function(
     } else {
       order_by <- ""
     }
-    DBI::dbExecute(db_connection, paste0(
-      "CREATE TABLE temporal_table AS
+    if(!is.null(scheme_name)){
+      table_from_name <- paste0(scheme_name,'.',table)
+      view_name <- paste0(scheme_name,'.view_',table)
+    }else{
+      table_from_name <- table
+      view_name <- paste0('view_',table)
+    }
+    if(on_view == TRUE){
+      DBI::dbExecute(db_connection, paste0(
+        "CREATE VIEW ",view_name," AS
                                       SELECT  '", table, separator_id,
-      "' || rowid AS ", id_name, ",
+        "' || rowid AS ", id_name, ",
                                       '", table, "' AS ori_table,
 
                                       rowid AS ROWID, *
-                                      FROM ", table,
-      order_by
-    ), n = -1)
-
-    DBI::dbExecute(db_connection, paste0("DROP TABLE ", table), n = -1)
-
-    DBI::dbExecute(
-      db_connection,
-      paste0("ALTER TABLE temporal_table RENAME TO ", table)
-    )
-    message(paste0("[CreateUniqueIDCDM] Unique ID create for table: ", table))
+                                      FROM ", table_from_name,
+        order_by
+      ), n = -1)
+    }else{
+      DBI::dbExecute(db_connection, paste0("CREATE TABLE temporal_table AS\n                                      SELECT  '", 
+                                           table, separator_id, "' || rowid AS ", id_name, 
+                                           ",\n                                      '", table, 
+                                           "' AS ori_table,\n\n                                      rowid AS ROWID, *\n                                      FROM ", 
+                                           table_from_name, order_by), n = -1)
+      DBI::dbExecute(db_connection, paste0("DROP TABLE ", 
+                                           table_from_name), n = -1)
+      DBI::dbExecute(db_connection, paste0("ALTER TABLE temporal_table RENAME TO ", 
+                                           table_from_name))
+    }
+    
+    
+    message(paste0("[CreateUniqueIDCDM] Unique ID create for table: ", table_from_name))
   }
 }
