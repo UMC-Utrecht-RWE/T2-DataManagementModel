@@ -25,11 +25,12 @@ load_db(
 \item{extension_name}{String to be added to the name of the tables, useful
 when loading different CDM instances in the same DB.}
 
-\item{file_format}{Character string specifying file format: "csv", "parquet", or "auto".
+\item{file_format}{Character string specifying file format:
+"csv", "parquet", or "auto".
 If "auto", the function will detect and prioritize parquet files over csv.}
 }
 \description{
-This function is designed for loading a CDM data set instance from CSV or 
+This function is designed for loading a CDM data set instance from CSV or
 Parquet files into a database.
 }
 \keyword{internal}

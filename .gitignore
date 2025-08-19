@@ -1,3 +1,6 @@
+renv*
+.Rprofile
+
 # History files
 .Rhistory
 .Rapp.history
