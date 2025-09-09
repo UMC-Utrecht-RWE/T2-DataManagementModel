@@ -94,7 +94,7 @@ create_unique_id <- function(
     }
     if(on_view == TRUE){
       DBI::dbExecute(db_connection, paste0(
-        "CREATE VIEW ",view_name," AS
+        "CREATE OR REPLACE VIEW ",view_name," AS
                                       SELECT  '", table, separator_id,
         "' || rowid AS ", id_name, ",
                                       '", table, "' AS ori_table,
@@ -104,7 +104,7 @@ create_unique_id <- function(
         order_by
       ), n = -1)
     }else{
-      DBI::dbExecute(db_connection, paste0("CREATE TABLE temporal_table AS\n                                      SELECT  '", 
+      DBI::dbExecute(db_connection, paste0("CREATE OR REPLACE TABLE temporal_table AS\n                                      SELECT  '", 
                                            table, separator_id, "' || rowid AS ", id_name, 
                                            ",\n                                      '", table, 
                                            "' AS ori_table,\n\n                                      rowid AS ROWID, *\n                                      FROM ", 
