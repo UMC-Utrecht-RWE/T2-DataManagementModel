@@ -10,7 +10,10 @@ create_unique_id(
   extension_name = "",
   id_name = "ori_id",
   separator_id = "-",
-  order_by_cols = list()
+  order_by_cols = list(),
+  schema_name = NULL,
+  to_view = FALSE,
+  view_prefix = "view_"
 )
 }
 \arguments{
@@ -29,6 +32,12 @@ and the ROWID number.}
 
 \item{order_by_cols}{List of vector with column names which you can apply an
 order by. E.g list(EVENTS = c('person_id','event_code'))}
+
+\item{schema_name}{Optional schema name to prepend to table and view names.
+Default is `NULL`.}
+
+\item{to_view}{Logical. If `TRUE` (default), creates a view with the unique ID column.
+If `FALSE`, overwrites the original table.}
 }
 \description{
 This function generates a unique CDM ID for each data record of the specified
