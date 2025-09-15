@@ -16,9 +16,9 @@
 #' and the ROWID number.
 #' @param order_by_cols List of vector with column names which you can apply an
 #'  order by. E.g list(EVENTS = c('person_id','event_code'))
-#' @param scheme_name Optional schema name to prepend to table and view names.
+#' @param schema_name Optional schema name to prepend to table and view names.
 #' Default is `NULL`.
-#' @param on_view Logical. If `TRUE` (default), creates a view with the unique ID column.
+#' @param to_view Logical. If `TRUE` (default), creates a view with the unique ID column.
 #' If `FALSE`, overwrites the original table.
 #' 
 #' @examples
@@ -40,8 +40,9 @@ create_unique_id <- function(
     id_name = "ori_id",
     separator_id = "-",
     order_by_cols = list(),
-    scheme_name = NULL,
-    on_view = TRUE
+    schema_name = NULL,
+    to_view = FALSE,
+    view_prefix = 'view_'
 ) {
   # Append the extension to CDM table names
   cdm_tables_names <- paste0(cdm_tables_names, extension_name)
@@ -73,8 +74,6 @@ create_unique_id <- function(
   # Loop through each existing CDM table
   for (table in cdm_tables_names_existing) {
     # Rename the table and create a new one with the unique identifier
-    
-    
     if (order_by_flag && !is.null(order_by_cols[[table]])) {
       columns_in_table <- DBI::dbListFields(db_connection, table)
       cols <- order_by_cols[[table]]
@@ -85,29 +84,32 @@ create_unique_id <- function(
     } else {
       order_by <- ""
     }
-    if(!is.null(scheme_name)){
-      table_from_name <- paste0(scheme_name,'.',table)
-      view_name <- paste0(scheme_name,'.view_',table)
-    }else{
-      table_from_name <- table
-      view_name <- paste0('view_',table)
+    
+    table_from_name <- table
+    view_name <- paste0(view_prefix,table)
+    #Adjusting the name of the table to the Scheme where this is located in the database
+    if(!is.null(schema_name)){
+      table_from_name <- paste0(schema_name,'.',table_from_name)
+      view_name <- paste0(schema_name,'.',view_name)
     }
-    if(on_view == TRUE){
-      DBI::dbExecute(db_connection, paste0(
-        "CREATE OR REPLACE VIEW ",view_name," AS
-                                      SELECT  '", table, separator_id,
-        "' || rowid AS ", id_name, ",
-                                      '", table, "' AS ori_table,
-
-                                      rowid AS ROWID, *
-                                      FROM ", table_from_name,
-        order_by
-      ), n = -1)
+    
+    if(to_view == TRUE){
+      T2.DMM:::add_view(db_connection, 
+               pipeline = paste0(table_from_name,"_t2dmm"), 
+               base_table = table_from_name, 
+               transform_sql = paste0(
+                           "SELECT '", table, separator_id,"' || row_number() OVER () AS ", id_name, ",
+                                                '", table, "' AS ori_table,
+                                                row_number() OVER () AS ROWID, *
+                                                FROM %s",
+                           order_by
+                         ), 
+               final_alias = view_name)
     }else{
       DBI::dbExecute(db_connection, paste0("CREATE OR REPLACE TABLE temporal_table AS\n                                      SELECT  '", 
-                                           table, separator_id, "' || rowid AS ", id_name, 
+                                           table, separator_id, "' || row_number() OVER () AS ", id_name, 
                                            ",\n                                      '", table, 
-                                           "' AS ori_table,\n\n                                      rowid AS ROWID, *\n                                      FROM ", 
+                                           "' AS ori_table,\n\n                                      row_number() OVER () AS ROWID, *\n                                      FROM ", 
                                            table_from_name, order_by), n = -1)
       DBI::dbExecute(db_connection, paste0("DROP TABLE ", 
                                            table_from_name), n = -1)
