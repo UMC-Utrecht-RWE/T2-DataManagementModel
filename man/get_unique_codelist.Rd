@@ -60,4 +60,3 @@ unique_codelist_free_text <- result_list[[2]]
 }
 
 }
-\keyword{internal}
