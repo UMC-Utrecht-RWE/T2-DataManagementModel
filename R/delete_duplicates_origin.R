@@ -37,18 +37,37 @@ delete_duplicates_origin <- function(
     scheme,
     save_deleted = FALSE,
     save_path = NULL,
-    add_postfix = NA) {
-
+    add_postfix = NA,
+    schema_name = NULL,
+    to_view = FALSE,
+    view_prefix = 'view_') {
+  
+  if(is.null(schema_name)){
+    schema_name <- 'main'
+  }
+  
   valid_scheme <- list()
   # Check if specified columns in the scheme exist in the corresponding tables
   for (case_name in names(scheme)) {
-    if (case_name %in% DBI::dbListTables(db_connection)) {
+    if (table_exists(con = db_connection, table_name = case_name, schema = schema_name) == TRUE) {
+      
+      col_names <- DBI::dbGetQuery(
+        db_connection,
+        sprintf(
+          "SELECT column_name
+           FROM information_schema.columns
+           WHERE table_schema = %s AND table_name = %s
+           ORDER BY ordinal_position",
+          DBI::dbQuoteString(db_connection, schema_name),
+          DBI::dbQuoteString(db_connection, case_name)
+        )
+      )
       if (!all(
-        scheme[[case_name]] %in% DBI::dbListFields(db_connection, case_name)
+        scheme[[case_name]] %in% col_names$column_name
       ) && all(!scheme[[case_name]] %in% "*")) {
 
         wrong_cols <- scheme[[case_name]][
-          !scheme[[case_name]] %in% DBI::dbListFields(db_connection, case_name)
+          !scheme[[case_name]] %in% col_names$column_name
         ]
         message(paste0(
           "[delete_duplicates_origin]: Table ", case_name,
@@ -84,12 +103,29 @@ delete_duplicates_origin <- function(
                       WHERE rowid NOT IN
                        (
                        SELECT  MIN(rowid)
-                       FROM ", case_name, "
+                       FROM ",schema_name,".", case_name, "
                        GROUP BY ", cols_to_select, "
                        )")
-
+        if(to_view == TRUE){
+          view_name <- paste0(view_prefix, case_name)
+          query <-  paste0(
+            "SELECT *
+            FROM (
+                SELECT *,
+                       ROW_NUMBER() OVER (PARTITION BY ",cols_to_select,") AS rn
+                FROM %s
+            ) t
+            WHERE rn = 1;
+            "
+          )
+          T2.DMM:::add_view(con = db_connection, 
+                            pipeline = paste0(case_name,"_t2dmm"), 
+                            base_table = case_name, 
+                            transform_sql = query, 
+                            final_alias = view_name)
+        }
         # Execute the query and handle results
-        if (save_deleted == FALSE) {
+        if (save_deleted == FALSE & to_view == FALSE) {
           rs <- DBI::dbSendStatement(db_connection, query)
           DBI::dbHasCompleted(rs)
           num_rows <- DBI::dbGetRowsAffected(rs)
@@ -98,7 +134,7 @@ delete_duplicates_origin <- function(
             num_rows
           ))
           DBI::dbClearResult(rs)
-        } else if (save_deleted == TRUE && !is.null(save_path)) {
+        } else if (save_deleted == TRUE && !is.null(save_path) & to_view == FALSE) {
           rs <-  data.table::as.data.table(
             DBI::dbGetQuery(
               db_connection,
@@ -135,3 +171,31 @@ delete_duplicates_origin <- function(
     }
   }
 }
+
+#' Check if a table exists in a DuckDB database
+#'
+#' @param con A DBI connection to a DuckDB database.
+#' @param table_name Name of the table to check.
+#' @param schema Optional. Name of the schema to check within. Default is NULL, which checks all schemas.
+#' @return TRUE if the table exists, FALSE otherwise.
+table_exists <- function(con, table_name, schema = NULL) {
+  if (!is.null(schema)) {
+    sql <- sprintf(
+      "SELECT COUNT(*) AS n
+       FROM information_schema.tables
+       WHERE table_schema = '%s' AND table_name = '%s'",
+      schema, table_name
+    )
+  } else {
+    sql <- sprintf(
+      "SELECT COUNT(*) AS n
+       FROM information_schema.tables
+       WHERE table_name = '%s'",
+      table_name
+    )
+  }
+  
+  result <- DBI::dbGetQuery(con, sql)$n
+  return(result > 0)
+}
+
