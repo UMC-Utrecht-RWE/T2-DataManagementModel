@@ -12,7 +12,6 @@
 #' @param mode Either \code{"view"} (default) or \code{"materialized"}.
 #'   - In \code{"view"} mode, a pipeline of views is created using \code{add_view()}.
 #'   - In \code{"materialized"} mode, the original table is replaced with a cleaned version.
-#' @param log_fun Optional logging function. Defaults to \code{message}.
 #'
 #' @return Invisibly returns \code{TRUE} after processing all tables.
 #'
@@ -29,7 +28,7 @@
 #' # Overwrite tables with materialized cleaned version
 #' clean_missing_values(con, list_cols, mode = "materialized")
 #' }
-clean_missing_values <- function(con, list_columns_clean, mode = c("view", "materialized"), log_fun = message) {
+clean_missing_values <- function(con, list_columns_clean, mode = c("view", "materialized")) {
   mode <- match.arg(mode)
   
   # Get available tables
@@ -37,13 +36,20 @@ clean_missing_values <- function(con, list_columns_clean, mode = c("view", "mate
   
   for (table_to_clean in names(list_columns_clean)) {
     if (table_to_clean %in% tables_available) {
-      log_fun(sprintf("[Processing table] %s (%s mode)", table_to_clean, mode))
+      message(sprintf("[Processing table] %s (%s mode)", table_to_clean, mode))
+      
+      # Get column types from schema
+      col_info <- DBI::dbGetQuery(con, sprintf("PRAGMA table_info(%s)", table_to_clean))
       
       for (colname in list_columns_clean[[table_to_clean]]) {
-        filter_sql <- sprintf(
-          "%s IS NOT NULL AND %s <> '' AND %s <> 'NA'",
-          colname, colname, colname
-        )
+        col_type <- col_info$type[col_info$name == colname]
+        
+        # Build filter condition based on type
+        if (grepl("INT|REAL|DOUBLE|DECIMAL", toupper(col_type))) {
+          filter_sql <- sprintf("%s IS NOT NULL", colname)
+        } else {
+          filter_sql <- sprintf("%s IS NOT NULL AND %s <> '' AND %s <> 'NA'", colname, colname, colname)
+        }
         
         if (mode == "view") {
           # ---- Dynamic pipeline of views ----
@@ -74,13 +80,11 @@ clean_missing_values <- function(con, list_columns_clean, mode = c("view", "mate
           DBI::dbExecute(con, sprintf("DROP TABLE %s", table_to_clean))
           DBI::dbExecute(con, sprintf("ALTER TABLE %s RENAME TO %s", tmp_table, table_to_clean))
           
-          log_fun(sprintf("  -> Table %s overwritten with cleaned version", table_to_clean))
+          message(sprintf("  -> Table %s overwritten with cleaned version", table_to_clean))
         }
       }
     } else {
-      log_fun(sprintf("Table %s does not exist", table_to_clean))
+      message(sprintf("Table %s does not exist", table_to_clean))
     }
   }
-  
-  invisible(TRUE)
 }
