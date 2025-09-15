@@ -21,7 +21,7 @@ test_that("clean_missing_values creates views correctly", {
   list_cols <- list(PERSONS = "name")
   
   # Run in view mode
-  clean_missing_values(con, list_cols, mode = "view")
+  clean_missing_values(con, list_cols, to_view = TRUE)
   
   # Check that PERSONS_view exists
   views <- DBI::dbGetQuery(con, "SELECT table_name FROM information_schema.tables WHERE table_type='VIEW'")
@@ -58,7 +58,7 @@ test_that("clean_missing_values overwrites tables in materialized mode", {
   list_cols <- list(VACCINES = "vaccine")
   
   # Run in materialized mode
-  clean_missing_values(con, list_cols, mode = "materialized")
+  clean_missing_values(con, list_cols)
   
   # Check that the table still exists under the original name
   tables <- DBI::dbListTables(con)
@@ -80,7 +80,7 @@ test_that("clean_missing_values skips non-existing tables", {
   
 
   expect_message(
-    clean_missing_values(con, list_cols, mode = "view"),
+    clean_missing_values(con, list_cols, to_view = TRUE),
     fixed = TRUE,
     "Table NON_EXISTENT does not exist"
   )

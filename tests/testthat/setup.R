@@ -93,7 +93,8 @@ config_json <- '{
     "columns": {
       "PERSONS": ["country_of_birth"],
       "VACCINES": ["vx_lot_num"]
-    }
+    },
+    "to_view": false
   },
     "unique_id_generator":{
       "order_by_cols" : [],

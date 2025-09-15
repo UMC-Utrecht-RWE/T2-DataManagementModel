@@ -47,38 +47,11 @@ MissingRemover <- R6::R6Class("MissingRemover", # nolint
     #' the list of tables and columns to clean, and other configuration details.
     run = function(db_loader) {
       message(glue::glue("Removing missing values from tables."))
-      tables_available <- DBI::dbListTables(db_loader$db)
-
       cols_to_remove_miss <- db_loader$config$missing_remover$columns
-      for (index in seq_along(cols_to_remove_miss)) {
-        table_to_clean <- names(cols_to_remove_miss[index])
-
-        if (table_to_clean %in% tables_available) {
-          message(glue::glue(
-            "Deleting rows with missing values: {table_to_clean}"
-          ))
-
-          lapply(cols_to_remove_miss[index], function(x) {
-            query <- paste0(
-              "DELETE FROM ", table_to_clean,
-              " WHERE ", x, " IS NULL OR ", x, " = '' OR ", x, " = 'NA'"
-            )
-
-            result <- tryCatch(
-              {
-                affected <- DBI::dbExecute(db_loader$db, query)
-                if (affected == 0) {
-                  message(glue::glue("No missing rows in {table_to_clean}.{x}"))
-                } else {
-                  message(glue::glue("Deleted rows from {table_to_clean}.{x}"))
-                }
-              }
-            )
-          })
-        } else {
-          message(glue::glue("Table {table_to_clean} does not exist."))
-        }
-      }
+      to_view_bool <- db_loader$config$missing_remover$to_view
+      clean_missing_values(con = db_loader$db, 
+                                    list_columns_clean = cols_to_remove_miss, 
+                                    to_view = to_view_bool)
       message(glue::glue("Missing values removed."))
     }
   )

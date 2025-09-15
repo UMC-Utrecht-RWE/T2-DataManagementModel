@@ -9,9 +9,8 @@
 #' @param con A DBI connection to a DuckDB database.
 #' @param list_columns_clean A named list. Each element is a character vector of column
 #'   names to check for missing values. Names of the list must match table names in the database.
-#' @param mode Either \code{"view"} (default) or \code{"materialized"}.
-#'   - In \code{"view"} mode, a pipeline of views is created using \code{add_view()}.
-#'   - In \code{"materialized"} mode, the original table is replaced with a cleaned version.
+#' @param to_view Logical. If `TRUE` (default), creates a view with the unique ID column.
+#' If `FALSE`, overwrites the original table.
 #'
 #' @return Invisibly returns \code{TRUE} after processing all tables.
 #'
@@ -28,15 +27,14 @@
 #' # Overwrite tables with materialized cleaned version
 #' clean_missing_values(con, list_cols, mode = "materialized")
 #' }
-clean_missing_values <- function(con, list_columns_clean, mode = c("view", "materialized")) {
-  mode <- match.arg(mode)
+clean_missing_values <- function(con, list_columns_clean, to_view = FALSE) {
   
   # Get available tables
   tables_available <- DBI::dbListTables(con)
   
   for (table_to_clean in names(list_columns_clean)) {
     if (table_to_clean %in% tables_available) {
-      message(sprintf("[Processing table] %s (%s mode)", table_to_clean, mode))
+      message(sprintf("[clean_missing_values] %s ", table_to_clean))
       
       # Get column types from schema
       col_info <- DBI::dbGetQuery(con, sprintf("PRAGMA table_info(%s)", table_to_clean))
@@ -51,7 +49,7 @@ clean_missing_values <- function(con, list_columns_clean, mode = c("view", "mate
           filter_sql <- sprintf("%s IS NOT NULL AND %s <> '' AND %s <> 'NA'", colname, colname, colname)
         }
         
-        if (mode == "view") {
+        if (to_view == TRUE) {
           # ---- Dynamic pipeline of views ----
           transform_sql <- sprintf("SELECT * FROM %%s WHERE %s", filter_sql)
           pipeline_name <- paste0(table_to_clean, "_pipeline")
@@ -65,7 +63,7 @@ clean_missing_values <- function(con, list_columns_clean, mode = c("view", "mate
             final_alias = final_alias
           )
           
-        } else if (mode == "materialized") {
+        } else if (to_view == FALSE) {
           # ---- Overwrite original table with cleaned version ----
           tmp_table <- paste0(table_to_clean, "_tmp_clean")
           
