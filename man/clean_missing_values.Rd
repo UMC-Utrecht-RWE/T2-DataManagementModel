@@ -4,7 +4,7 @@
 \alias{clean_missing_values}
 \title{Clean tables by removing rows with missing values}
 \usage{
-clean_missing_values(con, list_columns_clean, mode = c("view", "materialized"))
+clean_missing_values(con, list_columns_clean, to_view = FALSE)
 }
 \arguments{
 \item{con}{A DBI connection to a DuckDB database.}
@@ -12,9 +12,8 @@ clean_missing_values(con, list_columns_clean, mode = c("view", "materialized"))
 \item{list_columns_clean}{A named list. Each element is a character vector of column
 names to check for missing values. Names of the list must match table names in the database.}
 
-\item{mode}{Either \code{"view"} (default) or \code{"materialized"}.
-- In \code{"view"} mode, a pipeline of views is created using \code{add_view()}.
-- In \code{"materialized"} mode, the original table is replaced with a cleaned version.}
+\item{to_view}{Logical. If `TRUE` (default), creates a view with the unique ID column.
+If `FALSE`, overwrites the original table.}
 }
 \value{
 Invisibly returns \code{TRUE} after processing all tables.
