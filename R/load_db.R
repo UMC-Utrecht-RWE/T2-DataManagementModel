@@ -238,7 +238,8 @@ load_db <- function(
                 "UPDATE ", table,
                 " SET ", new_column, " = STRPTIME(", new_column,
                 ", '%Y%m%d') WHERE ", new_column, " IS NOT NULL AND ",
-                new_column, " <> '';"))
+                new_column, " <> '';"
+              ))
             }
             
             # Retry altering the column type to DATE
