@@ -4,7 +4,7 @@
 \alias{add_view}
 \title{Add a transformation step to a DuckDB view pipeline}
 \usage{
-add_view(con, pipeline, transform_sql, base_table = NULL, final_alias)
+add_view(con, pipeline, transform_sql, base_table = NULL)
 }
 \arguments{
 \item{con}{A DBI connection object to a DuckDB database.}
@@ -16,9 +16,6 @@ for the current head view of the pipeline.}
 
 \item{base_table}{Optional. The name of the base table to initialize the pipeline if it
 does not exist. Required only for the first step.}
-
-\item{final_alias}{The name of the final view that should always point to the latest
-version of the pipeline.}
 }
 \value{
 Invisibly returns the name of the newly created versioned view in the pipeline.
@@ -36,12 +33,10 @@ a specified base table and create the first version.
 # Initialize or add to the pipeline
 add_view(con, "persons_pipeline",
          "SELECT DISTINCT * FROM \%s",
-         base_table = "persons",
-         final_alias = "persons_view")
+         base_table = "persons")
 
 add_view(con, "persons_pipeline",
-         "SELECT *, LENGTH(name) AS name_len FROM \%s",
-         final_alias = "persons_view")
+         "SELECT *, LENGTH(name) AS name_len FROM \%s" )
 
 # Query the final transformed view
 DBI::dbGetQuery(con, "SELECT * FROM persons_view LIMIT 5")
