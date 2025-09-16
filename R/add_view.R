@@ -31,7 +31,7 @@
 #'
 #' # Query the final transformed view
 #' DBI::dbGetQuery(con, "SELECT * FROM persons_view LIMIT 5")
-#' @keywords internal
+#' @export
 #' 
 add_view <- function(con, pipeline, transform_sql, base_table = NULL, final_alias) {
   # Ensure the pipeline registry exists
