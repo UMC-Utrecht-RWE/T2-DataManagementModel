@@ -1,4 +1,4 @@
-test_that("clean_missing_values creates views correctly", {
+test_that("VIEW clean_missing_values creates views correctly", {
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = ":memory:")
   
   # Sample table
@@ -25,10 +25,10 @@ test_that("clean_missing_values creates views correctly", {
   
   # Check that PERSONS_view exists
   views <- DBI::dbGetQuery(con, "SELECT table_name FROM information_schema.tables WHERE table_type='VIEW'")
-  expect_true("PERSONS_T2DMM" %in% views$table_name)
+  expect_true(all(c("PERSONS_T2DMM_view_1","PERSONS_T2DMM_view_2") %in% views$table_name))
   
   # Check data from the view
-  res <- DBI::dbGetQuery(con, "SELECT * FROM PERSONS_T2DMM ORDER BY person_id")
+  res <- DBI::dbGetQuery(con, "SELECT * FROM PERSONS_T2DMM_view_2 ORDER BY person_id")
   expect_equal(res$person_id, c(1, 5)) # Only valid rows remain
   
   DBI::dbDisconnect(con, shutdown = TRUE)

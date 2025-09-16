@@ -7,9 +7,9 @@
 clean_missing_values(
   con,
   list_columns_clean,
+  schema_name = NULL,
   to_view = FALSE,
-  pipeline_extension = "_T2DMM",
-  view_extension = "_T2DMM"
+  pipeline_extension = "_T2DMM"
 )
 }
 \arguments{

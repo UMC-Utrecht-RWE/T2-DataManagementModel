@@ -28,10 +28,13 @@
 #' # Overwrite tables with materialized cleaned version
 #' clean_missing_values(con, list_cols, mode = "materialized")
 #' }
-clean_missing_values <- function(con, list_columns_clean, 
+clean_missing_values <- function(con, list_columns_clean,
+                                 schema_name = NULL,
                                  to_view = FALSE, 
-                                 pipeline_extension = '_T2DMM', 
-                                 view_extension = '_T2DMM') {
+                                 pipeline_extension = '_T2DMM') {
+  if(is.null(schema_name)){
+    schema_name <- 'main'
+  }
   
   # Get available tables
   tables_available <- DBI::dbListTables(con)
@@ -57,14 +60,12 @@ clean_missing_values <- function(con, list_columns_clean,
           # ---- Dynamic pipeline of views ----
           transform_sql <- sprintf("SELECT * FROM %%s WHERE %s", filter_sql)
           pipeline_name <- paste0(table_to_clean, pipeline_extension)
-          final_alias   <- paste0(table_to_clean, view_extension)
-          
+          table_from_name <- paste0(schema_name,'.',table_to_clean)
           add_view(
             con = con,
             pipeline = pipeline_name,
             base_table = table_to_clean,   # only used if pipeline not initialized
-            transform_sql = transform_sql,
-            final_alias = final_alias
+            transform_sql = transform_sql
           )
           
         } else if (to_view == FALSE) {

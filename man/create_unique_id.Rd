@@ -13,8 +13,7 @@ create_unique_id(
   order_by_cols = list(),
   schema_name = NULL,
   to_view = FALSE,
-  pipeline_extension = "_T2DMM",
-  view_extension = "_T2DMM"
+  pipeline_extension = "_T2DMM"
 )
 }
 \arguments{

@@ -50,12 +50,10 @@ MissingRemover <- R6::R6Class("MissingRemover", # nolint
       cols_to_remove_miss <- db_loader$config$missing_remover$columns
       to_view_bool <- db_loader$config$missing_remover$to_view
       pipeline_extension_name <- db_loader$config$missing_remover$pipeline_extension
-      viex_extension_name <- db_loader$config$missing_remover$view_extension
       clean_missing_values(con = db_loader$db, 
                                     list_columns_clean = cols_to_remove_miss, 
                                     to_view = to_view_bool,
-                                     pipeline_extension = pipeline_extension_name, 
-                                     view_extension = viex_extension_name)
+                                     pipeline_extension = pipeline_extension_name)
       message(glue::glue("Missing values removed."))
     }
   )

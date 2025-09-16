@@ -13,8 +13,6 @@
 #'   for the current head view of the pipeline.
 #' @param base_table Optional. The name of the base table to initialize the pipeline if it
 #'   does not exist. Required only for the first step.
-#' @param final_alias The name of the final view that should always point to the latest
-#'   version of the pipeline.
 #'
 #' @return Invisibly returns the name of the newly created versioned view in the pipeline.
 #'
@@ -22,18 +20,16 @@
 #' # Initialize or add to the pipeline
 #' add_view(con, "persons_pipeline",
 #'          "SELECT DISTINCT * FROM %s",
-#'          base_table = "persons",
-#'          final_alias = "persons_view")
+#'          base_table = "persons")
 #'
 #' add_view(con, "persons_pipeline",
-#'          "SELECT *, LENGTH(name) AS name_len FROM %s",
-#'          final_alias = "persons_view")
+#'          "SELECT *, LENGTH(name) AS name_len FROM %s" )
 #'
 #' # Query the final transformed view
 #' DBI::dbGetQuery(con, "SELECT * FROM persons_view LIMIT 5")
 #' @export
 #' 
-add_view <- function(con, pipeline, transform_sql, base_table = NULL, final_alias) {
+add_view <- function(con, pipeline, transform_sql, base_table = NULL) {
   # Ensure the pipeline registry exists
   DBI::dbExecute(con, "
     CREATE TABLE IF NOT EXISTS _pipeline_registry (
@@ -50,8 +46,11 @@ add_view <- function(con, pipeline, transform_sql, base_table = NULL, final_alia
     if (is.null(base_table)) {
       stop("Pipeline does not exist yet. Please provide a base_table to initialize it.")
     }
+    
     # Initialize pipeline
-    first_view <- paste0(pipeline, "_v1")
+    first_view <- paste0(pipeline, "_view_1")
+    
+    message(paste0("Created first pipeline view of pipeline '", pipeline ,"' as '",first_view,"'"))
     
     DBI::dbExecute(con, sprintf(
       "CREATE OR REPLACE VIEW %s AS SELECT * FROM %s", 
@@ -63,21 +62,15 @@ add_view <- function(con, pipeline, transform_sql, base_table = NULL, final_alia
       VALUES ('%s', '%s')
     ", pipeline, first_view))
     
-    # Create final alias pointing to first view
-    DBI::dbExecute(con, sprintf(
-      "CREATE OR REPLACE VIEW %s AS SELECT * FROM %s",
-      final_alias, first_view
-    ))
   }
-  
   # Get current head
   current_view <- DBI::dbGetQuery(con, sprintf("
     SELECT current_view FROM _pipeline_registry WHERE pipeline_name = '%s'
   ", pipeline))$current_view
   
   # New version
-  version <- as.integer(sub(".*_v", "", current_view)) + 1
-  new_view <- paste0(pipeline, "_v", version)
+  version <- as.integer(sub(".*_view_", "", current_view)) + 1
+  new_view <- paste0(pipeline, "_view_", version)
   
   # Apply transformation
   DBI::dbExecute(con, sprintf(
@@ -90,11 +83,5 @@ add_view <- function(con, pipeline, transform_sql, base_table = NULL, final_alia
     UPDATE _pipeline_registry SET current_view = '%s' WHERE pipeline_name = '%s'
   ", new_view, pipeline))
   
-  # Update final alias
-  DBI::dbExecute(con, sprintf(
-    "CREATE OR REPLACE VIEW %s AS SELECT * FROM %s",
-    final_alias, new_view
-  ))
-  
-  invisible(new_view)
+  message(paste0("Created view of pipeline '", pipeline ,"' as '",new_view,"'"))
 }

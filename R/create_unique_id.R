@@ -44,9 +44,11 @@ create_unique_id <- function(
     order_by_cols = list(),
     schema_name = NULL,
     to_view = FALSE,
-    pipeline_extension = '_T2DMM', 
-    view_extension = '_T2DMM'
+    pipeline_extension = '_T2DMM'
 ) {
+  if(is.null(schema_name)){
+    schema_name <- 'main'
+  }
   # Append the extension to CDM table names
   cdm_tables_names <- paste0(cdm_tables_names, extension_name)
   
@@ -89,15 +91,10 @@ create_unique_id <- function(
     }
     
     #Adjusting the name of the table to the Scheme where this is located in the database
-    if(!is.null(schema_name)){
-      table_from_name <- paste0(schema_name,'.',table)
-    }else{
-      table_from_name <- table
-    }
+    table_from_name <- paste0(schema_name,'.',table)
     
     if(to_view == TRUE){
-      pipeline_name <- paste0(table_from_name, pipeline_extension)
-      final_alias   <- paste0(table_from_name, view_extension)
+      pipeline_name <- paste0(table, pipeline_extension)
       T2.DMM:::add_view(db_connection, 
                pipeline = pipeline_name, 
                base_table = table_from_name, 
@@ -107,8 +104,7 @@ create_unique_id <- function(
                                                 row_number() OVER () AS ROWID, *
                                                 FROM %s",
                            order_by
-                         ), 
-               final_alias = final_alias)
+                         ))
     }else{
       DBI::dbExecute(db_connection, paste0("CREATE OR REPLACE TABLE temporal_table AS\n                                      SELECT  '", 
                                            table, separator_id, "' || row_number() OVER () AS ", id_name, 
@@ -117,8 +113,8 @@ create_unique_id <- function(
                                            table_from_name, order_by), n = -1)
       DBI::dbExecute(db_connection, paste0("DROP TABLE ", 
                                            table_from_name), n = -1)
-      DBI::dbExecute(db_connection, paste0("ALTER TABLE temporal_table RENAME TO ", 
-                                           table_from_name))
+      DBI::dbExecute(conn, paste0("CREATE TABLE ",table_from_name," AS SELECT * FROM temporal_table"))
+      DBI::dbExecute(conn, "DROP TABLE temporal_table")
     }
     
     

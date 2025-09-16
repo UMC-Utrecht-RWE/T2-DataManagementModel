@@ -59,8 +59,7 @@ delete_duplicates_origin <- function(
     add_postfix = NA,
     schema_name = NULL,
     to_view = FALSE,
-    pipeline_extension = '_T2DMM', 
-    view_extension = '_T2DMM') {
+    pipeline_extension = '_T2DMM') {
   
   if(is.null(schema_name)){
     schema_name <- 'main'
@@ -127,8 +126,9 @@ delete_duplicates_origin <- function(
                        GROUP BY ", cols_to_select, "
                        )")
         if(to_view == TRUE){
+          #Adjusting the name of the table to the Scheme where this is located in the database
+          table_from_name <- paste0(schema_name,'.',case_name)
           pipeline_name <- paste0(case_name, pipeline_extension)
-          final_alias   <- paste0(case_name, view_extension)
           query <-  paste0(
             "SELECT *
             FROM (
@@ -141,9 +141,8 @@ delete_duplicates_origin <- function(
           )
           T2.DMM:::add_view(con = db_connection, 
                             pipeline = pipeline_name, 
-                            base_table = case_name, 
-                            transform_sql = query, 
-                            final_alias = final_alias)
+                            base_table = table_from_name, 
+                            transform_sql = query)
         }
         # Execute the query and handle results
         if (save_deleted == FALSE & to_view == FALSE) {

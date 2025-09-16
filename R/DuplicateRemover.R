@@ -61,8 +61,7 @@ DuplicateRemover <- R6::R6Class("DuplicateRemover", # nolint
         save_path = db_loader$config$duplicate_remover$save_path,
         add_postfix = db_loader$config$duplicate_remover$add_postfix,
         to_view = db_loader$config$duplicate_remover$to_view, 
-        pipeline_extension = db_loader$config$duplicate_remover$pipeline_extension, 
-        view_extension = db_loader$config$duplicate_remover$viex_extension
+        pipeline_extension = db_loader$config$duplicate_remover$pipeline_extension
       )
       message(glue::glue("Duplicates removed."))
     }

@@ -12,8 +12,7 @@ delete_duplicates_origin(
   add_postfix = NA,
   schema_name = NULL,
   to_view = FALSE,
-  pipeline_extension = "_T2DMM",
-  view_extension = "_T2DMM"
+  pipeline_extension = "_T2DMM"
 )
 }
 \arguments{
