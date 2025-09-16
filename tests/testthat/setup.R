@@ -49,7 +49,8 @@ set_database <- '{
     "columns": {
       "PERSONS": ["country_of_birth"],
       "VACCINES": ["vx_lot_num"]
-    }
+    },
+    "to_view": false
   }
 }'
 
@@ -87,7 +88,8 @@ config_json <- '{
     "cdm_tables_columns": {
       "PERSONS": ["person_id", "country_of_birth"],
       "VACCINES": ["person_id", "vx_manufacturer"]
-    }
+    },
+    "to_view": false
   },
   "missing_remover": {
     "columns": {
@@ -100,7 +102,8 @@ config_json <- '{
       "order_by_cols" : [],
       "id_name" : "ori_id",
       "separator_id" : "-",
-      "instance_name": ""
+      "instance_name": "",
+      "to_view": false
     },
     "report_generator": {
       "report_path": ".",
