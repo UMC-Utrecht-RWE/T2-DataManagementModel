@@ -9,10 +9,7 @@ delete_duplicates_origin(
   scheme,
   save_deleted = FALSE,
   save_path = NULL,
-  add_postfix = NA,
-  schema_name = NULL,
-  to_view = FALSE,
-  view_prefix = "view_"
+  add_postfix = NA
 )
 }
 \arguments{
