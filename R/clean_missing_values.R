@@ -11,7 +11,8 @@
 #'   names to check for missing values. Names of the list must match table names in the database.
 #' @param to_view Logical. If `TRUE` (default), creates a view with the unique ID column.
 #' If `FALSE`, overwrites the original table.
-#'
+#' @param pipeline_extension When using views when applying the clean_missing_values on CDM table we must define the name of the pipeline extension. See add_view for more information.
+#' @param view_extension When using views when applying the clean_missing_values on CDM table we must define the name of the view. See add_view for more information.
 #' @return Invisibly returns \code{TRUE} after processing all tables.
 #'
 #' @examples
@@ -27,7 +28,10 @@
 #' # Overwrite tables with materialized cleaned version
 #' clean_missing_values(con, list_cols, mode = "materialized")
 #' }
-clean_missing_values <- function(con, list_columns_clean, to_view = FALSE) {
+clean_missing_values <- function(con, list_columns_clean, 
+                                 to_view = FALSE, 
+                                 pipeline_extension = '_T2DMM', 
+                                 view_extension = '_T2DMM') {
   
   # Get available tables
   tables_available <- DBI::dbListTables(con)
@@ -52,8 +56,8 @@ clean_missing_values <- function(con, list_columns_clean, to_view = FALSE) {
         if (to_view == TRUE) {
           # ---- Dynamic pipeline of views ----
           transform_sql <- sprintf("SELECT * FROM %%s WHERE %s", filter_sql)
-          pipeline_name <- paste0(table_to_clean, "_pipeline")
-          final_alias   <- paste0(table_to_clean, "_view")
+          pipeline_name <- paste0(table_to_clean, pipeline_extension)
+          final_alias   <- paste0(table_to_clean, view_extension)
           
           add_view(
             con = con,

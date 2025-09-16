@@ -10,7 +10,11 @@ create_unique_id(
   extension_name = "",
   id_name = "ori_id",
   separator_id = "-",
-  order_by_cols = list()
+  order_by_cols = list(),
+  schema_name = NULL,
+  to_view = FALSE,
+  pipeline_extension = "_T2DMM",
+  view_extension = "_T2DMM"
 )
 }
 \arguments{
@@ -29,6 +33,16 @@ and the ROWID number.}
 
 \item{order_by_cols}{List of vector with column names which you can apply an
 order by. E.g list(EVENTS = c('person_id','event_code'))}
+
+\item{schema_name}{Optional schema name to prepend to table and view names.
+Default is `NULL`.}
+
+\item{to_view}{Logical. If `TRUE` (default), creates a view with the unique ID column.
+If `FALSE`, overwrites the original table.}
+
+\item{pipeline_extension}{When using views when applying the clean_missing_values on CDM table we must define the name of the pipeline extension. See add_view for more information.}
+
+\item{view_extension}{When using views when applying the clean_missing_values on CDM table we must define the name of the view. See add_view for more information.}
 }
 \description{
 This function generates a unique CDM ID for each data record of the specified

@@ -1,6 +1,6 @@
-testthat::test_that("Checking the result is a data.table", {
+test_that("Checking the result is a data.table", {
   # Setup: Create a test database connection with MEDICINES table
-  db_con <- create_loaded_test_db(tables = c("MEDICINES"))
+  db_con <- suppressMessages(create_loaded_test_db(tables = c("MEDICINES")))
   # Ensure database connection is closed after test completion
   # withr::defer(DBI::dbDisconnect(db_con))
 
@@ -45,9 +45,9 @@ testthat::test_that("Checking the result is a data.table", {
 
 })
 
-testthat::test_that("Checking the check messages of the expected format of the codelist and unique codelist work", {
+test_that("Checking the check messages of the expected format of the codelist and unique codelist work", {
   # Setup: Create a test database connection with MEDICINES table
-  db_con <- create_loaded_test_db(tables = c("MEDICINES"))
+  db_con <- suppressMessages(create_loaded_test_db(tables = c("MEDICINES")))
   # Ensure database connection is closed after test completion
   withr::defer(DBI::dbDisconnect(db_con))
 
@@ -178,12 +178,11 @@ testthat::test_that("Checking the check messages of the expected format of the c
     fixed = TRUE
   )
 
-}
-)
+})
 
-testthat::test_that("Checking the check messages of the expected format of the codelist and unique codelist work v2", {
+test_that("Checking the check messages of the expected format of the codelist and unique codelist work v2", {
   # Setup: Create a test database connection with MEDICINES table
-  db_con <- create_loaded_test_db(tables = c("MEDICINES"))
+  db_con <- suppressMessages(create_loaded_test_db(tables = c("MEDICINES")))
   # Ensure database connection is closed after test completion
   withr::defer(DBI::dbDisconnect(db_con))
 
@@ -230,9 +229,9 @@ testthat::test_that("Checking the check messages of the expected format of the c
 }
 )
 
-testthat::test_that("Checking the check messages of the expected format of the codelist  and unique codelist work v3", {
+test_that("Checking the check messages of the expected format of the codelist  and unique codelist work v3", {
   # Setup: Create a test database connection with MEDICINES table
-  db_con <- create_loaded_test_db(tables = c("MEDICINES"))
+  db_con <- suppressMessages(create_loaded_test_db(tables = c("MEDICINES")))
   # Ensure database connection is closed after test completion
   withr::defer(DBI::dbDisconnect(db_con))
 

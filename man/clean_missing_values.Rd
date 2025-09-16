@@ -4,7 +4,13 @@
 \alias{clean_missing_values}
 \title{Clean tables by removing rows with missing values}
 \usage{
-clean_missing_values(con, list_columns_clean, to_view = FALSE)
+clean_missing_values(
+  con,
+  list_columns_clean,
+  to_view = FALSE,
+  pipeline_extension = "_T2DMM",
+  view_extension = "_T2DMM"
+)
 }
 \arguments{
 \item{con}{A DBI connection to a DuckDB database.}
@@ -14,6 +20,10 @@ names to check for missing values. Names of the list must match table names in t
 
 \item{to_view}{Logical. If `TRUE` (default), creates a view with the unique ID column.
 If `FALSE`, overwrites the original table.}
+
+\item{pipeline_extension}{When using views when applying the clean_missing_values on CDM table we must define the name of the pipeline extension. See add_view for more information.}
+
+\item{view_extension}{When using views when applying the clean_missing_values on CDM table we must define the name of the view. See add_view for more information.}
 }
 \value{
 Invisibly returns \code{TRUE} after processing all tables.

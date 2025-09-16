@@ -2,50 +2,77 @@
 % Please edit documentation in R/delete_duplicates_origin.R
 \name{delete_duplicates_origin}
 \alias{delete_duplicates_origin}
-\title{Delete Duplicate Rows in CDM Table of origin table}
+\title{Delete Duplicate Rows in CDM Table of Origin Table}
 \usage{
 delete_duplicates_origin(
   db_connection,
   scheme,
   save_deleted = FALSE,
   save_path = NULL,
-  add_postfix = NA
+  add_postfix = NA,
+  schema_name = NULL,
+  to_view = FALSE,
+  pipeline_extension = "_T2DMM",
+  view_extension = "_T2DMM"
 )
 }
 \arguments{
-\item{db_connection}{Database connection object (SQLiteConnection).}
+\item{db_connection}{Database connection object (SQLiteConnection or DuckDB connection).}
 
-\item{scheme}{List with CDM table names and character vectors with the
-columns/variables to be distinct. Use "*" for defining all columns.
-Special case for scheme if all variables/columns of a table are used.}
+\item{scheme}{Named list where names are CDM table names and values are
+character vectors of columns to use for uniqueness. Use `"*"` to indicate
+all columns.}
 
-\item{save_deleted}{Logical, option to save the deleted rows. Good for
-tracking. Default is FALSE.}
+\item{save_deleted}{Logical. If TRUE, deleted rows are saved as CSV files.
+Default is FALSE.}
 
-\item{save_path}{Mandatory when save_deleted is TRUE. Path where the files
-with the deleted records will be saved.}
+\item{save_path}{Character. Directory path where deleted records are saved.
+Mandatory when `save_deleted = TRUE`.}
 
-\item{add_postfix}{An additional postfix to the saved file name when saving
-deleted records. Default is NA.}
+\item{add_postfix}{Optional character string. If provided, adds a postfix to
+the saved CSV file names. Default is `NA`.}
+
+\item{schema_name}{Character. Name of the schema where tables are located.
+Default is `"main"`.}
+
+\item{to_view}{Logical. If TRUE, instead of deleting rows, a view is created
+with distinct rows based on the specified columns. Default is FALSE.}
+
+\item{pipeline_extension}{When using views when applying the clean_missing_values on CDM table we must define the name of the pipeline extension. See add_view for more information.}
+
+\item{view_extension}{When using views when applying the clean_missing_values on CDM table we must define the name of the view. See add_view for more information.}
 }
 \description{
-This function is designed for deleting duplicate rows based on the specified
-columns.
-The function deletes duplicate rows in the specified CDM tables and
-optionally saves the deleted records.
+This function removes duplicate rows from specified CDM tables based on a
+given set of columns. Duplicates are identified using `rowid`, keeping the
+first occurrence and deleting the rest.
+}
+\details{
+The function can:
+- Directly delete duplicates from the database.
+- Optionally save deleted records as CSV files for tracking.
+- Optionally create a view instead of deleting, keeping only distinct rows.
 }
 \examples{
 \dontrun{
-# Example 1: Deleting duplicate rows in specified columns
+# Example 1: Delete duplicates based on specific columns
 db_connection <- DBI::dbConnect(duckdb::duckdb(), ":memory:")
 scheme <- list("EVENTS" = c("*"), "PERSONS" = c("person_id", "age"))
 delete_duplicates_origin(db_connection, scheme)
 
-# Example 2: Deleting duplicate rows for all columns in specified tables
+# Example 2: Delete duplicates across all columns in multiple tables and save deleted rows
 scheme <- setNames(rep("*", length(CDM_tables_names)), CDM_tables_names)
-delete_duplicates_origin(db_connection, scheme,
+delete_duplicates_origin(
+  db_connection, scheme,
   save_deleted = TRUE,
   save_path = "/path/to/save"
+)
+
+# Example 3: Create views with distinct rows instead of deleting
+delete_duplicates_origin(
+  db_connection, scheme,
+  to_view = TRUE,
+  view_prefix = "distinct_"
 )
 }
 

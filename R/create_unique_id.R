@@ -88,17 +88,16 @@ create_unique_id <- function(
       order_by <- ""
     }
     
-    table_from_name <- table
-    view_name <- paste0(view_prefix,table)
     #Adjusting the name of the table to the Scheme where this is located in the database
     if(!is.null(schema_name)){
-      table_from_name <- paste0(schema_name,'.',table_from_name)
-      view_name <- paste0(schema_name,'.',view_name)
+      table_from_name <- paste0(schema_name,'.',table)
+    }else{
+      table_from_name <- table
     }
     
     if(to_view == TRUE){
       pipeline_name <- paste0(table_from_name, pipeline_extension)
-      final_alias   <- paste0(table_to_clean, view_extension)
+      final_alias   <- paste0(table_from_name, view_extension)
       T2.DMM:::add_view(db_connection, 
                pipeline = pipeline_name, 
                base_table = table_from_name, 

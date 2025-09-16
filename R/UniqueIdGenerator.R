@@ -59,7 +59,8 @@ UniqueIdGenerator <- R6::R6Class("UniqueIdGenerator", # nolint
         order_by_cols = db_loader$config$unique_id_generator$order_by_cols,
         schema_name = db_loader$config$unique_id_generator$schema_name, 
         to_view = db_loader$config$unique_id_generator$to_view, 
-        view_prefix = db_loader$config$unique_id_generator$view_prefix
+        pipeline_extension = db_loader$config$unique_id_generator$pipeline_extension, 
+        view_extension = db_loader$config$unique_id_generator$viex_extension
       )
       message("Unique IDs created.")
     }
