@@ -113,8 +113,8 @@ create_unique_id <- function(
                                            table_from_name, order_by), n = -1)
       DBI::dbExecute(db_connection, paste0("DROP TABLE ", 
                                            table_from_name), n = -1)
-      DBI::dbExecute(conn, paste0("CREATE TABLE ",table_from_name," AS SELECT * FROM temporal_table"))
-      DBI::dbExecute(conn, "DROP TABLE temporal_table")
+      DBI::dbExecute(db_connection, paste0("CREATE TABLE ",table_from_name," AS SELECT * FROM temporal_table"))
+      DBI::dbExecute(db_connection, "DROP TABLE temporal_table")
     }
     
     
