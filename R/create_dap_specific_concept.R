@@ -35,6 +35,7 @@ create_dap_specific_concept <- function(
     column_name_prefix = "column_name",
     expected_value_prefix = "expected_value",
     add_meaning = FALSE) {
+  
   if (nrow(codelist) <= 0) {
     stop("Codelist does not contain any data.")
   }
@@ -135,7 +136,7 @@ create_dap_specific_concept <- function(
     rs <- DBI::dbSendStatement(
       save_db,
       paste0(
-        "INSERT INTO concept_table\n\t\t\t\t\t\t\t
+        "INSERT INTO concept_table
         SELECT t1.ori_id, t1.ori_table, ROWID, t1.person_id, ",
         coding_system, " AS code, ", coding_system, " AS coding_system, ",
         value, " AS value, '", concept_name, "' AS concept_id, ",
