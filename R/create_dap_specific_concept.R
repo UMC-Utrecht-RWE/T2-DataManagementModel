@@ -40,7 +40,7 @@ create_dap_specific_concept <- function(
   if (nrow(codelist) <= 0) {
     stop("Codelist does not contain any data.")
   }
-  if(!any(intermediate_type = c("TABLE","VIEW"))){
+  if(any(intermediate_type == c("TABLE","VIEW")) != TRUE){
     stop("intermediate_type has to be either TABLE or VIEW.")
   }
   scheme <- unique(codelist[[table_name]])
