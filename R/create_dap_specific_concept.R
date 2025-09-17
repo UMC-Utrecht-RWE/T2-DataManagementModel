@@ -34,10 +34,14 @@ create_dap_specific_concept <- function(
     table_name = "cdm_table_name",
     column_name_prefix = "column_name",
     expected_value_prefix = "expected_value",
-    add_meaning = FALSE) {
+    add_meaning = FALSE,
+    intermediate_type = "TABLE") {
   
   if (nrow(codelist) <= 0) {
     stop("Codelist does not contain any data.")
+  }
+  if(!any(intermediate_type = c("TABLE","VIEW"))){
+    stop("intermediate_type has to be either TABLE or VIEW.")
   }
   scheme <- unique(codelist[[table_name]])
   cols_names <- grep(paste0("^", column_name_prefix), names(codelist), 
@@ -67,7 +71,7 @@ create_dap_specific_concept <- function(
     if (!name_edited %in% DBI::dbListTables(save_db) || 
         all(c(rest_cols, to_upper_cols) %in% DBI::dbListFields(save_db, 
                                                                name_edited)) == FALSE) {
-      DBI::dbExecute(save_db, paste0("CREATE TEMP VIEW ", 
+      DBI::dbExecute(save_db, paste0("CREATE TEMP ",intermediate_type, 
                                      name_edited, "_dapspec AS\n              SELECT ", select_cols_query, 
                                      " ", to_upper_query, "\n              FROM ", 
                                      name_attachment, name))
