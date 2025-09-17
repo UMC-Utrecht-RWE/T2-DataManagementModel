@@ -54,7 +54,7 @@ create_dap_specific_concept <- function(
     query_columns_table <- paste0("
             SELECT column_name
             FROM information_schema.columns
-            WHERE table_name = '",if(from_view) "view_",name,"'
+            WHERE table_name = '",name,"'
           ")
     columns_db_table <- DBI::dbGetQuery(save_db,query_columns_table)$column_name
     rest_cols <- na.omit(columns_db_table[!columns_db_table %in% 
