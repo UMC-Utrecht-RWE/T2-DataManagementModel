@@ -11,7 +11,8 @@ table_exists(con, table_name, schema = NULL)
 
 \item{table_name}{Name of the table to check.}
 
-\item{schema}{Optional. Name of the schema to check within. Default is NULL, which checks all schemas.}
+\item{schema}{Optional. Name of the schema to check within.
+Default is NULL, which checks all schemas.}
 }
 \value{
 TRUE if the table exists, FALSE otherwise.

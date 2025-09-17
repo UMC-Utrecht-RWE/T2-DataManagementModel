@@ -95,50 +95,54 @@ create_dap_specific_concept <- function(
       if (length(meaning_column_name) > 0) {
         meaning_clause <- paste0(", ", meaning_column_name, 
                                  " AS meaning ")
-      }
-      else {
-        print(paste0("[create_dap_specific_concept] Meaning not identified for: ", 
+      } else {
+        print(paste0("[create_dap_specific_concept] Meaning not identified for: ",
                      name_edited))
         meaning_clause <- paste0(", NULL AS meaning ")
       }
-    }
-    else {
+    } else {
       meaning_clause <- ""
     }
     if (is.null(value)) {
       value <- TRUE
-    }
-    else if (any(is.na(value))) {
+    } else if (any(is.na(value))) {
       value <- TRUE
     }
     if (is.null(date_col)) {
       date_col <- "'NA'"
-    }
-    else if (any(is.na(date_col))) {
+    } else if (any(is.na(date_col))) {
       date_col <- "'NA'"
     }
     coding_system <- paste0("'", codelist_id, "'")
     if (class(save_db)[1] %in% "duckdb_connection") {
-      where_statement <- paste(paste(cols_temp, paste0("'", 
-                                                       values_temp, "'"), sep = " = "), collapse = " AND ")
+      where_statement <- paste(paste(cols_temp, paste0(
+        "'", values_temp, "'"
+      ), sep = " = "), collapse = " AND ")
       if (!is.null(date_col_filter)) {
-        where_statement <- paste0(where_statement, " AND ", 
+        where_statement <- paste0(where_statement, " AND ",
                                   date_col, " >= DATE '", date_col_filter, "'")
       }
-    }
-    else {
-      where_statement <- paste(paste(cols_temp, paste0("'", 
-                                                       values_temp, "'"), sep = " = "), collapse = " AND ")
+    } else {
+      where_statement <- paste(
+        paste(cols_temp, paste0("'", values_temp, "'"), sep = " = "),
+        collapse = " AND "
+      )
       if (!is.null(date_col_filter)) {
         where_statement <- paste0(where_statement, " AND ", 
                                   date_col, " >= ", as.integer(date_col_filter))
       }
     }
-    rs <- DBI::dbSendStatement(save_db, paste0("INSERT INTO concept_table\n              SELECT t1.ori_id, t1.ori_table, ROWID, t1.person_id, ", 
-                                               coding_system, " AS code, ", coding_system, " AS coding_system, ", 
-                                               value, " AS value, '", concept_name, "' AS concept_id, ", 
-                                               date_col, " AS date ", meaning_clause, "FROM ", 
-                                               name_edited, " t1", " WHERE ", where_statement))
+    rs <- DBI::dbSendStatement(
+      save_db,
+      paste0(
+        "INSERT INTO concept_table\n\t\t\t\t\t\t\t
+        SELECT t1.ori_id, t1.ori_table, ROWID, t1.person_id, ",
+        coding_system, " AS code, ", coding_system, " AS coding_system, ",
+        value, " AS value, '", concept_name, "' AS concept_id, ",
+        date_col, " AS date ", meaning_clause, "FROM ",
+        name_edited, " t1", " WHERE ", where_statement
+      )
+    )
     DBI::dbClearResult(rs)
   }
 }

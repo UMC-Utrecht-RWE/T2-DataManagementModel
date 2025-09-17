@@ -2,14 +2,15 @@
 #'
 #' This function removes duplicate rows from specified CDM tables based on a
 #' given set of columns. Duplicates are identified using `rowid`, keeping the
-#' first occurrence and deleting the rest.  
+#' first occurrence and deleting the rest.
 #'
 #' The function can:
 #' - Directly delete duplicates from the database.
 #' - Optionally save deleted records as CSV files for tracking.
 #' - Optionally create a view instead of deleting, keeping only distinct rows.
 #'
-#' @param db_connection Database connection object (SQLiteConnection or DuckDB connection).
+#' @param db_connection Database connection object (SQLiteConnection or
+#' DuckDB connection).
 #' @param scheme Named list where names are CDM table names and values are
 #'   character vectors of columns to use for uniqueness. Use `"*"` to indicate
 #'   all columns.
@@ -23,8 +24,12 @@
 #'   Default is `"main"`.
 #' @param to_view Logical. If TRUE, instead of deleting rows, a view is created
 #'   with distinct rows based on the specified columns. Default is FALSE.
-#' @param pipeline_extension When using views when applying the clean_missing_values on CDM table we must define the name of the pipeline extension. See add_view for more information.
-#' @param view_extension When using views when applying the clean_missing_values on CDM table we must define the name of the view. See add_view for more information.
+#' @param pipeline_extension When using views when applying the
+#' clean_missing_values on CDM table we must define the name of the
+#' pipeline extension. See add_view for more information.
+#' @param view_extension When using views when applying the clean_missing_values
+#'  on CDM table we must define the name of the view. See add_view for more
+#' information.
 #'
 #' @examples
 #' \dontrun{
@@ -33,7 +38,8 @@
 #' scheme <- list("EVENTS" = c("*"), "PERSONS" = c("person_id", "age"))
 #' delete_duplicates_origin(db_connection, scheme)
 #'
-#' # Example 2: Delete duplicates across all columns in multiple tables and save deleted rows
+#' # Example 2: Delete duplicates across all columns in multiple tables and
+#' save deleted rows
 #' scheme <- setNames(rep("*", length(CDM_tables_names)), CDM_tables_names)
 #' delete_duplicates_origin(
 #'   db_connection, scheme,
@@ -60,16 +66,21 @@ delete_duplicates_origin <- function(
     schema_name = NULL,
     to_view = FALSE,
     pipeline_extension = '_T2DMM') {
-  
+
   if(is.null(schema_name)){
     schema_name <- 'main'
+
   }
-  
+
   valid_scheme <- list()
   # Check if specified columns in the scheme exist in the corresponding tables
   for (case_name in names(scheme)) {
-    if (table_exists(con = db_connection, table_name = case_name, schema = schema_name) == TRUE) {
-      
+    if (
+      table_exists(
+        con = db_connection, table_name = case_name, schema = schema_name
+      ) == TRUE
+    ) {
+
       col_names <- DBI::dbGetQuery(
         db_connection,
         sprintf(
@@ -84,7 +95,7 @@ delete_duplicates_origin <- function(
       if (!all(
         scheme[[case_name]] %in% col_names$column_name
       ) && all(!scheme[[case_name]] %in% "*")) {
-        
+
         wrong_cols <- scheme[[case_name]][
           !scheme[[case_name]] %in% col_names$column_name
         ]
@@ -93,17 +104,17 @@ delete_duplicates_origin <- function(
           " columns -> ", paste(wrong_cols, collapse = ", "),
           " do not exist in the DB instance table. Removing setting."
         ))
-        
+
         next()
       }
       # Remove this entry from scheme
       valid_scheme[[case_name]] <- scheme[[case_name]]
     }
   }
-  
+
   scheme <- valid_scheme
-  
-  
+
+
   if (length(scheme) > 0) {
     # Loop through each specified table in the scheme
     for (case_name in names(scheme)) {
@@ -116,13 +127,13 @@ delete_duplicates_origin <- function(
           cols_to_select <- scheme[[case_name]]
         }
         cols_to_select <- paste(cols_to_select, collapse = ", ")
-        
+
         # Build the SQL query to delete duplicate rows
         query <- paste0("DELETE FROM ", case_name, "
                       WHERE rowid NOT IN
                        (
                        SELECT  MIN(rowid)
-                       FROM ",schema_name,".", case_name, "
+                       FROM ", schema_name, ".", case_name, "
                        GROUP BY ", cols_to_select, "
                        )")
         if(to_view == TRUE){
@@ -133,19 +144,20 @@ delete_duplicates_origin <- function(
             "SELECT * EXCLUDE(rn)
             FROM (
                 SELECT *,
-                       ROW_NUMBER() OVER (PARTITION BY ",cols_to_select,") AS rn
+                       ROW_NUMBER() OVER (PARTITION BY ",
+            cols_to_select, ") AS rn
                 FROM %s
             ) t
             WHERE rn = 1;
             "
           )
-          T2.DMM:::add_view(con = db_connection, 
+          T2.DMM:::add_view(con = db_connection,
                             pipeline = pipeline_name, 
                             base_table = table_from_name, 
                             transform_sql = query)
         }
         # Execute the query and handle results
-        if (save_deleted == FALSE & to_view == FALSE) {
+        if (save_deleted == FALSE && to_view == FALSE) {
           rs <- DBI::dbSendStatement(db_connection, query)
           DBI::dbHasCompleted(rs)
           num_rows <- DBI::dbGetRowsAffected(rs)
@@ -154,7 +166,9 @@ delete_duplicates_origin <- function(
             num_rows
           ))
           DBI::dbClearResult(rs)
-        } else if (save_deleted == TRUE && !is.null(save_path) & to_view == FALSE) {
+        } else if (
+          save_deleted == TRUE && !is.null(save_path) && to_view == FALSE
+        ) {
           rs <-  data.table::as.data.table(
             DBI::dbGetQuery(
               db_connection,
@@ -196,7 +210,8 @@ delete_duplicates_origin <- function(
 #'
 #' @param con A DBI connection to a DuckDB database.
 #' @param table_name Name of the table to check.
-#' @param schema Optional. Name of the schema to check within. Default is NULL, which checks all schemas.
+#' @param schema Optional. Name of the schema to check within.
+#' Default is NULL, which checks all schemas.
 #' @return TRUE if the table exists, FALSE otherwise.
 table_exists <- function(con, table_name, schema = NULL) {
   if (!is.null(schema)) {
@@ -214,7 +229,7 @@ table_exists <- function(con, table_name, schema = NULL) {
       table_name
     )
   }
-  
+
   result <- DBI::dbGetQuery(con, sql)$n
   return(result > 0)
 }

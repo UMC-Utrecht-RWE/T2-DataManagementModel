@@ -36,12 +36,17 @@ order by. E.g list(EVENTS = c('person_id','event_code'))}
 \item{schema_name}{Optional schema name to prepend to table and view names.
 Default is `NULL`.}
 
-\item{to_view}{Logical. If `TRUE` (default), creates a view with the unique ID column.
+\item{to_view}{Logical. If `TRUE` (default),
+creates a view with the unique ID column.
 If `FALSE`, overwrites the original table.}
 
-\item{pipeline_extension}{When using views when applying the clean_missing_values on CDM table we must define the name of the pipeline extension. See add_view for more information.}
+\item{pipeline_extension}{When using views when applying the
+clean_missing_values on CDM table we must define the name of the pipeline
+extension. See add_view for more information.}
 
-\item{view_extension}{When using views when applying the clean_missing_values on CDM table we must define the name of the view. See add_view for more information.}
+\item{view_extension}{When using views when applying the clean_missing_values
+ on CDM table we must define the name of the view. See add_view for more
+information.}
 }
 \description{
 This function generates a unique CDM ID for each data record of the specified

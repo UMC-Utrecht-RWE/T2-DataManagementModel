@@ -16,7 +16,8 @@ delete_duplicates_origin(
 )
 }
 \arguments{
-\item{db_connection}{Database connection object (SQLiteConnection or DuckDB connection).}
+\item{db_connection}{Database connection object (SQLiteConnection or
+DuckDB connection).}
 
 \item{scheme}{Named list where names are CDM table names and values are
 character vectors of columns to use for uniqueness. Use `"*"` to indicate
@@ -37,9 +38,13 @@ Default is `"main"`.}
 \item{to_view}{Logical. If TRUE, instead of deleting rows, a view is created
 with distinct rows based on the specified columns. Default is FALSE.}
 
-\item{pipeline_extension}{When using views when applying the clean_missing_values on CDM table we must define the name of the pipeline extension. See add_view for more information.}
+\item{pipeline_extension}{When using views when applying the
+clean_missing_values on CDM table we must define the name of the
+pipeline extension. See add_view for more information.}
 
-\item{view_extension}{When using views when applying the clean_missing_values on CDM table we must define the name of the view. See add_view for more information.}
+\item{view_extension}{When using views when applying the clean_missing_values
+ on CDM table we must define the name of the view. See add_view for more
+information.}
 }
 \description{
 This function removes duplicate rows from specified CDM tables based on a
@@ -59,7 +64,8 @@ db_connection <- DBI::dbConnect(duckdb::duckdb(), ":memory:")
 scheme <- list("EVENTS" = c("*"), "PERSONS" = c("person_id", "age"))
 delete_duplicates_origin(db_connection, scheme)
 
-# Example 2: Delete duplicates across all columns in multiple tables and save deleted rows
+# Example 2: Delete duplicates across all columns in multiple tables and
+save deleted rows
 scheme <- setNames(rep("*", length(CDM_tables_names)), CDM_tables_names)
 delete_duplicates_origin(
   db_connection, scheme,

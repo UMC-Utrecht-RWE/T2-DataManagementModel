@@ -38,52 +38,63 @@ clean_missing_values <- function(con, list_columns_clean,
   
   # Get available tables
   tables_available <- DBI::dbListTables(con)
-  
+
   for (table_to_clean in names(list_columns_clean)) {
     if (table_to_clean %in% tables_available) {
       message(sprintf("[clean_missing_values] %s ", table_to_clean))
-      
+
       # Get column types from schema
-      col_info <- DBI::dbGetQuery(con, sprintf("PRAGMA table_info(%s)", table_to_clean))
-      
+      col_info <- DBI::dbGetQuery(
+        con, sprintf("PRAGMA table_info(%s)", table_to_clean)
+      )
+
       for (colname in list_columns_clean[[table_to_clean]]) {
         col_type <- col_info$type[col_info$name == colname]
-        
+
         # Build filter condition based on type
         if (grepl("INT|REAL|DOUBLE|DECIMAL", toupper(col_type))) {
           filter_sql <- sprintf("%s IS NOT NULL", colname)
         } else {
-          filter_sql <- sprintf("%s IS NOT NULL AND %s <> '' AND %s <> 'NA'", colname, colname, colname)
+          filter_sql <- sprintf(
+            "%s IS NOT NULL AND %s <> '' AND %s <> 'NA'",
+            colname, colname, colname
+          )
         }
-        
+
         if (to_view == TRUE) {
           # ---- Dynamic pipeline of views ----
           transform_sql <- sprintf("SELECT * FROM %%s WHERE %s", filter_sql)
           pipeline_name <- paste0(table_to_clean, pipeline_extension)
-          table_from_name <- paste0(schema_name,'.',table_to_clean)
+          final_alias   <- paste0(table_to_clean, view_extension)
+
           add_view(
             con = con,
             pipeline = pipeline_name,
             base_table = table_to_clean,   # only used if pipeline not initialized
-            transform_sql = transform_sql
+            transform_sql = transform_sql,
+            final_alias = final_alias
           )
-          
+
         } else if (to_view == FALSE) {
           # ---- Overwrite original table with cleaned version ----
           tmp_table <- paste0(table_to_clean, "_tmp_clean")
-          
+
           sql_create <- sprintf(
             "CREATE OR REPLACE TABLE %s AS
              SELECT * FROM %s WHERE %s",
             tmp_table, table_to_clean, filter_sql
           )
           DBI::dbExecute(con, sql_create)
-          
+
           # Replace original with cleaned
           DBI::dbExecute(con, sprintf("DROP TABLE %s", table_to_clean))
-          DBI::dbExecute(con, sprintf("ALTER TABLE %s RENAME TO %s", tmp_table, table_to_clean))
-          
-          message(sprintf("  -> Table %s overwritten with cleaned version", table_to_clean))
+          DBI::dbExecute(con, sprintf(
+            "ALTER TABLE %s RENAME TO %s", tmp_table, table_to_clean
+          ))
+
+          message(sprintf(
+            "  -> Table %s overwritten with cleaned version", table_to_clean
+          ))
         }
       }
     } else {

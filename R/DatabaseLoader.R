@@ -110,7 +110,7 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
             cdm_metadata = self$metadata,
             cdm_tables_names = self$config$cdm_tables_names,
             extension_name = self$config$extension_name,
-            file_format = self$config$file_format 
+            file_format = self$config$file_format
           )
         },
         error = function(e) {
