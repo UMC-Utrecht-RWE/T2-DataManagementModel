@@ -39,15 +39,22 @@ create_dap_specific_concept <- function(
     stop("Codelist does not contain any data.")
   }
   scheme <- unique(codelist[[table_name]])
-  cols_names <- grep(paste0("^", column_name_prefix), names(codelist),
+  # Get columns and value names
+    cols_names <- grep(paste0("^", column_name_prefix), names(codelist),
     value = TRUE
   )
   value_names <- grep(paste0("^", expected_value_prefix),
     names(codelist),
     value = TRUE
   )
+  # check if lengths equal
+  if(length(cols_names)!= length(value_names)) stop("Error: Column names and Value names are of different lengths")
+  # Get columns and values
   cols <- codelist[, ..cols_names]
   values <- codelist[, ..value_names]
+  
+  # Preprocess all possible tables:
+  # Loop through each table in scheme
   for (name in scheme) {
     name_edited <- paste0(name, "_EDITED")
     to_upper_cols <- na.omit(
@@ -98,8 +105,8 @@ create_dap_specific_concept <- function(
     concept_name <- codelist[[j, "concept_id"]]
     date_col <- codelist[[j, "keep_date_column_name"]]
     codelist_id <- codelist[[j, "dap_spec_id"]]
-    cols_temp <- na.omit(as.character(cols[j]))
-    values_temp <- toupper(na.omit(as.character(values[j])))
+    cols_temp <- setdiff(as.character(cols[j]), "NA")
+    values_temp <- setdiff(toupper(as.character(values[j])), "NA")
     value <- codelist[[j, "keep_value_column_name"]]
     if (add_meaning) {
       columns_db_table <- DBI::dbListFields(save_db, name_edited)
@@ -128,9 +135,9 @@ create_dap_specific_concept <- function(
       value <- TRUE
     }
     if (is.null(date_col)) {
-      date_col <- "'NA'"
+      date_col <- "NULL"
     } else if (any(is.na(date_col))) {
-      date_col <- "'NA'"
+      date_col <- "NULL"
     }
     coding_system <- paste0("'", codelist_id, "'")
     if (class(save_db)[1] %in% "duckdb_connection") {
@@ -138,24 +145,13 @@ create_dap_specific_concept <- function(
         "'",
         values_temp, "'"
       ), sep = " = "), collapse = " AND ")
-      if (!is.null(date_col_filter)) {
+      if (!is.null(date_col_filter) & date_col != "NULL") {
         where_statement <- paste0(
           where_statement, " AND ",
           date_col, " >= DATE '", date_col_filter, "'"
         )
       }
-    } else {
-      where_statement <- paste(paste(cols_temp, paste0(
-        "'",
-        values_temp, "'"
-      ), sep = " = "), collapse = " AND ")
-      if (!is.null(date_col_filter)) {
-        where_statement <- paste0(
-          where_statement, " AND ",
-          date_col, " >= ", as.integer(date_col_filter)
-        )
-      }
-    }
+    } 
     rs <- DBI::dbSendStatement(save_db, paste0(
       "INSERT INTO concept_table\n
       SELECT t1.ori_id, t1.ori_table, ROWID, t1.person_id, ",
