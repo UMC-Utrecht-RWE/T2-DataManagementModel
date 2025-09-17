@@ -99,21 +99,27 @@ get_origin_row <- function(
         )]
 
   # Check if separator_id is present in the unique identifier
-  if (is.null(ids$rowid) || all(is.na(ids$rowid)) || all(ids$rowid == ids$ori_table, na.rm = TRUE)) {
+  if (
+    is.null(ids$rowid) ||
+      all(is.na(ids$rowid)) ||
+      all(ids$rowid == ids$ori_table, na.rm = TRUE)
+  ) {
     message(paste0(
       "[get_origin_row] The separator '", separator_id,
       "' does not exist in the unique identifiers"
     ))
     return(return_values)
-    
-  } else if (any(is.na(ids$rowid)) || any(ids$rowid == ids$ori_table, na.rm = TRUE)) {
+  } else if (
+    any(is.na(ids$rowid)) ||
+      any(ids$rowid == ids$ori_table, na.rm = TRUE)
+  ) {
     message(paste0(
-      "[get_origin_row] Some cases' unique identifier do not contain the separator '", separator_id, "'"
+      "[get_origin_row] Some cases' unique identifier contains no separator '",
+      separator_id,
+      "'"
     ))
     ids <- ids[!is.na(rowid)]
   }
-  
-  
 
   # Loop through unique cdm_tables
   for (table in unique(ids$ori_table)) {

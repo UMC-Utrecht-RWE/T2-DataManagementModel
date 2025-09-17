@@ -1,20 +1,22 @@
 #' Add a transformation step to a DuckDB view pipeline
 #'
-#' This function adds a new transformation step to a versioned view pipeline stored entirely
-#' within DuckDB. Each step creates a new view based on the previous step, and a final alias
-#' view (e.g., `persons_view`) always points to the latest version of the pipeline.
+#' This function adds a new transformation step to a versioned view pipeline
+#' stored entirely within DuckDB. Each step creates a new view based on the
+#' previous step, and a final alias view (e.g., `persons_view`) always points
+#' to the latest version of the pipeline.
 #'
-#' If the pipeline does not exist yet, the function will automatically initialize it from
-#' a specified base table and create the first version.
+#' If the pipeline does not exist yet, the function will automatically
+#' initialize it from a specified base table and create the first version.
 #'
 #' @param con A DBI connection object to a DuckDB database.
 #' @param pipeline A string specifying the name of the pipeline.
-#' @param transform_sql A SQL string representing the transformation. Use `%s` as a placeholder
-#'   for the current head view of the pipeline.
-#' @param base_table Optional. The name of the base table to initialize the pipeline if it
-#'   does not exist. Required only for the first step.
+#' @param transform_sql A SQL string representing the transformation.
+#' Use `%s` as a placeholder for the current head view of the pipeline.
+#' @param base_table Optional. The name of the base table to initialize the
+#' pipeline if it does not exist. Required only for the first step.
 #'
-#' @return Invisibly returns the name of the newly created versioned view in the pipeline.
+#' @return Invisibly returns the name of the newly created versioned view
+#' in the pipeline.
 #'
 #' @examples
 #' # Initialize or add to the pipeline

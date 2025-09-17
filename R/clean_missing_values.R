@@ -85,12 +85,20 @@ clean_missing_values <- function(con, list_columns_clean,
           DBI::dbExecute(con, sql_create)
 
           # Replace original with cleaned
-          DBI::dbExecute(con, paste0("DROP TABLE ", 
-                                               paste0(schema_name, ".", table_to_clean)), n = -1)
-          DBI::dbExecute(con, paste0("CREATE TABLE ", paste0(schema_name, ".", 
-                                                             table_to_clean), " AS SELECT * FROM ", tmp_table))
+          DBI::dbExecute(
+            con, paste0(
+              "DROP TABLE ", paste0(schema_name, ".", table_to_clean)
+            ), n = -1
+          )
+          DBI::dbExecute(
+            con,
+            paste0(
+              "CREATE TABLE ", paste0(schema_name, ".", table_to_clean),
+              " AS SELECT * FROM ", tmp_table
+            )
+          )
           DBI::dbExecute(con, paste0("DROP TABLE ", tmp_table))
-          
+
           message(sprintf(
             "  -> Table %s overwritten with cleaned version", table_to_clean
           ))
