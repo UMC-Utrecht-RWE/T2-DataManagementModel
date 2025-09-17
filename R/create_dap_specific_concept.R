@@ -50,7 +50,7 @@ create_dap_specific_concept <- function(
   
   for (name in scheme) {
     name_edited <- paste0(name, "_EDITED")
-    to_upper_cols <- na.omit(unique(unlist(codelist[get(table_name) %in% 
+    to_upper_cols <- unique(na.omit(unlist(codelist[get(table_name) %in% 
                                                       name, ..cols_names])))
     query_columns_table <- paste0("
             SELECT column_name
@@ -58,26 +58,19 @@ create_dap_specific_concept <- function(
             WHERE table_name = '",name,"'
           ")
     columns_db_table <- DBI::dbGetQuery(save_db,query_columns_table)$column_name
-    rest_cols <- na.omit(columns_db_table[!columns_db_table %in% 
-                                            to_upper_cols])
+    rest_cols <- unique(na.omit(columns_db_table[!columns_db_table %in% 
+                                                   to_upper_cols]))
     to_upper_query <- paste0(paste0("UPPER(", to_upper_cols, 
                                     ") AS ", to_upper_cols), collapse = ", ")
     select_cols_query <- paste0(paste0(rest_cols, collapse = ", "), 
                                 " ,")
-    if (!name_edited %in% DBI::dbListTables(save_db)) {
-      rs <- DBI::dbSendStatement(save_db, paste0("CREATE TEMP VIEW ", 
-                                                 name_edited, "_dapspec AS\n              SELECT ", select_cols_query, 
-                                                 " ", to_upper_query, "\n              FROM (SELECT * FROM ", 
-                                                 name_attachment, name,")"))
-      DBI::dbClearResult(rs)
-    }
-    else if (all(c(rest_cols, to_upper_cols) %in% DBI::dbListFields(save_db, 
-                                                                    name_edited)) == FALSE) {
-      rs <- DBI::dbSendStatement(save_db, paste0("CREATE TEMP VIEW ", 
-                                                 name_edited, "_dapspec AS\n              SELECT ", select_cols_query, 
-                                                 " ", to_upper_query, "\n              FROM ", 
-                                                 name_attachment, name))
-      DBI::dbClearResult(rs)
+    if (!name_edited %in% DBI::dbListTables(save_db) || 
+        all(c(rest_cols, to_upper_cols) %in% DBI::dbListFields(save_db, 
+                                                               name_edited)) == FALSE) {
+      DBI::dbExecute(save_db, paste0("CREATE TEMP VIEW ", 
+                                     name_edited, "_dapspec AS\n              SELECT ", select_cols_query, 
+                                     " ", to_upper_query, "\n              FROM ", 
+                                     name_attachment, name))
     }
   }
   for (j in seq_len(nrow(codelist))) {
@@ -86,8 +79,9 @@ create_dap_specific_concept <- function(
     concept_name <- codelist[[j, "concept_id"]]
     date_col <- codelist[[j, "keep_date_column_name"]]
     codelist_id <- codelist[[j, "dap_spec_id"]]
-    cols_temp <- na.omit(as.character(cols[j]))
-    values_temp <- toupper(na.omit(as.character(values[j])))
+    cols_temp <- unique(na.omit(unlist(cols[j, ])))
+    values_temp <- toupper(unique(na.omit(unlist(values[j, ]))))
+    
     value <- codelist[[j, "keep_value_column_name"]]
     if (add_meaning) {
       columns_db_table <- DBI::dbListFields(save_db, name_edited)
