@@ -130,7 +130,7 @@ delete_duplicates_origin <- function(
           table_from_name <- paste0(schema_name,'.',case_name)
           pipeline_name <- paste0(case_name, pipeline_extension)
           query <-  paste0(
-            "SELECT *
+            "SELECT * EXCLUDE(rn)
             FROM (
                 SELECT *,
                        ROW_NUMBER() OVER (PARTITION BY ",cols_to_select,") AS rn
