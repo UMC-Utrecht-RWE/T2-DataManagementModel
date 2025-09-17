@@ -111,7 +111,7 @@ testthat::test_that("With error in the loading function", {
 testthat::test_that("Running run_db_ops", {
   loader <- create_database_loader(config_path = "CONFIG_SET_DB")
   loader$set_database()
-  testthat::expect_no_error( # qua
+  testthat::expect_no_error(
     loader$run_db_ops()
   )
 })
