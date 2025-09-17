@@ -71,8 +71,7 @@ create_dap_specific_concept <- function(
     if (!name_edited %in% DBI::dbListTables(save_db) || 
         all(c(rest_cols, to_upper_cols) %in% DBI::dbListFields(save_db, 
                                                                name_edited)) == FALSE) {
-      DBI::dbExecute(save_db, paste0("CREATE TEMP ",intermediate_type, 
-                                     name_edited, "_dapspec AS\n              SELECT ", select_cols_query, 
+      DBI::dbExecute(save_db, paste0("CREATE TEMP ",intermediate_type," ",name_edited, "_dapspec AS\n              SELECT ", select_cols_query, 
                                      " ", to_upper_query, "\n              FROM ", 
                                      name_attachment, name))
     }
