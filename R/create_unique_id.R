@@ -41,18 +41,18 @@
 #'
 #' @keywords internal
 create_unique_id <- function(
-    db_connection,
-    cdm_tables_names,
-    extension_name = "",
-    id_name = "ori_id",
-    separator_id = "-",
-    order_by_cols = list(),
-    schema_name = NULL,
-    to_view = FALSE,
-    pipeline_extension = '_T2DMM'
+  db_connection,
+  cdm_tables_names,
+  extension_name = "",
+  id_name = "ori_id",
+  separator_id = "-",
+  order_by_cols = list(),
+  schema_name = NULL,
+  to_view = FALSE,
+  pipeline_extension = "_T2DMM"
 ) {
-  if(is.null(schema_name)){
-    schema_name <- 'main'
+  if (is.null(schema_name)) {
+    schema_name <- "main"
   }
   # Append the extension to CDM table names
   cdm_tables_names <- paste0(cdm_tables_names, extension_name)
@@ -95,30 +95,45 @@ create_unique_id <- function(
       order_by <- ""
     }
 
-    #Adjusting the name of the table to the Scheme where this is located in the database
-    table_from_name <- paste0(schema_name,'.',table)
-    
-    if(to_view == TRUE){
+    #Adjusting the name of the table to the Scheme where this is located
+    #  in the database
+    table_from_name <- paste0(schema_name, ".", table)
+
+    if (to_view == TRUE) {
       pipeline_name <- paste0(table, pipeline_extension)
-      T2.DMM:::add_view(db_connection, 
-               pipeline = pipeline_name, 
-               base_table = table_from_name, 
-               transform_sql = paste0(
-                           "SELECT '", table, separator_id,"' || row_number() OVER () AS ", id_name, ",
-                                                '", table, "' AS ori_table,
-                                                row_number() OVER () AS ROWID, *
-                                                FROM %s",
-                           order_by
-                         ))
+      T2.DMM:::add_view(
+        db_connection,
+        pipeline = pipeline_name,
+        base_table = table_from_name,
+        transform_sql = paste0(
+          "SELECT '",
+          table, separator_id, "' || row_number() OVER () AS ", id_name, ",
+          '", table, "' AS ori_table, row_number() OVER () AS ROWID, * FROM %s",
+          order_by
+        )
+      )
     }else{
-      DBI::dbExecute(db_connection, paste0("CREATE OR REPLACE TABLE temporal_table AS\n                                      SELECT  '", 
-                                           table, separator_id, "' || row_number() OVER () AS ", id_name,
-                                           ",\n                                      '", table,
-                                           "' AS ori_table,\n\n                                      row_number() OVER () AS ROWID, *\n                                      FROM ",
-                                           table_from_name, order_by), n = -1)
+      DBI::dbExecute(
+        db_connection,
+        paste0(
+          "CREATE OR REPLACE TABLE temporal_table AS\n
+          SELECT  '",
+          table, separator_id, "' || row_number() OVER () AS ", id_name,
+          ",\n                                      '", table,
+          "' AS ori_table,\n\n
+          row_number() OVER () AS ROWID, *\n
+          FROM ",
+          table_from_name, order_by
+        ), n = -1
+      )
       DBI::dbExecute(db_connection, paste0("DROP TABLE ",
                                            table_from_name), n = -1)
-      DBI::dbExecute(db_connection, paste0("CREATE TABLE ",table_from_name," AS SELECT * FROM temporal_table"))
+      DBI::dbExecute(
+        db_connection,
+        paste0(
+          "CREATE TABLE ", table_from_name, " AS SELECT * FROM temporal_table"
+        )
+      )
       DBI::dbExecute(db_connection, "DROP TABLE temporal_table")
     }
 

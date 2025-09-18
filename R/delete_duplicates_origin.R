@@ -58,18 +58,18 @@
 #' @keywords internal
 
 delete_duplicates_origin <- function(
-    db_connection,
-    scheme,
-    save_deleted = FALSE,
-    save_path = NULL,
-    add_postfix = NA,
-    schema_name = NULL,
-    to_view = FALSE,
-    pipeline_extension = '_T2DMM') {
+  db_connection,
+  scheme,
+  save_deleted = FALSE,
+  save_path = NULL,
+  add_postfix = NA,
+  schema_name = NULL,
+  to_view = FALSE,
+  pipeline_extension = "_T2DMM"
+) {
 
-  if(is.null(schema_name)){
-    schema_name <- 'main'
-
+  if (is.null(schema_name)) {
+    schema_name <- "main"
   }
 
   valid_scheme <- list()
@@ -136,9 +136,9 @@ delete_duplicates_origin <- function(
                        FROM ", schema_name, ".", case_name, "
                        GROUP BY ", cols_to_select, "
                        )")
-        if(to_view == TRUE){
-          #Adjusting the name of the table to the Scheme where this is located in the database
-          table_from_name <- paste0(schema_name,'.',case_name)
+        if (to_view == TRUE) {
+          #Adjusting name of table to the Scheme where this is located in the db
+          table_from_name <- paste0(schema_name, ".", case_name)
           pipeline_name <- paste0(case_name, pipeline_extension)
           query <-  paste0(
             "SELECT * EXCLUDE(rn)
@@ -151,10 +151,12 @@ delete_duplicates_origin <- function(
             WHERE rn = 1;
             "
           )
-          T2.DMM:::add_view(con = db_connection,
-                            pipeline = pipeline_name, 
-                            base_table = table_from_name, 
-                            transform_sql = query)
+          T2.DMM:::add_view(
+            con = db_connection,
+            pipeline = pipeline_name,
+            base_table = table_from_name,
+            transform_sql = query
+          )
         }
         # Execute the query and handle results
         if (save_deleted == FALSE && to_view == FALSE) {
