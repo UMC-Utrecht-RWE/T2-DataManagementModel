@@ -11,23 +11,25 @@ add_view(con, pipeline, transform_sql, base_table = NULL)
 
 \item{pipeline}{A string specifying the name of the pipeline.}
 
-\item{transform_sql}{A SQL string representing the transformation. Use `%s` as a placeholder
-for the current head view of the pipeline.}
+\item{transform_sql}{A SQL string representing the transformation.
+Use `%s` as a placeholder for the current head view of the pipeline.}
 
-\item{base_table}{Optional. The name of the base table to initialize the pipeline if it
-does not exist. Required only for the first step.}
+\item{base_table}{Optional. The name of the base table to initialize the
+pipeline if it does not exist. Required only for the first step.}
 }
 \value{
-Invisibly returns the name of the newly created versioned view in the pipeline.
+Invisibly returns the name of the newly created versioned view
+in the pipeline.
 }
 \description{
-This function adds a new transformation step to a versioned view pipeline stored entirely
-within DuckDB. Each step creates a new view based on the previous step, and a final alias
-view (e.g., `persons_view`) always points to the latest version of the pipeline.
+This function adds a new transformation step to a versioned view pipeline
+stored entirely within DuckDB. Each step creates a new view based on the
+previous step, and a final alias view (e.g., `persons_view`) always points
+to the latest version of the pipeline.
 }
 \details{
-If the pipeline does not exist yet, the function will automatically initialize it from
-a specified base table and create the first version.
+If the pipeline does not exist yet, the function will automatically
+initialize it from a specified base table and create the first version.
 }
 \examples{
 # Initialize or add to the pipeline
