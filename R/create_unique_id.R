@@ -83,9 +83,17 @@ create_unique_id <- function(
 
   # Loop through each existing CDM table
   for (table in cdm_tables_names_existing) {
+    #Adjusting the name of the table to the Scheme where this is located
+    #  in the database
+    table_from_name <- paste0(schema_name, ".", table)
+    
     # Rename the table and create a new one with the unique identifier
     if (order_by_flag && !is.null(order_by_cols[[table]])) {
-      columns_in_table <- DBI::dbListFields(db_connection, table)
+      columns_in_table <- dbGetQuery(
+        db_connection,
+        sprintf("PRAGMA table_info(%s)", table_from_name)
+      )$name
+      
       cols <- order_by_cols[[table]]
       available_order_by_cols <- columns_in_table[columns_in_table %in% cols]
       order_by <- paste0(
@@ -95,9 +103,7 @@ create_unique_id <- function(
       order_by <- ""
     }
 
-    #Adjusting the name of the table to the Scheme where this is located
-    #  in the database
-    table_from_name <- paste0(schema_name, ".", table)
+    
 
     if (to_view == TRUE) {
       pipeline_name <- paste0(table, pipeline_extension)

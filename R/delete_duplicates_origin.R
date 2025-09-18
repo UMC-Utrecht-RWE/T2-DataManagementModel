@@ -119,10 +119,16 @@ delete_duplicates_origin <- function(
     # Loop through each specified table in the scheme
     for (case_name in names(scheme)) {
       # Check if the table exists in the database
+      #Adjusting name of table to the Scheme where this is located in the db
+      table_from_name <- paste0(schema_name, ".", case_name)
+      
       if (case_name %in% DBI::dbListTables(db_connection)) {
         # Determine columns to select based on the scheme
         if (all(scheme[[case_name]] %in% "*")) {
-          cols_to_select <- DBI::dbListFields(db_connection, case_name)
+          cols_to_select <- dbGetQuery(
+            db_connection,
+            sprintf("PRAGMA table_info(%s)", table_from_name)
+          )$name
         } else {
           cols_to_select <- scheme[[case_name]]
         }
@@ -133,12 +139,11 @@ delete_duplicates_origin <- function(
                       WHERE rowid NOT IN
                        (
                        SELECT  MIN(rowid)
-                       FROM ", schema_name, ".", case_name, "
+                       FROM ", table_from_name, "
                        GROUP BY ", cols_to_select, "
                        )")
         if (to_view == TRUE) {
-          #Adjusting name of table to the Scheme where this is located in the db
-          table_from_name <- paste0(schema_name, ".", case_name)
+          
           pipeline_name <- paste0(case_name, pipeline_extension)
           query <-  paste0(
             "SELECT * EXCLUDE(rn)
