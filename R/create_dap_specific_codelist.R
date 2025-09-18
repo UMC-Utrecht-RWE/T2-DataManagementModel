@@ -32,33 +32,35 @@ create_dap_specific_codelist <- function(
       "ICPC", "ICPC2P", "ICPC2EENG", "ATC", "vx_atc"
     ),
     priority = NA) {
-  
+
   # Validate start_with_colls parameter
   if (!is.character(start_with_colls)) {
     stop("start_with_colls must be a character vector")
   }
-  
+
   # Validate inputs and get cleaned data
   validate_codelists(unique_codelist, study_codelist, priority)
-  
+
   # Preprocess both datasets
   study_codelist <- add_codenodot(study_codelist, "code")
-  data.table::setnames(study_codelist, "code.study_codelist", "code.CDM_CODELIST")
+  data.table::setnames(
+    study_codelist, "code.study_codelist", "code.CDM_CODELIST"
+  )
   min_length_study_codelist <- min(study_codelist$length_str, na.rm = TRUE)
-  
+
   unique_codelist <- add_codenodot(unique_codelist, "code")
   setnames(unique_codelist, "code.unique_codelist", "code.DAP_UNIQUE_CODELIST")
-  
+
   # Identify rows that will be use in a start with approach
   is_start_with_unique <- unique_codelist$coding_system %in% start_with_colls
   is_start_with_study <- study_codelist$coding_system %in% start_with_colls
-  
+
   # Split datasets using logical indexing
   start_unique_codelist <- unique_codelist[is_start_with_unique]
   start_study_codelist <- study_codelist[is_start_with_study]
   exact_unique_codelist <- unique_codelist[!is_start_with_unique]
   exact_study_codelist <- study_codelist[!is_start_with_study]
-  
+
   # Identify exact matches
   exact_match <- data.table()
   if (nrow(exact_unique_codelist) > 0 && nrow(exact_study_codelist) > 0) {
@@ -67,7 +69,7 @@ create_dap_specific_codelist <- function(
       by = c("coding_system", "code_no_dot")
     )
   }
-  
+
   # Process start-with matches
   results_startwith2 <- data.table()
   if (nrow(start_unique_codelist) > 0 && nrow(start_study_codelist) > 0) {
@@ -76,15 +78,17 @@ create_dap_specific_codelist <- function(
       start_unique_codelist, start_study_codelist,
       by = c("coding_system", "code_no_dot")
     )
-    
+
     # Create length of codes
     start_unique_codelist[, ori_length_str := nchar(code_no_dot)]
     max_code_length <- max(start_unique_codelist$ori_length_str)
-    message(paste0("[SetCodesheets] Max length of code from the DAP is : ", max_code_length))
-    
+    message(paste0(
+      "[SetCodesheets] Max length of code from the DAP is : ", max_code_length
+    ))
+
     # Substring generation
     length_range <- seq(min_length_study_codelist, max_code_length)
-    
+
     # Create all substring combinations at once
     start_expanded <- rbindlist(lapply(length_range, function(len) {
       temp_dt <- start_unique_codelist[ori_length_str >= len]
@@ -93,8 +97,11 @@ create_dap_specific_codelist <- function(
           code_no_dot2 = substr(code_no_dot, 1, len),
           length_str = len
         )]
-        return(temp_dt[, .(coding_system, code.DAP_UNIQUE_CODELIST, code_no_dot,
-                           code_no_dot2, length_str, ori_length_str, COUNT, variable)])
+        return(temp_dt[
+          ,
+          .(coding_system, code.DAP_UNIQUE_CODELIST, code_no_dot,
+          code_no_dot2, length_str, ori_length_str, COUNT, variable)
+        ])
       }
       return(data.table())
     }))
@@ -130,8 +137,10 @@ create_dap_specific_codelist <- function(
   # Find missing codes using anti-joins
   missing_from_cdm <- unique_codelist[!all_matches,
                                       on = c("coding_system", "code_no_dot")]
-  missing_from_codelist <- study_codelist[!all_matches,
-                                          on = c("coding_system", "code_no_dot")]
+  missing_from_codelist <- study_codelist[
+    !all_matches,
+    on = c("coding_system", "code_no_dot")
+  ]
 
   # Final combination
   dap_specific_codelist <- rbindlist(
@@ -204,7 +213,9 @@ validate_codelists <- function(unique_codelist, study_codelist, priority) {
   }
 
   # Validate column data types
-  validate_column_type <- function(col, name, allowed_types = c("character", "factor")) {
+  validate_column_type <- function(
+    col, name, allowed_types = c("character", "factor")
+  ) {
     if (!any(sapply(allowed_types, function(type) {
       switch(type,
              "character" = is.character(col),
@@ -214,17 +225,33 @@ validate_codelists <- function(unique_codelist, study_codelist, priority) {
     }
   }
 
-  validate_column_type(unique_codelist$coding_system, "unique_codelist$coding_system")
-  validate_column_type(study_codelist$coding_system, "study_codelist$coding_system")
+  validate_column_type(
+    unique_codelist$coding_system, "unique_codelist$coding_system"
+    )
+  validate_column_type(
+    study_codelist$coding_system, "study_codelist$coding_system"
+    )
   validate_column_type(unique_codelist$code, "unique_codelist$code")
   validate_column_type(study_codelist$code, "study_codelist$code")
 
   # Check for NA values and warn
   na_checks <- list(
-    list(unique_codelist$coding_system, "unique_codelist contains NA values in coding_system column"),
-    list(study_codelist$coding_system, "study_codelist contains NA values in coding_system column"),
-    list(unique_codelist$code, "unique_codelist contains NA values in code column"),
-    list(study_codelist$code, "study_codelist contains NA values in code column")
+    list(
+      unique_codelist$coding_system,
+      "unique_codelist contains NA values in coding_system column"
+    ),
+    list(
+      study_codelist$coding_system,
+      "study_codelist contains NA values in coding_system column"
+    ),
+    list(
+      unique_codelist$code,
+      "unique_codelist contains NA values in code column"
+    ),
+    list(
+      study_codelist$code,
+      "study_codelist contains NA values in code column"
+    )
   )
 
   invisible(lapply(na_checks, function(check) {
@@ -237,7 +264,9 @@ validate_codelists <- function(unique_codelist, study_codelist, priority) {
       stop("priority must be a single character string or NA")
     }
     if (!priority %in% names(study_codelist)) {
-      stop(paste("priority column '", priority, "' not found in study_codelist"))
+      stop(paste(
+        "priority column '", priority, "' not found in study_codelist"
+      ))
     }
   }
 }
@@ -249,5 +278,5 @@ add_codenodot <- function(dt, code_col_name) {
     dt[, length_str := nchar(code_no_dot)]  # nchar is faster than stringr::str_length
     setnames(dt, "code", paste0("code.", deparse(substitute(dt))))
   }
-  return(dt)
+  dt
 }
