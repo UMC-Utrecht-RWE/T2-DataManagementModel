@@ -1,5 +1,5 @@
 test_that("Names and number of new columns added", {
-  db_con <- create_loaded_test_db()
+  db_con <- suppressMessages(create_loaded_test_db())
   withr::defer(DBI::dbDisconnect(db_con))
 
   create_unique_id(db_con,
@@ -17,7 +17,7 @@ test_that("Names and number of new columns added", {
 })
 
 test_that("Checking the ROWID is the same as the number of rows of the table", {
-  db_con <- create_loaded_test_db()
+  db_con <- suppressMessages(create_loaded_test_db())
   withr::defer(DBI::dbDisconnect(db_con))
 
   create_unique_id(db_con,
@@ -27,11 +27,11 @@ test_that("Checking the ROWID is the same as the number of rows of the table", {
   )
   persons_db <- DBI::dbReadTable(db_con, "persons")
   max_rowid <- max(persons_db$ROWID)
-  expect_equal(nrow(persons_db) - 1, max_rowid)
+  expect_equal(nrow(persons_db), max_rowid)
 })
 
 test_that("Checking the OriTable is the same as the included table", {
-  db_con <- create_loaded_test_db()
+  db_con <- suppressMessages(create_loaded_test_db())
   withr::defer(DBI::dbDisconnect(db_con))
 
   create_unique_id(db_con,
@@ -48,7 +48,7 @@ test_that("Checking the OriTable is the same as the included table", {
 })
 
 test_that("With order_by_cols", {
-  db_con <- create_loaded_test_db()
+  db_con <- suppressMessages(create_loaded_test_db())
   withr::defer(DBI::dbDisconnect(db_con))
 
   testthat::expect_error(

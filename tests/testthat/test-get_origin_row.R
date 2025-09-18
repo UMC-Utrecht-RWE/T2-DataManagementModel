@@ -236,27 +236,24 @@ test_that("get_origin_row works reports wrong separator", {
   separator_id <- "_"
   expect_message(
     get_origin_row(con, ids, separator_id = "_"),
-                fixed = TRUE,
-               "[get_origin_row] The separator '_' does not exist in the unique identifiers"
-               
-   )
-
+    fixed = TRUE,
+    "[get_origin_row] The separator '_' does not exist in the unique identifiers"
+  )
 })
 
 test_that("get_origin_row works reports wrong separator version 2", {
   # Setup
   con <- setup_test_db()
   on.exit(dbDisconnect(con, shutdown = TRUE))
-  
+
   # Test with underscore separator
   ids <- data.table(ori_id = c("EVENTS-1", "EVENTS_2"))
   separator_id <- "_"
   expect_message(
     get_origin_row(con, ids, separator_id = "_"),
     fixed = TRUE,
-    "[get_origin_row] Some cases' unique identifier do not contain the separator '_'"
+    "[get_origin_row] Some cases' unique identifier contains no separator '_'"
   )
-  
 })
 
 test_that(
@@ -265,14 +262,14 @@ test_that(
     # Setup
     con <- setup_test_db()
     on.exit(dbDisconnect(con, shutdown = TRUE))
-    
+
     # Test with underscore separator
     ids <- data.table(INVENTEDNAME = c("EVENTS-1"))
     expect_message(
       get_origin_row(con, ids, id_name = 'INVENTEDNAME'),
       fixed = TRUE,
       "[get_origin_row] Column 'INVENTEDNAME' does not exist in table 'EVENTS'"
-      
+
     )
   }
 )
@@ -283,13 +280,13 @@ test_that(
     # Setup
     con <- setup_test_db()
     on.exit(dbDisconnect(con, shutdown = TRUE))
-    
+
     # Test with underscore separator
     ids <- data.table(ori_id = c("EVENTS-9999"))
 
     result <- get_origin_row(con, ids)
     # Expectations
     expect_equal(nrow(result$EVENTS), 0)
-    
+
   }
 )

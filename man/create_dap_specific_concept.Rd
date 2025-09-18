@@ -12,7 +12,8 @@ create_dap_specific_concept(
   table_name = "cdm_table_name",
   column_name_prefix = "column_name",
   expected_value_prefix = "expected_value",
-  add_meaning = FALSE
+  add_meaning = FALSE,
+  intermediate_type = "TABLE"
 )
 }
 \arguments{

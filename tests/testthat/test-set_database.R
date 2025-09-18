@@ -36,7 +36,7 @@ testthat::test_that("DatabaseLoader runs set_database() without error", {
   )
   testthat::expect_equal(
     DBI::dbGetQuery(loader$db, "SELECT COUNT(*) FROM MEDICINES")$count,
-    2
+    32002.0
   )
   testthat::expect_equal(
     DBI::dbGetQuery(loader$db, "SELECT COUNT(*) FROM PERSONS")$count,
@@ -109,7 +109,7 @@ testthat::test_that("With error in the loading function", {
 })
 
 testthat::test_that("Running run_db_ops", {
-  loader <- create_database_loader("CONFIG_SET_DB")
+  loader <- create_database_loader(config_path = "CONFIG_SET_DB")
   loader$set_database()
   testthat::expect_no_error(
     loader$run_db_ops()

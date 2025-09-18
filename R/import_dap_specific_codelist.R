@@ -23,7 +23,7 @@
 #' )
 #' }
 #'
-#' @keywords internal
+#' @export
 import_dap_specific_codelist <- function(codelist_path, codelist_name_db,
                                          db_connection, columns) {
   # Read the DAP-specific codelist from the file
