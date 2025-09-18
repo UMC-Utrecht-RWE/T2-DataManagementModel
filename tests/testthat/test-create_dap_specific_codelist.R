@@ -2,7 +2,6 @@ test_that("Checking the result is a data.table", {
   # Setup: Create a test database connection with MEDICINES table
   db_con <- suppressMessages(create_loaded_test_db(tables = c("MEDICINES")))
   # Ensure database connection is closed after test completion
-  # withr::defer(DBI::dbDisconnect(db_con))
 
   # Define column mapping for extracting unique codes from the database
   column_info_list <- list(
@@ -15,11 +14,13 @@ test_that("Checking the result is a data.table", {
     column_info_list = column_info_list,
     tb_name = "MEDICINES"
   )[[1]]
+  unique_codelist <- unique_codelist[!is.na(unique_codelist$code), ]
 
   # MEDICINES table is a mix of long-formatted and wide-formatted information,
   # codes are hosted in a wide-formatted field where they miss the coding system
   # Therefore, we manually add the coding system identifier
   unique_codelist[, coding_system := "PRODCODEID"]
+
 
   # Load study-specific codelist from CSV file for comparison/mapping
   study_codelist <- import_file("dbtest/codelist_example_medicines.csv")
@@ -45,7 +46,7 @@ test_that("Checking the result is a data.table", {
 
 })
 
-test_that("Checking the check messages of the expected format of the codelist and unique codelist work", {
+test_that("Check expected format of the codelist and unique codelist work", {
   # Setup: Create a test database connection with MEDICINES table
   db_con <- suppressMessages(create_loaded_test_db(tables = c("MEDICINES")))
   # Ensure database connection is closed after test completion
@@ -180,7 +181,7 @@ test_that("Checking the check messages of the expected format of the codelist an
 
 })
 
-test_that("Checking the check messages of the expected format of the codelist and unique codelist work v2", {
+test_that("Check expected format of the codelist and unique codelist work v2", {
   # Setup: Create a test database connection with MEDICINES table
   db_con <- suppressMessages(create_loaded_test_db(tables = c("MEDICINES")))
   # Ensure database connection is closed after test completion
@@ -229,7 +230,7 @@ test_that("Checking the check messages of the expected format of the codelist an
 }
 )
 
-test_that("Checking the check messages of the expected format of the codelist  and unique codelist work v3", {
+test_that("Check expected format of the codelist and unique codelist work v3", {
   # Setup: Create a test database connection with MEDICINES table
   db_con <- suppressMessages(create_loaded_test_db(tables = c("MEDICINES")))
   # Ensure database connection is closed after test completion
