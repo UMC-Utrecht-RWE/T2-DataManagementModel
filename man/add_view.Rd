@@ -7,19 +7,16 @@
 add_view(con, pipeline, transform_sql, base_table = NULL)
 }
 \arguments{
-\item{con}{A DBI connection object to a DuckDB database.}
+\item{con}{DuckDB connection object.}
 
-\item{pipeline}{A string specifying the name of the pipeline.}
+\item{pipeline}{Name of the pipeline (e.g., "persons").}
 
-\item{transform_sql}{A SQL string representing the transformation.
-Use `%s` as a placeholder for the current head view of the pipeline.}
+\item{transform_sql}{SQL transformation query as a string. Use `%s` as a
+placeholder for the current view name.}
 
-\item{base_table}{Optional. The name of the base table to initialize the
-pipeline if it does not exist. Required only for the first step.}
-}
-\value{
-Invisibly returns the name of the newly created versioned view
-in the pipeline.
+\item{base_table}{Optional. Name of the base table to initialize the pipeline
+if it does not exist yet. Required if the pipeline is being created for the
+first time.}
 }
 \description{
 This function adds a new transformation step to a versioned view pipeline
@@ -30,16 +27,4 @@ to the latest version of the pipeline.
 \details{
 If the pipeline does not exist yet, the function will automatically
 initialize it from a specified base table and create the first version.
-}
-\examples{
-# Initialize or add to the pipeline
-add_view(con, "persons_pipeline",
-         "SELECT DISTINCT * FROM \%s",
-         base_table = "persons")
-
-add_view(con, "persons_pipeline",
-         "SELECT *, LENGTH(name) AS name_len FROM \%s" )
-
-# Query the final transformed view
-DBI::dbGetQuery(con, "SELECT * FROM persons_view LIMIT 5")
 }

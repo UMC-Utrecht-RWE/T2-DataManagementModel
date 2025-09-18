@@ -1,6 +1,6 @@
 {
     "data_model": "ConcePTION",
-    "file_format" : "parquet"
+    "file_format" : "parquet",
     "operations_path": "R",
     "operations": {
       "DuplicateRemover": true,
@@ -15,7 +15,7 @@
       "cdm_tables_columns": {
         "PERSONS": ["person_id", "country_of_birth"],
         "VACCINES": ["person_id", "vx_manufacturer"]
-      }
+      },
       "to_view": false
     },
     "missing_remover": {
