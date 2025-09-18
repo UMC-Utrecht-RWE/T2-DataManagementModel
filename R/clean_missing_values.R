@@ -28,7 +28,8 @@
 #' # Overwrite tables with materialized cleaned version
 #' clean_missing_values(con, list_cols, mode = "materialized")
 #' }
-clean_missing_values <- function(con, list_columns_clean,
+clean_missing_values <- function(con, 
+                                 list_columns_clean,
                                  schema_name = NULL,
                                  to_view = FALSE, 
                                  pipeline_extension = "_T2DMM") {
