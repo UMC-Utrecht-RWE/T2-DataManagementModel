@@ -20,8 +20,10 @@ test_that("Checking the result is a data.table", {
   # codes are hosted in a wide-formatted field where they miss the coding system
   # Therefore, we manually add the coding system identifier
   unique_codelist[, coding_system := "PRODCODEID"]
-
-
+  
+  # add variable tag
+  unique_codelist <- unique_codelist[, variable := "NA"]
+  
   # Load study-specific codelist from CSV file for comparison/mapping
   study_codelist <- import_file("dbtest/codelist_example_medicines.csv")
 
@@ -34,6 +36,9 @@ test_that("Checking the result is a data.table", {
   data.table::setnames(
     x = study_codelist, old = "product_identifier", "coding_system"
   )
+  
+  # set priority
+  study_codelist <- unique(study_codelist)[, priority := ifelse(tags == "narrow", 1, 2)][,c('concept_id','code','coding_system','tags','priority')]
 
   # Create DAP-specific codelist by merging unique and study codelists
   dap_specific_codeslist <- T2.DMM::create_dap_specific_codelist(
@@ -65,6 +70,9 @@ test_that("Check expected format of the codelist and unique codelist work", {
       tb_name = "MEDICINES"
     )[[1]]
   )
+  
+  # add variable tag
+  unique_codelist <- unique_codelist[, variable := "NA"]
 
   # Test 1: Verify error when study_codelist is NULL
   testthat::expect_error(
