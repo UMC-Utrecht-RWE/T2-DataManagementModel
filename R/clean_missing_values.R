@@ -28,7 +28,8 @@
 #' # Overwrite tables with materialized cleaned version
 #' clean_missing_values(con, list_cols, mode = "materialized")
 #' }
-clean_missing_values <- function(con, list_columns_clean,
+clean_missing_values <- function(con, 
+                                 list_columns_clean,
                                  schema_name = NULL,
                                  to_view = FALSE, 
                                  pipeline_extension = "_T2DMM") {
@@ -42,10 +43,10 @@ clean_missing_values <- function(con, list_columns_clean,
   for (table_to_clean in names(list_columns_clean)) {
     if (table_to_clean %in% tables_available) {
       message(sprintf("[clean_missing_values] %s ", table_to_clean))
-
+      
       # Get column types from schema
       col_info <- DBI::dbGetQuery(
-        con, sprintf("PRAGMA table_info(%s)", table_to_clean)
+        con, sprintf("PRAGMA table_info(%s)", paste0(schema_name, ".", table_to_clean))
       )
 
       for (colname in list_columns_clean[[table_to_clean]]) {
