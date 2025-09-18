@@ -114,14 +114,13 @@ delete_duplicates_origin <- function(
 
   scheme <- valid_scheme
 
-
   if (length(scheme) > 0) {
     # Loop through each specified table in the scheme
     for (case_name in names(scheme)) {
       # Check if the table exists in the database
       #Adjusting name of table to the Scheme where this is located in the db
       table_from_name <- paste0(schema_name, ".", case_name)
-      
+
       if (case_name %in% DBI::dbListTables(db_connection)) {
         # Determine columns to select based on the scheme
         if (all(scheme[[case_name]] %in% "*")) {
@@ -143,7 +142,7 @@ delete_duplicates_origin <- function(
                        GROUP BY ", cols_to_select, "
                        )")
         if (to_view == TRUE) {
-          
+
           pipeline_name <- paste0(case_name, pipeline_extension)
           query <-  paste0(
             "SELECT * EXCLUDE(rn)
