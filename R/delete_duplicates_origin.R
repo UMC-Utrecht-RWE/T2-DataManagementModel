@@ -130,10 +130,7 @@ delete_duplicates_origin <- function(
         }
         cols_to_select <- paste(cols_to_select, collapse = ", ")
 
-        # Build the SQL query to delete duplicate rows
-        query <- paste0("CREATE OR REPLACE ", case_name, " AS
-                       SELECT DISTINCT *
-                       FROM ", table_from_name)
+        
         if (to_view == TRUE) {
 
           pipeline_name <- paste0(case_name, pipeline_extension)
@@ -151,17 +148,27 @@ delete_duplicates_origin <- function(
         }
         # Execute the query and handle results
         if (save_deleted == FALSE && to_view == FALSE) {
-          rs <- DBI::dbSendStatement(db_connection, query)
-          DBI::dbHasCompleted(rs)
-          num_rows <- DBI::dbGetRowsAffected(rs)
+          row_count_0 <- dbGetQuery(db_connection, paste0("SELECT COUNT(*) AS n FROM ",table_from_name))
+          # Build the SQL query to delete duplicate rows
+          query <- paste0("CREATE OR REPLACE TABLE ", case_name, " AS
+                       SELECT DISTINCT *
+                       FROM ", table_from_name)
+          DBI::dbExecute(db_connection, query)
+          row_count_1 <- dbGetQuery(db_connection, paste0("SELECT COUNT(*) AS n FROM ",case_name))
           message(paste0(
             "[delete_duplicates_origin] Number of record deleted: ",
-            num_rows
+            row_count_0 - row_count_1
           ))
-          DBI::dbClearResult(rs)
         } else if (
           save_deleted == TRUE && !is.null(save_path) && to_view == FALSE
         ) {
+          query <- paste0("DELETE FROM ", case_name, "
+                      WHERE rowid NOT IN
+                       (
+                       SELECT  MIN(rowid)
+                       FROM ", table_from_name, "
+                       GROUP BY ", cols_to_select, "
+                       )")
           rs <-  data.table::as.data.table(
             DBI::dbGetQuery(
               db_connection,
