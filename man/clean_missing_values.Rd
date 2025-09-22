@@ -15,15 +15,16 @@ clean_missing_values(
 \arguments{
 \item{con}{A DBI connection to a DuckDB database.}
 
-\item{list_columns_clean}{A named list. Each element is a character vector of column
-names to check for missing values. Names of the list must match table names in the database.}
+\item{list_columns_clean}{A named list. Each element is a character
+vector of column}
 
-\item{to_view}{Logical. If `TRUE` (default), creates a view with the unique ID column.
+\item{to_view}{Logical. If `TRUE` (default), creates a view with
+the unique ID column.
 If `FALSE`, overwrites the original table.}
 
-\item{pipeline_extension}{When using views when applying the clean_missing_values on CDM table we must define the name of the pipeline extension. See add_view for more information.}
-
-\item{view_extension}{When using views when applying the clean_missing_values on CDM table we must define the name of the view. See add_view for more information.}
+\item{pipeline_extension}{When using views when applying the
+clean_missing_values on CDM table we must define the name of the
+pipeline extension. See add_view for more information.}
 }
 \value{
 Invisibly returns \code{TRUE} after processing all tables.
@@ -34,7 +35,8 @@ For each table listed in \code{list_columns_clean}, this function either:
 - materializes a cleaned version by overwriting the original table.
 }
 \details{
-Missing values are defined as \code{NULL}, empty string (\code{''}), or the string \code{'NA'}.
+Missing values are defined as \code{NULL}, empty string (\code{''}),
+or the string \code{'NA'}.
 }
 \examples{
 \dontrun{

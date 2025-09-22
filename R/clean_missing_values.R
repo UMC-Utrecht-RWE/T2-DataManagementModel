@@ -4,15 +4,22 @@
 #' - creates or extends a view pipeline (non-destructive, dynamic), OR
 #' - materializes a cleaned version by overwriting the original table.
 #'
-#' Missing values are defined as \code{NULL}, empty string (\code{''}), or the string \code{'NA'}.
+#' Missing values are defined as \code{NULL}, empty string (\code{''}),
+#' or the string \code{'NA'}.
 #'
 #' @param con A DBI connection to a DuckDB database.
-#' @param list_columns_clean A named list. Each element is a character vector of column
-#'   names to check for missing values. Names of the list must match table names in the database.
-#' @param to_view Logical. If `TRUE` (default), creates a view with the unique ID column.
+#' @param list_columns_clean A named list. Each element is a character
+#' vector of column
+#' @schema_name A string. The schema name where the tables are located.
+#' Default is NULL which means 'main' schema.
+#'   names to check for missing values. Names of the list must match
+#' table names in the database.
+#' @param to_view Logical. If `TRUE` (default), creates a view with
+#' the unique ID column.
 #' If `FALSE`, overwrites the original table.
-#' @param pipeline_extension When using views when applying the clean_missing_values on CDM table we must define the name of the pipeline extension. See add_view for more information.
-#' @param view_extension When using views when applying the clean_missing_values on CDM table we must define the name of the view. See add_view for more information.
+#' @param pipeline_extension When using views when applying the
+#' clean_missing_values on CDM table we must define the name of the
+#' pipeline extension. See add_view for more information.
 #' @return Invisibly returns \code{TRUE} after processing all tables.
 #'
 #' @examples
@@ -21,32 +28,35 @@
 #'   PERSONS = c("person_id"),
 #'   VACCINES = c("person_id")
 #' )
-#' 
+#'
 #' # Create dynamic views
 #' clean_missing_values(con, list_cols, mode = "view")
 #'
 #' # Overwrite tables with materialized cleaned version
 #' clean_missing_values(con, list_cols, mode = "materialized")
 #' }
-clean_missing_values <- function(con, 
+clean_missing_values <- function(con,
                                  list_columns_clean,
                                  schema_name = NULL,
-                                 to_view = FALSE, 
+                                 to_view = FALSE,
                                  pipeline_extension = "_T2DMM") {
-  if(is.null(schema_name)){
+  if (is.null(schema_name)) {
     schema_name <- "main"
   }
-  
+
   # Get available tables
   tables_available <- DBI::dbListTables(con)
-  
+
   for (table_to_clean in names(list_columns_clean)) {
     if (table_to_clean %in% tables_available) {
       message(sprintf("[clean_missing_values] %s ", table_to_clean))
-      
+
       # Get column types from schema
       col_info <- DBI::dbGetQuery(
-        con, sprintf("PRAGMA table_info(%s)", paste0(schema_name, ".", table_to_clean))
+        con,
+        sprintf(
+          "PRAGMA table_info(%s)", paste0(schema_name, ".", table_to_clean)
+        )
       )
 
       for (colname in list_columns_clean[[table_to_clean]]) {
@@ -61,16 +71,17 @@ clean_missing_values <- function(con,
             colname, colname, colname
           )
         }
-        
+
         if (to_view == TRUE) {
           # ---- Dynamic pipeline of views ----
           transform_sql <- sprintf("SELECT * FROM %%s WHERE %s", filter_sql)
           pipeline_name <- paste0(table_to_clean, pipeline_extension)
-          
-          add_view(
+
+          T2.DMM::add_view(
             con = con,
             pipeline = pipeline_name,
-            base_table = paste0(schema_name, ".", table_to_clean),   # only used if pipeline not initialized
+            # only used if pipeline not initialized
+            base_table = paste0(schema_name, ".", table_to_clean),
             transform_sql = transform_sql
           )
 
