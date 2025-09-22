@@ -8,29 +8,14 @@
 #' If the pipeline does not exist yet, the function will automatically
 #' initialize it from a specified base table and create the first version.
 #'
-#' @param con A DBI connection object to a DuckDB database.
-#' @param pipeline A string specifying the name of the pipeline.
-#' @param transform_sql A SQL string representing the transformation.
-#' Use `%s` as a placeholder for the current head view of the pipeline.
-#' @param base_table Optional. The name of the base table to initialize the
-#' pipeline if it does not exist. Required only for the first step.
-#'
-#' @return Invisibly returns the name of the newly created versioned view
-#' in the pipeline.
-#'
-#' @examples
-#' # Initialize or add to the pipeline
-#' add_view(con, "persons_pipeline",
-#'          "SELECT DISTINCT * FROM %s",
-#'          base_table = "persons")
-#'
-#' add_view(con, "persons_pipeline",
-#'          "SELECT *, LENGTH(name) AS name_len FROM %s" )
-#'
-#' # Query the final transformed view
-#' DBI::dbGetQuery(con, "SELECT * FROM persons_view LIMIT 5")
+#' @param con DuckDB connection object.
+#' @param pipeline Name of the pipeline (e.g., "persons").
+#' @param transform_sql SQL transformation query as a string. Use `%s` as a
+#'  placeholder for the current view name.
+#' @param base_table Optional. Name of the base table to initialize the pipeline
+#' if it does not exist yet. Required if the pipeline is being created for the
+#' first time.
 #' @export
-#'
 add_view <- function(
   con, pipeline, transform_sql, base_table = NULL
 ) {

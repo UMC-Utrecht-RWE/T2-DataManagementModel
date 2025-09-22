@@ -89,10 +89,12 @@ test_that("Checking if the function saves the results", {
   save_path_csv <- tempdir()
 
   #Delete duplicates and save result
-  delete_duplicates_origin(
-    db_connection = db_con, scheme,
-    save_deleted = TRUE,
-    save_path = save_path_csv
+  suppressWarnings(
+    delete_duplicates_origin(
+      db_connection = db_con, scheme,
+      save_deleted = TRUE,
+      save_path = save_path_csv
+    )
   )
 
   #Check the saved result is the same as the one in the database
@@ -116,11 +118,14 @@ test_that("Checking if the function saves the results with a postfix", {
 
   post_fix <- "test_post_fix"
   #Delete duplicates and save result
-  delete_duplicates_origin(
-    db_connection = db_con, scheme,
-    save_deleted = TRUE,
-    save_path = save_path_csv,
-    add_postfix = post_fix
+  suppressWarnings(
+    delete_duplicates_origin( ## warn here
+      db_connection = db_con,
+      scheme = scheme,
+      save_deleted = TRUE,
+      save_path = save_path_csv,
+      add_postfix = post_fix
+    )
   )
 
   #Check the saved result is the same as the one in the database
