@@ -16,6 +16,14 @@
 #' and the ROWID number.
 #' @param order_by_cols List of vector with column names which you can apply an
 #'  order by. E.g list(EVENTS = c('person_id','event_code'))
+#' @param schema_name Optional schema name to prepend to table and view names.
+#' Default is `NULL`.
+#' @param to_view Logical. If `TRUE` (default),
+#' creates a view with the unique ID column.
+#' If `FALSE`, overwrites the original table.
+#' @param pipeline_extension When using views when applying the
+#' clean_missing_values on CDM table we must define the name of the pipeline
+#' extension. See add_view for more information.
 #'
 #' @examples
 #' \dontrun{
@@ -35,8 +43,14 @@ create_unique_id <- function(
   extension_name = "",
   id_name = "ori_id",
   separator_id = "-",
-  order_by_cols = list()
+  order_by_cols = list(),
+  schema_name = NULL,
+  to_view = FALSE,
+  pipeline_extension = "_T2DMM"
 ) {
+  if (is.null(schema_name)) {
+    schema_name <- "main"
+  }
   # Append the extension to CDM table names
   cdm_tables_names <- paste0(cdm_tables_names, extension_name)
 
@@ -66,11 +80,17 @@ create_unique_id <- function(
 
   # Loop through each existing CDM table
   for (table in cdm_tables_names_existing) {
+    #Adjusting the name of the table to the Scheme where this is located
+    #  in the database
+    table_from_name <- paste0(schema_name, ".", table)
+    
     # Rename the table and create a new one with the unique identifier
-
-
     if (order_by_flag && !is.null(order_by_cols[[table]])) {
-      columns_in_table <- DBI::dbListFields(db_connection, table)
+      columns_in_table <- dbGetQuery(
+        db_connection,
+        sprintf("PRAGMA table_info(%s)", table_from_name)
+      )$name
+      
       cols <- order_by_cols[[table]]
       available_order_by_cols <- columns_in_table[columns_in_table %in% cols]
       order_by <- paste0(
@@ -79,23 +99,52 @@ create_unique_id <- function(
     } else {
       order_by <- ""
     }
-    DBI::dbExecute(db_connection, paste0(
-      "CREATE TABLE temporal_table AS
-                                      SELECT  '", table, separator_id,
-      "' || rowid AS ", id_name, ",
-                                      '", table, "' AS ori_table,
 
-                                      rowid AS ROWID, *
-                                      FROM ", table,
-      order_by
-    ), n = -1)
+    
 
-    DBI::dbExecute(db_connection, paste0("DROP TABLE ", table), n = -1)
+    if (to_view == TRUE) {
+      pipeline_name <- paste0(table, pipeline_extension)
+      T2.DMM:::add_view(
+        db_connection,
+        pipeline = pipeline_name,
+        base_table = table_from_name,
+        transform_sql = paste0(
+          "SELECT '",
+          table, separator_id, "' || row_number() OVER () AS ", id_name, ",
+          '", table, "' AS ori_table, row_number() OVER () AS ROWID, * FROM %s",
+          order_by
+        )
+      )
+    }else{
+      DBI::dbExecute(
+        db_connection,
+        paste0(
+          "CREATE OR REPLACE TABLE temporal_table AS\n
+          SELECT  '",
+          table, separator_id, "' || row_number() OVER () AS ", id_name,
+          ",\n                                      '", table,
+          "' AS ori_table,\n\n
+          row_number() OVER () AS ROWID, *\n
+          FROM ",
+          table_from_name, order_by
+        ), n = -1
+      )
+      DBI::dbExecute(db_connection, paste0("DROP TABLE ",
+                                           table_from_name), n = -1)
+      DBI::dbExecute(
+        db_connection,
+        paste0(
+          "CREATE TABLE ", table_from_name, " AS SELECT * FROM temporal_table"
+        )
+      )
+      DBI::dbExecute(db_connection, "DROP TABLE temporal_table")
+    }
 
-    DBI::dbExecute(
-      db_connection,
-      paste0("ALTER TABLE temporal_table RENAME TO ", table)
+    message(
+      paste0(
+        "[CreateUniqueIDCDM] Unique ID create for table: ",
+        table_from_name
+      )
     )
-    message(paste0("[CreateUniqueIDCDM] Unique ID create for table: ", table))
   }
 }
