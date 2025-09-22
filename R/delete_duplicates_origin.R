@@ -131,25 +131,15 @@ delete_duplicates_origin <- function(
         cols_to_select <- paste(cols_to_select, collapse = ", ")
 
         # Build the SQL query to delete duplicate rows
-        query <- paste0("DELETE FROM ", case_name, "
-                      WHERE rowid NOT IN
-                       (
-                       SELECT  MIN(rowid)
-                       FROM ", table_from_name, "
-                       GROUP BY ", cols_to_select, "
-                       )")
+        query <- paste0("CREATE OR REPLACE ", case_name, " AS
+                       SELECT DISTINCT *
+                       FROM ", table_from_name)
         if (to_view == TRUE) {
 
           pipeline_name <- paste0(case_name, pipeline_extension)
           query <-  paste0(
-            "SELECT * EXCLUDE(rn)
-            FROM (
-                SELECT *,
-                       ROW_NUMBER() OVER (PARTITION BY ",
-            cols_to_select, ") AS rn
-                FROM %s
-            ) t
-            WHERE rn = 1;
+            "SELECT DISTINCT * 
+             FROM %s ;
             "
           )
           T2.DMM:::add_view(
