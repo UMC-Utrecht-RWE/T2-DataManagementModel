@@ -10,7 +10,7 @@
 #' @param con A DBI connection to a DuckDB database.
 #' @param list_columns_clean A named list. Each element is a character
 #' vector of column
-#' @schema_name A string. The schema name where the tables are located.
+#' @param schema_name A string. The schema name where the tables are located.
 #' Default is NULL which means 'main' schema.
 #'   names to check for missing values. Names of the list must match
 #' table names in the database.

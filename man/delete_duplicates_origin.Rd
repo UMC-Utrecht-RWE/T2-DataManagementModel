@@ -41,10 +41,6 @@ with distinct rows based on the specified columns. Default is FALSE.}
 \item{pipeline_extension}{When using views when applying the
 clean_missing_values on CDM table we must define the name of the
 pipeline extension. See add_view for more information.}
-
-\item{view_extension}{When using views when applying the clean_missing_values
- on CDM table we must define the name of the view. See add_view for more
-information.}
 }
 \description{
 This function removes duplicate rows from specified CDM tables based on a

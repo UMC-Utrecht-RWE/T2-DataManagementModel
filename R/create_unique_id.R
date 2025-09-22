@@ -24,9 +24,6 @@
 #' @param pipeline_extension When using views when applying the
 #' clean_missing_values on CDM table we must define the name of the pipeline
 #' extension. See add_view for more information.
-#' @param view_extension When using views when applying the clean_missing_values
-#'  on CDM table we must define the name of the view. See add_view for more
-#' information.
 #'
 #' @examples
 #' \dontrun{

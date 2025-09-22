@@ -43,6 +43,8 @@ Default: "expected_value".}
  to save the meaning of any CDM table -if available- in the results of the
 function. This is specific for the ConcePTION CDM.
 Default: FALSE.}
+
+\item{intermediate_type}{Type of intermediate structure to create.}
 }
 \description{
 This function Creates DAP-specific concepts into a database using a

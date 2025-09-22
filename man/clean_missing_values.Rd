@@ -18,6 +18,11 @@ clean_missing_values(
 \item{list_columns_clean}{A named list. Each element is a character
 vector of column}
 
+\item{schema_name}{A string. The schema name where the tables are located.
+Default is NULL which means 'main' schema.
+  names to check for missing values. Names of the list must match
+table names in the database.}
+
 \item{to_view}{Logical. If `TRUE` (default), creates a view with
 the unique ID column.
 If `FALSE`, overwrites the original table.}

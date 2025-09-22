@@ -43,10 +43,6 @@ If `FALSE`, overwrites the original table.}
 \item{pipeline_extension}{When using views when applying the
 clean_missing_values on CDM table we must define the name of the pipeline
 extension. See add_view for more information.}
-
-\item{view_extension}{When using views when applying the clean_missing_values
- on CDM table we must define the name of the view. See add_view for more
-information.}
 }
 \description{
 This function generates a unique CDM ID for each data record of the specified
