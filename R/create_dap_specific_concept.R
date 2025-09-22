@@ -24,7 +24,6 @@
 #'  to save the meaning of any CDM table -if available- in the results of the
 #' function. This is specific for the ConcePTION CDM.
 #' Default: FALSE.
-#' @param intermediate_type Type of intermediate structure to create.
 #'
 #' @export
 create_dap_specific_concept <- function(
@@ -37,11 +36,11 @@ create_dap_specific_concept <- function(
     expected_value_prefix = "expected_value",
     add_meaning = FALSE,
     intermediate_type = "TABLE") {
-
+  print(pate0("Intermediate table type: ",intermediate_type))
   if (nrow(codelist) <= 0) {
     stop("Codelist does not contain any data.")
   }
-  if (any(intermediate_type == c("TABLE", "VIEW")) != TRUE) {
+  if(any(intermediate_type == c("TABLE","VIEW")) != TRUE) {
     stop("intermediate_type has to be either TABLE or VIEW.")
   }
   scheme <- unique(codelist[[table_name]])
@@ -51,9 +50,10 @@ create_dap_specific_concept <- function(
                       names(codelist), value = TRUE)
   cols <- codelist[, ..cols_names]
   values <- codelist[, ..value_names]
-
+  
   for (name in scheme) {
-    name_edited <- paste0(name, "_EDITED")
+    name_edited <- paste0(name, "_EDITED_dapspec")
+    print(paste0("Creating intermediate table ", name_edited ))
     to_upper_cols <- unique(na.omit(unlist(codelist[get(table_name) %in%
                                                       name, ..cols_names])))
     query_columns_table <- paste0("
@@ -61,30 +61,24 @@ create_dap_specific_concept <- function(
             FROM information_schema.columns
             WHERE table_name = '", name, "'
           ")
-    columns_db_table <- DBI::dbGetQuery(
-      save_db, query_columns_table
-    )$column_name
+    columns_db_table <- DBI::dbGetQuery(save_db,query_columns_table)$column_name
     rest_cols <- unique(na.omit(columns_db_table[!columns_db_table %in%
                                                    to_upper_cols]))
     to_upper_query <- paste0(paste0("UPPER(", to_upper_cols,
                                     ") AS ", to_upper_cols), collapse = ", ")
     select_cols_query <- paste0(paste0(rest_cols, collapse = ", "),
                                 " ,")
+    type_table <- if(intermediate_type %in% "TABLE"){
+      "TEMP TABLE"
+    }else{
+      "VIEW"
+    }
     if (!name_edited %in% DBI::dbListTables(save_db) ||
-      all(
-        c(rest_cols, to_upper_cols) %in% DBI::dbListFields(save_db, name_edited)
-      ) == FALSE) {
-      DBI::dbExecute(
-        save_db,
-        paste0(
-          "CREATE TEMP ",
-          intermediate_type, " ", name_edited,
-          "_dapspec AS\n              SELECT ", select_cols_query,
-          " ", to_upper_query,
-          "\n              FROM ",
-          name_attachment, name
-        )
-      )
+        all(c(rest_cols, to_upper_cols) %in% DBI::dbListFields(save_db,
+                                                               name_edited)) == FALSE) {
+      DBI::dbExecute(save_db, paste0("CREATE ",type_table," ",name_edited, " AS\n              SELECT ", select_cols_query,
+                                     " ", to_upper_query, "\n              FROM ",
+                                     name_attachment, name))
     }
   }
   for (j in seq_len(nrow(codelist))) {
@@ -95,7 +89,7 @@ create_dap_specific_concept <- function(
     codelist_id <- codelist[[j, "dap_spec_id"]]
     cols_temp <- unique(na.omit(unlist(cols[j, ])))
     values_temp <- toupper(unique(na.omit(unlist(values[j, ]))))
-
+    
     value <- codelist[[j, "keep_value_column_name"]]
     if (add_meaning) {
       columns_db_table <- DBI::dbListFields(save_db, name_edited)
