@@ -89,7 +89,7 @@ create_unique_id <- function(
           rn AS ROWID, 
           * EXCLUDE(rn)
           FROM (SELECT *, hash(CAST(uuid() AS VARCHAR)) AS rn
-                FROM %s)",
+                FROM %s)"
         )
       )
     }else{
