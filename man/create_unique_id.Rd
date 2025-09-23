@@ -10,7 +10,6 @@ create_unique_id(
   extension_name = "",
   id_name = "ori_id",
   separator_id = "-",
-  order_by_cols = list(),
   schema_name = NULL,
   to_view = FALSE,
   pipeline_extension = "_T2DMM"
@@ -29,9 +28,6 @@ By default is set as "ori_id".}
 
 \item{separator_id}{String that defines the separators between the table name
 and the ROWID number.}
-
-\item{order_by_cols}{List of vector with column names which you can apply an
-order by. E.g list(EVENTS = c('person_id','event_code'))}
 
 \item{schema_name}{Optional schema name to prepend to table and view names.
 Default is `NULL`.}

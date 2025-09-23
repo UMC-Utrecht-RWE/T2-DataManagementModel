@@ -99,7 +99,6 @@ config_json <- '{
     "to_view": false
   },
     "unique_id_generator":{
-      "order_by_cols" : [],
       "id_name" : "ori_id",
       "separator_id" : "-",
       "instance_name": "",

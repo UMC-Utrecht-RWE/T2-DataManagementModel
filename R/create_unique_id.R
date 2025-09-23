@@ -14,8 +14,6 @@
 #' By default is set as "ori_id".
 #' @param separator_id String that defines the separators between the table name
 #' and the ROWID number.
-#' @param order_by_cols List of vector with column names which you can apply an
-#'  order by. E.g list(EVENTS = c('person_id','event_code'))
 #' @param schema_name Optional schema name to prepend to table and view names.
 #' Default is `NULL`.
 #' @param to_view Logical. If `TRUE` (default),
@@ -43,7 +41,6 @@ create_unique_id <- function(
   extension_name = "",
   id_name = "ori_id",
   separator_id = "-",
-  order_by_cols = list(),
   schema_name = NULL,
   to_view = FALSE,
   pipeline_extension = "_T2DMM"
@@ -73,34 +70,11 @@ create_unique_id <- function(
     message(cdm_tables_names[!cdm_tables_names %in% list_existing_tables])
   }
 
-  order_by_flag <- FALSE
-  if (length(order_by_cols) > 0) {
-    order_by_flag <- TRUE
-  }
-
   # Loop through each existing CDM table
   for (table in cdm_tables_names_existing) {
     #Adjusting the name of the table to the Scheme where this is located
     #  in the database
     table_from_name <- paste0(schema_name, ".", table)
-    
-    # Rename the table and create a new one with the unique identifier
-    if (order_by_flag && !is.null(order_by_cols[[table]])) {
-      columns_in_table <- dbGetQuery(
-        db_connection,
-        sprintf("PRAGMA table_info(%s)", table_from_name)
-      )$name
-      
-      cols <- order_by_cols[[table]]
-      available_order_by_cols <- columns_in_table[columns_in_table %in% cols]
-      order_by <- paste0(
-        " ORDER BY ", paste0(available_order_by_cols, collapse = ", ")
-      )
-    } else {
-      order_by <- ""
-    }
-
-    
 
     if (to_view == TRUE) {
       pipeline_name <- paste0(table, pipeline_extension)
@@ -109,25 +83,28 @@ create_unique_id <- function(
         pipeline = pipeline_name,
         base_table = table_from_name,
         transform_sql = paste0(
-          "SELECT '",
-          table, separator_id, "' || row_number() OVER () AS ", id_name, ",
-          '", table, "' AS ori_table, row_number() OVER () AS ROWID, * FROM %s",
-          order_by
+          "SELECT 
+          '", table, separator_id, "' || rn AS ", id_name, ",
+          '", table, "' AS ori_table, 
+          rn AS ROWID, 
+          * EXCLUDE(rn)
+          FROM (SELECT *, hash(CAST(uuid() AS VARCHAR)) AS rn,
+            * FROM %s)",
         )
       )
     }else{
       DBI::dbExecute(
         db_connection,
         paste0(
-          "CREATE OR REPLACE TABLE temporal_table AS\n
-          SELECT  '",
-          table, separator_id, "' || row_number() OVER () AS ", id_name,
-          ",\n                                      '", table,
-          "' AS ori_table,\n\n
-          row_number() OVER () AS ROWID, *\n
-          FROM ",
-          table_from_name, order_by
-        ), n = -1
+          "CREATE OR REPLACE TEMP TABLE temporal_table AS
+            SELECT 
+            '", table, separator_id, "' || rn AS ", id_name, ",
+            '", table, "' AS ori_table, 
+            rn AS ROWID, 
+            * EXCLUDE(rn)
+            FROM (SELECT *, hash(CAST(uuid() AS VARCHAR)) AS rn,
+              * FROM ",table_from_name,")"
+        )
       )
       DBI::dbExecute(db_connection, paste0("DROP TABLE ",
                                            table_from_name), n = -1)
