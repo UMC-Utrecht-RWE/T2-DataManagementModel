@@ -88,8 +88,8 @@ create_unique_id <- function(
           '", table, "' AS ori_table, 
           rn AS ROWID, 
           * EXCLUDE(rn)
-          FROM (SELECT *, hash(CAST(uuid() AS VARCHAR)) AS rn,
-            * FROM %s)",
+          FROM (SELECT *, hash(CAST(uuid() AS VARCHAR)) AS rn
+                FROM %s)",
         )
       )
     }else{
@@ -102,8 +102,8 @@ create_unique_id <- function(
             '", table, "' AS ori_table, 
             rn AS ROWID, 
             * EXCLUDE(rn)
-            FROM (SELECT *, hash(CAST(uuid() AS VARCHAR)) AS rn,
-              * FROM ",table_from_name,")"
+            FROM (SELECT *, hash(CAST(uuid() AS VARCHAR)) AS rn
+                  FROM ",table_from_name,")"
         )
       )
       DBI::dbExecute(db_connection, paste0("DROP TABLE ",
