@@ -4,7 +4,7 @@
 \alias{get_origin_row}
 \title{Get Records from Origin CDM Tables by Unique Identifier}
 \usage{
-get_origin_row(db_connection, ids, id_name = "ori_id", separator_id = "-")
+get_origin_row(db_connection, ids)
 }
 \arguments{
 \item{db_connection}{Database connection object (DBIConnection).}

@@ -8,8 +8,6 @@ create_unique_id(
   db_connection,
   cdm_tables_names,
   extension_name = "",
-  id_name = "ori_id",
-  separator_id = "-",
   schema_name = NULL,
   to_view = FALSE,
   pipeline_extension = "_T2DMM"
@@ -22,12 +20,6 @@ create_unique_id(
 
 \item{extension_name}{String to be added to the name of the tables,
 useful when loading different CDM instances in the same database.}
-
-\item{id_name}{String that defines the name of the unique identifier.
-By default is set as "ori_id".}
-
-\item{separator_id}{String that defines the separators between the table name
-and the ROWID number.}
 
 \item{schema_name}{Optional schema name to prepend to table and view names.
 Default is `NULL`.}

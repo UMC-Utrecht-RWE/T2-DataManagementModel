@@ -25,8 +25,7 @@
 #' db_connection <- dbConnect(duckdb::duckdb(), ":memory:")
 #' cdm_tables_names <- c("PERSONS", "VISITS", "OBSERVATIONS")
 #' create_unique_id(db_connection, cdm_tables_names,
-#'   extension_name = "_CDM1",
-#'   id_name = "CDM_ID", separator_id = "_"
+#'   extension_name = "_CDM1"
 #' )
 #' }
 #'
