@@ -99,8 +99,6 @@ config_json <- '{
     "to_view": false
   },
     "unique_id_generator":{
-      "id_name" : "ori_id",
-      "separator_id" : "-",
       "instance_name": "",
       "to_view": false
     },

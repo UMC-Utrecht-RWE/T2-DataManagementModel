@@ -148,7 +148,7 @@ create_dap_specific_concept <- function(
       save_db,
       paste0(
         "INSERT INTO concept_table
-        SELECT t1.ori_id, t1.ori_table, ROWID, t1.person_id, ",
+        SELECT t1.ori_table, t1.unique_id, t1.person_id, ",
         coding_system, " AS code, ", coding_system, " AS coding_system, ",
         value, " AS value, '", concept_name, "' AS concept_id, ",
         date_col, " AS date ", meaning_clause, "FROM ",

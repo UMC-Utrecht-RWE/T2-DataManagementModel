@@ -4,16 +4,14 @@ test_that("Names and number of new columns added", {
 
   create_unique_id(db_con,
     cdm_tables_names = c("PERSONS", "VACCINES"),
-    extension_name = "",
-    id_name = "ori_id",
-    separator_id = "-"
+    extension_name = ""
   )
 
   vx_db <- DBI::dbReadTable(db_con, "VACCINES")
-  expect_contains(names(vx_db), c("ori_id", "ROWID", "ori_table"))
+  expect_contains(names(vx_db), c( "unique_id", "ori_table"))
 
   persons_db <- DBI::dbReadTable(db_con, "persons")
-  expect_contains(names(persons_db), c("ori_id", "ROWID", "ori_table"))
+  expect_contains(names(persons_db), c( "unique_id", "ori_table"))
 })
 
 test_that("Checking the OriTable is the same as the included table", {
@@ -22,8 +20,7 @@ test_that("Checking the OriTable is the same as the included table", {
 
   create_unique_id(db_con,
     cdm_tables_names = c("PERSONS"),
-    extension_name = "", id_name = "ori_id",
-    separator_id = "-"
+    extension_name = ""
   )
 
 
