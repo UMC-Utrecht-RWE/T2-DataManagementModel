@@ -72,12 +72,8 @@ delete_duplicates_origin <- function(
   valid_scheme <- list()
   # Check if specified columns in the scheme exist in the corresponding tables
   for (case_name in names(scheme)) {
-    if (
-      table_exists(
-        con = db_connection, table_name = case_name, schema = schema_name
-      ) == TRUE
-    ) {
-
+    if (DBI::dbExistsTable(db_connection,
+                           DBI::Id(schema = schema_name, table = case_name)) == TRUE) {
       col_names <- DBI::dbGetQuery(
         db_connection,
         sprintf(
@@ -204,32 +200,4 @@ delete_duplicates_origin <- function(
       }
     }
   }
-}
-
-#' Check if a table exists in a DuckDB database
-#'
-#' @param con A DBI connection to a DuckDB database.
-#' @param table_name Name of the table to check.
-#' @param schema Optional. Name of the schema to check within.
-#' Default is NULL, which checks all schemas.
-#' @return TRUE if the table exists, FALSE otherwise.
-table_exists <- function(con, table_name, schema = NULL) {
-  if (!is.null(schema)) {
-    sql <- sprintf(
-      "SELECT COUNT(*) AS n
-       FROM information_schema.tables
-       WHERE table_schema = '%s' AND table_name = '%s'",
-      schema, table_name
-    )
-  } else {
-    sql <- sprintf(
-      "SELECT COUNT(*) AS n
-       FROM information_schema.tables
-       WHERE table_name = '%s'",
-      table_name
-    )
-  }
-
-  result <- DBI::dbGetQuery(con, sql)$n
-  return(result > 0)
 }

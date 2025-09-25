@@ -49,7 +49,7 @@
 #' }
 #'
 #' @export
-get_unique_codelist <- function(db_connection, column_info_list, tb_name) {
+get_unique_codelist <- function(db_connection, column_info_list, tb_name, schema_name = "main") {
   # Initialize an empty list to store the individual queries
   queries <- list()
 
@@ -64,7 +64,7 @@ get_unique_codelist <- function(db_connection, column_info_list, tb_name) {
       sprintf(
         "SELECT %s, count(*) AS COUNT FROM %s",
         paste(sprintf("%s AS %s", column_name, alias_name), collapse = ", "),
-        tb_name
+        paste0(schema_name,'.',tb_name)
       )
 
     # Generate the GROUP BY clause

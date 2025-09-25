@@ -8,7 +8,8 @@ create_loaded_test_db <- function(csv_dir = "dbtest",
     db_connection = con,
     data_instance_path = csv_dir,
     cdm_metadata = metadata,
-    cdm_tables_names = tables
+    cdm_tables_names = tables,
+    schema_name = "ConcePTION"
   ))
 
   return(con)

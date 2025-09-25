@@ -53,7 +53,8 @@ get_origin_row <- function(
   db_connection,
   ids,
   id_name = "ori_id",
-  separator_id = "-"
+  separator_id = "-",
+  schema_name = "main"
 ) {
   ###################
   # Validate inputs
@@ -77,16 +78,6 @@ get_origin_row <- function(
     ))
     return(return_values)
   }
-
-  # # Check if the separator_id is present in id_name
-  # if (!any(grepl(separator_id, ids[[id_name]]))) {
-  #   message(paste0(
-  #     "[get_origin_row] The separator '", separator_id,
-  #     "' does not exist in the unique identifiers"
-  #   ))
-  #   return(return_values)
-  # }
-
 
   ###################
   # Process unique identifiers
@@ -129,7 +120,7 @@ get_origin_row <- function(
     }
 
     # Verify table exists in database
-    table_exists <- DBI::dbExistsTable(db_connection, table)
+    table_exists <- DBI::dbExistsTable(db_connection, DBI::Id(schema = schema_name, table = table))
     if (!table_exists) {
       message(paste0(
         "[get_origin_row] Table '",
@@ -139,8 +130,8 @@ get_origin_row <- function(
       return_values[[table]] <- data.table::data.table()
       next()
     }
-
-    col_names_db <- DBI::dbListFields(db_connection, table)
+    
+    col_names_db <- DBI::dbListFields(db_connection, DBI::Id(schema = schema_name, table = table))
 
     # Check if id_name exists in the table
     if (!id_name %in% col_names_db) {
@@ -165,7 +156,7 @@ get_origin_row <- function(
 
     # Retrieve records from the table based on the unique identifier
     query <- paste0(
-      "SELECT * FROM ", DBI::SQL(table), " WHERE ", DBI::SQL(id_name), " IN (",
+      "SELECT * FROM ", DBI::SQL(DBI::Id(schema = schema_name, table = table)), " WHERE ", DBI::SQL(id_name), " IN (",
       paste0(formatted_ids, collapse = ","),
       ")"
     )

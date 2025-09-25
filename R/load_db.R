@@ -20,13 +20,19 @@ load_db <- function(
     cdm_metadata,
     cdm_tables_names,
     extension_name = "",
-    file_format = "auto") {
+    file_format = "auto",
+    schema_name = 'main') {
 
   # Validate file_format parameter
   if (!file_format %in% c("csv", "parquet", "auto")) {
     stop("file_format must be one of: 'csv', 'parquet', or 'auto'")
   }
-
+  
+  if(!schema_name %in% 'main'){
+  # create schema if not exists
+   dbExecute(db_connection, sprintf("CREATE SCHEMA IF NOT EXISTS %s", schema_name))
+  }
+  
   # Loop through each table in cdm_tables_names
   for (table in cdm_tables_names) {
     # What table are we going to read
@@ -84,13 +90,13 @@ load_db <- function(
     # Construct the appropriate query based on file format
     if (selected_format == "parquet") {
       # For parquet files
-      query <- paste0("CREATE OR REPLACE TABLE ", table, ' AS
+      query <- paste0("CREATE OR REPLACE TABLE ",schema_name,".", table, ' AS
                       SELECT * FROM read_parquet("',
                       file.path(data_instance_path, table), '*.parquet",
                       union_by_name = true );')
     } else {
       # For CSV files (original logic)
-      query <- paste0("CREATE OR REPLACE TABLE ", table, ' AS
+      query <- paste0("CREATE OR REPLACE TABLE ",schema_name,".", table, ' AS
                       SELECT * FROM read_csv_auto("',
                       file.path(data_instance_path, table), '*.csv",
                       union_by_name = true,
@@ -107,7 +113,7 @@ load_db <- function(
     ))
 
     # Checking if any mandatory columns are missing within the database.
-    cols_in_table <- DBI::dbListFields(db_connection, table)
+    cols_in_table <- DBI::dbListFields(db_connection, DBI::Id(schema = schema_name, table = table))
     standard_cdm_table_columns <- unique(
       cdm_metadata[TABLE %in% table, Variable]
     )
@@ -143,7 +149,7 @@ load_db <- function(
 
       invisible(lapply(mandatory_missing_in_db, function(new_column) {
         DBI::dbExecute(db_connection, paste0(
-          "ALTER TABLE ", table, " ADD COLUMN ", new_column, " VARCHAR;"
+          "ALTER TABLE ",schema_name,".", table, " ADD COLUMN ", new_column, " VARCHAR;"
         ))
       }))
     }
@@ -168,7 +174,7 @@ load_db <- function(
         tryCatch(
                  {
                    DBI::dbExecute(db_connection, paste0(
-                     "ALTER TABLE ", table, " DROP COLUMN ", new_column, " ;"
+                     "ALTER TABLE ",schema_name,".", table, " DROP COLUMN ", new_column, " ;"
                    ))
                  },
                  error = function(e) {
@@ -195,7 +201,7 @@ load_db <- function(
             # For parquet files, dates might already be in proper format
             # Try direct conversion first
             DBI::dbExecute(db_connection, paste0(
-              "ALTER TABLE ", table, " ALTER ", new_column, " TYPE DATE;"
+              "ALTER TABLE ",schema_name,".", table, " ALTER ", new_column, " TYPE DATE;"
             ))
           },
           error = function(e) {
@@ -210,7 +216,7 @@ load_db <- function(
               # Try common parquet date formats first
               tryCatch({
                 DBI::dbExecute(db_connection, paste0(
-                  "UPDATE ", table,
+                  "UPDATE ",schema_name,".", table,
                   " SET ", new_column,
                   " = CAST(", new_column, " AS DATE) WHERE ",
                   new_column, " IS NOT NULL;"
@@ -218,7 +224,7 @@ load_db <- function(
               }, error = function(e2) {
                 # Fall back to string-based conversion
                 DBI::dbExecute(db_connection, paste0(
-                  "UPDATE ", table,
+                  "UPDATE ",schema_name,".", table,
                   " SET ", new_column, " = NULL WHERE ",
                   new_column,
                   " NOT SIMILAR TO '^[0-9]{8}$|^[0-9]{4}-[0-9]{2}-[0-9]{2}$';"
@@ -226,7 +232,7 @@ load_db <- function(
 
                 # Handle both YYYYMMDD and YYYY-MM-DD formats
                 DBI::dbExecute(db_connection, paste0(
-                  "UPDATE ", table,
+                  "UPDATE ",schema_name,".", table,
                   " SET ", new_column, " = CASE
                   WHEN ", new_column,
                   " SIMILAR TO '^[0-9]{8}$' THEN STRPTIME(",
@@ -242,14 +248,14 @@ load_db <- function(
               # CSV format handling (original logic)
               # Nullify invalid values first
               DBI::dbExecute(db_connection, paste0(
-                "UPDATE ", table,
+                "UPDATE ",schema_name,".", table,
                 " SET ", new_column, " = NULL WHERE ",
                 new_column, " NOT SIMILAR TO '^[0-9]{8}$';"
               ))
 
               # Apply STRPTIME to reformat valid date strings
               DBI::dbExecute(db_connection, paste0(
-                "UPDATE ", table,
+                "UPDATE ",schema_name,".", table,
                 " SET ", new_column, " = STRPTIME(", new_column,
                 ", '%Y%m%d') WHERE ", new_column, " IS NOT NULL AND ",
                 new_column, " <> '';"
@@ -258,7 +264,7 @@ load_db <- function(
 
             # Retry altering the column type to DATE
             DBI::dbExecute(db_connection, paste0(
-              "ALTER TABLE ", table, " ALTER ", new_column, " TYPE DATE;"
+              "ALTER TABLE ",schema_name,".", table, " ALTER ", new_column, " TYPE DATE;"
             ))
 
             message(
@@ -284,7 +290,7 @@ load_db <- function(
       tryCatch(
         {
           # Replace empty strings with NULL for proper data handling
-          update_query <- paste0("UPDATE ", table, "
+          update_query <- paste0("UPDATE ",schema_name,".", table, "
                             SET ", new_column, " = NULL
                             WHERE ", new_column, " = '';")
           DBI::dbExecute(db_connection, update_query)

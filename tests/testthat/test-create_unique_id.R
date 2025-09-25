@@ -9,10 +9,10 @@ test_that("Names and number of new columns added", {
     separator_id = "-"
   )
 
-  vx_db <- DBI::dbReadTable(db_con, "VACCINES")
+  vx_db <- DBI::dbGetQuery(db_con, "SELECT * FROM ConcePTION.VACCINES")
   expect_contains(names(vx_db), c("ori_id", "ROWID", "ori_table"))
 
-  persons_db <- DBI::dbReadTable(db_con, "persons")
+  persons_db <- DBI::dbGetQuery(db_con, "SELECT * FROM ConcePTION.PERSONS")
   expect_contains(names(persons_db), c("ori_id", "ROWID", "ori_table"))
 })
 
@@ -27,7 +27,7 @@ test_that("Checking the OriTable is the same as the included table", {
   )
 
 
-  persons_db <- DBI::dbReadTable(db_con, "persons")
+  persons_db <- DBI::dbGetQuery(db_con, "SELECT * FROM ConcePTION.PERSONS")
   persons <- import_file("dbtest/PERSONS.csv")
   ori_table_name <- unique(persons_db$ori_table)
   expect_equal("PERSONS", ori_table_name)

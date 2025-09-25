@@ -31,19 +31,19 @@ testthat::test_that("DatabaseLoader runs set_database() without error", {
 
   # Check if the table have the expected number of row
   testthat::expect_equal(
-    DBI::dbGetQuery(loader$db, "SELECT COUNT(*) FROM EVENTS")$count,
+    DBI::dbGetQuery(loader$db, "SELECT COUNT(*) FROM ConcePTION.EVENTS")$count,
     5
   )
   testthat::expect_equal(
-    DBI::dbGetQuery(loader$db, "SELECT COUNT(*) FROM MEDICINES")$count,
+    DBI::dbGetQuery(loader$db, "SELECT COUNT(*) FROM ConcePTION.MEDICINES")$count,
     32002.0
   )
   testthat::expect_equal(
-    DBI::dbGetQuery(loader$db, "SELECT COUNT(*) FROM PERSONS")$count,
+    DBI::dbGetQuery(loader$db, "SELECT COUNT(*) FROM ConcePTION.PERSONS")$count,
     20
   )
   testthat::expect_equal(
-    DBI::dbGetQuery(loader$db, "SELECT COUNT(*) FROM VACCINES")$count,
+    DBI::dbGetQuery(loader$db, "SELECT COUNT(*) FROM ConcePTION.VACCINES")$count,
     30
   )
 
