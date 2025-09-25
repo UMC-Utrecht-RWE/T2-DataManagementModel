@@ -10,10 +10,6 @@
 #' @param cdm_tables_names List of CDM tables names to be imported into the db.
 #' @param extension_name String to be added to the name of the tables,
 #' useful when loading different CDM instances in the same database.
-#' @param id_name String that defines the name of the unique identifier.
-#' By default is set as "ori_id".
-#' @param separator_id String that defines the separators between the table name
-#' and the ROWID number.
 #' @param schema_name Optional schema name to prepend to table and view names.
 #' Default is `NULL`.
 #' @param to_view Logical. If `TRUE` (default),
@@ -39,8 +35,6 @@ create_unique_id <- function(
   db_connection,
   cdm_tables_names,
   extension_name = "",
-  id_name = "ori_id",
-  separator_id = "-",
   schema_name = NULL,
   to_view = FALSE,
   pipeline_extension = "_T2DMM"
@@ -84,9 +78,8 @@ create_unique_id <- function(
         base_table = table_from_name,
         transform_sql = paste0(
           "SELECT 
-          '", table, separator_id, "' || rn AS ", id_name, ",
           '", table, "' AS ori_table, 
-          rn AS ROWID, 
+          rn AS unique_id, 
           * EXCLUDE(rn)
           FROM (SELECT *, uuid() AS rn
                 FROM %s)"
@@ -97,10 +90,9 @@ create_unique_id <- function(
         db_connection,
         paste0(
           "CREATE OR REPLACE TEMP TABLE temporal_table AS
-            SELECT 
-            '", table, separator_id, "' || rn AS ", id_name, ",
+            SELECT
             '", table, "' AS ori_table, 
-            rn AS ROWID, 
+            rn AS unique_id, 
             * EXCLUDE(rn)
             FROM (SELECT *, uuid() AS rn
                   FROM ",table_from_name,")"
