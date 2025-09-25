@@ -37,7 +37,7 @@ create_dap_specific_concept <- function(
     expected_value_prefix = "expected_value",
     add_meaning = FALSE,
     intermediate_type = "TABLE") {
-  
+
   if (nrow(codelist) <= 0) {
     stop("Codelist does not contain any data.")
   }
@@ -45,7 +45,7 @@ create_dap_specific_concept <- function(
     stop("intermediate_type has to be either TABLE or VIEW.")
   }
   scheme <- unique(codelist[[table_name]])
-  
+
   # Get columns and value names
   cols_names <- grep(paste0("^", column_name_prefix), names(codelist),
                      value = TRUE
@@ -82,9 +82,10 @@ create_dap_specific_concept <- function(
     select_cols_query <- paste0(paste0(rest_cols, collapse = ", "),
                                 " ,")
     if (!name_edited %in% DBI::dbListTables(save_db) ||
-        all(
-          c(rest_cols, to_upper_cols) %in% DBI::dbListFields(save_db, name_edited)
-        ) == FALSE) {
+      all(
+        c(rest_cols, to_upper_cols) %in% DBI::dbListFields(save_db, name_edited)
+      ) == FALSE) {
+
       DBI::dbExecute(
         save_db,
         paste0(
@@ -165,14 +166,17 @@ create_dap_specific_concept <- function(
           date_col, " >= ", as.integer(date_col_filter))
       }
     }
-    rs <- DBI::dbSendStatement(save_db, paste0(
-      "INSERT INTO concept_table\n
-      SELECT t1.ori_id, t1.ori_table, ROWID, t1.person_id, ",
-      coding_system, " AS code, ", coding_system, " AS coding_system, ",
-      value, " AS value, '", concept_name, "' AS concept_id, ",
-      date_col, " AS date ", meaning_clause, "FROM ",
-      name_edited, " t1", " WHERE ", where_statement
-    ))
+    rs <- DBI::dbSendStatement(
+      save_db,
+      paste0(
+        "INSERT INTO concept_table
+        SELECT t1.ori_id, t1.ori_table, ROWID, t1.person_id, ",
+        coding_system, " AS code, ", coding_system, " AS coding_system, ",
+        value, " AS value, '", concept_name, "' AS concept_id, ",
+        date_col, " AS date ", meaning_clause, "FROM ",
+        name_edited, " t1", " WHERE ", where_statement
+      )
+    )
     DBI::dbClearResult(rs)
   }
 }

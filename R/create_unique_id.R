@@ -14,8 +14,14 @@
 #' By default is set as "ori_id".
 #' @param separator_id String that defines the separators between the table name
 #' and the ROWID number.
-#' @param order_by_cols List of vector with column names which you can apply an
-#'  order by. E.g list(EVENTS = c('person_id','event_code'))
+#' @param schema_name Optional schema name to prepend to table and view names.
+#' Default is `NULL`.
+#' @param to_view Logical. If `TRUE` (default),
+#' creates a view with the unique ID column.
+#' If `FALSE`, overwrites the original table.
+#' @param pipeline_extension When using views when applying the
+#' clean_missing_values on CDM table we must define the name of the pipeline
+#' extension. See add_view for more information.
 #'
 #' @examples
 #' \dontrun{
@@ -35,8 +41,13 @@ create_unique_id <- function(
   extension_name = "",
   id_name = "ori_id",
   separator_id = "-",
-  order_by_cols = list()
+  schema_name = NULL,
+  to_view = FALSE,
+  pipeline_extension = "_T2DMM"
 ) {
+  if (is.null(schema_name)) {
+    schema_name <- "main"
+  }
   # Append the extension to CDM table names
   cdm_tables_names <- paste0(cdm_tables_names, extension_name)
 
@@ -59,43 +70,58 @@ create_unique_id <- function(
     message(cdm_tables_names[!cdm_tables_names %in% list_existing_tables])
   }
 
-  order_by_flag <- FALSE
-  if (length(order_by_cols) > 0) {
-    order_by_flag <- TRUE
-  }
-
   # Loop through each existing CDM table
   for (table in cdm_tables_names_existing) {
-    # Rename the table and create a new one with the unique identifier
+    #Adjusting the name of the table to the Scheme where this is located
+    #  in the database
+    table_from_name <- paste0(schema_name, ".", table)
 
-
-    if (order_by_flag && !is.null(order_by_cols[[table]])) {
-      columns_in_table <- DBI::dbListFields(db_connection, table)
-      cols <- order_by_cols[[table]]
-      available_order_by_cols <- columns_in_table[columns_in_table %in% cols]
-      order_by <- paste0(
-        " ORDER BY ", paste0(available_order_by_cols, collapse = ", ")
+    if (to_view == TRUE) {
+      pipeline_name <- paste0(table, pipeline_extension)
+      T2.DMM:::add_view(
+        db_connection,
+        pipeline = pipeline_name,
+        base_table = table_from_name,
+        transform_sql = paste0(
+          "SELECT 
+          '", table, separator_id, "' || rn AS ", id_name, ",
+          '", table, "' AS ori_table, 
+          rn AS ROWID, 
+          * EXCLUDE(rn)
+          FROM (SELECT *, uuid() AS rn
+                FROM %s)"
+        )
       )
-    } else {
-      order_by <- ""
+    }else{
+      DBI::dbExecute(
+        db_connection,
+        paste0(
+          "CREATE OR REPLACE TEMP TABLE temporal_table AS
+            SELECT 
+            '", table, separator_id, "' || rn AS ", id_name, ",
+            '", table, "' AS ori_table, 
+            rn AS ROWID, 
+            * EXCLUDE(rn)
+            FROM (SELECT *, uuid() AS rn
+                  FROM ",table_from_name,")"
+        )
+      )
+      DBI::dbExecute(db_connection, paste0("DROP TABLE ",
+                                           table_from_name), n = -1)
+      DBI::dbExecute(
+        db_connection,
+        paste0(
+          "CREATE TABLE ", table_from_name, " AS SELECT * FROM temporal_table"
+        )
+      )
+      DBI::dbExecute(db_connection, "DROP TABLE temporal_table")
     }
-    DBI::dbExecute(db_connection, paste0(
-      "CREATE TABLE temporal_table AS
-                                      SELECT  '", table, separator_id,
-      "' || rowid AS ", id_name, ",
-                                      '", table, "' AS ori_table,
 
-                                      rowid AS ROWID, *
-                                      FROM ", table,
-      order_by
-    ), n = -1)
-
-    DBI::dbExecute(db_connection, paste0("DROP TABLE ", table), n = -1)
-
-    DBI::dbExecute(
-      db_connection,
-      paste0("ALTER TABLE temporal_table RENAME TO ", table)
+    message(
+      paste0(
+        "[CreateUniqueIDCDM] Unique ID create for table: ",
+        table_from_name
+      )
     )
-    message(paste0("[CreateUniqueIDCDM] Unique ID create for table: ", table))
   }
 }

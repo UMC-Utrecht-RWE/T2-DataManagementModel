@@ -27,6 +27,7 @@ Sys.setenv(SHARED_METADATA_PATH = shared_metadata_path)
 # ====================
 set_database <- '{
   "data_model": "ConcePTION",
+  "file_format": "csv",
   "operations": {
     "DuplicateRemover": false,
     "MissingRemover": true,
@@ -48,7 +49,8 @@ set_database <- '{
     "columns": {
       "PERSONS": ["country_of_birth"],
       "VACCINES": ["vx_lot_num"]
-    }
+    },
+    "to_view": false
   }
 }'
 
@@ -61,6 +63,7 @@ Sys.setenv(CONFIG_SET_DB = config_set_database)
 # ====================
 config_json <- '{
   "data_model": "ConcePTION",
+  "file_format": "csv",
   "operations": {
     "DuplicateRemover": true,
     "MissingRemover": true,
@@ -85,19 +88,21 @@ config_json <- '{
     "cdm_tables_columns": {
       "PERSONS": ["person_id", "country_of_birth"],
       "VACCINES": ["person_id", "vx_manufacturer"]
-    }
+    },
+    "to_view": false
   },
   "missing_remover": {
     "columns": {
       "PERSONS": ["country_of_birth"],
       "VACCINES": ["vx_lot_num"]
-    }
+    },
+    "to_view": false
   },
     "unique_id_generator":{
-      "order_by_cols" : [],
       "id_name" : "ori_id",
       "separator_id" : "-",
-      "instance_name": ""
+      "instance_name": "",
+      "to_view": false
     },
     "report_generator": {
       "report_path": ".",
@@ -115,6 +120,7 @@ Sys.setenv(CONFIG_PATH = config_path)
 # ====================
 set_absent <- '{
   "data_model": "ConcePTION",
+  "file_format": "csv",
   "operations": {
     "AbsentOperation": true
   },
