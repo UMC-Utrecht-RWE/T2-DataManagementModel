@@ -84,6 +84,7 @@ test_that("retrieve mo concepts", {
     DBI::dbReadTable(concepts_db_conn,"concept_table")
   expect_equal(nrow(mo_concept_table), 39)
   
+  DBI::dbExecute(concepts_db_conn, "DROP TABLE MEDICAL_OBSERVATIONS_EDITED_dapspec")
   rs <- DBI::dbSendQuery(concepts_db_conn, "DELETE FROM concept_table")
   DBI::dbClearResult(rs)
   
@@ -92,7 +93,7 @@ test_that("retrieve mo concepts", {
 
 test_that("handle NA values in codelist", {
   codelist_wo_date <- good_input %>% dplyr::select(-keep_date_column_name)
-  
+
   create_dap_specific_concept(codelist= codelist_wo_date,
                               name_attachment = attachName, 
                               save_db= concepts_db_conn, 
@@ -103,7 +104,7 @@ test_that("handle NA values in codelist", {
   # date column would be NA because dap_specific_concept_map has no 'keep_date_column_name'
   expect_true(all(is.na(mo_concept_table$date)))
   
-  DBI::dbExecute(concepts_db_conn, "DROP TABLE MEDICAL_OBSERVATIONS_EDITED")
+  DBI::dbExecute(concepts_db_conn, "DROP TABLE MEDICAL_OBSERVATIONS_EDITED_dapspec")
   rs <- DBI::dbSendQuery(concepts_db_conn, "DELETE FROM concept_table")
   DBI::dbClearResult(rs)
   
@@ -119,7 +120,7 @@ test_that("handle NA values in codelist", {
   # date column would be NA because dap_specific_concept_map has no 'keep_date_column_name'
   expect_true(all(is.na(mo_concept_table$date)))
   
-  DBI::dbExecute(concepts_db_conn, "DROP TABLE MEDICAL_OBSERVATIONS_EDITED")
+  DBI::dbExecute(concepts_db_conn, "DROP TABLE MEDICAL_OBSERVATIONS_EDITED_dapspec")
   rs <- DBI::dbSendQuery(concepts_db_conn, "DELETE FROM concept_table")
   DBI::dbClearResult(rs)
   
@@ -141,7 +142,7 @@ test_that("created MEDICAL_OBSERVATIONS_EDITED", {
                               date_col_filter = "1900-01-01",
                               add_meaning = TRUE)
   expect_true("MEDICAL_OBSERVATIONS_EDITED" %in% DBI::dbListTables(concepts_db_conn))
-  DBI::dbExecute(concepts_db_conn, "DROP TABLE MEDICAL_OBSERVATIONS_EDITED")
+  DBI::dbExecute(concepts_db_conn, "DROP TABLE MEDICAL_OBSERVATIONS_EDITED_dapspec")
   rs <- DBI::dbSendQuery(concepts_db_conn, "DELETE FROM concept_table")
   DBI::dbClearResult(rs)
   
@@ -167,6 +168,7 @@ test_that("NA keep_value_column_name", {
                                            save_db= concepts_db_conn, 
                                            date_col_filter = "1900-01-01",
                                            add_meaning = TRUE)
+  DBI::dbExecute(concepts_db_conn, "DROP TABLE MEDICAL_OBSERVATIONS_EDITED_dapspec")
   mo_concept_table <- 
     DBI::dbReadTable(concepts_db_conn,"concept_table")
   expect_true(all(mo_concept_table$value == "true"))
@@ -184,6 +186,7 @@ test_that("NA keep_value_column_name", {
     DBI::dbReadTable(concepts_db_conn,"concept_table")
   expect_true(all(mo_concept_table$value == "true"))
   
+  DBI::dbExecute(concepts_db_conn, "DROP TABLE MEDICAL_OBSERVATIONS_EDITED_dapspec")
   rs <- DBI::dbSendQuery(concepts_db_conn, "DELETE FROM concept_table")
   DBI::dbClearResult(rs)
   
@@ -201,6 +204,8 @@ create_dap_specific_concept(codelist = good_input,
 mo_concept_table <- 
   DBI::dbReadTable(concepts_db_conn,"concept_table")
 expect_true(all(dim(mo_concept_table) == c(39,9)))
+DBI::dbExecute(concepts_db_conn, "DROP TABLE MEDICAL_OBSERVATIONS_EDITED_dapspec")
+
 })
 
 DBI::dbDisconnect(concepts_db_conn)
