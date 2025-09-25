@@ -88,7 +88,7 @@ create_unique_id <- function(
           '", table, "' AS ori_table, 
           rn AS ROWID, 
           * EXCLUDE(rn)
-          FROM (SELECT *, hash(CAST(uuid() AS VARCHAR)) AS rn
+          FROM (SELECT *, uuid() AS rn
                 FROM %s)"
         )
       )
@@ -102,7 +102,7 @@ create_unique_id <- function(
             '", table, "' AS ori_table, 
             rn AS ROWID, 
             * EXCLUDE(rn)
-            FROM (SELECT *, hash(CAST(uuid() AS VARCHAR)) AS rn
+            FROM (SELECT *, uuid() AS rn
                   FROM ",table_from_name,")"
         )
       )
