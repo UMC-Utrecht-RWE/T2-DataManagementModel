@@ -22,13 +22,6 @@ INSERT INTO persons VALUES
 ;
 ")
 
-# Ensure the registry table exists
-dbExecute(con, "
-CREATE TABLE IF NOT EXISTS _pipeline_registry (
-  pipeline_name TEXT PRIMARY KEY,
-  current_view TEXT
-)
-")
 
 # ---- TESTS ----
 test_that("Pipeline auto-initializes if it does not exist", {
@@ -38,9 +31,9 @@ test_that("Pipeline auto-initializes if it does not exist", {
            base_table = "persons")
 
   # Check registry
-  registry <- dbGetQuery(con, "SELECT * FROM _pipeline_registry WHERE pipeline_name='test_pipeline'")
+  registry <- dbGetQuery(con, "SELECT * FROM _pipeline_registry WHERE pipeline_name = 'test_pipeline'")
   expect_equal(nrow(registry), 1)
-  expect_equal(registry$current_view, "test_pipeline_view_2")
+  expect_equal(registry$current_view, "test_pipeline_view_1")
 
 })
 
@@ -53,12 +46,12 @@ test_that("Adding multiple steps creates versioned views and updates final alias
 
   # Check registry points to latest version
   registry <- dbGetQuery(con, "SELECT current_view FROM _pipeline_registry WHERE pipeline_name='test_pipeline'")
-  expect_equal(registry$current_view, "test_pipeline_view_4")
+  expect_equal(registry$current_view, "test_pipeline_view_3")
 
 })
 
 test_that("Final view returns expected data", {
-  result <- dbGetQuery(con, "SELECT * FROM test_pipeline_view_4 ORDER BY name")
+  result <- dbGetQuery(con, "SELECT * FROM test_pipeline_view_3 ORDER BY name")
 
   # Check that duplicates are removed
   expect_equal(nrow(result), 3)
