@@ -42,43 +42,53 @@ add_view <- function(
 
     message(
       paste0(
-        "Created first pipeline view of pipeline '", pipeline,
-        "' as '", first_view, "'"
+        "Pipeline '", pipeline, " initialized. "
       )
     )
-
+    
+    first_view <- paste0(pipeline, "_view_1")
+    
+    # Apply transformation
     DBI::dbExecute(con, sprintf(
-      "CREATE OR REPLACE VIEW %s AS SELECT * FROM %s",
-      first_view, base_table
+      "CREATE OR REPLACE VIEW %s AS %s",
+      first_view, sprintf(transform_sql, base_table)
     ))
-
+    
+    # Update registry
     DBI::dbExecute(con, sprintf("
       INSERT INTO _pipeline_registry (pipeline_name, current_view)
       VALUES ('%s', '%s')
     ", pipeline, first_view))
-
-  }
-  # Get current head
-  current_view <- DBI::dbGetQuery(con, sprintf("
+    message(
+      paste0("Created view of pipeline '", pipeline, "' as '", first_view, "'")
+    )
+  }else{
+    # Get current head
+    current_view <- DBI::dbGetQuery(con, sprintf("
     SELECT current_view FROM _pipeline_registry WHERE pipeline_name = '%s'
   ", pipeline))$current_view
-
-  # New version
-  version <- as.integer(sub(".*_view_", "", current_view)) + 1
-  new_view <- paste0(pipeline, "_view_", version)
-
-  # Apply transformation
-  DBI::dbExecute(con, sprintf(
-    "CREATE OR REPLACE VIEW %s AS %s",
-    new_view, sprintf(transform_sql, current_view)
-  ))
-
-  # Update registry
-  DBI::dbExecute(con, sprintf("
+    
+    # New version
+    version <- as.integer(sub(".*_view_", "", current_view)) + 1
+    new_view <- paste0(pipeline, "_view_", version)
+    
+    # Apply transformation
+    DBI::dbExecute(con, sprintf(
+      "CREATE OR REPLACE VIEW %s AS %s",
+      new_view, sprintf(transform_sql, current_view)
+    ))
+    
+    # Update registry
+    DBI::dbExecute(con, sprintf("
     UPDATE _pipeline_registry SET current_view = '%s' WHERE pipeline_name = '%s'
   ", new_view, pipeline))
+    
+    message(
+      paste0("Created view of pipeline '", pipeline, "' as '", new_view, "'")
+    )
+    
+  }
+  
 
-  message(
-    paste0("Created view of pipeline '", pipeline, "' as '", new_view, "'")
-  )
+ 
 }
