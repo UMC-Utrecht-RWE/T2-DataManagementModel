@@ -7,11 +7,6 @@
 #'
 #' @param db_connection Database connection object (DBIConnection).
 #' @param ids A data.table containing unique identifiers.
-#' @param id_name Column name in ids containing the identifiers.
-#'  Default is "ID".
-#' @param separator_id Character that separates table name from row
-#'  ID in the unique identifier.
-#'  Default is "-".
 #'
 #' @return A named list where each element contains the records from a CDM table
 #' matching the provided identifiers. List names correspond to table names.
@@ -40,8 +35,7 @@
 #' # Retrieve records
 #' results <- get_origin_row(
 #'   db_connection = db_connection,
-#'   ids = cases,
-#'   separator_id = "-"
+#'   ids = cases
 #' )
 #'
 #' # Clean up
