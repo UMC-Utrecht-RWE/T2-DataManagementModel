@@ -160,7 +160,7 @@ test_that("VIEW: Checking if the function delete the duplicates cases using *", 
     to_view = TRUE
   )
   
-  vx_db <- DBI::dbReadTable(db_con, "VACCINES_T2DMM_view_2")
+  vx_db <- DBI::dbReadTable(db_con, "VACCINES_T2DMM_view_1")
   # The first 10 rows of vx1 are duplicates of vx2
   expect_equal(nrow(vx_db), nrow(vx1))
 
@@ -183,7 +183,7 @@ test_that("VIEW: Checking if the function delete the duplicates cases", {
   )
   
   vx1 <- import_file("dbtest/VACCINES.csv")
-  vx_db <- DBI::dbReadTable(db_con, "VACCINES_T2DMM_view_2")
+  vx_db <- DBI::dbReadTable(db_con, "VACCINES_T2DMM_view_1")
   # The first 10 rows of vx1 are duplicates of vx2
   expect_equal(nrow(vx_db), nrow(vx1))
 })
