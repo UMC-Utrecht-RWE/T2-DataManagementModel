@@ -43,6 +43,7 @@ create_dap_specific_codelist <- function(
 
   # Preprocess both datasets
   study_codelist <- add_codenodot(study_codelist, "code")
+  study_codelist[, length_str := nchar(code_no_dot)] 
   data.table::setnames(
     study_codelist, "code.study_codelist", "code.CDM_CODELIST"
   )
@@ -275,7 +276,6 @@ validate_codelists <- function(unique_codelist, study_codelist, priority) {
 add_codenodot <- function(dt, code_col_name) {
   dt[, code_no_dot := gsub("\\.", "", get(code_col_name))]
   if (code_col_name == "code") {
-    dt[, length_str := nchar(code_no_dot)]  # nchar is faster than stringr::str_length
     setnames(dt, "code", paste0("code.", deparse(substitute(dt))))
   }
   dt
