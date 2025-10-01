@@ -88,15 +88,15 @@ create_dap_specific_concept <- function(
           intermediate_type, " ", name_edited,
           "_dapspec AS  
           SELECT ori_table, unique_id, person_id, ", 
-          if(str_length(select_cols_query) > 0) {
+          if(nchar(select_cols_query) > 0) {
             paste0(select_cols_query, ",")
           } ,
-          if(str_length(to_upper_query) > 0 ){
+          if(nchar(to_upper_query) > 0 ){
             paste0(to_upper_query, ",")
           },
           dates_query,
           " FROM ",
-          name_attachment, name
+          name_attachment,".",name
         )
       )
     }
