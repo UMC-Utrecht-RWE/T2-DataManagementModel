@@ -29,9 +29,8 @@ ctname <- tempfile(fileext = ".duckdb")
 concepts_db_conn <- DBI::dbConnect(duckdb::duckdb(), ctname)
 # Creation of concepts_table within the database
 DBI::dbExecute(concepts_db_conn, "CREATE TABLE concept_table (
-    ori_id TEXT,     -- Original ID in CDM_database
     ori_table TEXT,   -- Original CDM table
-    ROWID INTEGER,  -- Row ID in CDM_database
+    unique_id UUID, 
     person_id TEXT,    
     code TEXT,
     coding_system TEXT,     
