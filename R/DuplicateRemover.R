@@ -39,19 +39,21 @@ DuplicateRemover <- R6::R6Class("DuplicateRemover", # nolint
 
       # Retrieve distinct column info from config or default to '*'
       distinct_config <- db_loader$config$duplicate_remover$cdm_tables_columns
-      table_names <- db_loader$config$cdm_tables_names
-
+      # Access cdm_tables_columns inside duplicate_remover
+      table_columns <- db_loader$config$duplicate_remover$cdm_tables_columns
+      
       scheme <- setNames(
-        lapply(table_names, function(tbl) {
-          if (!is.null(distinct_config[[tbl]])) {
-            # Use the distinct columns defined in the config for that table
-            distinct_config[[tbl]]
+        lapply(names(table_columns), function(tbl) {
+          if (!is.null(table_columns[[tbl]])) {
+            # Use the columns defined for that table
+            table_columns[[tbl]]
           } else {
-            "*" # for all columns not defined
+            "*" # fallback if no columns defined
           }
         }),
-        table_names
+        names(table_columns)
       )
+      
 
       T2.DMM:::delete_duplicates_origin(
         db_connection = db_loader$db,
