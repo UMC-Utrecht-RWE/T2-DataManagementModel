@@ -59,7 +59,6 @@ library(tidyverse)
 #' }
 #'
 #' @export
-
 load_db <- function(
     data_model = "conception",
     excel_path_to_cdm_schema = "./ConcePTION_CDM tables v2.2.xlsx",
@@ -142,7 +141,6 @@ load_db <- function(
                                  schema_conception,
                                  files_in_input,
                                  through_parquet,
-                                 file_path_to_target_db,
                                  create_db_as)
   # 6. If through_parquet, combine views to create DB
   if (through_parquet == "yes") {
@@ -159,4 +157,21 @@ load_db <- function(
   invisible(gc())
   tictoc::toc()
   cat("Hooray! Script finished running!\n")
+
+  # Choose schema based on create_db_as
+  schema_with_final_tables <- ifelse(create_db_as == "views",
+                                     schema_combined_views,
+                                     schema_conception)
+
+  # Override if through_parquet is "no"
+  if (tolower(through_parquet) == "no") {
+    schema_with_final_tables <- schema_conception
+  }
+
+  view_or_table <- ifelse(create_db_as == "views", "Views", "Tables")
+
+  # Final message: where to find the final tables
+  cat(paste0("The final tables can be accessed in the database through: \n",
+             data_model, " > ", schema_with_final_tables, " > ", view_or_table))
+
 }

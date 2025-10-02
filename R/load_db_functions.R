@@ -31,6 +31,7 @@ library(tidyverse) #includes purrr, dplyr, stringr
 # 8. verbosity is either 0 or 1
 # 9. schema file exists
 # 10. through_parquet is either 'yes' or 'no'
+# 11. Invalid parameter combination of through_parquet and create_db_as
 
 #' Validate Input Parameters for CDM Data Processing
 #'
@@ -88,7 +89,6 @@ library(tidyverse) #includes purrr, dplyr, stringr
 #'
 #' @keywords internal
 #'
-
 check_params <- function(
     data_model,
     excel_path_to_cdm_schema,
@@ -181,6 +181,13 @@ check_params <- function(
                   Setting to default 'yes'."))
   }
 
+  # 11. Invalid parameter combination.
+  if (through_parquet == "no" & create_db_as == "views") {
+    warning(paste("Invalid parameter combination.
+                   through_parquet = 'no' means input files will be converted to 
+                   views and then directly views will be loaded into target tables. 
+                   So, the code will proceed as though create_db_as ='tables'."))
+  }
   cat("All parameter checks passed!\n")
 }
 
@@ -216,7 +223,6 @@ check_params <- function(
 #' }
 #' @keywords internal
 #'
-
 setup_db_connection <- function(
     schema_individual_views,
     schema_conception,
@@ -282,7 +288,6 @@ sanitize_view_name <- function(name) {
 #'
 #' @keywords internal
 #'
-
 read_source_files_as_views <- function(
     db_connection,
     data_model,
@@ -378,8 +383,6 @@ read_source_files_as_views <- function(
 #'
 #' @keywords internal
 #'
-
-# Generate DDL (Data Definition Language) for a table
 generate_ddl <- function(
     df,
     data_model,
@@ -452,7 +455,6 @@ generate_ddl <- function(
 #'
 #' @keywords internal
 #'
-
 create_empty_cdm_tables <- function(
     db_connection,
     data_model,
@@ -539,7 +541,6 @@ create_empty_cdm_tables <- function(
 #'
 #' @keywords internal
 #'
-
 get_table_info <- function(
     con,
     schema,
@@ -591,7 +592,6 @@ get_table_info <- function(
 #'
 #' @keywords internal
 #'
-
 populate_cdm_tables_from_views <- function(
     db_connection,
     data_model,
@@ -599,7 +599,6 @@ populate_cdm_tables_from_views <- function(
     schema_conception,
     files_in_input,
     through_parquet,
-    file_path_to_target_db,
     create_db_as) {
 
   # TODO: Ensure target tables are empty (previously by truncating them)
@@ -809,7 +808,6 @@ populate_cdm_tables_from_views <- function(
 #' }
 #'
 #' @keywords internal
-
 combine_parquet_views <- function(
     db_connection,
     data_model,
