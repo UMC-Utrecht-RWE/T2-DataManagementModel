@@ -1,90 +1,62 @@
-# setup
-db_connection_origin <- duckdb::dbConnect(duckdb::duckdb())
+################################################################################
+################################### SETUP ######################################
+################################################################################
 
-test_that("database gets loaded in auto", {
-  T2.DMM:::load_db(
-    db_connection = db_connection_origin,
-    data_instance_path = "dbtest",
-    cdm_metadata = concePTION_metadata_v2,
-    cdm_tables_names = c("PERSONS", "VACCINES", "MEDICINES")
-  )
+# Define reusable parameters
+dm <- "conception"
+format_c <- "csv"
+format_p <- "parquet"
+siv <- "individual_views"
+sc <- "conception"
+scv <- "combined_views"
+ver <- 1
 
-  # Testing that all column names are the same
-  med_db <- DBI::dbReadTable(db_connection_origin, "MEDICINES")
-  med_1 <- import_file("dbtest/MEDICINES_TEST1.csv")
-  med_2 <- import_file("dbtest/MEDICINES_TEST2.csv")
-  expect_contains(
-    names(med_db),
-    concePTION_metadata_v2[TABLE %in% "MEDICINES", Variable]
-  )
+# Define testing data paths
+dbpath <- tempfile(fileext = ".duckdb")
+dbdir <- "dbtest/"
+dbdir_parquet <- "dbtest_parquet/"
+eptcs <- "dbtest/ConcePTION_CDM tables v2.2.xlsx"
+tables <- c("PERSONS", "VACCINES", "MEDICINES", "EVENTS")
+
+################################################################################
+################################## load_db #####################################
+################################################################################
+
+test_that("load_db runs end-to-end with all possible combinations of inputs", {
+  for (tp in c("yes", "no")) {
+    for (cdb in c("views", "tables")) {
+      if (tp == "no" && cdb == "views") {
+        expect_warning(
+          load_db(
+            data_model = dm,
+            excel_path_to_cdm_schema = eptcs,
+            format_source_files = format_c,
+            folder_path_to_source_files = dbdir,
+            through_parquet = "no",
+            file_path_to_target_db = temp_db,
+            create_db_as = "views",
+            verbosity = ver
+          ),
+          regexp = "Invalid parameter combination"
+        )
+      } else {
+        expect_output(
+          load_db(
+            data_model = dm,
+            excel_path_to_cdm_schema = eptcs,
+            format_source_files = format_c,
+            folder_path_to_source_files = dbdir,
+            through_parquet = tp,
+            file_path_to_target_db = temp_db,
+            create_db_as = cdb,
+            verbosity = ver
+          ),
+          regexp = "Hooray! Script finished running!"
+        )
+      }
+    }
+  }
+
+  # Check that database connection is closed
+  expect_false(DBI::dbIsValid(con))
 })
-
-test_that("database gets loaded in auto", {
-  T2.DMM:::load_db(
-    db_connection = db_connection_origin,
-    data_instance_path = "dbtest",
-    cdm_metadata = concePTION_metadata_v2,
-    cdm_tables_names = c("PERSONS", "VACCINES", "MEDICINES"),
-    file_format = 'csv'
-  )
-  
-  # Testing that all column names are the same
-  med_db <- DBI::dbReadTable(db_connection_origin, "MEDICINES")
-  med_1 <- import_file("dbtest/MEDICINES_TEST1.csv")
-  med_2 <- import_file("dbtest/MEDICINES_TEST2.csv")
-  expect_contains(
-    names(med_db),
-    concePTION_metadata_v2[TABLE %in% "MEDICINES", Variable]
-  )
-})
-
-test_that("load foreign characters", {
-  # latin1 character to test error message
-  expect_error(
-    load_db(
-      db_connection = db_connection_origin,
-      data_instance_path = "dbtest",
-      cdm_metadata = concePTION_metadata_v2,
-      cdm_tables_names = c("latin1")
-    ),
-    regexp = "Invalid unicode"
-  )
-
-  # now with UTF-8 encoding
-  load_db(
-    db_connection = db_connection_origin,
-    data_instance_path = "dbtest",
-    cdm_metadata = concePTION_metadata_v2,
-    cdm_tables_names = c("EVENTS")
-  )
-  utf8_db <- DBI::dbReadTable(db_connection_origin, "EVENTS")
-  expect_equal(dim(utf8_db), c(5, 12))
-})
-
-test_that("database gets loaded and mandatory columns are created", {
-  # Create minimal test metadata with two mandatory columns
-  test_metadata <- data.table::data.table(
-    TABLE = c("PERSONS", "PERSONS"),
-    Variable = c("mandatory_column_1", "mandatory_column_2"),
-    Mandatory = c("Yes", "Yes"),
-    Format = c("Character", "Character")
-  )
-
-  # Run the function
-  T2.DMM:::load_db(
-    db_connection = db_connection_origin,
-    data_instance_path = "dbtest",
-    cdm_metadata = test_metadata,
-    cdm_tables_names = c("PERSONS")
-  )
-
-  # Get resulting columns
-  cols_in_table <- DBI::dbListFields(db_connection_origin, "PERSONS")
-
-  # Check that the mandatory columns were added
-  testthat::expect_true("mandatory_column_1" %in% cols_in_table)
-  testthat::expect_true("mandatory_column_2" %in% cols_in_table)
-})
-
-
-DBI::dbDisconnect(db_connection_origin)
