@@ -48,7 +48,7 @@
 #' unique_codelist_free_text <- result_list[[2]]
 #' }
 #'
-#' @keywords internal
+#' @export
 get_unique_codelist <- function(db_connection, column_info_list, tb_name) {
   # Initialize an empty list to store the individual queries
   queries <- list()

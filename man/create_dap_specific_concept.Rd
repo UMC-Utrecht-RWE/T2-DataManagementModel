@@ -12,7 +12,8 @@ create_dap_specific_concept(
   table_name = "cdm_table_name",
   column_name_prefix = "column_name",
   expected_value_prefix = "expected_value",
-  add_meaning = FALSE
+  add_meaning = FALSE,
+  intermediate_type = "TABLE"
 )
 }
 \arguments{
@@ -42,6 +43,8 @@ Default: "expected_value".}
  to save the meaning of any CDM table -if available- in the results of the
 function. This is specific for the ConcePTION CDM.
 Default: FALSE.}
+
+\item{intermediate_type}{Type of intermediate structure to create.}
 }
 \description{
 This function Creates DAP-specific concepts into a database using a

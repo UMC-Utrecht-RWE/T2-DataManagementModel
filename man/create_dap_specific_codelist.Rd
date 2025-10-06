@@ -9,19 +9,18 @@ create_dap_specific_codelist(
   study_codelist,
   start_with_colls = c("ICD10CM", "ICD10", "ICD10DA", "ICD9CM", "MTHICD9", "ICPC",
     "ICPC2P", "ICPC2EENG", "ATC", "vx_atc"),
-  additional_columns = NA,
   priority = NA
 )
 }
 \arguments{
 \item{unique_codelist}{Data.table containing unique code list output
-from the function getUniqueCodeList.}
+from the function getUniqueCodeList. Must contain columns: 'coding_system',
+'code', 'concept_id', and 'code.unique_condelist'.}
 
-\item{study_codelist}{Data.table containing the study code list.}
+\item{study_codelist}{Data.table containing the study code list.
+Must contain columns: 'coding_system' and 'code'.}
 
 \item{start_with_colls}{Columns to start with}
-
-\item{additional_columns}{Additional columns to be included in the result.}
 
 \item{priority}{Priority column for selecting codes when there are
 multiple matches.}
@@ -38,7 +37,7 @@ This function merges the unique codelist from a database
 \dontrun{
 # Example usage:
 result <- create_dap_specific_codelist(unique_codelist, study_codelist,
-  additional_columns = NA, priority = NA
+  priority = NA
 )
 }
 
