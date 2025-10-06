@@ -13,6 +13,10 @@
 # stringr - For string manipulations
 
 library(tidyverse) #includes purrr, dplyr, stringr
+# Explicitly import dplyr functions for use in package code
+importFrom(dplyr, `%>%`, mutate, pull, filter, select, cumany)
+# Declare global variables to avoid R CMD check notes
+utils::globalVariables(c("Variable", "Format", "column_definition"))
 
 ################################################################################
 ########################## Checking Input Parameters ###########################
@@ -182,7 +186,7 @@ check_params <- function(
   }
 
   # 11. Invalid parameter combination.
-  if (through_parquet == "no" & create_db_as == "views") {
+  if (through_parquet == "no" && create_db_as == "views") {
     warning(paste("Invalid parameter combination.
                    through_parquet = 'no' means input files will be converted to 
                    views and then directly views will be loaded into target tables. 
@@ -235,9 +239,12 @@ setup_db_connection <- function(
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = file_path_to_target_db)
 
   # Create the schemas
-  DBI::dbExecute(con, paste0("CREATE SCHEMA IF NOT EXISTS ", schema_individual_views))
-  DBI::dbExecute(con, paste0("CREATE SCHEMA IF NOT EXISTS ", schema_combined_views))
-  DBI::dbExecute(con, paste0("CREATE SCHEMA IF NOT EXISTS ", schema_conception))
+  DBI::dbExecute(con, paste0("CREATE SCHEMA IF NOT EXISTS ",
+                             schema_individual_views))
+  DBI::dbExecute(con, paste0("CREATE SCHEMA IF NOT EXISTS ",
+                             schema_combined_views))
+  DBI::dbExecute(con, paste0("CREATE SCHEMA IF NOT EXISTS ",
+                             schema_conception))
   message("Schemas created")
 
   return(con)
