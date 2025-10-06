@@ -25,6 +25,10 @@
 #' function. This is specific for the ConcePTION CDM.
 #' Default: FALSE.
 #' @param intermediate_type Type of intermediate structure to create.
+#' @param keep_date_prefix The prefix value to identify the column where 
+#' the column name with the date will be stored in the concept_table. Default: keep_date
+#' @param keep_column_prefix The prefix value to identify the column where 
+#' the column name with the value will stored in the concept_table. Default: keep_value
 #'
 #' @export
 create_dap_specific_concept <- function(
