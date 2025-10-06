@@ -46,6 +46,10 @@ create_dap_specific_concept <- function(
   if (any(intermediate_type == c("TABLE", "VIEW")) != TRUE) {
     stop("intermediate_type has to be either TABLE or VIEW.")
   }
+  #Adding . to attachement name in case it is missing it. (Useuful for query later)
+  name_attachment <- ifelse(endsWith(name_attachment, "."), 
+                            name_attachment, paste0(name_attachment, "."))
+  
   scheme <- unique(codelist[[table_name]])
   cols_names <- grep(paste0("^", column_name_prefix), names(codelist), 
                      value = TRUE)
@@ -96,7 +100,7 @@ create_dap_specific_concept <- function(
           },
           dates_query,
           " FROM ",
-          name_attachment,".",name
+          name_attachment,name
         )
       )
     }
