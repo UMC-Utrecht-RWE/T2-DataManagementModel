@@ -119,7 +119,7 @@ create_dap_specific_codelist <- function(
 
       # Selecting the longest code (the deepest children)
       if (nrow(results_startwith) > 0) {
-        cols_by <- c("code.DAP_UNIQUE_CODELIST", "concept_id", "coding_system")
+        cols_by <- c("code.DAP_UNIQUE_CODELIST", "concept_id", "coding_system", "variable")
 
         if (!is.na(priority)) {
           setorderv(results_startwith, c("length_str", priority), c(-1, 1))
