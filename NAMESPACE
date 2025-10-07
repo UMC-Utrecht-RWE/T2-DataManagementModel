@@ -23,5 +23,3 @@ importFrom(glue,glue)
 importFrom(jsonlite,fromJSON)
 importFrom(readr,write_csv)
 importFrom(tools,file_ext)
-importFrom(tidyverse, "%>%")
-
