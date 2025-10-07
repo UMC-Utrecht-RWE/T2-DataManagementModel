@@ -89,6 +89,21 @@ create_dap_specific_concept <- function(
         all(
           c(keep_value,dates_query, to_upper_cols) %in% DBI::dbListFields(save_db, name_edited)
         ) == FALSE) {
+      
+      if(add_meaning == TRUE){
+        columns_db_table <- DBI::dbGetQuery(save_db, paste0("PRAGMA table_info('",name_attachment,name,"')"))$name
+        meaning_column_name <- columns_db_table[
+          stringr::str_detect(columns_db_table, "meaning")
+        ]
+        if (length(meaning_column_name) == 0) {
+          print(paste0(
+            "[create_dap_specific_concept] Meaning not identified for: ",
+            name_edited
+          ))
+          meaning_column_name <- paste0("")
+        }
+      }
+      
       DBI::dbExecute(
         save_db,
         paste0(
@@ -101,6 +116,9 @@ create_dap_specific_concept <- function(
           } ,
           if(nchar(to_upper_query) > 0 ){
             paste0(to_upper_query, ",")
+          },
+          if(nchar(meaning_column_name) > 0 ){
+            paste0(meaning_column_name, ",")
           },
           dates_query,
           " FROM ",
@@ -192,4 +210,3 @@ create_dap_specific_concept <- function(
   }
 }
 
-  
