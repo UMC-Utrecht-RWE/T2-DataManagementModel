@@ -8,7 +8,7 @@ get_origin_value(cases_dt, db_connection, search_scheme = NULL)
 }
 \arguments{
 \item{cases_dt}{Data table containing information about cases.
-Must be a data.table with at least the search_scheme "ROWID" and "ori_table".}
+Must be a data.table with at least the search_scheme "unique_id" and "ori_table".}
 
 \item{db_connection}{Database connection object.
 Must be an active DuckDB connection.}

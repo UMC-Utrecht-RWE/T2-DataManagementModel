@@ -121,7 +121,7 @@ delete_duplicates_origin <- function(
       if (case_name %in% DBI::dbListTables(db_connection)) {
         # Determine columns to select based on the scheme
         if (all(scheme[[case_name]] %in% "*")) {
-          cols_to_select <- dbGetQuery(
+          cols_to_select <- DBI::dbGetQuery(
             db_connection,
             sprintf("PRAGMA table_info(%s)", table_from_name)
           )$name
@@ -148,13 +148,13 @@ delete_duplicates_origin <- function(
         }
         # Execute the query and handle results
         if (save_deleted == FALSE && to_view == FALSE) {
-          row_count_0 <- dbGetQuery(db_connection, paste0("SELECT COUNT(*) AS n FROM ",table_from_name))
+          row_count_0 <- DBI::dbGetQuery(db_connection, paste0("SELECT COUNT(*) AS n FROM ",table_from_name))
           # Build the SQL query to delete duplicate rows
           query <- paste0("CREATE OR REPLACE TABLE ", case_name, " AS
                        SELECT DISTINCT *
                        FROM ", table_from_name)
           DBI::dbExecute(db_connection, query)
-          row_count_1 <- dbGetQuery(db_connection, paste0("SELECT COUNT(*) AS n FROM ",case_name))
+          row_count_1 <- DBI::dbGetQuery(db_connection, paste0("SELECT COUNT(*) AS n FROM ",case_name))
           message(paste0(
             "[delete_duplicates_origin] Number of record deleted: ",
             row_count_0 - row_count_1

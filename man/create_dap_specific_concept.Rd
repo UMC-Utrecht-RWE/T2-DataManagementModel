@@ -12,6 +12,8 @@ create_dap_specific_concept(
   table_name = "cdm_table_name",
   column_name_prefix = "column_name",
   expected_value_prefix = "expected_value",
+  keep_date_prefix = "keep_date",
+  keep_column_prefix = "keep_value",
   add_meaning = FALSE,
   intermediate_type = "TABLE"
 )
@@ -38,6 +40,12 @@ Default: "column_name".}
 \item{expected_value_prefix}{An optional string that defines the prefix name
  of the expected value variable column(s) from the DAP-specific concept map.
 Default: "expected_value".}
+
+\item{keep_date_prefix}{The prefix value to identify the column where 
+the column name with the date will be stored in the concept_table. Default: keep_date}
+
+\item{keep_column_prefix}{The prefix value to identify the column where 
+the column name with the value will stored in the concept_table. Default: keep_value}
 
 \item{add_meaning}{An optional boolean that defines whether the possibility
  to save the meaning of any CDM table -if available- in the results of the

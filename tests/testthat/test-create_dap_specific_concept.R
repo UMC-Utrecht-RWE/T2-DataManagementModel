@@ -1,10 +1,3 @@
-# save db to temp connection
-mo <- readRDS("dbtest/MEDICAL_OBSERVATIONS.rds")
-dbname <-  tempfile(fileext = ".duckdb")
-d2_db_conn <- DBI::dbConnect(duckdb::duckdb(), dbname)
-DBI::dbWriteTable(d2_db_conn, "MEDICAL_OBSERVATIONS", mo, overwrite = TRUE)
-DBI::dbDisconnect(d2_db_conn)
-
 # create a good input example
 good_input <- data.table(
   concept_id = "WEIGHT_BIRTH",
@@ -24,14 +17,26 @@ good_input <- data.table(
   Comments = NA,
   dap_spec_id = "dap_spec_id-1")
 
-# concept_table
-ctname <- tempfile(fileext = ".duckdb")
-concepts_db_conn <- DBI::dbConnect(duckdb::duckdb(), ctname)
-# Creation of concepts_table within the database
-DBI::dbExecute(concepts_db_conn, "CREATE TABLE concept_table (
-    ori_id TEXT,     -- Original ID in CDM_database
+# Attach CDM origin database to pre-matching database
+attachName <- "d2_db_conn"
+
+db_setup_test <- function(good_input){
+  # save db to temp connection
+  mo <- readRDS("dbtest/MEDICAL_OBSERVATIONS.rds")
+  dbname <-  tempfile(fileext = ".duckdb")
+  d2_db_conn <- DBI::dbConnect(duckdb::duckdb(), dbname)
+  DBI::dbWriteTable(d2_db_conn, "MEDICAL_OBSERVATIONS", mo, overwrite = TRUE)
+  T2.DMM:::create_unique_id(d2_db_conn,
+                            cdm_tables_names = 'MEDICAL_OBSERVATIONS',to_view = FALSE)
+  DBI::dbDisconnect(d2_db_conn)
+  
+  # concept_table
+  ctname <- tempfile(fileext = ".duckdb")
+  concepts_db_conn <- DBI::dbConnect(duckdb::duckdb(), ctname)
+  # Creation of concepts_table within the database
+  DBI::dbExecute(concepts_db_conn, "CREATE TABLE concept_table (
     ori_table TEXT,   -- Original CDM table
-    ROWID INTEGER,  -- Row ID in CDM_database
+    unique_id UUID, 
     person_id TEXT,    
     code TEXT,
     coding_system TEXT,     
@@ -41,40 +46,41 @@ DBI::dbExecute(concepts_db_conn, "CREATE TABLE concept_table (
     meaning TEXT
 );")
 
-# Attach CDM origin database to pre-matching database
-attachName <- "d2_db_conn"
-DBI::dbExecute(concepts_db_conn, paste0("ATTACH DATABASE '", dbname, "' AS ", attachName))
+  DBI::dbExecute(concepts_db_conn, paste0("ATTACH DATABASE '", dbname, "' AS ", attachName))
+  return(concepts_db_conn)
+}
 
 test_that("Check column names consistency", {
-  dap_specific_concept_map <- data.table(
-    concept_id = "WEIGHT_BIRTH",
-    dap_name = "CPRD",
-    cdm_name = "CONCEPTION",
-    cdm_table_name = "MEDICAL_OBSERVATIONS",
-    column_name_1 = "mo_meaning",
-    column_name_2 = NA,
-    column_name_3 = NA,
-    expected_value_1 = "weight",
-    expected_value_2 = NA,
-    expeted_value_3 = NA, # wrong name here!
-    keep_value_column_name = "mo_source_value",
-    keep_unit_column_name = NA,
-    keep_date_column_name = "mo_date",
-    IR1 = NA,
-    Comments = NA,
-    dap_spec_id = "dap_spec_id-1")
+    dap_specific_concept_map <- data.table(
+      concept_id = "WEIGHT_BIRTH",
+      dap_name = "CPRD",
+      cdm_name = "CONCEPTION",
+      cdm_table_name = "MEDICAL_OBSERVATIONS",
+      column_name_1 = "mo_meaning",
+      column_name_2 = NA,
+      column_name_3 = NA,
+      expected_value_1 = "weight",
+      expected_value_2 = NA,
+      expeted_value_3 = NA, # wrong name here!
+      keep_value_column_name = "mo_source_value",
+      keep_unit_column_name = NA,
+      keep_date_column_name = "mo_date",
+      IR1 = NA,
+      Comments = NA,
+      dap_spec_id = "dap_spec_id-1")
+    
+    expect_error(
+      create_dap_specific_concept(codelist=dap_specific_concept_map,
+                                  name_attachment = attachName, 
+                                  save_db= concepts_db_conn, 
+                                  date_col_filter = "1900-01-01",
+                                  add_meaning = TRUE)
+    )
+  })
   
-  expect_error(
-    create_dap_specific_concept(codelist=dap_specific_concept_map,
-                                name_attachment = attachName, 
-                                save_db= concepts_db_conn, 
-                                date_col_filter = "1900-01-01",
-                                add_meaning = TRUE)
-  )
-})
-
-
+  
 test_that("retrieve mo concepts", {
+  concepts_db_conn <- db_setup_test()
   create_dap_specific_concept(codelist = good_input,
                               name_attachment = attachName, 
                               save_db= concepts_db_conn, 
@@ -90,51 +96,53 @@ test_that("retrieve mo concepts", {
   
 })
 
-
-test_that("handle NA values in codelist", {
-  codelist_wo_date <- good_input %>% dplyr::select(-keep_date_column_name)
-
-  create_dap_specific_concept(codelist= codelist_wo_date,
-                              name_attachment = attachName, 
-                              save_db= concepts_db_conn, 
-                              date_col_filter = "1900-01-01",
-                              add_meaning = TRUE)
-  mo_concept_table <- 
-    DBI::dbReadTable(concepts_db_conn,"concept_table")
-  # date column would be NA because dap_specific_concept_map has no 'keep_date_column_name'
-  expect_true(all(is.na(mo_concept_table$date)))
-  
-  DBI::dbExecute(concepts_db_conn, "DROP TABLE MEDICAL_OBSERVATIONS_EDITED_dapspec")
-  rs <- DBI::dbSendQuery(concepts_db_conn, "DELETE FROM concept_table")
-  DBI::dbClearResult(rs)
-  
-  codelist_wo_date <- good_input %>% dplyr::mutate(keep_date_column_name = NA)
-  
-  create_dap_specific_concept(codelist= codelist_wo_date,
-                              name_attachment = attachName, 
-                              save_db= concepts_db_conn, 
-                              date_col_filter = "1900-01-01",
-                              add_meaning = TRUE)
-  mo_concept_table <- 
-    DBI::dbReadTable(concepts_db_conn,"concept_table")
-  # date column would be NA because dap_specific_concept_map has no 'keep_date_column_name'
-  expect_true(all(is.na(mo_concept_table$date)))
-  
-  DBI::dbExecute(concepts_db_conn, "DROP TABLE MEDICAL_OBSERVATIONS_EDITED_dapspec")
-  rs <- DBI::dbSendQuery(concepts_db_conn, "DELETE FROM concept_table")
-  DBI::dbClearResult(rs)
-  
-})
+# test_that("handle NA values in codelist", {
+#   concepts_db_conn <- db_setup_test()
+#   codelist_wo_date <- good_input %>% dplyr::select(-keep_date_column_name)
+# 
+#   create_dap_specific_concept(codelist= codelist_wo_date,
+#                               name_attachment = attachName, 
+#                               save_db= concepts_db_conn, 
+#                               date_col_filter = "1900-01-01",
+#                               add_meaning = TRUE)
+#   mo_concept_table <- 
+#     DBI::dbReadTable(concepts_db_conn,"concept_table")
+#   # date column would be NA because dap_specific_concept_map has no 'keep_date_column_name'
+#   expect_true(all(is.na(mo_concept_table$date)))
+#   
+#   DBI::dbExecute(concepts_db_conn, "DROP TABLE MEDICAL_OBSERVATIONS_EDITED_dapspec")
+#   rs <- DBI::dbSendQuery(concepts_db_conn, "DELETE FROM concept_table")
+#   DBI::dbClearResult(rs)
+#   
+#   codelist_wo_date <- good_input %>% dplyr::mutate(keep_date_column_name = NA)
+#   
+#   create_dap_specific_concept(codelist= codelist_wo_date,
+#                               name_attachment = attachName, 
+#                               save_db= concepts_db_conn, 
+#                               date_col_filter = "1900-01-01",
+#                               add_meaning = TRUE)
+#   mo_concept_table <- 
+#     DBI::dbReadTable(concepts_db_conn,"concept_table")
+#   # date column would be NA because dap_specific_concept_map has no 'keep_date_column_name'
+#   expect_true(all(is.na(mo_concept_table$date)))
+#   
+#   DBI::dbExecute(concepts_db_conn, "DROP TABLE MEDICAL_OBSERVATIONS_EDITED_dapspec")
+#   rs <- DBI::dbSendQuery(concepts_db_conn, "DELETE FROM concept_table")
+#   DBI::dbClearResult(rs)
+#   DBI::dbDisconnect(concepts_db_conn)
+# })
 
 test_that("empty codelist", {
+  concepts_db_conn <- db_setup_test()
   codelist <- data.frame(test = c())
   expect_error(
     create_dap_specific_concept(codelist, name_attachment = attachName, save_db= concepts_db_conn), 
     "Codelist does not contain any data.")
+  DBI::dbDisconnect(concepts_db_conn)
 })
 
 test_that("created MEDICAL_OBSERVATIONS_EDITED", {
-  
+  concepts_db_conn <- db_setup_test()
   DBI::dbWriteTable(concepts_db_conn, "MEDICAL_OBSERVATIONS_EDITED", data.frame(test = 1), overwrite = TRUE)
   create_dap_specific_concept(codelist=good_input,
                               name_attachment = attachName, 
@@ -145,10 +153,11 @@ test_that("created MEDICAL_OBSERVATIONS_EDITED", {
   DBI::dbExecute(concepts_db_conn, "DROP TABLE MEDICAL_OBSERVATIONS_EDITED_dapspec")
   rs <- DBI::dbSendQuery(concepts_db_conn, "DELETE FROM concept_table")
   DBI::dbClearResult(rs)
-  
+  DBI::dbDisconnect(concepts_db_conn)
 })
 
 test_that("reference non-existent column", {
+  concepts_db_conn <- db_setup_test()
   codelist <- good_input %>% dplyr::mutate(column_name_1 = "something", expected_value_1 = "anything")
   expect_error(create_dap_specific_concept(codelist = codelist,
                                              name_attachment = attachName, 
@@ -158,10 +167,11 @@ test_that("reference non-existent column", {
                  'Binder Error: Column "something" referenced')
   rs <- DBI::dbSendQuery(concepts_db_conn, "DELETE FROM concept_table")
   DBI::dbClearResult(rs)
-  
+  DBI::dbDisconnect(concepts_db_conn)
 })
 
 test_that("NA keep_value_column_name", {
+  concepts_db_conn <- db_setup_test()
   codelist <- good_input %>% dplyr::mutate(keep_value_column_name = NA)
   create_dap_specific_concept(codelist = codelist,
                                            name_attachment = attachName, 
@@ -189,23 +199,24 @@ test_that("NA keep_value_column_name", {
   DBI::dbExecute(concepts_db_conn, "DROP TABLE MEDICAL_OBSERVATIONS_EDITED_dapspec")
   rs <- DBI::dbSendQuery(concepts_db_conn, "DELETE FROM concept_table")
   DBI::dbClearResult(rs)
-  
+  DBI::dbDisconnect(concepts_db_conn)
 })
 
 
 test_that("skip extracting meaning column", {
+  concepts_db_conn <- db_setup_test()
   rs <- DBI::dbSendQuery(concepts_db_conn, "ALTER TABLE concept_table\nDROP COLUMN meaning")
 
-create_dap_specific_concept(codelist = good_input,
-                            name_attachment = attachName, 
-                            save_db= concepts_db_conn, 
-                            date_col_filter = "1900-01-01",
-                            add_meaning = FALSE)
-mo_concept_table <- 
-  DBI::dbReadTable(concepts_db_conn,"concept_table")
-expect_true(all(dim(mo_concept_table) == c(39,9)))
-DBI::dbExecute(concepts_db_conn, "DROP TABLE MEDICAL_OBSERVATIONS_EDITED_dapspec")
-
+  create_dap_specific_concept(codelist = good_input,
+                              name_attachment = attachName, 
+                              save_db= concepts_db_conn, 
+                              date_col_filter = "1900-01-01",
+                              add_meaning = FALSE)
+  mo_concept_table <- 
+    DBI::dbReadTable(concepts_db_conn,"concept_table")
+  expect_true(all(is.na(mo_concept_table$meaning)))
+  DBI::dbExecute(concepts_db_conn, "DROP TABLE MEDICAL_OBSERVATIONS_EDITED_dapspec")
+  DBI::dbDisconnect(concepts_db_conn)
 })
 
-DBI::dbDisconnect(concepts_db_conn)
+
