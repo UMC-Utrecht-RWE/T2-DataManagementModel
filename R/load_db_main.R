@@ -151,6 +151,21 @@ load_db <- function(
                           files_in_input,
                           create_db_as)
   }
+  # 7. Add missing tables as empty tables
+  # - Choose schema based on through_parquet
+  # - if 'no', then then empty table already exists in schema_conception,
+  # because we created all tables in create_empty_cdm_tables()
+  # - if 'yes', then we need to create the empty tables in schema_combined_views
+  if (through_parquet == "yes") {
+    # Then add missing tables in this schema
+    add_missing_tables_as_empty(con,
+                                data_model,
+                                tables_in_cdm,
+                                files_in_input,
+                                schema_conception,
+                                schema_combined_views,
+                                create_db_as)
+  }
   # Close the connection
   DBI::dbDisconnect(con, shutdown = TRUE)
   rm(con)
@@ -158,15 +173,9 @@ load_db <- function(
   tictoc::toc()
   cat("Hooray! Script finished running!\n")
 
-  # Choose schema based on create_db_as
-  schema_with_final_tables <- ifelse(create_db_as == "views",
+  schema_with_final_tables <- ifelse(through_parquet == "yes",
                                      schema_combined_views,
                                      schema_conception)
-
-  # Override if through_parquet is "no"
-  if (tolower(through_parquet) == "no") {
-    schema_with_final_tables <- schema_conception
-  }
 
   view_or_table <- ifelse(create_db_as == "views", "Views", "Tables")
 

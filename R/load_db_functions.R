@@ -927,3 +927,38 @@ combine_parquet_views <- function(
     }
   }
 }
+
+################################################################################
+############### Add Missing Tables as Empty Tables in Target ###################
+################################################################################
+add_missing_tables_as_empty <- function(
+    con,
+    data_model,
+    tables_in_cdm,
+    files_in_input,
+    schema_conception,
+    schema_combined_views,
+    create_db_as) {
+  view_or_table <- ifelse(create_db_as == "views", "VIEW", "TABLE")
+
+  # Identify missing tables
+  existing_tables <- unique(names(files_in_input))
+  missing_tables <- setdiff(tables_in_cdm, existing_tables)
+  if (length(missing_tables) == 0) {
+    cat("No missing tables to add.\n")
+    return()
+  } else {
+    cat(paste0("Adding missing tables as empty ", tolower(view_or_table), "s: ",
+               paste(missing_tables, collapse = ", "), "\n"))
+
+    for (table in missing_tables) {
+      query <- sprintf(
+        "CREATE %s %s.%s.view_%s AS SELECT * FROM %s.%s.%s WHERE 1=0;",
+        view_or_table,
+        data_model, schema_combined_views, table,
+        data_model, schema_conception, table
+      )
+      DBI::dbExecute(con, query)
+    }
+  }
+}
