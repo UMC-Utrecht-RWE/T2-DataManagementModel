@@ -25,9 +25,9 @@
 #' function. This is specific for the ConcePTION CDM.
 #' Default: FALSE.
 #' @param intermediate_type Type of intermediate structure to create.
-#' @param keep_date_prefix The prefix value to identify the column where 
+#' @param keep_date_prefix The prefix value to identify the column where
 #' the column name with the date will be stored in the concept_table. Default: keep_date
-#' @param keep_column_prefix The prefix value to identify the column where 
+#' @param keep_column_prefix The prefix value to identify the column where
 #' the column name with the value will stored in the concept_table. Default: keep_value
 #'
 #' @export
@@ -43,91 +43,101 @@ create_dap_specific_concept <- function(
     keep_column_prefix = "keep_value",
     add_meaning = FALSE,
     intermediate_type = "TABLE") {
-  
   if (nrow(codelist) <= 0) {
     stop("Codelist does not contain any data.")
   }
   if (any(intermediate_type == c("TABLE", "VIEW")) != TRUE) {
     stop("intermediate_type has to be either TABLE or VIEW.")
   }
-  #Adding . to attachement name in case it is missing it. (Useuful for query later)
-  name_attachment <- ifelse(endsWith(name_attachment, "."), 
-                            name_attachment, paste0(name_attachment, "."))
-  
+  # Adding . to attachement name in case it is missing it. (Useuful for query later)
+  name_attachment <- ifelse(endsWith(name_attachment, "."),
+    name_attachment, paste0(name_attachment, ".")
+  )
+
   scheme <- unique(codelist[[table_name]])
-  cols_names <- grep(paste0("^", column_name_prefix), names(codelist), 
-                     value = TRUE)
-  
+  cols_names <- grep(paste0("^", column_name_prefix), names(codelist),
+    value = TRUE
+  )
+
   cols <- codelist[, ..cols_names]
-  value_names <- grep(paste0("^", expected_value_prefix), 
-                      names(codelist), value = TRUE)
+  value_names <- grep(paste0("^", expected_value_prefix),
+    names(codelist),
+    value = TRUE
+  )
   values <- codelist[, ..value_names]
-  
-  keep_date_names <- grep(paste0("^", keep_date_prefix), 
-                          names(codelist), value = TRUE)
-  keep_value_names <- grep(paste0("^", keep_column_prefix), 
-                           names(codelist), value = TRUE)
-  
+
+  keep_date_names <- grep(paste0("^", keep_date_prefix),
+    names(codelist),
+    value = TRUE
+  )
+  keep_value_names <- grep(paste0("^", keep_column_prefix),
+    names(codelist),
+    value = TRUE
+  )
+
   for (name in scheme) {
     name_edited <- paste0(name, "_EDITED")
     to_upper_cols <- unique(na.omit(unlist(codelist[get(table_name) %in%
-                                                      name, ..cols_names])))
+      name, ..cols_names])))
     keep_date <- unique(na.omit(unlist(codelist[get(table_name) %in%
-                                                  name, ..keep_date_names]))) 
+      name, ..keep_date_names])))
     keep_value <- unique(na.omit(unlist(codelist[get(table_name) %in%
-                                                   name, ..keep_value_names]))) 
+      name, ..keep_value_names])))
     keep_value <- keep_value[keep_value %notin% to_upper_cols]
-    
-    to_upper_query <- paste0(paste0(" UPPER(", to_upper_cols,
-                                    ") AS ", to_upper_cols), collapse = ", ")
-    dates_query <- paste0(paste0(" TRY_CAST(", keep_date,
-                                 " AS DATE) AS ", keep_date), collapse = ", ")
-    
+
+    to_upper_query <- paste0(paste0(
+      " UPPER(", to_upper_cols,
+      ") AS ", to_upper_cols
+    ), collapse = ", ")
+    dates_query <- paste0(paste0(
+      " TRY_CAST(", keep_date,
+      " AS DATE) AS ", keep_date
+    ), collapse = ", ")
+
     select_cols_query <- paste0(keep_value, collapse = ", ")
-    
+
     if (!name_edited %in% DBI::dbListTables(save_db) ||
-        all(
-          c(keep_value,dates_query, to_upper_cols) %in% DBI::dbListFields(save_db, name_edited)
-        ) == FALSE) {
-      
-      meaning_column_name <- paste0("")
-      if(add_meaning == TRUE){
-        columns_db_table <- DBI::dbGetQuery(save_db, paste0("PRAGMA table_info('",name_attachment,name,"')"))$name
+      all(
+        c(keep_value, dates_query, to_upper_cols) %in% DBI::dbListFields(save_db, name_edited)
+      ) == FALSE) {
+      meaning_column_name <- ""
+      if (add_meaning == TRUE) {
+        columns_db_table <- DBI::dbGetQuery(save_db, paste0("PRAGMA table_info('", name_attachment, name, "')"))$name
         meaning_column_name <- columns_db_table[
           stringr::str_detect(columns_db_table, "meaning")
         ]
-        if(meaning_column_name %in% to_upper_cols | #Checking if we already retrieve meaning through the codelist
-           meaning_column_name %in% select_cols_query){
-          meaning_column_name <- paste0("")
+        if (meaning_column_name %in% to_upper_cols | # Checking if we already retrieve meaning through the codelist
+          meaning_column_name %in% select_cols_query) {
+          meaning_column_name <- ""
         }
         if (length(meaning_column_name) == 0) {
           print(paste0(
             "[create_dap_specific_concept] Meaning not identified for: ",
             name_edited
           ))
-          meaning_column_name <- paste0("")
+          meaning_column_name <- ""
         }
       }
-      
+
       DBI::dbExecute(
         save_db,
         paste0(
           "CREATE TEMP ",
           intermediate_type, " ", name_edited,
-          "_dapspec AS  
-          SELECT ori_table, unique_id, person_id, ", 
-          if(nchar(select_cols_query) > 0) {
+          "_dapspec AS
+          SELECT ori_table, unique_id, person_id, ",
+          if (nchar(select_cols_query) > 0) {
             paste0(select_cols_query, ",")
-          } ,
-          if(nchar(to_upper_query) > 0 ){
+          },
+          if (nchar(to_upper_query) > 0) {
             paste0(to_upper_query, ",")
           },
-          if(nchar(meaning_column_name) > 0 ){
+          if (nchar(meaning_column_name) > 0) {
             paste0(meaning_column_name, ",")
           },
           dates_query,
           " FROM ",
-          name_attachment,name
+          name_attachment, name
         )
       )
     }
@@ -138,12 +148,12 @@ create_dap_specific_concept <- function(
     concept_name <- codelist[[j, "concept_id"]]
     date_col <- codelist[[j, "keep_date_column_name"]]
     codelist_id <- codelist[[j, "dap_spec_id"]]
-    
+
     cols_temp <- unique(na.omit(unlist(cols[j, ])))
     values_temp <- toupper(unique(na.omit(unlist(values[j, ]))))
     cols_temp <- setdiff(cols_temp, "NA")
     values_temp <- setdiff(values_temp, "NA")
-    
+
     value <- codelist[[j, "keep_value_column_name"]]
     if (add_meaning) {
       columns_db_table <- DBI::dbListFields(save_db, name_edited)
@@ -151,8 +161,10 @@ create_dap_specific_concept <- function(
         stringr::str_detect(columns_db_table, "meaning")
       ]
       if (length(meaning_column_name) > 0) {
-        meaning_clause <- paste0(", ", meaning_column_name,
-                                 " AS meaning ")
+        meaning_clause <- paste0(
+          ", ", meaning_column_name,
+          " AS meaning "
+        )
       } else {
         print(paste0(
           "[create_dap_specific_concept] Meaning not identified for: ",
@@ -177,9 +189,12 @@ create_dap_specific_concept <- function(
     if (class(save_db)[1] %in% "duckdb_connection") {
       where_statement <- paste(
         paste(cols_temp, paste0(
-          "'", values_temp, "'"), 
-          sep = " = "), 
-        collapse = " AND ")
+          "'", values_temp, "'"
+        ),
+        sep = " = "
+        ),
+        collapse = " AND "
+      )
       if (!is.null(date_col_filter) & date_col != "NULL") {
         where_statement <- paste0(
           where_statement, " AND ",
@@ -189,14 +204,17 @@ create_dap_specific_concept <- function(
     } else {
       where_statement <- paste(
         paste(cols_temp, paste0(
-          "'", values_temp, "'"),
-          sep = " = "),
+          "'", values_temp, "'"
+        ),
+        sep = " = "
+        ),
         collapse = " AND "
       )
       if (!is.null(date_col_filter) & date_col != "NULL") {
         where_statement <- paste0(
           where_statement, " AND ",
-          date_col, " >= ", as.integer(date_col_filter))
+          date_col, " >= ", as.integer(date_col_filter)
+        )
       }
     }
     print(where_statement)
@@ -214,4 +232,3 @@ create_dap_specific_concept <- function(
     DBI::dbClearResult(rs)
   }
 }
-
