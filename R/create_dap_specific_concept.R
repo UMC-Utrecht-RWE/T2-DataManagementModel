@@ -96,6 +96,10 @@ create_dap_specific_concept <- function(
         meaning_column_name <- columns_db_table[
           stringr::str_detect(columns_db_table, "meaning")
         ]
+        if(meaning_column_name %in% to_upper_cols | #Checking if we already retrieve meaning through the codelist
+           meaning_column_name %in% select_cols_query){
+          meaning_column_name <- paste0("")
+        }
         if (length(meaning_column_name) == 0) {
           print(paste0(
             "[create_dap_specific_concept] Meaning not identified for: ",
