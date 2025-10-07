@@ -90,6 +90,7 @@ create_dap_specific_concept <- function(
           c(keep_value,dates_query, to_upper_cols) %in% DBI::dbListFields(save_db, name_edited)
         ) == FALSE) {
       
+      meaning_column_name <- paste0("")
       if(add_meaning == TRUE){
         columns_db_table <- DBI::dbGetQuery(save_db, paste0("PRAGMA table_info('",name_attachment,name,"')"))$name
         meaning_column_name <- columns_db_table[
