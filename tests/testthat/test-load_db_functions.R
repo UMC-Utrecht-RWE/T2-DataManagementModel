@@ -80,7 +80,6 @@ test_that("Parameter check fails if folder is empty", {
 })
 
 test_that("Parameter check warns on invalid file extensions", {
-
   expect_warning(
     check_params(
       data_model = dm,
@@ -131,7 +130,6 @@ test_that("Parameter check fails if schema file does not exist", {
 })
 
 test_that("Parameter check passes with all valid parameters", {
-
   expect_output(
     check_params(
       data_model = dm,
@@ -205,10 +203,14 @@ con <- setup_db_connection(
 ################################################################################
 
 test_that("sanitize_view_name replaces invalid characters", {
-  expect_equal(sanitize_view_name("person-table.csv"),
-               "person_table_csv")
-  expect_equal(sanitize_view_name("visit@occurrence.parquet"),
-               "visit_occurrence_parquet")
+  expect_equal(
+    sanitize_view_name("person-table.csv"),
+    "person_table_csv"
+  )
+  expect_equal(
+    sanitize_view_name("visit@occurrence.parquet"),
+    "visit_occurrence_parquet"
+  )
   expect_equal(sanitize_view_name("EVENTS 2021.csv"), "EVENTS_2021_csv")
 })
 
@@ -433,7 +435,7 @@ test_that("Creates combined view from multiple parquet files", {
 
   # Check if combined view exists
   views <- DBI::dbGetQuery(
-    con_test, paste0("SELECT table_name FROM information_schema.views 
+    con_test, paste0("SELECT table_name FROM information_schema.views
                      WHERE table_schema = '", scv, "'")
   )$table_name
 

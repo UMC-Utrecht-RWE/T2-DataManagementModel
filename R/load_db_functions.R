@@ -1,24 +1,4 @@
 ################################################################################
-############################### Loading Packages ###############################
-################################################################################
-
-# Packages used:
-# DBI - For the database connection and operations
-# duckdb - For connection and communication with DuckDB
-# dplyr - Magic piping
-# purrr - Functional programming
-# here - Set our working folder
-# openxlsx - To read the excel-file
-# tictoc - For timing code execution
-# stringr - For string manipulations
-
-library(tidyverse) #includes purrr, dplyr, stringr
-# Explicitly import dplyr functions for use in package code
-importFrom(dplyr, `%>%`, mutate, pull, filter, select, cumany)
-# Declare global variables to avoid R CMD check notes
-utils::globalVariables(c("Variable", "Format", "column_definition"))
-
-################################################################################
 ########################## Checking Input Parameters ###########################
 ################################################################################
 
@@ -104,18 +84,22 @@ check_params <- function(
     verbosity) {
   # 1. Does the folder with the CSV files exist?
   if (!dir.exists(folder_path_to_source_files)) {
-    stop(paste("The folder path does not exist:", folder_path_to_source_files,
-               "\nDid you make sure to end the path with a '/'?"))
+    stop(paste(
+      "The folder path does not exist:", folder_path_to_source_files,
+      "\nDid you make sure to end the path with a '/'?"
+    ))
   }
 
   # 2. Does the target database file already exist?
   if (file.exists(file_path_to_target_db)) {
-    stop(paste("The target database file already exists:",
-               file_path_to_target_db,
-               "\nPlease delete the file or choose another path/name."))
+    stop(paste(
+      "The target database file already exists:",
+      file_path_to_target_db,
+      "\nPlease delete the file or choose another path/name."
+    ))
   }
 
-  #3. Do files in the folder exist?
+  # 3. Do files in the folder exist?
   files_in_folder <- list.files(folder_path_to_source_files)
   if (length(files_in_folder) == 0) {
     stop(paste("The folder is empty:", folder_path_to_source_files))
@@ -127,35 +111,42 @@ check_params <- function(
 
   # 4.1. No valid files at all
   if (!any(file_extensions %in% valid_extensions)) {
-    stop(paste("No files in the folder have valid extensions 
+    stop(paste("No files in the folder have valid extensions
         (.csv/ .parquet)."))
   }
 
   # 4.2. Some files are invalid
   if (!all(file_extensions %in% valid_extensions)) {
     invalid_files <- files_in_folder[!file_extensions %in% valid_extensions]
-    warning(paste("Some files in the folder do not have valid extensions 
+    warning(paste(
+      "Some files in the folder do not have valid extensions
             (.csv/ .parquet):", paste(invalid_files, collapse = ", "),
-                  "\nThese files will be ignored."))
+      "\nThese files will be ignored."
+    ))
   }
 
   # 5. Is the data model name valid?
   valid_data_models <- c("conception")
   if (!(data_model %in% valid_data_models)) {
-    stop(paste("Invalid data model name. Choose from:",
-               paste(valid_data_models, collapse = ", ")))
+    stop(paste(
+      "Invalid data model name. Choose from:",
+      paste(valid_data_models, collapse = ", ")
+    ))
   }
 
   # 6. If the target database exists, can we open the connection?
   db_message <- NULL # Declare the error output variable
   if (file.exists(file_path_to_target_db)) {
-    tryCatch({
-      con <- DBI::dbConnect(duckdb::duckdb(), dbdir = file_path_to_target_db)
-      DBI::dbDisconnect(con)
-    }, error = function(e) {
-      db_message <<- "Database file exists, but cannot open the connection, 
+    tryCatch(
+      {
+        con <- DBI::dbConnect(duckdb::duckdb(), dbdir = file_path_to_target_db)
+        DBI::dbDisconnect(con)
+      },
+      error = function(e) {
+        db_message <<- "Database file exists, but cannot open the connection,
       it may already be in use.\n"
-    })
+      }
+    )
   }
   if (!is.null(db_message)) {
     stop(db_message)
@@ -175,7 +166,7 @@ check_params <- function(
 
   # 9. schema file exists
   if (!file.exists(excel_path_to_cdm_schema)) {
-    stop(paste("Please provide a valid path to the CDM file in excel format. 
+    stop(paste("Please provide a valid path to the CDM file in excel format.
     This is required to create the target database schema."))
   }
 
@@ -187,10 +178,10 @@ check_params <- function(
 
   # 11. Invalid parameter combination.
   if (through_parquet == "no" && create_db_as == "views") {
-    warning(paste("Invalid parameter combination.
-                   through_parquet = 'no' means input files will be converted to 
-                   views and then directly views will be loaded into target tables. 
-                   So, the code will proceed as though create_db_as ='tables'."))
+    warning(paste("Invalid parameter combination. through_parquet = 'no' means
+                  that input files will be converted to views after which views
+                  will directly be loaded into target tables.
+                  So, the code will proceed as though create_db_as ='tables'."))
   }
   cat("All parameter checks passed!\n")
 }
@@ -239,15 +230,21 @@ setup_db_connection <- function(
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = file_path_to_target_db)
 
   # Create the schemas
-  DBI::dbExecute(con, paste0("CREATE SCHEMA IF NOT EXISTS ",
-                             schema_individual_views))
-  DBI::dbExecute(con, paste0("CREATE SCHEMA IF NOT EXISTS ",
-                             schema_combined_views))
-  DBI::dbExecute(con, paste0("CREATE SCHEMA IF NOT EXISTS ",
-                             schema_conception))
+  DBI::dbExecute(con, paste0(
+    "CREATE SCHEMA IF NOT EXISTS ",
+    schema_individual_views
+  ))
+  DBI::dbExecute(con, paste0(
+    "CREATE SCHEMA IF NOT EXISTS ",
+    schema_combined_views
+  ))
+  DBI::dbExecute(con, paste0(
+    "CREATE SCHEMA IF NOT EXISTS ",
+    schema_conception
+  ))
   message("Schemas created")
 
-  return(con)
+  con
 }
 
 ################################################################################
@@ -278,7 +275,7 @@ sanitize_view_name <- function(name) {
 #' @param schema_individual_views Character.
 #'  Name of the schema where individual views will be created.
 #'
-#' @return A character vector of sanitized file names for which views were 
+#' @return A character vector of sanitized file names for which views were
 #'  successfully created.
 #'
 #' @examples
@@ -321,8 +318,10 @@ read_source_files_as_views <- function(
 
     # Skip this loop if there are no matching files
     if (length(matching_files) == 0) {
-      cat(paste0("\r\033[31mSkipping ", table,
-                 ": No matching files found.\033[0m\n"))
+      cat(paste0(
+        "\r\033[31mSkipping ", table,
+        ": No matching files found.\033[0m\n"
+      ))
       next
     } else {
       # Generate a sanitized view name
@@ -345,21 +344,26 @@ read_source_files_as_views <- function(
       query <- paste0(
         "CREATE OR REPLACE VIEW ", data_model, ".",
         schema_individual_views, ".", view_name,
-        " AS SELECT * FROM read_csv_auto('", file, "', ALL_VARCHAR = TRUE, 
+        " AS SELECT * FROM read_csv_auto('", file, "', ALL_VARCHAR = TRUE,
         nullstr = ['NA', ''])"
       )
-      tryCatch({
-        DBI::dbExecute(db_connection, query)
-        cat(paste0("\tView created: ", view_name, "\n"))
-      }, error = function(e) {
-        warning(paste0("Failed to create view for file: ", file,
-                       "\nError: ", e$message))
-      })
+      tryCatch(
+        {
+          DBI::dbExecute(db_connection, query)
+          cat(paste0("\tView created: ", view_name, "\n"))
+        },
+        error = function(e) {
+          warning(paste0(
+            "Failed to create view for file: ", file,
+            "\nError: ", e$message
+          ))
+        }
+      )
     }
 
     cat(paste0("\nCreated views for table: ", table, ".\n"))
   }
-  return(files_in_input)
+  files_in_input
 }
 
 ################################################################################
@@ -405,10 +409,13 @@ generate_ddl <- function(
 
   # Create column definitions with fallback to VARCHAR for unknown formats
   column_definitions <- df %>%
-    dplyr::mutate(column_definition = paste0('"', Variable, '" ',
-                                      ifelse(Format %in% names(format_mapping),
-                                              format_mapping[[Format]],
-                                              "VARCHAR"))) %>%
+    dplyr::mutate(column_definition = paste0(
+      '"', Variable, '" ',
+      ifelse(Format %in% names(format_mapping),
+        format_mapping[[Format]],
+        "VARCHAR"
+      )
+    )) %>%
     dplyr::pull(column_definition) %>%
     paste(collapse = ",\n  ")
 
@@ -478,16 +485,17 @@ create_empty_cdm_tables <- function(
     cat(paste0("Now creating DDL for ", table_name, "...."))
 
     # Read the sheet for the current table
-    sheet_data <- read.xlsx(excel_path_to_cdm_schema, 
-                            sheet = table_name, startRow = 4) %>%
+    sheet_data <- openxlsx::read.xlsx(excel_path_to_cdm_schema,
+      sheet = table_name, startRow = 4
+    ) %>%
       # Remove leading/trailing whitespace
-      mutate(Variable = trimws(Variable, whitespace = "[\\h\\v]")) %>%
+      dplyr::mutate(Variable = trimws(Variable, whitespace = "[\\h\\v]")) %>%
       # Drop rows with NA in Variable
-      filter(!is.na(Variable)) %>%
+      dplyr::filter(!is.na(Variable)) %>%
       # Ignore rows after first occurence of "Conventions"
-      filter(!cumany(Variable == "Conventions")) %>%
+      dplyr::filter(!dplyr::cumany(Variable == "Conventions")) %>%
       # Keep only relevant rows
-      select(Variable, Format)
+      dplyr::select(Variable, Format)
 
     # Generate the DDL for the current table
     ddl <- generate_ddl(sheet_data, data_model, table_name, schema_conception)
@@ -561,7 +569,7 @@ get_table_info <- function(
 
 #' Populate CDM Tables from Source Views
 #'
-#' This function populates CDM tables in DuckDB by transforming and inserting 
+#' This function populates CDM tables in DuckDB by transforming and inserting
 #' data from previously created source views.
 #'
 #' @param db_connection A DuckDB database connection object (`DBIConnection`).
@@ -607,11 +615,10 @@ populate_cdm_tables_from_views <- function(
     files_in_input,
     through_parquet,
     create_db_as) {
-
   # TODO: Ensure target tables are empty (previously by truncating them)
   # TODO: Set batch_size dynamically depending on the size of the file.
   # i.e. batch_size <- if_else(file_size > 100 MB, 100, 10)
-  # TODO: set number of threads automatically depending on the number of cores, 
+  # TODO: set number of threads automatically depending on the number of cores,
   # i.e. threads = number_of_cores - 2
 
   # How many files to process in one batch before committing and checkpointing
@@ -655,26 +662,34 @@ populate_cdm_tables_from_views <- function(
       cols_target <- get_table_info(schema_conception, target)
 
       # Determine common and ignored columns
-      common_columns <- intersect(cols_source$column_name,
-                                  cols_target$column_name)
-      ignored_columns <- setdiff(cols_source$column_name,
-                                 cols_target$column_name)
+      common_columns <- intersect(
+        cols_source$column_name,
+        cols_target$column_name
+      )
+      ignored_columns <- setdiff(
+        cols_source$column_name,
+        cols_target$column_name
+      )
 
       # If there are no common_columns then skip to the next loop
       if (length(common_columns) == 0) {
-        cat(paste0("\r\033[31mSkipping \033[1m", source_view,
-                   "\033[22m\033[31m, no common columns\033[0m\n"))
+        cat(paste0(
+          "\r\033[31mSkipping \033[1m", source_view,
+          "\033[22m\033[31m, no common columns\033[0m\n"
+        ))
         next
       }
       # Report ignored columns
       if (length(ignored_columns) > 0) {
-        cat(paste0("\033[31mThe following non-matching column(s)
-                    was / were ignored: \033[1m", 
-                   paste("\n\t\t", ignored_columns, collapse = " "),
-                   "\033[0m \n"))
+        cat(paste0(
+          "\033[31mThe following non-matching column(s)
+                    was / were ignored: \033[1m",
+          paste("\n\t\t", ignored_columns, collapse = " "),
+          "\033[0m \n"
+        ))
       }
 
-      if (through_parquet == "no"){
+      if (through_parquet == "no") {
         # Build SQL query to insert into target table
         query_insert_into_target <- paste0(
           "INSERT INTO ", data_model, ".", schema_conception, ".", target, " (",
@@ -738,12 +753,16 @@ populate_cdm_tables_from_views <- function(
       percentage_files <- paste0(round(counter / total_files * 100, 2), "%")
       time_message <- invisible(capture.output(tictoc::toc()$callback_msg))
 
-      cat(paste0("\rDone transforming view ", source_view, " into ", target,
-                 " (", percentage_files, "), ", time_message[1], ".\n"))
+      cat(paste0(
+        "\rDone transforming view ", source_view, " into ", target,
+        " (", percentage_files, "), ", time_message[1], ".\n"
+      ))
       # Log to disk
-      log_line <- paste0("Done with ", source_view, ", which is file number ",
-                         counter, " / ", total_files, " (", percentage_files,
-                         "), ", time_message[1], ".")
+      log_line <- paste0(
+        "Done with ", source_view, ", which is file number ",
+        counter, " / ", total_files, " (", percentage_files,
+        "), ", time_message[1], "."
+      )
       write(log_line, file = "log.txt", append = TRUE)
 
       # Stop condition
@@ -758,8 +777,10 @@ populate_cdm_tables_from_views <- function(
         DBI::dbCommit(db_connection)
         DBI::dbExecute(db_connection, "CHECKPOINT;")
         DBI::dbBegin(db_connection)
-        cat("\033[32m- Batch ", counter,
-            " committed and checkpointed -\033[0m\n")
+        cat(
+          "\033[32m- Batch ", counter,
+          " committed and checkpointed -\033[0m\n"
+        )
       }
     }
   }
@@ -826,13 +847,17 @@ combine_parquet_views <- function(
   targets <- unique(names(files_in_input))
 
   for (target in targets) {
-    cat(paste0("\033[1m\nCreating combined view(s) for table ",
-               target, "....\n\033[0m"))
+    cat(paste0(
+      "\033[1m\nCreating combined view(s) for table ",
+      target, "....\n\033[0m"
+    ))
 
     # Get all parquet files for this target
     parquet_files <- files_in_input[names(files_in_input) == target]
-    parquet_paths <- file.path("intermediate_parquet",
-                               paste0(parquet_files, ".parquet"))
+    parquet_paths <- file.path(
+      "intermediate_parquet",
+      paste0(parquet_files, ".parquet")
+    )
 
     # Get reference columns/types from the CDM table definition
     ref_info <- DBI::dbGetQuery(
@@ -910,8 +935,10 @@ combine_parquet_views <- function(
         union_selects
       )
       DBI::dbExecute(db_connection, combined_query)
-      cat(paste0("\033[32mCombined view ",
-                 combined_name, " created\033[0m\n\n"))
+      cat(paste0(
+        "\033[32mCombined view ",
+        combined_name, " created\033[0m\n\n"
+      ))
     } else if (create_db_as == "tables") {
       # Create a physical table instead of a view
       combined_query <- sprintf(
@@ -922,8 +949,10 @@ combine_parquet_views <- function(
         union_selects
       )
       DBI::dbExecute(db_connection, combined_query)
-      cat(paste0("\033[32mCombined table ",
-                 combined_name, " created\033[0m\n\n"))
+      cat(paste0(
+        "\033[32mCombined table ",
+        combined_name, " created\033[0m\n\n"
+      ))
     }
   }
 }
@@ -948,8 +977,10 @@ add_missing_tables_as_empty <- function(
     cat("No missing tables to add.\n")
     return()
   } else {
-    cat(paste0("Adding missing tables as empty ", tolower(view_or_table), "s: ",
-               paste(missing_tables, collapse = ", "), "\n"))
+    cat(paste0(
+      "Adding missing tables as empty ", tolower(view_or_table), "s: ",
+      paste(missing_tables, collapse = ", "), "\n"
+    ))
 
     for (table in missing_tables) {
       query <- sprintf(

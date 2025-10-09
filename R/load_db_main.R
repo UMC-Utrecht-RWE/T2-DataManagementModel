@@ -1,9 +1,6 @@
 ################################################################################
 ################################ Main Function #################################
 ################################################################################
-
-library(tidyverse)
-
 ##' Load Source Data into a DuckDB CDM Database
 #'
 #' This function orchestrates the full pipeline for loading source data into a
@@ -108,48 +105,60 @@ load_db <- function(
   tictoc::tic()
 
   # 1. Check if the input parameters are correct
-  check_params(data_model,
-               excel_path_to_cdm_schema,
-               format_source_files,
-               folder_path_to_source_files,
-               through_parquet,
-               file_path_to_target_db,
-               create_db_as,
-               verbosity)
+  check_params(
+    data_model,
+    excel_path_to_cdm_schema,
+    format_source_files,
+    folder_path_to_source_files,
+    through_parquet,
+    file_path_to_target_db,
+    create_db_as,
+    verbosity
+  )
   # 2. Setup the database connection and create the required schemas
-  con <- setup_db_connection(schema_individual_views,
-                             schema_conception,
-                             schema_combined_views,
-                             file_path_to_target_db)
+  con <- setup_db_connection(
+    schema_individual_views,
+    schema_conception,
+    schema_combined_views,
+    file_path_to_target_db
+  )
   # 3. Read the source files as views in DuckDB
-  files_in_input <- read_source_files_as_views(con,
-                                               data_model,
-                                               tables_in_cdm,
-                                               format_source_files,
-                                               folder_path_to_source_files,
-                                               schema_individual_views)
+  files_in_input <- read_source_files_as_views(
+    con,
+    data_model,
+    tables_in_cdm,
+    format_source_files,
+    folder_path_to_source_files,
+    schema_individual_views
+  )
   # 4. Create empty CDM tables with correct schema
-  create_empty_cdm_tables(con,
-                          data_model,
-                          excel_path_to_cdm_schema,
-                          tables_in_cdm,
-                          schema_conception)
+  create_empty_cdm_tables(
+    con,
+    data_model,
+    excel_path_to_cdm_schema,
+    tables_in_cdm,
+    schema_conception
+  )
   # 5. Populate empty CDM tables with data from source views
-  populate_cdm_tables_from_views(con,
-                                 data_model,
-                                 schema_individual_views,
-                                 schema_conception,
-                                 files_in_input,
-                                 through_parquet,
-                                 create_db_as)
+  populate_cdm_tables_from_views(
+    con,
+    data_model,
+    schema_individual_views,
+    schema_conception,
+    files_in_input,
+    through_parquet,
+    create_db_as
+  )
   # 6. If through_parquet, combine views to create DB
   if (through_parquet == "yes") {
-    combine_parquet_views(con,
-                          data_model,
-                          schema_conception,
-                          schema_combined_views,
-                          files_in_input,
-                          create_db_as)
+    combine_parquet_views(
+      con,
+      data_model,
+      schema_conception,
+      schema_combined_views,
+      files_in_input,
+      create_db_as
+    )
   }
   # 7. Add missing tables as empty tables
   # - Choose schema based on through_parquet
@@ -158,13 +167,15 @@ load_db <- function(
   # - if 'yes', then we need to create the empty tables in schema_combined_views
   if (through_parquet == "yes") {
     # Then add missing tables in this schema
-    add_missing_tables_as_empty(con,
-                                data_model,
-                                tables_in_cdm,
-                                files_in_input,
-                                schema_conception,
-                                schema_combined_views,
-                                create_db_as)
+    add_missing_tables_as_empty(
+      con,
+      data_model,
+      tables_in_cdm,
+      files_in_input,
+      schema_conception,
+      schema_combined_views,
+      create_db_as
+    )
   }
   # Close the connection
   DBI::dbDisconnect(con, shutdown = TRUE)
@@ -174,13 +185,15 @@ load_db <- function(
   cat("Hooray! Script finished running!\n")
 
   schema_with_final_tables <- ifelse(through_parquet == "yes",
-                                     schema_combined_views,
-                                     schema_conception)
+    schema_combined_views,
+    schema_conception
+  )
 
   view_or_table <- ifelse(create_db_as == "views", "Views", "Tables")
 
   # Final message: where to find the final tables
-  cat(paste0("The final tables can be accessed in the database through: \n",
-             data_model, " > ", schema_with_final_tables, " > ", view_or_table))
-
+  cat(paste0(
+    "The final tables can be accessed in the database through: \n",
+    data_model, " > ", schema_with_final_tables, " > ", view_or_table
+  ))
 }
