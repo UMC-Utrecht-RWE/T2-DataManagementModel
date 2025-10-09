@@ -49,7 +49,7 @@ unique_id_generator$run(loader)
 }
 \keyword{internal}
 \section{Super class}{
-\code{\link[T2.DMM:DatabaseOperation]{T2.DMM::DatabaseOperation}} -> \code{UniqueIdGenerator}
+\code{T2.DMM::DatabaseOperation} -> \code{UniqueIdGenerator}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
