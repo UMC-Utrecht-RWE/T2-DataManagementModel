@@ -410,13 +410,13 @@ generate_ddl <- function(
   # Create column definitions with fallback to VARCHAR for unknown formats
   column_definitions <- df %>%
     dplyr::mutate(column_definition = paste0(
-      '"', Variable, '" ',
-      ifelse(Format %in% names(format_mapping),
-        format_mapping[[Format]],
+      '"', rlang::.data$Variable, '" ',
+      ifelse(rlang::.data$Format %in% names(format_mapping),
+        format_mapping[[rlang::.data$Format]],
         "VARCHAR"
       )
     )) %>%
-    dplyr::pull(column_definition) %>%
+    dplyr::pull(rlang::.data$column_definition) %>%
     paste(collapse = ",\n  ")
 
   # Construct the CREATE TABLE statement
@@ -489,13 +489,13 @@ create_empty_cdm_tables <- function(
       sheet = table_name, startRow = 4
     ) %>%
       # Remove leading/trailing whitespace
-      dplyr::mutate(Variable = trimws(Variable, whitespace = "[\\h\\v]")) %>%
+      dplyr::mutate(Variable = trimws(rlang::.data$Variable, whitespace = "[\\h\\v]")) %>%
       # Drop rows with NA in Variable
-      dplyr::filter(!is.na(Variable)) %>%
+      dplyr::filter(!is.na(rlang::.data$Variable)) %>%
       # Ignore rows after first occurence of "Conventions"
-      dplyr::filter(!dplyr::cumany(Variable == "Conventions")) %>%
+      dplyr::filter(!dplyr::cumany(rlang::.data$Variable == "Conventions")) %>%
       # Keep only relevant rows
-      dplyr::select(Variable, Format)
+      dplyr::select(rlang::.data$Variable, rlang::.data$Format)
 
     # Generate the DDL for the current table
     ddl <- generate_ddl(sheet_data, data_model, table_name, schema_conception)
