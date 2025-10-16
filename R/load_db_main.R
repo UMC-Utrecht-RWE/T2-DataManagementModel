@@ -19,12 +19,10 @@
 #'  Ensure the path ends with a `'/'`.
 #' @param through_parquet Character.
 #'  Whether to process through Parquet files (`"yes"` or `"no"`).
-#' @param file_path_to_target_db Character.
-#'  Full path to the target database file, including the `".duckdb"` extension.
 #' @param create_db_as Character.
 #'  Specify whether to create the database as `"views"` or `"tables"`.
 #' @param verbosity Integer.
-#'  Level of verbosity for logging; `0` for minimal output, `1` for detailed output.
+#'  Level of verbosity for logging; `0` or `1` for detailed output.
 #'
 #' @return None.
 #' The function performs operations to load data into a DuckDB database.
@@ -49,7 +47,6 @@
 #'   format_source_files = "csv",
 #'   folder_path_to_source_files = "data/source/",
 #'   through_parquet = "no",
-#'   file_path_to_target_db = "data/target/my_database.duckdb",
 #'   create_db_as = "tables",
 #'   verbosity = 1
 #' )
@@ -62,7 +59,6 @@ load_db <- function(
     format_source_files = "parquet",
     folder_path_to_source_files = "",
     through_parquet = "yes",
-    file_path_to_target_db = "",
     create_db_as = "views",
     verbosity = 1) {
   # Sanitize input parameters
@@ -71,6 +67,20 @@ load_db <- function(
   }
   if (!(verbosity %in% c(0, 1))) {
     verbosity <<- 1
+  }
+
+  # Create file paths to target db and parquet files
+  file_path_to_target_db <- paste0(folder_path_to_source_files,
+                                   "/", data_model, ".duckdb")
+  parquet_path <- file.path(folder_path_to_source_files,
+                            "/intermediate_parquet")
+  if (through_parquet == "yes") {
+    if (!dir.exists(parquet_path)) {
+      dir.create(parquet_path)
+    } else {
+      # If it exists make sure it's empty
+      unlink(parquet_path)
+    }
   }
 
   # What schema are we going to put the individual views to input files into?
@@ -147,7 +157,7 @@ load_db <- function(
     schema_conception,
     files_in_input,
     through_parquet,
-    create_db_as
+    parquet_path,
   )
   # 6. If through_parquet, combine views to create DB
   if (through_parquet == "yes") {
@@ -157,16 +167,14 @@ load_db <- function(
       schema_conception,
       schema_combined_views,
       files_in_input,
-      create_db_as
+      create_db_as,
+      parquet_path
     )
-  }
-  # 7. Add missing tables as empty tables
-  # - Choose schema based on through_parquet
-  # - if 'no', then then empty table already exists in schema_conception,
-  # because we created all tables in create_empty_cdm_tables()
-  # - if 'yes', then we need to create the empty tables in schema_combined_views
-  if (through_parquet == "yes") {
-    # Then add missing tables in this schema
+    # 7. Add missing tables as empty tables
+    # - Choose schema based on through_parquet
+    # - if 'no', then then empty table already exists in schema_conception,
+    # because we created all tables in create_empty_cdm_tables()
+    # - if 'yes', then we create the empty tables in schema_combined_views
     add_missing_tables_as_empty(
       con,
       data_model,

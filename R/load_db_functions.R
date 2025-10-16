@@ -92,10 +92,10 @@ check_params <- function(
 
   # 2. Does the target database file already exist?
   if (file.exists(file_path_to_target_db)) {
-    stop(paste(
+    warning(paste(
       "The target database file already exists:",
       file_path_to_target_db,
-      "\nPlease delete the file or choose another path/name."
+      "\nIt will be overwritten."
     ))
   }
 
@@ -315,7 +315,6 @@ read_source_files_as_views <- function(
       full.names = TRUE,
       ignore.case = TRUE
     )
-
     # Skip this loop if there are no matching files
     if (length(matching_files) == 0) {
       cat(paste0(
@@ -323,22 +322,18 @@ read_source_files_as_views <- function(
         ": No matching files found.\033[0m\n"
       ))
       next
-    } else {
-      # Generate a sanitized view name
-      matching_files_sanitized <-
-        sanitize_view_name(tools::file_path_sans_ext(basename(file)))
-
-      # Add matching files with table name as the name
-      names(matching_files_sanitized) <- rep(table, length(matching_files))
-      files_in_input <- c(files_in_input, matching_files_sanitized)
     }
 
     # Create a view for each matching file
-    for (file in matching_files_sanitized) {
+    for (file in matching_files) {
       cat(paste0("\tProcessing file: \033[3m", file, "\033[0m\n"))
 
       # Generate a sanitized view name
-      view_name <- paste0("view_", file)
+      sanitized_name <-
+        sanitize_view_name(tools::file_path_sans_ext(basename(file)))
+      view_name <- paste0("view_", sanitized_name)
+      names(sanitized_name) <- table
+      files_in_input <- c(files_in_input, sanitized_name)
 
       # Execute the query to create the view
       query <- paste0(
@@ -410,13 +405,13 @@ generate_ddl <- function(
   # Create column definitions with fallback to VARCHAR for unknown formats
   column_definitions <- df %>%
     dplyr::mutate(column_definition = paste0(
-      '"', rlang::.data$Variable, '" ',
-      ifelse(rlang::.data$Format %in% names(format_mapping),
-        format_mapping[[rlang::.data$Format]],
+      '"', Variable, '" ',
+      ifelse(Format %in% names(format_mapping),
+        format_mapping[Format],
         "VARCHAR"
       )
     )) %>%
-    dplyr::pull(rlang::.data$column_definition) %>%
+    dplyr::pull(column_definition) %>%
     paste(collapse = ",\n  ")
 
   # Construct the CREATE TABLE statement
@@ -479,7 +474,7 @@ create_empty_cdm_tables <- function(
   if (exists("full_ddl")) {
     rm(full_ddl)
   }
-
+  full_ddl <- ""
   # Loop through each table in the CDM
   for (table_name in tables_in_cdm) {
     cat(paste0("Now creating DDL for ", table_name, "...."))
@@ -489,23 +484,18 @@ create_empty_cdm_tables <- function(
       sheet = table_name, startRow = 4
     ) %>%
       # Remove leading/trailing whitespace
-      dplyr::mutate(Variable = trimws(rlang::.data$Variable, whitespace = "[\\h\\v]")) %>%
+      dplyr::mutate(Variable = trimws(Variable, whitespace = "[\\h\\v]")) %>%
       # Drop rows with NA in Variable
-      dplyr::filter(!is.na(rlang::.data$Variable)) %>%
+      dplyr::filter(!is.na(Variable)) %>%
       # Ignore rows after first occurence of "Conventions"
-      dplyr::filter(!dplyr::cumany(rlang::.data$Variable == "Conventions")) %>%
+      dplyr::filter(!dplyr::cumany(Variable == "Conventions")) %>%
       # Keep only relevant rows
-      dplyr::select(rlang::.data$Variable, rlang::.data$Format)
+      dplyr::select(Variable, Format)
 
     # Generate the DDL for the current table
     ddl <- generate_ddl(sheet_data, data_model, table_name, schema_conception)
-
     # Append the DDL to the full DDL script
-    if (exists("full_DDL")) {
-      full_ddl <- paste0(full_ddl, ddl)
-    } else {
-      full_ddl <- ddl
-    }
+    full_ddl <- paste0(full_ddl, ddl)
 
     cat("done!\n")
   }
@@ -583,10 +573,8 @@ get_table_info <- function(
 #'  Sanitized view names as values, with CDM table names as names.
 #' @param through_parquet Character.
 #'  Whether to use Parquet as an intermediate step (`"yes"` or `"no"`).
-#' @param file_path_to_target_db Character.
-#'  Full path to the DuckDB database file.
-#' @param create_db_as Character.
-#'  Indicates whether the database was created using `"views"` or `"tables"`.
+#' @param parquet_path Character.
+#'  Path to the folder to put intermediate parquet files in.
 #'
 #' @return No return value.
 #'  The function inserts data into CDM tables and logs progress to `log.txt`.
@@ -600,8 +588,7 @@ get_table_info <- function(
 #'   schema_conception = "cdm_conception",
 #'   files_in_input = c(person1 = "person", person2 = "person"),
 #'   through_parquet = "no",
-#'   file_path_to_target_db = "data/target/my_database.duckdb",
-#'   create_db_as = "tables"
+#'   parquet_path = "dataset/intermediate_parquet"
 #' )
 #' }
 #'
@@ -614,7 +601,8 @@ populate_cdm_tables_from_views <- function(
     schema_conception,
     files_in_input,
     through_parquet,
-    create_db_as) {
+    parquet_path
+  ) {
   # TODO: Ensure target tables are empty (previously by truncating them)
   # TODO: Set batch_size dynamically depending on the size of the file.
   # i.e. batch_size <- if_else(file_size > 100 MB, 100, 10)
@@ -648,18 +636,18 @@ populate_cdm_tables_from_views <- function(
 
   for (target in targets) {
     cat(paste0("\033[1m\nNow starting with the ", target, " tables.\n\033[0m"))
-
     # Get all source views for this target
     source_views <- files_in_input[names(files_in_input) == target]
+
     for (view in source_views) {
       source_view <- paste0("view_", view)
-
       cat(paste0("Materializing view ", source_view, " into ", target, ".\n"))
       tictoc::tic() # Start the timer
 
       # Get columns in source and target tables
-      cols_source <- get_table_info(schema_individual_views, source_view)
-      cols_target <- get_table_info(schema_conception, target)
+      cols_source <- get_table_info(db_connection, schema_individual_views,
+                                    source_view)
+      cols_target <- get_table_info(db_connection, schema_conception, target)
 
       # Determine common and ignored columns
       common_columns <- intersect(
@@ -714,16 +702,6 @@ populate_cdm_tables_from_views <- function(
       }
 
       if (through_parquet == "yes") {
-        # Create the temp folder if it does not exist,
-        # only for counter == 0
-        if (counter == 0) {
-          if (!dir.exists("intermediate_parquet")) {
-            dir.create("intermediate_parquet")
-          } else {
-            # If it exists make sure it's empty
-            unlink("./intermediate_parquet/*")
-          }
-        }
         # Build SQL query to export to Parquet
         query_copy_into_parquet <- paste0(
           "COPY (SELECT ", paste(
@@ -741,7 +719,7 @@ populate_cdm_tables_from_views <- function(
             collapse = ", "
           ),
           " FROM ", data_model, ".", schema_individual_views, ".", source_view,
-          ") TO 'intermediate_parquet/", view, ".parquet' (FORMAT 'parquet');"
+          ") TO '", parquet_path, "/", view, ".parquet' (FORMAT 'parquet');"
         )
         DBI::dbExecute(db_connection, query_copy_into_parquet)
         cat(paste0("\rDone copying view ", source_view, " into parquet file."))
@@ -764,13 +742,6 @@ populate_cdm_tables_from_views <- function(
         "), ", time_message[1], "."
       )
       write(log_line, file = "log.txt", append = TRUE)
-
-      # Stop condition
-      stop <- readLines("stop.txt", warn = FALSE)
-      if (stop == "yes") {
-        cat("Stopping as requested by stop.txt\n")
-        break
-      }
 
       # Checkpoint every batch
       if (counter %% batch_size == 0) {
@@ -819,6 +790,8 @@ populate_cdm_tables_from_views <- function(
 #'  Sanitized view names as values, with CDM table names as names.
 #' @param create_db_as Character.
 #'  Whether to create `"views"` or `"tables"` in the combined schema.
+#' @param parquet_path Character.
+#'  Path to the folder containing intermediate parquet files.
 #'
 #' @return No return value.
 #'  The function creates combined views or tables in the specified schema.
@@ -831,7 +804,8 @@ populate_cdm_tables_from_views <- function(
 #'   schema_conception = "cdm_conception",
 #'   schema_combined_views = "combined_views",
 #'   files_in_input = c(person1 = "person", person2 = "person"),
-#'   create_db_as = "views"
+#'   create_db_as = "views",
+#'   parquet_path = "dataset/intermediate_parquet"
 #' )
 #' }
 #'
@@ -842,7 +816,8 @@ combine_parquet_views <- function(
     schema_conception,
     schema_combined_views,
     files_in_input,
-    create_db_as) {
+    create_db_as,
+    parquet_path) {
   # Get the list of targets (tables)
   targets <- unique(names(files_in_input))
 
@@ -854,10 +829,6 @@ combine_parquet_views <- function(
 
     # Get all parquet files for this target
     parquet_files <- files_in_input[names(files_in_input) == target]
-    parquet_paths <- file.path(
-      "intermediate_parquet",
-      paste0(parquet_files, ".parquet")
-    )
 
     # Get reference columns/types from the CDM table definition
     ref_info <- DBI::dbGetQuery(
@@ -872,9 +843,10 @@ combine_parquet_views <- function(
     ref_types <- ref_info$data_type
 
     # For each parquet file, create an individual view
-    individual_view_names <- character(length(parquet_paths))
-    for (i in seq_along(parquet_paths)) {
-      parquet_path <- parquet_paths[i]
+    individual_view_names <- character(length(parquet_files))
+    for (i in seq_along(parquet_files)) {
+      file_path <- file.path(parquet_path,
+                             paste0(parquet_files[i], ".parquet"))
       view_name <- paste0("view_", parquet_files[i])
       individual_view_names[i] <- view_name
 
@@ -883,7 +855,7 @@ combine_parquet_views <- function(
         db_connection,
         sprintf(
           "DESCRIBE SELECT * FROM read_parquet('%s', union_by_name=TRUE)",
-          gsub("\\\\", "/", parquet_path)
+          file_path
         )
       )
       parquet_cols <- parquet_info$column_name
@@ -911,7 +883,7 @@ combine_parquet_views <- function(
         schema_combined_views,
         view_name,
         select_sql,
-        gsub("\\\\", "/", parquet_path)
+        gsub("\\\\", "/", file_path)
       )
       DBI::dbExecute(db_connection, query)
       cat(paste0("\033[32mView ", view_name, " created\033[0m\n"))
@@ -960,6 +932,44 @@ combine_parquet_views <- function(
 ################################################################################
 ############### Add Missing Tables as Empty Tables in Target ###################
 ################################################################################
+
+#' Add Missing Tables as Empty Views or Tables
+#'
+#' This function checks for missing tables in the input files compared to the
+#'  expected tables in the CDM, and creates empty views or tables for them in
+#'  the database.
+#'
+#' @param con A DBI connection object to the target database.
+#' @param data_model String.
+#'  The name of the data model (e.g., `"conception"`).
+#' @param tables_in_cdm Character vector.
+#'  List of expected table names in the CDM.
+#' @param files_in_input Character.
+#'  Named character vector of target and source files.
+#' @param schema_conception Character.
+#'  Schema where the CDM tables are defined.
+#' @param schema_combined_views Character.
+#'  Schema where the combined views or tables will be created.
+#' @param create_db_as Character.
+#'  Whether to create `"views"` or `"tables"` in the combined schema.
+#'
+#' @return No return value. The function performs side effects by executing
+#'  SQL statements to create views or tables.
+#'
+#' @examples
+#' \dontrun{
+#' add_missing_tables_as_empty(
+#'   con = db_connection,
+#'   data_model = "my_model",
+#'   tables_in_cdm = c("person", "visit_occurrence"),
+#'   files_in_input = list(person = "person.csv"),
+#'   schema_conception = "cdm_schema",
+#'   schema_combined_views = "combined_schema",
+#'   create_db_as = "views"
+#' )
+#' }
+#'
+#' @keywords internal
 add_missing_tables_as_empty <- function(
     con,
     data_model,
