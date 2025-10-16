@@ -32,7 +32,7 @@ method, which declares the supported file extension(s) for dynamic dispatch.
 
 \keyword{internal}
 \section{Super classes}{
-\code{\link[T2.DMM:DatabaseOperation]{T2.DMM::DatabaseOperation}} -> \code{\link[T2.DMM:ReportGenerator]{T2.DMM::ReportGenerator}} -> \code{CSVReportGenerator}
+\code{T2.DMM::DatabaseOperation} -> \code{T2.DMM::ReportGenerator} -> \code{CSVReportGenerator}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

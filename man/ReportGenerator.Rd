@@ -46,7 +46,7 @@ report_generator$run(loader) # Delegates to the correct subclass
 }
 \keyword{internal}
 \section{Super class}{
-\code{\link[T2.DMM:DatabaseOperation]{T2.DMM::DatabaseOperation}} -> \code{ReportGenerator}
+\code{T2.DMM::DatabaseOperation} -> \code{ReportGenerator}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

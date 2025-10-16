@@ -30,7 +30,7 @@ can be saved to an intermediate file for auditing or debugging purposes.
 
 \keyword{internal}
 \section{Super class}{
-\code{\link[T2.DMM:DatabaseOperation]{T2.DMM::DatabaseOperation}} -> \code{DuplicateRemover}
+\code{T2.DMM::DatabaseOperation} -> \code{DuplicateRemover}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
