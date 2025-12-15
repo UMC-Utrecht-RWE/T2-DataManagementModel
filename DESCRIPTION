@@ -23,7 +23,8 @@ Imports:
     jsonlite (>= 2.0.0),
     logr (>= 1.3.6),
     R6 (>= 2.6.1),
-    tidyverse
+    tidyverse,
+    readr
 Suggests:
     testthat (>= 3.0.0),
     withr (>= 3.0.2)
