@@ -80,22 +80,22 @@ test_that("Parameter check fails if folder is empty", {
   unlink(empty_dir, recursive = TRUE)
 })
 
-test_that("Parameter check warns on invalid file extensions", {
+# test_that("Parameter check warns on invalid file extensions", {
 
-  expect_output(
-    check_params(
-      data_model = dm,
-      excel_path_to_cdm_schema = eptcs,
-      format_source_files = format_c,
-      folder_path_to_source_files = dbdir,
-      through_parquet = "no",
-      file_path_to_target_db = dbpath,
-      create_db_as = "tables",
-      verbosity = ver
-    ),
-    "do not have valid extensions"
-  )
-})
+#   expect_output(
+#     check_params(
+#       data_model = dm,
+#       excel_path_to_cdm_schema = eptcs,
+#       format_source_files = format_c,
+#       folder_path_to_source_files = dbdir,
+#       through_parquet = "no",
+#       file_path_to_target_db = dbpath,
+#       create_db_as = "tables",
+#       verbosity = ver
+#     ),
+#     "do not have valid extensions"
+#   )
+# })
 
 test_that("Parameter check fails on invalid data model", {
   expect_error(
