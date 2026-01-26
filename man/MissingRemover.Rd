@@ -38,7 +38,7 @@ missing_remover$run(loader)
 }
 \keyword{internal}
 \section{Super class}{
-\code{T2.DMM::DatabaseOperation} -> \code{MissingRemover}
+\code{\link[T2.DMM:DatabaseOperation]{T2.DMM::DatabaseOperation}} -> \code{MissingRemover}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

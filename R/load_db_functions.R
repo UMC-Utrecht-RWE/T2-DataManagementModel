@@ -86,16 +86,16 @@ check_params <- function(
   if (!dir.exists(folder_path_to_source_files)) {
     stop(paste(
       "The folder path does not exist:", folder_path_to_source_files,
-      "\nDid you make sure to end the path with a '/'?"
+      ". Did you make sure to end the path with a '/'?"
     ))
   }
 
   # 2. Does the target database file already exist?
   if (file.exists(file_path_to_target_db)) {
-    warning(paste(
-      "The target database file already exists:",
+    cat(paste(
+      "WARNING: The target database file already exists:",
       file_path_to_target_db,
-      "\nIt will be overwritten."
+      ". It will be overwritten. \n"
     ))
   }
 
@@ -118,10 +118,10 @@ check_params <- function(
   # 4.2. Some files are invalid
   if (!all(file_extensions %in% valid_extensions)) {
     invalid_files <- files_in_folder[!file_extensions %in% valid_extensions]
-    warning(paste(
-      "Some files in the folder do not have valid extensions
+    cat(paste(
+      "WARNING: Some files in the folder do not have valid extensions
             (.csv/ .parquet):", paste(invalid_files, collapse = ", "),
-      "\nThese files will be ignored."
+      ". These files will be ignored. \n"
     ))
   }
 
@@ -143,7 +143,8 @@ check_params <- function(
         DBI::dbDisconnect(con)
       },
       error = function(e) {
-        db_message <<- "Database file exists, but cannot open the connection,
+        db_message <<- "The target database file already exists, 
+        but cannot open the connection,
       it may already be in use.\n"
       }
     )
@@ -154,14 +155,14 @@ check_params <- function(
 
   # 7. load_data_as is either 'views' or 'tables'
   if (!(create_db_as %in% c("views", "tables"))) {
-    warning(paste("create_db_as must be either 'views' or 'tables'.
-                  Setting to default 'views'."))
+    cat(paste("WARNING: create_db_as must be either 'views' or 'tables'.
+                  Setting to default 'views'. \n"))
   }
 
   # 8. verbosity is either 0 or 1
   if (!(verbosity %in% c(0, 1))) {
-    warning(paste("verbosity must be either 0 or 1.
-                  Setting to default 1."))
+    cat(paste("WARNING: verbosity must be either 0 or 1.
+                  Setting to default 1. \n"))
   }
 
   # 9. schema file exists
@@ -172,16 +173,17 @@ check_params <- function(
 
   # 10. through_parquet is either 'yes' or 'no'
   if (!(through_parquet %in% c("yes", "no"))) {
-    warning(paste("through_parquet must be either 'yes' or 'no'.
-                  Setting to default 'yes'."))
+    cat(paste("WARNING: through_parquet must be either 'yes' or 'no'.
+                  Setting to default 'yes'. \n"))
   }
 
   # 11. Invalid parameter combination.
   if (through_parquet == "no" && create_db_as == "views") {
-    warning(paste("Invalid parameter combination. through_parquet = 'no' means
-                  that input files will be converted to views after which views
-                  will directly be loaded into target tables.
-                  So, the code will proceed as though create_db_as ='tables'."))
+    cat(paste("WARNING: 
+              Invalid parameter combination. through_parquet = 'no' means
+              that input files will be converted to views after which views
+              will directly be loaded into target tables.
+              So, the code will proceed as though create_db_as ='tables'. \n"))
   }
   cat("All parameter checks passed!\n")
 }
@@ -225,9 +227,10 @@ setup_db_connection <- function(
     file_path_to_target_db) {
   if (file.exists(file_path_to_target_db)) {
     file.remove(file_path_to_target_db)
-    warning("Removed existing import database.")
+    cat("WARNING: Removed existing import database. \n")
   }
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = file_path_to_target_db)
+  cat(paste0("Connected to DuckDB at ", file_path_to_target_db, "\n"))
 
   # Create the schemas
   DBI::dbExecute(con, paste0(
@@ -242,7 +245,7 @@ setup_db_connection <- function(
     "CREATE SCHEMA IF NOT EXISTS ",
     schema_conception
   ))
-  message("Schemas created")
+  cat("Schemas created in DuckDB. \n")
 
   con
 }
@@ -304,8 +307,6 @@ read_source_files_as_views <- function(
 
   # Loop through the list of expected tables in the CDM
   for (table in tables_in_cdm) {
-    cat(paste0("\nCreating view for table: ", table, "..."))
-
     # Check if there are files in the source folder that match the table name
     # this can be table_name_blah.csv,
     # but not blah_table_name.csv or table_name.xlsx
@@ -317,11 +318,10 @@ read_source_files_as_views <- function(
     )
     # Skip this loop if there are no matching files
     if (length(matching_files) == 0) {
-      cat(paste0(
-        "\r\033[31mSkipping ", table,
-        ": No matching files found.\033[0m\n"
-      ))
+      cat(paste0("Skipping ", table, ": No matching files found.\n"))
       next
+    } else {
+      cat(paste0("Creating view for table: ", table, "\n"))
     }
 
     # Create a view for each matching file
@@ -336,18 +336,25 @@ read_source_files_as_views <- function(
       files_in_input <- c(files_in_input, sanitized_name)
 
       # Execute the query to create the view
-      query <- paste0(
-        "CREATE OR REPLACE VIEW ", data_model, ".",
-        schema_individual_views, ".", view_name,
-        " AS SELECT * FROM read_csv_auto('", file, "', ALL_VARCHAR = TRUE,
-        nullstr = ['NA', ''])"
-      )
+      if (format_source_files == "parquet") {
+        query <- paste0(
+          "CREATE OR REPLACE VIEW ", data_model, ".",
+          schema_individual_views, ".", view_name,
+          " AS SELECT * FROM read_parquet('", file, "')"
+        )
+      } else if (format_source_files == "csv") {
+        query <- paste0(
+          "CREATE OR REPLACE VIEW ", data_model, ".",
+          schema_individual_views, ".", view_name,
+          " AS SELECT * FROM read_csv_auto('", file, "', ALL_VARCHAR = TRUE,
+          nullstr = ['NA', ''])"
+      )}
       tryCatch(
         {
           DBI::dbExecute(db_connection, query)
           cat(paste0("\tView created: ", view_name, "\n"))
         },
-        error = function(e) {
+        warning = function(e) {
           warning(paste0(
             "Failed to create view for file: ", file,
             "\nError: ", e$message
@@ -477,7 +484,7 @@ create_empty_cdm_tables <- function(
   full_ddl <- ""
   # Loop through each table in the CDM
   for (table_name in tables_in_cdm) {
-    cat(paste0("Now creating DDL for ", table_name, "...."))
+    cat(paste0("Now creating DDL for ", table_name))
 
     # Read the sheet for the current table
     sheet_data <- openxlsx::read.xlsx(excel_path_to_cdm_schema,
@@ -496,13 +503,11 @@ create_empty_cdm_tables <- function(
     ddl <- generate_ddl(sheet_data, data_model, table_name, schema_conception)
     # Append the DDL to the full DDL script
     full_ddl <- paste0(full_ddl, ddl)
-
-    cat("done!\n")
   }
 
   # Execute the full DDL which is the final SQL query
   DBI::dbExecute(db_connection, full_ddl) %>%
-    cat("\rEmpty conception tables created\n")
+    cat("\nEmpty conception tables created\n")
 }
 
 ################################################################################

@@ -10,7 +10,6 @@ load_db(
   format_source_files = "parquet",
   folder_path_to_source_files = "",
   through_parquet = "yes",
-  file_path_to_target_db = "",
   create_db_as = "views",
   verbosity = 1
 )
@@ -32,14 +31,11 @@ Ensure the path ends with a `'/'`.}
 \item{through_parquet}{Character.
 Whether to process through Parquet files (`"yes"` or `"no"`).}
 
-\item{file_path_to_target_db}{Character.
-Full path to the target database file, including the `".duckdb"` extension.}
-
 \item{create_db_as}{Character.
 Specify whether to create the database as `"views"` or `"tables"`.}
 
 \item{verbosity}{Integer.
-Level of verbosity for logging; `0` for minimal output, `1` for detailed output.}
+Level of verbosity for logging; `0` or `1` for detailed output.}
 }
 \value{
 None.
@@ -71,7 +67,6 @@ load_db(
   format_source_files = "csv",
   folder_path_to_source_files = "data/source/",
   through_parquet = "no",
-  file_path_to_target_db = "data/target/my_database.duckdb",
   create_db_as = "tables",
   verbosity = 1
 )

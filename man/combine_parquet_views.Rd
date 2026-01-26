@@ -10,7 +10,8 @@ combine_parquet_views(
   schema_conception,
   schema_combined_views,
   files_in_input,
-  create_db_as
+  create_db_as,
+  parquet_path
 )
 }
 \arguments{
@@ -30,6 +31,9 @@ Sanitized view names as values, with CDM table names as names.}
 
 \item{create_db_as}{Character.
 Whether to create `"views"` or `"tables"` in the combined schema.}
+
+\item{parquet_path}{Character.
+Path to the folder containing intermediate parquet files.}
 }
 \value{
 No return value.
@@ -48,7 +52,8 @@ combine_parquet_views(
   schema_conception = "cdm_conception",
   schema_combined_views = "combined_views",
   files_in_input = c(person1 = "person", person2 = "person"),
-  create_db_as = "views"
+  create_db_as = "views",
+  parquet_path = "dataset/intermediate_parquet"
 )
 }
 

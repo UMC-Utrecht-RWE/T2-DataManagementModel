@@ -11,7 +11,7 @@ populate_cdm_tables_from_views(
   schema_conception,
   files_in_input,
   through_parquet,
-  create_db_as
+  parquet_path
 )
 }
 \arguments{
@@ -32,11 +32,8 @@ Sanitized view names as values, with CDM table names as names.}
 \item{through_parquet}{Character.
 Whether to use Parquet as an intermediate step (`"yes"` or `"no"`).}
 
-\item{create_db_as}{Character.
-Indicates whether the database was created using `"views"` or `"tables"`.}
-
-\item{file_path_to_target_db}{Character.
-Full path to the DuckDB database file.}
+\item{parquet_path}{Character.
+Path to the folder to put intermediate parquet files in.}
 }
 \value{
 No return value.
@@ -55,8 +52,7 @@ populate_cdm_tables_from_views(
   schema_conception = "cdm_conception",
   files_in_input = c(person1 = "person", person2 = "person"),
   through_parquet = "no",
-  file_path_to_target_db = "data/target/my_database.duckdb",
-  create_db_as = "tables"
+  parquet_path = "dataset/intermediate_parquet"
 )
 }
 

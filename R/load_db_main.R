@@ -115,6 +115,7 @@ load_db <- function(
   tictoc::tic()
 
   # 1. Check if the input parameters are correct
+  cat("\033[1mStep 1: Checking if input parameters are correct...\033[0m\n")
   check_params(
     data_model,
     excel_path_to_cdm_schema,
@@ -125,14 +126,19 @@ load_db <- function(
     create_db_as,
     verbosity
   )
+
   # 2. Setup the database connection and create the required schemas
+  cat("\033[1mStep 2: Setting up the database connection and creating required
+   schemas...\033[0m\n")
   con <- setup_db_connection(
     schema_individual_views,
     schema_conception,
     schema_combined_views,
     file_path_to_target_db
   )
+
   # 3. Read the source files as views in DuckDB
+  cat("\033[1mStep 3: Reading source files as views in DuckDB...\033[0m\n")
   files_in_input <- read_source_files_as_views(
     con,
     data_model,
@@ -141,7 +147,10 @@ load_db <- function(
     folder_path_to_source_files,
     schema_individual_views
   )
+
   # 4. Create empty CDM tables with correct schema
+  cat("\033[1mStep 4: Creating empty CDM tables with correct
+   schema...\033[0m\n")
   create_empty_cdm_tables(
     con,
     data_model,
@@ -149,7 +158,10 @@ load_db <- function(
     tables_in_cdm,
     schema_conception
   )
+
   # 5. Populate empty CDM tables with data from source views
+  cat("\033[1mStep 5: Populating empty CDM tables with data from source
+   views...\033[0m\n")
   populate_cdm_tables_from_views(
     con,
     data_model,
@@ -157,10 +169,12 @@ load_db <- function(
     schema_conception,
     files_in_input,
     through_parquet,
-    parquet_path,
+    parquet_path
   )
+
   # 6. If through_parquet, combine views to create DB
   if (through_parquet == "yes") {
+    cat("\033[1mStep 6: Combining parquet views to create database...\033[0m\n")
     combine_parquet_views(
       con,
       data_model,
@@ -171,10 +185,11 @@ load_db <- function(
       parquet_path
     )
     # 7. Add missing tables as empty tables
-    # - Choose schema based on through_parquet
-    # - if 'no', then then empty table already exists in schema_conception,
+    # Choose schema based on through_parquet
+    # if 'no', then then empty table already exists in schema_conception,
     # because we created all tables in create_empty_cdm_tables()
-    # - if 'yes', then we create the empty tables in schema_combined_views
+    # if 'yes', then we need to create the empty tables in schema_combined_views
+    cat("\033[1mStep 7: Adding missing tables as empty tables...\033[0m\n")
     add_missing_tables_as_empty(
       con,
       data_model,
@@ -185,12 +200,14 @@ load_db <- function(
       create_db_as
     )
   }
+
   # Close the connection
+  cat("\033[1mClosing the database connection...\033[0m\n")
   DBI::dbDisconnect(con, shutdown = TRUE)
   rm(con)
   invisible(gc())
   tictoc::toc()
-  cat("Hooray! Script finished running!\n")
+  cat("\033[1mHooray! Script finished running!\033[0m\n")
 
   schema_with_final_tables <- ifelse(through_parquet == "yes",
     schema_combined_views,
