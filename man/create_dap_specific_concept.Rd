@@ -12,7 +12,10 @@ create_dap_specific_concept(
   table_name = "cdm_table_name",
   column_name_prefix = "column_name",
   expected_value_prefix = "expected_value",
-  add_meaning = FALSE
+  keep_date_prefix = "keep_date",
+  keep_column_prefix = "keep_value",
+  add_meaning = FALSE,
+  intermediate_type = "TABLE"
 )
 }
 \arguments{
@@ -38,10 +41,18 @@ Default: "column_name".}
  of the expected value variable column(s) from the DAP-specific concept map.
 Default: "expected_value".}
 
+\item{keep_date_prefix}{The prefix value to identify the column where
+the column name with the date will be stored in the concept_table. Default: keep_date}
+
+\item{keep_column_prefix}{The prefix value to identify the column where
+the column name with the value will stored in the concept_table. Default: keep_value}
+
 \item{add_meaning}{An optional boolean that defines whether the possibility
  to save the meaning of any CDM table -if available- in the results of the
 function. This is specific for the ConcePTION CDM.
 Default: FALSE.}
+
+\item{intermediate_type}{Type of intermediate structure to create.}
 }
 \description{
 This function Creates DAP-specific concepts into a database using a

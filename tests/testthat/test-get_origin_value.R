@@ -7,13 +7,13 @@ test_that("get_origin_value returns correct values", {
   DBI::dbExecute(
     db_connection,
     paste0(
-      "CREATE TABLE cdm_table1 (ori_table TEXT, ROWID ",
+      "CREATE TABLE cdm_table1 (ori_table TEXT, unique_id ",
       "INTEGER, Column1 TEXT, Column2 TEXT)"
     )
   )
   DBI::dbExecute(
     db_connection,
-    "CREATE TABLE cdm_table2 (ori_table TEXT, ROWID INTEGER, Column2 TEXT)"
+    "CREATE TABLE cdm_table2 (ori_table TEXT, unique_id INTEGER, Column2 TEXT)"
   )
 
   # Insert test data
@@ -34,7 +34,7 @@ test_that("get_origin_value returns correct values", {
 
   # Create test cases data table
   cases_dt <- data.table::data.table(
-    ROWID = c(1, 2, 3),
+    unique_id = c(1, 2, 3),
     ori_table = c("cdm_table1", "cdm_table1", "cdm_table2")
   )
 
@@ -50,7 +50,7 @@ test_that("get_origin_value returns correct values", {
   # Check result structure
   expect_s3_class(result, "data.table")
   expect_equal(ncol(result), 4)
-  expect_equal(names(result), c("ori_table", "ROWID", "column_origin", "value"))
+  expect_equal(names(result), c("ori_table", "unique_id", "column_origin", "value"))
 
   # Check result content
   expect_equal(nrow(result), 5)
@@ -59,23 +59,23 @@ test_that("get_origin_value returns correct values", {
   table1_records <- result[ori_table == "cdm_table1"]
   expect_equal(nrow(table1_records), 4)
   expect_equal(
-    table1_records[ROWID == 1 & column_origin == "Column1", value], "Value1"
+    table1_records[unique_id == 1 & column_origin == "Column1", value], "Value1"
   )
   expect_equal(
-    table1_records[ROWID == 2 & column_origin == "Column1", value], "Value2"
+    table1_records[unique_id == 2 & column_origin == "Column1", value], "Value2"
   )
   expect_equal(
-    table1_records[ROWID == 1 & column_origin == "Column2", value], "Value3"
+    table1_records[unique_id == 1 & column_origin == "Column2", value], "Value3"
   )
   expect_equal(
-    table1_records[ROWID == 2 & column_origin == "Column2", value], "Value4"
+    table1_records[unique_id == 2 & column_origin == "Column2", value], "Value4"
   )
 
   # Find records for Table2
   table2_records <- result[ori_table == "cdm_table2"]
   expect_equal(nrow(table2_records), 1)
   expect_equal(
-    table2_records[ROWID == 3 & column_origin == "Column2", value], "300"
+    table2_records[unique_id == 3 & column_origin == "Column2", value], "300"
   )
 
   # Clean up
@@ -89,15 +89,15 @@ test_that("get_origin_value handles multiple tables correctly", {
   # Setup test tables
   DBI::dbExecute(
     db_connection,
-    "CREATE TABLE TableA (ori_table TEXT, ROWID INTEGER, ColumnA TEXT)"
+    "CREATE TABLE TableA (ori_table TEXT, unique_id INTEGER, ColumnA TEXT)"
   )
   DBI::dbExecute(
     db_connection,
-    "CREATE TABLE TableB (ori_table TEXT, ROWID INTEGER, ColumnB INTEGER)"
+    "CREATE TABLE TableB (ori_table TEXT, unique_id INTEGER, ColumnB INTEGER)"
   )
   DBI::dbExecute(
     db_connection,
-    "CREATE TABLE TableC (ori_table TEXT,ROWID INTEGER, ColumnC BOOLEAN)"
+    "CREATE TABLE TableC (ori_table TEXT,unique_id INTEGER, ColumnC BOOLEAN)"
   )
 
   # Insert test data
@@ -125,7 +125,7 @@ test_that("get_origin_value handles multiple tables correctly", {
 
   # Create test cases data table with multiple tables
   cases_dt <- data.table::data.table(
-    ROWID = c(1, 2, 3, 2, 3),
+    unique_id = c(1, 2, 3, 2, 3),
     ori_table = c("TableA", "TableA", "TableB", "TableB", "TableC")
   )
 
@@ -157,7 +157,7 @@ test_that("get_origin_value throws error with NULL columns", {
   db_connection <- DBI::dbConnect(duckdb::duckdb())
 
   # Create a simple test cases data table
-  cases_dt <- data.table(ROWID = 1, ori_table = "Table1")
+  cases_dt <- data.table(unique_id = 1, ori_table = "Table1")
 
   # Test with NULL columns
   expect_error(
@@ -175,13 +175,13 @@ test_that("get_origin_value handles empty cases data table", {
 
   # Create empty test cases data table
   cases_dt <- data.table::data.table(
-    ROWID = integer(0), ori_table = character(0)
+    unique_id = integer(0), ori_table = character(0)
   )
 
   # Setup a test table
   DBI::dbExecute(
     db_connection,
-    "CREATE TABLE EmptyTest (ori_table TEXT, ROWID INTEGER, Column1 TEXT)"
+    "CREATE TABLE EmptyTest (ori_table TEXT, unique_id INTEGER, Column1 TEXT)"
   )
 
   # Test with valid columns parameter but empty cases
@@ -205,7 +205,7 @@ test_that("get_origin_value handles invented column names not in columns list", 
   # Setup test tables
   DBI::dbExecute(
     db_connection,
-    "CREATE TABLE Table1 (ori_table TEXT, ROWID INTEGER, Column1 TEXT)"
+    "CREATE TABLE Table1 (ori_table TEXT, unique_id INTEGER, Column1 TEXT)"
   )
 
   # Insert test data
@@ -215,7 +215,7 @@ test_that("get_origin_value handles invented column names not in columns list", 
 
   # Create test cases data table including a table not in columns list
   cases_dt <- data.table::data.table(
-    ROWID = c(1),
+    unique_id = c(1),
     ori_table = c("Table1")
   )
 
@@ -247,7 +247,7 @@ test_that("get_origin_value handles empty scheme", {
   # Setup test tables
   DBI::dbExecute(
     db_connection,
-    "CREATE TABLE Table1 (ori_table TEXT, ROWID INTEGER, Column1 TEXT)"
+    "CREATE TABLE Table1 (ori_table TEXT, unique_id INTEGER, Column1 TEXT)"
   )
   
   # Insert test data
@@ -257,7 +257,7 @@ test_that("get_origin_value handles empty scheme", {
   
   # Create test cases data table including a table not in columns list
   cases_dt <- data.table::data.table(
-    ROWID = c(1),
+    unique_id = c(1),
     ori_table = c("Table1")
   )
   
@@ -282,7 +282,7 @@ test_that("get_origin_value handleswrong multiple column in list", {
   # Setup test tables
   DBI::dbExecute(
     db_connection,
-    "CREATE TABLE Table1 (ori_table TEXT, ROWID INTEGER, Column1 TEXT)"
+    "CREATE TABLE Table1 (ori_table TEXT, unique_id INTEGER, Column1 TEXT)"
   )
   
   # Insert test data
@@ -292,7 +292,7 @@ test_that("get_origin_value handleswrong multiple column in list", {
   
   # Create test cases data table including a table not in columns list
   cases_dt <- data.table::data.table(
-    ROWID = c(1),
+    unique_id = c(1),
     ori_table = c("Table1")
   )
   
@@ -318,7 +318,7 @@ test_that("get_origin_value handles closed connection", {
   # Setup test tables
   DBI::dbExecute(
     db_connection,
-    "CREATE TABLE Table1 (ori_table TEXT, ROWID INTEGER, Column1 TEXT)"
+    "CREATE TABLE Table1 (ori_table TEXT, unique_id INTEGER, Column1 TEXT)"
   )
   
   # Insert test data
@@ -328,7 +328,7 @@ test_that("get_origin_value handles closed connection", {
   
   # Create test cases data table including a table not in columns list
   cases_dt <- data.table::data.table(
-    ROWID = c(1),
+    unique_id = c(1),
     ori_table = c("Table1")
   )
   
@@ -353,7 +353,7 @@ test_that("get_origin_value handles missing table", {
   # Setup test tables
   DBI::dbExecute(
     db_connection,
-    "CREATE TABLE Table1 (ori_table TEXT, ROWID INTEGER, Column1 TEXT)"
+    "CREATE TABLE Table1 (ori_table TEXT, unique_id INTEGER, Column1 TEXT)"
   )
   
   # Insert test data
@@ -363,7 +363,7 @@ test_that("get_origin_value handles missing table", {
   
   # Create test cases data table including a table not in columns list
   cases_dt <- data.table::data.table(
-    ROWID = c(1),
+    unique_id = c(1),
     ori_table = c("Table1")
   )
   
@@ -390,7 +390,7 @@ test_that("get_origin_value handles missing requiered column in cases_dt", {
   # Setup test tables
   DBI::dbExecute(
     db_connection,
-    "CREATE TABLE Table1 (ori_table TEXT, ROWID INTEGER, Column1 TEXT)"
+    "CREATE TABLE Table1 (ori_table TEXT, unique_id INTEGER, Column1 TEXT)"
   )
   
   # Insert test data
@@ -400,7 +400,7 @@ test_that("get_origin_value handles missing requiered column in cases_dt", {
   
   # Create test cases data table including a table not in columns list
   cases_dt <- data.table::data.table(
-    ROWID = c(1)
+    unique_id = c(1)
   )
   
   # Testing if tables from scheme exist in database

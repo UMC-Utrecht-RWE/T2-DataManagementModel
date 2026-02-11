@@ -4,7 +4,7 @@
 #' search_scheme and tables.
 #'
 #' @param cases_dt Data table containing information about cases.
-#' Must be a data.table with at least the search_scheme "ROWID" and "ori_table".
+#' Must be a data.table with at least the search_scheme "unique_id" and "ori_table".
 #' @param db_connection Database connection object.
 #' Must be an active DuckDB connection.
 #' @param search_scheme A list specifying the search_scheme to retrieve
@@ -35,7 +35,7 @@ get_origin_value <- function(
   )
 
   # Check if required search_scheme exist in cases_dt
-  required_cols <- c("ROWID", "ori_table")
+  required_cols <- c("unique_id", "ori_table")
   missing_cols <- required_cols[!required_cols %in% names(cases_dt)]
   if (length(missing_cols) > 0) {
     stop(sprintf(
@@ -74,7 +74,7 @@ get_origin_value <- function(
     warning("[get_origin_value] 'cases_dt' is empty, returning empty result")
     return(data.table::data.table(
       ori_table = character(0),
-      ROWID = integer(0),
+      unique_id = integer(0),
       Value = character(0)
     ))
   }
@@ -142,13 +142,13 @@ get_origin_value <- function(
     # Query the database to get values based on the
     # specified column and ori_table
     query <- paste0(
-      "SELECT t2.ori_table, t1.ROWID, '",
+      "SELECT t2.ori_table, t1.unique_id, '",
       column,
       "' AS column_origin, t1.",
       column, " AS value FROM ",
       ori_table, " t1",
       " INNER JOIN (SELECT * FROM cases_tmp WHERE ori_table = '",
-      ori_table, "') t2 ON t1.ROWID = t2.ROWID"
+      ori_table, "') t2 ON t1.unique_id = t2.unique_id"
     )
 
     rs <- tryCatch(
@@ -198,7 +198,7 @@ get_origin_value <- function(
   } else {
     return(data.table::data.table(
       ori_table = character(0),
-      ROWID = integer(0),
+      unique_id = integer(0),
       Value = character(0)
     ))
   }
