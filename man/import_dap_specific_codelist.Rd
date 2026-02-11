@@ -8,34 +8,20 @@ import_dap_specific_codelist(
   codelist_path,
   codelist_name_db,
   db_connection,
-  columns
+  columns,
+  ...
 )
 }
 \arguments{
-\item{codelist_path}{Path to the DAP-specific codelist file.}
+\item{codelist_path}{String. Path to the .rds file.}
 
-\item{codelist_name_db}{Name of the database table where the codelist will be
-imported.}
+\item{codelist_name_db}{String. Target table name in the database.}
 
-\item{db_connection}{Database connection object (e.g., SQLiteConnection).}
+\item{db_connection}{DBI connection object.}
 
-\item{columns}{Vector of column names to select and import from the codelist.}
+\item{columns}{Character vector. Columns to keep and transform.}
 }
 \description{
-This function reads a DAP-specific codelist from a file, selects specified
-columns, and imports it into a database table.
-}
-\examples{
-\dontrun{
-# Example usage:
-codelist_path <- "path/to/codelist.rds"
-codelist_name_db <- "CodelistTable"
-db_connection <- dbConnect(duckdb::duckdb(), "your_database.db")
-columns_to_import <- c("code", "description") # Add desired column names
-import_dap_specific_codelist(
-  codelist_path, codelist_name_db, db_connection,
-  columns_to_import
-)
-}
-
+Reads a codelist, filters for active rows ("BOTH"), converts specified 
+columns to uppercase, and writes the result to a database.
 }

@@ -1,40 +1,58 @@
 #' Import DAP-Specific Codelist to Database
 #'
-#' This function reads a DAP-specific codelist from a file, selects specified
-#' columns, and imports it into a database table.
-#'
-#' @param codelist_path Path to the DAP-specific codelist file.
-#' @param codelist_name_db Name of the database table where the codelist will be
-#'   imported.
-#' @param db_connection Database connection object (e.g., SQLiteConnection).
-#' @param columns Vector of column names to select and import from the codelist.
-#'
-#'
-#' @examples
-#' \dontrun{
-#' # Example usage:
-#' codelist_path <- "path/to/codelist.rds"
-#' codelist_name_db <- "CodelistTable"
-#' db_connection <- dbConnect(duckdb::duckdb(), "your_database.db")
-#' columns_to_import <- c("code", "description") # Add desired column names
-#' import_dap_specific_codelist(
-#'   codelist_path, codelist_name_db, db_connection,
-#'   columns_to_import
-#' )
-#' }
+#' @description 
+#' Reads a codelist, filters for active rows ("BOTH"), converts specified 
+#' columns to uppercase, and writes the result to a database.
+#' 
+#' @param codelist_path String. Path to the .rds file.
+#' @param codelist_name_db String. Target table name in the database.
+#' @param db_connection DBI connection object.
+#' @param columns Character vector. Columns to keep and transform.
 #'
 #' @export
+#' Adaptive Import of DAP-Specific Codelist
+
 import_dap_specific_codelist <- function(codelist_path, codelist_name_db,
                                          db_connection, columns) {
-  # Read the DAP-specific codelist from the file
-  codelist <- T2.DMM:::ensure_data_table(readRDS(file = codelist_path))
-
-  # Select specified columns and unique rows
-  codelist <- unique(codelist[Comment %in% "BOTH", ..columns])
-
-  # Convert selected columns to uppercase
-  lapply(columns, function(x) codelist[, eval(x) := toupper(get(x))])
-
-  # Write the codelist to the specified database table
+  
+  if (!file.exists(codelist_path)) stop("File not found.")
+  
+  # 1. Determine the file extension
+  ext <- tolower(tools::file_ext(codelist_path))
+  
+  # 2. Adaptive Reading Logic
+  codelist <- switch(ext,
+                     "rds"  = readRDS(codelist_path),
+                     "csv"  = data.table::fread(codelist_path, ...),
+                     "xlsx" = {
+                       if (!requireNamespace("readxl", quietly = TRUE)) 
+                         stop("Package 'readxl' needed for .xlsx files.")
+                       readxl::read_xlsx(codelist_path, ...)
+                     },
+                     stop("Unsupported file extension: .", ext)
+  )
+  
+  # 3. Standardize to data.table
+  # Using the T2.DMM internal or data.table directly
+  codelist <- data.table::as.data.table(codelist)
+  
+  # 4. Validation (Ensure columns exist)
+  required_cols <- unique(c(columns, "Comment"))
+  if (!all(required_cols %in% names(codelist))) {
+    stop("Missing columns. Found: ", paste(names(codelist), collapse = ", "))
+  }
+  
+  # 5. Filter & Process (Logic remains the same)
+  # Filter for BOTH (case-insensitive)
+  codelist <- unique(codelist[toupper(Comment) == "BOTH", ..columns])
+  
+  # In-place uppercase conversion
+  for (col in columns) {
+    set(codelist, j = col, value = toupper(as.character(codelist[[col]])))
+  }
+  
+  # 6. Database Write
   DBI::dbWriteTable(db_connection, codelist_name_db, codelist, overwrite = TRUE)
+  
+  message(sprintf("Imported %d rows from .%s file.", nrow(codelist), ext))
 }
