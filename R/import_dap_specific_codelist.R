@@ -23,12 +23,7 @@ import_dap_specific_codelist <- function(codelist_path, codelist_name_db,
   # 2. Adaptive Reading Logic
   codelist <- switch(ext,
                      "rds"  = readRDS(codelist_path),
-                     "csv"  = data.table::fread(codelist_path, ...),
-                     "xlsx" = {
-                       if (!requireNamespace("readxl", quietly = TRUE)) 
-                         stop("Package 'readxl' needed for .xlsx files.")
-                       readxl::read_xlsx(codelist_path, ...)
-                     },
+                     "csv"  = data.table::fread(codelist_path),
                      stop("Unsupported file extension: .", ext)
   )
   
