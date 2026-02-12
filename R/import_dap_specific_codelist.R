@@ -10,7 +10,7 @@
 #' @param columns Character vector. Columns to keep and transform.
 #'
 #' @export
-#' Adaptive Import of DAP-Specific Codelist
+#' 
 
 import_dap_specific_codelist <- function(codelist_path, codelist_name_db,
                                          db_connection, columns) {

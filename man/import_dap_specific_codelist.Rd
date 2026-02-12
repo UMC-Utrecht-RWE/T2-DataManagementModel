@@ -8,8 +8,7 @@ import_dap_specific_codelist(
   codelist_path,
   codelist_name_db,
   db_connection,
-  columns,
-  ...
+  columns
 )
 }
 \arguments{
