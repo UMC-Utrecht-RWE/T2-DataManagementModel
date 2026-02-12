@@ -2,21 +2,6 @@
 ########################## Checking Input Parameters ###########################
 ################################################################################
 
-# Checks done:
-# 1. Does the folder with the CSV files exist?
-# 2. Does the target database file already exist?
-# 3. Do files in the folder exist?
-# 4. Do files in the folder contain the correct extension?
-#     4.1. No valid files at all
-#     4.2. Some files are invalid
-# 5. Is the data model name valid?
-# 6. If the target database exists, can we open the connection?
-# 7. create_db_as is either 'views' or 'tables'
-# 8. verbosity is either 0 or 1
-# 9. schema file exists
-# 10. through_parquet is either 'yes' or 'no'
-# 11. Invalid parameter combination of through_parquet and create_db_as
-
 #' Validate Input Parameters for CDM Data Processing
 #'
 #' This function performs a series of checks to validate the input parameters
@@ -34,28 +19,12 @@
 #' @param through_parquet Character.
 #'  Indicates whether to process through parquet files.
 #'  Must be either `"yes"` or `"no"`.
-#' @param file_path_to_target_db Character.
-#'  Full path to the target DuckDB database file to be created.
 #' @param create_db_as Character.
 #'  Specifies whether to create the database using `"views"` or `"tables"`.
-#' @param verbosity Integer.
-#'  Level of verbosity for logging.
-#'  Use `0` for minimal output and `1` for detailed output.
 #'
 #' @return No return value.
 #'  The function stops execution with an error message if any check fails.
 #'  If all checks pass, a confirmation message is printed.
-#'
-#' @details
-#' The function performs the following checks:
-#' \itemize{
-#'   \item Validates existence of the source folder and schema file.
-#'   \item Ensures the target database file does not already exist.
-#'   \item Checks for validity of source files (`.csv` or `.parquet`).
-#'   \item Validates the `data_model`, `create_db_as`, `verbosity`,
-#'         and `through_parquet` parameters.
-#'   \item Attempts to connect to the DuckDB database.
-#' }
 #'
 #' @examples
 #' \dontrun{
@@ -65,23 +34,20 @@
 #'   format_source_files = "csv",
 #'   folder_path_to_source_files = "data/source/",
 #'   through_parquet = "no",
-#'   file_path_to_target_db = "data/target/my_database.duckdb",
 #'   create_db_as = "tables",
-#'   verbosity = 1
 #' )
 #' }
 #'
 #' @keywords internal
 #'
 check_params <- function(
-    data_model,
-    excel_path_to_cdm_schema,
-    format_source_files,
-    folder_path_to_source_files,
-    through_parquet,
-    file_path_to_target_db,
-    create_db_as,
-    verbosity) {
+  data_model,
+  excel_path_to_cdm_schema,
+  format_source_files,
+  folder_path_to_source_files,
+  through_parquet,
+  create_db_as
+) {
   # 1. Does the folder with the CSV files exist?
   if (!dir.exists(folder_path_to_source_files)) {
     stop(paste(
@@ -90,32 +56,23 @@ check_params <- function(
     ))
   }
 
-  # 2. Does the target database file already exist?
-  if (file.exists(file_path_to_target_db)) {
-    cat(paste(
-      "WARNING: The target database file already exists:",
-      file_path_to_target_db,
-      ". It will be overwritten. \n"
-    ))
-  }
-
-  # 3. Do files in the folder exist?
+  # 2. Do files in the folder exist?
   files_in_folder <- list.files(folder_path_to_source_files)
   if (length(files_in_folder) == 0) {
     stop(paste("The folder is empty:", folder_path_to_source_files))
   }
 
-  # 4. Do files in the folder contain the correct extension?
+  # 3. Do files in the folder contain the correct extension?
   valid_extensions <- c("csv", "parquet")
   file_extensions <- tools::file_ext(files_in_folder)
 
-  # 4.1. No valid files at all
+  # 3.1. No valid files at all
   if (!any(file_extensions %in% valid_extensions)) {
     stop(paste("No files in the folder have valid extensions
         (.csv/ .parquet)."))
   }
 
-  # 4.2. Some files are invalid
+  # 3.2. Some files are invalid
   if (!all(file_extensions %in% valid_extensions)) {
     invalid_files <- files_in_folder[!file_extensions %in% valid_extensions]
     cat(paste(
@@ -125,59 +82,32 @@ check_params <- function(
     ))
   }
 
-  # 5. Is the data model name valid?
-  valid_data_models <- c("conception")
-  if (!(data_model %in% valid_data_models)) {
+  # 4. Is the data model name valid?
+  if (!grepl("^conception$", data_model, ignore.case = TRUE)) {
     stop(paste(
-      "Invalid data model name. Choose from:",
-      paste(valid_data_models, collapse = ", ")
-    ))
+      "Invalid data model name. 
+      Currently, the only supported data model is 'conception'."))
   }
 
-  # 6. If the target database exists, can we open the connection?
-  db_message <- NULL # Declare the error output variable
-  if (file.exists(file_path_to_target_db)) {
-    tryCatch(
-      {
-        con <- DBI::dbConnect(duckdb::duckdb(), dbdir = file_path_to_target_db)
-        DBI::dbDisconnect(con)
-      },
-      error = function(e) {
-        db_message <<- "The target database file already exists, 
-        but cannot open the connection,
-      it may already be in use.\n"
-      }
-    )
-  }
-  if (!is.null(db_message)) {
-    stop(db_message)
-  }
-
-  # 7. load_data_as is either 'views' or 'tables'
+  # 5. create_db_as is either 'views' or 'tables'
   if (!(create_db_as %in% c("views", "tables"))) {
     cat(paste("WARNING: create_db_as must be either 'views' or 'tables'.
                   Setting to default 'views'. \n"))
   }
 
-  # 8. verbosity is either 0 or 1
-  if (!(verbosity %in% c(0, 1))) {
-    cat(paste("WARNING: verbosity must be either 0 or 1.
-                  Setting to default 1. \n"))
-  }
-
-  # 9. schema file exists
+  # 6. schema file exists
   if (!file.exists(excel_path_to_cdm_schema)) {
     stop(paste("Please provide a valid path to the CDM file in excel format.
     This is required to create the target database schema."))
   }
 
-  # 10. through_parquet is either 'yes' or 'no'
+  # 7. through_parquet is either 'yes' or 'no'
   if (!(through_parquet %in% c("yes", "no"))) {
     cat(paste("WARNING: through_parquet must be either 'yes' or 'no'.
                   Setting to default 'yes'. \n"))
   }
 
-  # 11. Invalid parameter combination.
+  # 8. Invalid parameter combination.
   if (through_parquet == "no" && create_db_as == "views") {
     cat(paste("WARNING: 
               Invalid parameter combination. through_parquet = 'no' means
@@ -204,10 +134,8 @@ check_params <- function(
 #'  Name of the schema to store CDM tables.
 #' @param schema_combined_views Character.
 #'  Name of the schema to store combined views.
-#' @param file_path_to_target_db Character.
-#'  Full path to the DuckDB database file to be created.
-#'
-#' @return A DuckDB connection object (`DBIConnection`) with the schemas.
+#' @param con DBIConnection.
+#'  The function will create schemas in this database.
 #'
 #' @examples
 #' \dontrun{
@@ -220,18 +148,11 @@ check_params <- function(
 #' }
 #' @keywords internal
 #'
-setup_db_connection <- function(
+create_schemas <- function(
     schema_individual_views,
     schema_conception,
     schema_combined_views,
-    file_path_to_target_db) {
-  if (file.exists(file_path_to_target_db)) {
-    file.remove(file_path_to_target_db)
-    cat("WARNING: Removed existing import database. \n")
-  }
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = file_path_to_target_db)
-  cat(paste0("Connected to DuckDB at ", file_path_to_target_db, "\n"))
-
+    con) {
   # Create the schemas
   DBI::dbExecute(con, paste0(
     "CREATE SCHEMA IF NOT EXISTS ",
@@ -246,8 +167,6 @@ setup_db_connection <- function(
     schema_conception
   ))
   cat("Schemas created in DuckDB. \n")
-
-  con
 }
 
 ################################################################################
@@ -484,7 +403,7 @@ create_empty_cdm_tables <- function(
   full_ddl <- ""
   # Loop through each table in the CDM
   for (table_name in tables_in_cdm) {
-    cat(paste0("Now creating DDL for ", table_name))
+    cat(paste0("Now creating DDL for ", table_name, "\n"))
 
     # Read the sheet for the current table
     sheet_data <- openxlsx::read.xlsx(excel_path_to_cdm_schema,
@@ -633,9 +552,6 @@ populate_cdm_tables_from_views <- function(
   # Set counter to zero
   counter <- 0
 
-  # Empty the log / create empty log file
-  file.create("log.txt")
-
   #  Ideally this should be the same as tables_in_cdm
   targets <- unique(names(files_in_input))
 
@@ -738,15 +654,10 @@ populate_cdm_tables_from_views <- function(
 
       cat(paste0(
         "\rDone transforming view ", source_view, " into ", target,
-        " (", percentage_files, "), ", time_message[1], ".\n"
-      ))
-      # Log to disk
-      log_line <- paste0(
-        "Done with ", source_view, ", which is file number ",
+        ". Source view is file number ",
         counter, " / ", total_files, " (", percentage_files,
         "), ", time_message[1], "."
-      )
-      write(log_line, file = "log.txt", append = TRUE)
+      ))
 
       # Checkpoint every batch
       if (counter %% batch_size == 0) {

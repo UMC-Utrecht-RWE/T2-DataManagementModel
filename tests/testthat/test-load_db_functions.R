@@ -1,207 +1,93 @@
-################################################################################
-################################### SETUP ######################################
-################################################################################
+testthat::test_that("check_params fails on invalid inputs", {
 
-# Define reusable parameters
-dm <- "conception"
-format_c <- "csv"
-format_p <- "parquet"
-siv <- "individual_views"
-sc <- "conception"
-scv <- "combined_views"
-ver <- 1
-
-# Define testing data paths
-dbpath <- "dbtest/conception.duckdb"
-dbdir <- "dbtest/"
-dbdir_parquet <- "dbtest_parquet/"
-eptcs <- "dbtest/ConcePTION_CDM tables v2.2.xlsx"
-tables <- c("PERSONS", "VACCINES", "MEDICINES", "EVENTS")
-ppath <- "dbtest/intermediate_parquet"
-
-################################################################################
-################################ check_params ##################################
-################################################################################
-
-test_that("Parameter check fails if source folder does not exist", {
-  expect_error(
+  testthat::expect_error(
     check_params(
-      data_model = dm,
-      excel_path_to_cdm_schema = eptcs,
-      format_source_files = format_c,
+      data_model = "conception",
+      excel_path_to_cdm_schema = "dbtest/ConcePTION_CDM tables v2.2.xlsx",
+      format_source_files = "csv",
       folder_path_to_source_files = "nonexistent_folder/",
       through_parquet = "no",
-      file_path_to_target_db = dbpath,
-      create_db_as = "tables",
-      verbosity = ver
+      create_db_as = "tables"
     ),
     "The folder path does not exist"
   )
-})
 
-test_that("Parameter check fails if target DB file already exists", {
-  file.create(dbpath)
-
-  expect_error(
-    check_params(
-      data_model = dm,
-      excel_path_to_cdm_schema = eptcs,
-      format_source_files = format_c,
-      folder_path_to_source_files = dbdir,
-      through_parquet = "no",
-      file_path_to_target_db = dbpath,
-      create_db_as = "tables",
-      verbosity = ver
-    ),
-    "The target database file already exists"
-  )
-
-  unlink(dbpath)
-})
-
-test_that("Parameter check fails if folder is empty", {
   empty_dir <- tempfile()
   dir.create(empty_dir)
-
-  expect_error(
+  testthat::expect_error(
     check_params(
-      data_model = dm,
-      excel_path_to_cdm_schema = eptcs,
-      format_source_files = format_c,
+      data_model = "conception",
+      excel_path_to_cdm_schema = "dbtest/ConcePTION_CDM tables v2.2.xlsx",
+      format_source_files = "csv",
       folder_path_to_source_files = empty_dir,
       through_parquet = "no",
-      file_path_to_target_db = dbpath,
-      create_db_as = "tables",
-      verbosity = ver
+      create_db_as = "tables"
     ),
     "The folder is empty"
   )
-
   unlink(empty_dir, recursive = TRUE)
-})
 
-# test_that("Parameter check warns on invalid file extensions", {
-
-#   expect_output(
-#     check_params(
-#       data_model = dm,
-#       excel_path_to_cdm_schema = eptcs,
-#       format_source_files = format_c,
-#       folder_path_to_source_files = dbdir,
-#       through_parquet = "no",
-#       file_path_to_target_db = dbpath,
-#       create_db_as = "tables",
-#       verbosity = ver
-#     ),
-#     "do not have valid extensions"
-#   )
-# })
-
-test_that("Parameter check fails on invalid data model", {
-  expect_error(
+  testthat::expect_error(
     check_params(
       data_model = "invalid_model",
-      excel_path_to_cdm_schema = eptcs,
-      format_source_files = format_c,
-      folder_path_to_source_files = dbdir,
+      excel_path_to_cdm_schema = "dbtest/ConcePTION_CDM tables v2.2.xlsx",
+      format_source_files = "csv",
+      folder_path_to_source_files = "dbtest/",
       through_parquet = "no",
-      file_path_to_target_db = dbpath,
-      create_db_as = "tables",
-      verbosity = ver
+      create_db_as = "tables"
     ),
     "Invalid data model name"
   )
-})
 
-test_that("Parameter check fails if schema file does not exist", {
-  expect_error(
+  testthat::expect_error(
     check_params(
-      data_model = dm,
+      data_model = "conception",
       excel_path_to_cdm_schema = "nonexistent_schema.xlsx",
-      format_source_files = format_c,
-      folder_path_to_source_files = dbdir,
+      format_source_files = "csv",
+      folder_path_to_source_files = "dbtest/",
       through_parquet = "no",
-      file_path_to_target_db = dbpath,
-      create_db_as = "tables",
-      verbosity = ver
+      create_db_as = "tables"
     ),
     "Please provide a valid path to the CDM file"
   )
 })
 
-test_that("Parameter check passes with all valid parameters", {
-
+testthat::test_that("check_params passes with all valid parameters", {
   expect_output(
     check_params(
-      data_model = dm,
-      excel_path_to_cdm_schema = eptcs,
-      format_source_files = format_c,
-      folder_path_to_source_files = dbdir,
+      data_model = "conception",
+      excel_path_to_cdm_schema = "dbtest/ConcePTION_CDM tables v2.2.xlsx",
+      format_source_files = "csv",
+      folder_path_to_source_files = "dbtest/",
       through_parquet = "no",
-      file_path_to_target_db = dbpath,
-      create_db_as = "tables",
-      verbosity = ver
+      create_db_as = "tables"
     ),
     "All parameter checks passed!"
   )
 })
 
-################################################################################
-############################ setup_db_connection ###############################
-################################################################################
+testthat::test_that("create_schemas creates schemas", {
+  dbname <- tempfile("ConcePTION.duckdb")
+  con <- DBI::dbConnect(duckdb::duckdb(), dbname)
 
-test_that("Creates a new DuckDB database and schemas", {
-  con <- setup_db_connection(
-    schema_individual_views = siv,
-    schema_conception = sc,
-    schema_combined_views = scv,
-    file_path_to_target_db = dbpath
-  )
-
-  # Check if connection is valid
-  DBI::dbIsValid(con) |> expect_true()
-
-  # Check if schemas exist
-  schemas <- DBI::dbGetQuery(con, "SELECT schema_name FROM information_schema.schemata")
-  expect_true(all(c(siv, sc, scv) %in% schemas$schema_name))
-
-  dbDisconnect(con, shutdown = TRUE)
-  unlink(dbpath)
-})
-
-test_that("Removes existing DB file and recreates it", {
-  # Create a dummy DB file
-  file.create(dbpath)
-  expect_true(file.exists(dbpath))
-
-  expect_output(
-    con <- setup_db_connection(
-      schema_individual_views = siv,
-      schema_conception = sc,
-      schema_combined_views = scv,
-      file_path_to_target_db = dbpath
+  testthat::expect_output(
+    create_schemas(
+      schema_individual_views = "individual_views",
+      schema_conception = "conception",
+      schema_combined_views = "combined_views",
+      con = con
     ),
-    "Removed existing import database"
+    "Schemas created in DuckDB"
   )
 
-  DBI::dbIsValid(con) |> expect_true()
+  schemas <- DBI::dbGetQuery(con, "SELECT schema_name FROM information_schema.schemata")
+  testthat::expect_true(all(c("individual_views", "conception", "combined_views") %in% schemas$schema_name))
+
   dbDisconnect(con, shutdown = TRUE)
-  unlink(dbpath)
+  unlink(dbname)
 })
 
-# For further tests, we will use a valid connection
-con <- setup_db_connection(
-  schema_individual_views = siv,
-  schema_conception = sc,
-  schema_combined_views = scv,
-  file_path_to_target_db = dbpath
-)
-
-################################################################################
-######################## read_source_files_as_views ############################
-################################################################################
-
-test_that("sanitize_view_name replaces invalid characters", {
+testthat::test_that("sanitize_view_name replaces invalid characters", {
   expect_equal(sanitize_view_name("person-table.csv"),
                "person_table_csv")
   expect_equal(sanitize_view_name("visit@occurrence.parquet"),
@@ -209,166 +95,157 @@ test_that("sanitize_view_name replaces invalid characters", {
   expect_equal(sanitize_view_name("EVENTS 2021.csv"), "EVENTS_2021_csv")
 })
 
-test_that("Skips tables with no matching files", {
-  result <- read_source_files_as_views(
-    db_connection = con,
-    data_model = dm,
-    tables_in_cdm = c("NONEXISTENT"),
-    format_source_files = format_c,
-    folder_path_to_source_files = dbdir,
-    schema_individual_views = siv
+testthat::test_that("read_source_files_as_views creates views for tables with matching files", {
+  dbname <- tempfile("ConcePTION.duckdb")
+  con <- DBI::dbConnect(duckdb::duckdb(), dbname)
+  create_schemas(
+    schema_individual_views = "individual_views",
+    schema_conception = "conception",
+    schema_combined_views = "combined_views",
+    con = con
   )
-  expect_equal(length(result), 0)
+
+  testthat::expect_equal(length(
+    read_source_files_as_views(
+      db_connection = con,
+      data_model = "conception",
+      tables_in_cdm = c("NONEXISTENT"),
+      format_source_files = "csv",
+      folder_path_to_source_files = "dbtest/",
+      schema_individual_views = "individual_views"
+    )
+  ), 0)
+
+  testthat::expect_true(any(grepl("PERSONS",
+    read_source_files_as_views(
+      db_connection = con,
+      data_model = "conception",
+      tables_in_cdm = c("PERSONS", "VACCINES", "MEDICINES", "EVENTS"),
+      format_source_files = "csv",
+      folder_path_to_source_files = "dbtest/",
+      schema_individual_views = "individual_views"
+    )
+  )))
+
+  testthat::expect_true(any(grepl("VACCINES",
+    read_source_files_as_views(
+      db_connection = con,
+      data_model = "conception",
+      tables_in_cdm = c("PERSONS", "VACCINES", "MEDICINES", "EVENTS"),
+      format_source_files = "parquet",
+      folder_path_to_source_files = "dbtest_parquet/",
+      schema_individual_views = "individual_views"
+    )
+  )))
+
+  dbDisconnect(con, shutdown = TRUE)
+  unlink(dbname)
 })
 
-test_that("Creates views for matching CSV files", {
-  fininput <- read_source_files_as_views(
-    db_connection = con,
-    data_model = dm,
-    tables_in_cdm = tables,
-    format_source_files = format_c,
-    folder_path_to_source_files = dbdir,
-    schema_individual_views = siv
-  )
-
-  expect_true(any(grepl("PERSONS", fininput)))
-})
-
-test_that("Creates views for matching Parquet files", {
-  # Since we don't want duplicate views in the same schema,
-  # i.e, views created from CSV and Parquet files,
-  # we will create a new DB connection for this test
-  con_test <- setup_db_connection(
-    schema_individual_views = siv,
-    schema_conception = sc,
-    schema_combined_views = scv,
-    file_path_to_target_db = tempfile("conception.duckdb")
-  )
-  result <- read_source_files_as_views(
-    db_connection = con_test,
-    data_model = dm,
-    tables_in_cdm = tables,
-    format_source_files = format_p,
-    folder_path_to_source_files = dbdir_parquet,
-    schema_individual_views = siv
-  )
-
-  expect_true(any(grepl("VACCINES", result)))
-  dbDisconnect(con_test, shutdown = TRUE)
-})
-
-# test_that("Handles errors in view creation gracefully", {
-#   # Create invalid CSV file
-#   temp_dir <- tempfile()
-#   dir.create(temp_dir)
-#   writeLines(c("A,B,C", "1,2", "3,4,5,6,7"), file.path(temp_dir, "EVENTS.csv"))
-
-
-#   expect_warning(
-#     read_source_files_as_views(
-#       db_connection = con,
-#       data_model = dm,
-#       tables_in_cdm = c("EVENTS"),
-#       format_source_files = format_c,
-#       folder_path_to_source_files = temp_dir,
-#       schema_individual_views = siv
-#     ),
-#     "Failed to create view"
-#   )
-
-#   unlink(temp_dir, recursive = TRUE)
-# })
-
-################################################################################
-########################### create_empty_cdm_tables ############################
-################################################################################
-
-test_that("DDL creates correct SQL for known formats", {
+testthat::test_that("generate_ddl creates SQL with correct column formats", {
   df <- data.frame(
-    Variable = c("id", "name", "birth_date", "count"),
-    Format = c("Integer", "Character", "Character yyyymmdd", "Numeric"),
+    Variable = c("id", "name", "birth_date", "count", "unknown_col"),
+    Format = c("Integer", "Character", "Character yyyymmdd", "Numeric", "UnmappedFormat"),
     stringsAsFactors = FALSE
   )
 
-  ddl <- generate_ddl(df, data_model = dm, table_name = "PERSONS", schema_name = sc)
+  ddl <- generate_ddl(df, data_model = "conception",
+                      table_name = "PERSONS", schema_name = "conception")
 
-  expect_true(grepl("CREATE OR REPLACE TABLE", ddl))
-  expect_true(grepl('"id" INTEGER', ddl))
-  expect_true(grepl('"name" VARCHAR', ddl))
-  expect_true(grepl('"birth_date" DATE', ddl))
-  expect_true(grepl('"count" DECIMAL\\(18,3\\)', ddl))
+  testthat::expect_true(grepl("CREATE OR REPLACE TABLE", ddl))
+  testthat::expect_true(grepl('"id" INTEGER', ddl))
+  testthat::expect_true(grepl('"name" VARCHAR', ddl))
+  testthat::expect_true(grepl('"birth_date" DATE', ddl))
+  testthat::expect_true(grepl('"count" DECIMAL\\(18,3\\)', ddl))
+  testthat::expect_true(grepl('"unknown_col" VARCHAR', ddl))
 })
 
-test_that("DDL falls back to VARCHAR for unknown formats", {
-  df <- data.frame(
-    Variable = c("unknown_col"),
-    Format = c("UnmappedFormat"),
-    stringsAsFactors = FALSE
+testthat::test_that("create_empty_cdm_tables creates empty tables from Excel schema", {
+  dbname <- tempfile("ConcePTION.duckdb")
+  con <- DBI::dbConnect(duckdb::duckdb(), dbname)
+  create_schemas(
+    schema_individual_views = "individual_views",
+    schema_conception = "conception",
+    schema_combined_views = "combined_views",
+    con = con
   )
-
-  ddl <- generate_ddl(df, data_model = dm, table_name = "UNKNOWN", schema_name = sc)
-
-  expect_true(grepl('"unknown_col" VARCHAR', ddl))
-})
-
-test_that("Creates empty tables from Excel schema", {
   create_empty_cdm_tables(
     db_connection = con,
-    data_model = dm,
-    excel_path_to_cdm_schema = eptcs,
-    tables_in_cdm = tables,
-    schema_conception = sc
+    data_model = "conception",
+    excel_path_to_cdm_schema = "dbtest/ConcePTION_CDM tables v2.2.xlsx",
+    tables_in_cdm = c("PERSONS", "VACCINES", "MEDICINES", "EVENTS"),
+    schema_conception = "conception"
   )
 
   # Check if the table was created
   tables <- DBI::dbGetQuery(con, paste0(
-    "SELECT table_name FROM information_schema.tables WHERE table_schema = '", sc, "'"
+    "SELECT table_name FROM information_schema.tables WHERE table_schema = '", "conception", "'"
   ))$table_name
 
-  expect_true(all(tables %in% toupper(tables)))
+  testthat::expect_true(all(tables %in% toupper(tables)))
+  dbDisconnect(con, shutdown = TRUE)
+  unlink(dbname)
 })
 
-################################################################################
-######################## populate_cdm_tables_from_views ########################
-################################################################################
-dbDisconnect(con, shutdown = TRUE)
-con <- DBI::dbConnect(duckdb::duckdb(), dbdir = dbpath)
-
-fininput <- read_source_files_as_views(
-    db_connection = con,
-    data_model = dm,
-    tables_in_cdm = tables,
-    format_source_files = format_c,
-    folder_path_to_source_files = dbdir,
-    schema_individual_views = siv
+testthat::test_that("get_table_info returns correct column names and types", {
+  dbname <- tempfile("ConcePTION.duckdb")
+  con <- DBI::dbConnect(duckdb::duckdb(), dbname)
+  create_schemas(
+    schema_individual_views = "individual_views",
+    schema_conception = "conception",
+    schema_combined_views = "combined_views",
+    con = con
   )
-create_empty_cdm_tables(
-    db_connection = con,
-    data_model = dm,
-    excel_path_to_cdm_schema = eptcs,
-    tables_in_cdm = tables,
-    schema_conception = sc
-  )
-test_that("get_table_info returns correct column names and types", {
   DBI::dbExecute(con, paste0(
-    "CREATE TABLE ", dm, ".", sc, ".TEST_TABLE1 (id INTEGER, name VARCHAR);"
+    "CREATE OR REPLACE TABLE conception.conception.TEST_TABLE (id INTEGER, name VARCHAR);"
   ))
 
-  info <- get_table_info(con, schema = sc, table = "TEST_TABLE")
+  info <- get_table_info(con, schema = "conception", table = "TEST_TABLE")
 
-  expect_equal(nrow(info), 2)
-  expect_true(all(c("id", "name") %in% info$column_name))
-  expect_true(all(c("INTEGER", "VARCHAR") %in% info$data_type))
+  testthat::expect_equal(nrow(info), 2)
+  testthat::expect_true(all(c("id", "name") %in% info$column_name))
+  testthat::expect_true(all(c("INTEGER", "VARCHAR") %in% info$data_type))
+
+  dbDisconnect(con, shutdown = TRUE)
+  unlink(dbname)
 })
 
-test_that("Populates cdm tables from views and skips columns not in CDM", {
-  # views already exist from previous tests in siv
-  expect_output(
+testthat::test_that("populate_cdm_tables_from_views works and skips columns not in CDM", {
+
+  # run previous steps of the load_db_main function to get to this point
+  dbname <- tempfile("ConcePTION.duckdb")
+  con <- DBI::dbConnect(duckdb::duckdb(), dbname)
+  create_schemas(
+    schema_individual_views = "individual_views",
+    schema_conception = "conception",
+    schema_combined_views = "combined_views",
+    con = con
+  )
+  fininput <- read_source_files_as_views(
+    db_connection = con,
+    data_model = "conception",
+    tables_in_cdm = c("PERSONS", "VACCINES", "MEDICINES", "EVENTS"),
+    format_source_files = "csv",
+    folder_path_to_source_files = "dbtest/",
+    schema_individual_views = "individual_views"
+  )
+  create_empty_cdm_tables(
+    db_connection = con,
+    data_model = "conception",
+    excel_path_to_cdm_schema = "dbtest/ConcePTION_CDM tables v2.2.xlsx",
+    tables_in_cdm = c("PERSONS", "VACCINES", "MEDICINES", "EVENTS"),
+    schema_conception = "conception"
+  )
+  ppath <- "dbtest/intermediate_parquet"
+  if (!dir.exists(ppath)) {dir.create(ppath)} else {unlink(ppath)}
+
+  # 1. skips columns that are not in the CDM
+  testthat::expect_output(
     populate_cdm_tables_from_views(
       db_connection = con,
-      data_model = dm,
-      schema_individual_views = siv,
-      schema_conception = sc,
+      data_model = "conception",
+      schema_individual_views = "individual_views",
+      schema_conception = "conception",
       files_in_input = fininput,
       through_parquet = "no",
       parquet_path = ppath
@@ -376,70 +253,98 @@ test_that("Populates cdm tables from views and skips columns not in CDM", {
     # 'test_column' should be skipped, this is in MEDICINES_TEST_1 in dbtest
     regexp = "The following non-matching column\\(s\\).*test_column"
   )
-  # Check if data was inserted
-  result <- DBI::dbGetQuery(con, paste0(
-    "SELECT * FROM ", dm, ".", sc, ".PERSONS"
-  ))
-  expect_equal(nrow(result), 20)
-  expect_equal(result$person_id[1], "#ID-000001089#")
-})
 
-test_that("populate_cdm_tables_from_views skips views with no common columns", {
+  # 2. inserts data in other correct columns
+  result <- DBI::dbGetQuery(con, paste0(
+    "SELECT * FROM ", "conception", ".", "conception", ".PERSONS"
+  ))
+  testthat::expect_equal(nrow(result), 20)
+  testthat::expect_equal(result$person_id[1], "#ID-000001089#")
+
+  # 3. If there are no common columns at all, skips view entirely
   # Create source view with unrelated columns
   DBI::dbExecute(con, paste0(
-    "CREATE OR REPLACE VIEW ", dm, ".", siv, ".view_RANDOM AS SELECT 1 AS unrelated;"
+    "CREATE OR REPLACE VIEW ", "conception", ".", "individual_views", ".view_RANDOM AS SELECT 1 AS unrelated;"
   ))
-
   # Create target table with different columns
   DBI::dbExecute(con, paste0(
-    "CREATE OR REPLACE TABLE ", dm, ".", sc, ".RANDOM (id INTEGER);"
+    "CREATE OR REPLACE TABLE ", "conception", ".", "conception", ".RANDOM (id INTEGER);"
   ))
-
-  expect_output(
+  testthat::expect_output(
     populate_cdm_tables_from_views(
       db_connection = con,
-      data_model = dm,
-      schema_individual_views = siv,
-      schema_conception = sc,
+      data_model = "conception",
+      schema_individual_views = "individual_views",
+      schema_conception = "conception",
       files_in_input = c("RANDOM" = "RANDOM"),
       through_parquet = "no",
       parquet_path = ppath
     ),
     regexp = "no common columns"
   )
-})
 
-if (!dir.exists(ppath)) {dir.create(ppath)} else {unlink(ppath)}
-
-test_that("Creates parquet if through_parquet is 'yes'", {
-  expect_output(
+  # 4. Creates parquet if through_parquet is 'yes'"
+  testthat::expect_output(
     populate_cdm_tables_from_views(
       db_connection = con,
-      data_model = dm,
-      schema_individual_views = siv,
-      schema_conception = sc,
+      data_model = "conception",
+      schema_individual_views = "individual_views",
+      schema_conception = "conception",
       files_in_input = fininput,
       through_parquet = "yes",
       parquet_path = ppath
     ),
     regexp = "Done copying view"
   )
+  parquet_files <- list.files(ppath, pattern = "\\.parquet$", full.names = TRUE)
+  testthat::expect_true(length(parquet_files) > 0)
 
-  # Check if Parquet files were created
-  parquet_files <- list.files("ppath", pattern = "\\.parquet$", full.names = TRUE)
-  expect_true(length(parquet_files) > 0)
+  dbDisconnect(con, shutdown = TRUE)
+  unlink(dbname)
 })
 
-################################################################################
-############################ combine_parquet_views #############################
-################################################################################
+testthat::test_that("combine_parquet_views combines views from multiple parquet files", {
+  # run previous steps of the load_db_main function to get to this point
+  dbname <- tempfile("ConcePTION.duckdb")
+  con <- DBI::dbConnect(duckdb::duckdb(), dbname)
+  create_schemas(
+    schema_individual_views = "individual_views",
+    schema_conception = "conception",
+    schema_combined_views = "combined_views",
+    con = con
+  )
+  fininput <- read_source_files_as_views(
+    db_connection = con,
+    data_model = "conception",
+    tables_in_cdm = c("PERSONS", "VACCINES", "MEDICINES", "EVENTS"),
+    format_source_files = "csv",
+    folder_path_to_source_files = "dbtest/",
+    schema_individual_views = "individual_views"
+  )
+  create_empty_cdm_tables(
+    db_connection = con,
+    data_model = "conception",
+    excel_path_to_cdm_schema = "dbtest/ConcePTION_CDM tables v2.2.xlsx",
+    tables_in_cdm = c("PERSONS", "VACCINES", "MEDICINES", "EVENTS"),
+    schema_conception = "conception"
+  )
+  ppath <- "dbtest/intermediate_parquet"
+  if (!dir.exists(ppath)) {dir.create(ppath)} else {unlink(ppath)}
+  populate_cdm_tables_from_views(
+    db_connection = con,
+    data_model = "conception",
+    schema_individual_views = "individual_views",
+    schema_conception = "conception",
+    files_in_input = fininput,
+    through_parquet = "no",
+    parquet_path = ppath
+  )
 
-test_that("Creates combined view from multiple parquet files", {
   combine_parquet_views(
     db_connection = con,
-    data_model = dm,
-    schema_conception = sc,
-    schema_combined_views = scv,
+    data_model = "conception",
+    schema_conception = "conception",
+    schema_combined_views = "combined_views",
     files_in_input = fininput,
     create_db_as = "views",
     parquet_path = ppath
@@ -448,14 +353,17 @@ test_that("Creates combined view from multiple parquet files", {
   # Check if combined view exists
   views <- DBI::dbGetQuery(
     con, paste0("SELECT table_name FROM information_schema.views 
-                     WHERE table_schema = '", scv, "'")
+                     WHERE table_schema = '", "combined_views", "'")
   )$table_name
 
-  expect_true("combined_VACCINES" %in% views)
+  testthat::expect_true("combined_VACCINES" %in% views)
 
   # Check if combined view returns expected rows
   result <- DBI::dbGetQuery(con, paste0(
-    "SELECT * FROM ", dm, ".", scv, ".combined_VACCINES"
+    "SELECT * FROM ", "conception", ".", "combined_views", ".combined_VACCINES"
   ))
-  expect_equal(nrow(result), 30)
+  testthat::expect_equal(nrow(result), 30)
+
+  dbDisconnect(con, shutdown = TRUE)
+  unlink(dbname)
 })

@@ -10,9 +10,7 @@ check_params(
   format_source_files,
   folder_path_to_source_files,
   through_parquet,
-  file_path_to_target_db,
-  create_db_as,
-  verbosity
+  create_db_as
 )
 }
 \arguments{
@@ -33,15 +31,8 @@ Ensure the path ends with a trailing slash (`"/"`).}
 Indicates whether to process through parquet files.
 Must be either `"yes"` or `"no"`.}
 
-\item{file_path_to_target_db}{Character.
-Full path to the target DuckDB database file to be created.}
-
 \item{create_db_as}{Character.
 Specifies whether to create the database using `"views"` or `"tables"`.}
-
-\item{verbosity}{Integer.
-Level of verbosity for logging.
-Use `0` for minimal output and `1` for detailed output.}
 }
 \value{
 No return value.
@@ -52,17 +43,6 @@ No return value.
 This function performs a series of checks to validate the input parameters
 required for processing source data into DuckDB.
 }
-\details{
-The function performs the following checks:
-\itemize{
-  \item Validates existence of the source folder and schema file.
-  \item Ensures the target database file does not already exist.
-  \item Checks for validity of source files (`.csv` or `.parquet`).
-  \item Validates the `data_model`, `create_db_as`, `verbosity`,
-        and `through_parquet` parameters.
-  \item Attempts to connect to the DuckDB database.
-}
-}
 \examples{
 \dontrun{
 check_params(
@@ -71,9 +51,7 @@ check_params(
   format_source_files = "csv",
   folder_path_to_source_files = "data/source/",
   through_parquet = "no",
-  file_path_to_target_db = "data/target/my_database.duckdb",
   create_db_as = "tables",
-  verbosity = 1
 )
 }
 

@@ -5,16 +5,20 @@
 \title{Load Source Data into a DuckDB CDM Database}
 \usage{
 load_db(
-  data_model = "conception",
-  excel_path_to_cdm_schema = "./ConcePTION_CDM tables v2.2.xlsx",
+  con = NULL,
+  data_model = "concePTION",
+  excel_path_to_cdm_schema = "tests/testthat/dbtest/ConcePTION_CDM tables v2.2.xlsx",
   format_source_files = "parquet",
   folder_path_to_source_files = "",
   through_parquet = "yes",
   create_db_as = "views",
-  verbosity = 1
+  tables_in_cdm = c()
 )
 }
 \arguments{
+\item{con}{Connection object.
+A DuckDB connection object.}
+
 \item{data_model}{Character.
 The data model to use (e.g., `"conception"`).}
 
@@ -34,8 +38,8 @@ Whether to process through Parquet files (`"yes"` or `"no"`).}
 \item{create_db_as}{Character.
 Specify whether to create the database as `"views"` or `"tables"`.}
 
-\item{verbosity}{Integer.
-Level of verbosity for logging; `0` or `1` for detailed output.}
+\item{tables_in_cdm}{Character vector.
+A character vector of table names that are expected in the CDM.}
 }
 \value{
 None.
@@ -51,7 +55,7 @@ This function orchestrates the full pipeline for loading source data into a
 The function performs the following steps:
 \enumerate{
   \item Validates input parameters.
-  \item Sets up the DuckDB connection and creates necessary schemas.
+  \item In the DuckDB connection, creates necessary schemas.
   \item Reads source files and creates SQL views.
   \item Creates empty CDM tables based on the schema definition.
   \item Populates CDM tables from source views.
@@ -62,13 +66,14 @@ The function performs the following steps:
 \examples{
 \dontrun{
 load_db(
+  con = NULL,
   data_model = "conception",
   excel_path_to_cdm_schema = "./ConcePTION_CDM tables v2.2.xlsx",
   format_source_files = "csv",
   folder_path_to_source_files = "data/source/",
   through_parquet = "no",
   create_db_as = "tables",
-  verbosity = 1
+  tables_in_cdm = c("EVENTS", "MEDICINES", "PROCEDURES")
 )
 }
 
