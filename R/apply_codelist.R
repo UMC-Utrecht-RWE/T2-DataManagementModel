@@ -86,6 +86,8 @@ apply_codelist <- function(db_con, codelist) {
     keep_date_column_name
   )])
   
+  sql_dir <- here::here("R", "sql")
+  
   for (fam_idx in seq_len(nrow(family_groups))) {
     fam_info <- family_groups[fam_idx]
     message(paste0("[apply_codelist] Processing family ", fam_idx, ": ",
@@ -107,7 +109,7 @@ apply_codelist <- function(db_con, codelist) {
         if(order_idx == 1){
           message("  └─ Applying parent scheme(s)")
           dbWriteTable(db_con, name = "codelist", value = current_codelist, TEMPORARY = TRUE, overwrite = TRUE)
-          create_concepts_1 <- getSQL(file.path(dir_sqlqueries_t2, "create_concepts_1.sql"))
+          create_concepts_1 <- getSQL(file.path(sql_dir, "create_concepts_1.sql"))
           query_parent <- glue(create_concepts_1)
           dbExecute(db_con, query_parent)
         }
@@ -136,7 +138,7 @@ apply_codelist <- function(db_con, codelist) {
                 current_codelist <- current_child[order_index == child_order]
                 dbWriteTable(db_con, name = "codelist", value = current_codelist, TEMPORARY = TRUE, overwrite = TRUE)
                 current_order_index <- order_idx
-                create_concepts_2 <- getSQL(file.path("create_concepts_2.sql"))
+                create_concepts_2 <- getSQL(file.path(sql_dir,"create_concepts_2.sql"))
                 query_child <- glue(create_concepts_2)
                 dbExecute(db_con, query_child)
               }
@@ -150,7 +152,7 @@ apply_codelist <- function(db_con, codelist) {
     # -------------------
     # 3 Finalize Family
     # -------------------
-    create_concepts_3 <- getSQL(file.path("create_concepts_3.sql"))
+    create_concepts_3 <- getSQL(file.path(file.path(sql_dir, "create_concepts_3.sql")))
     query_final <- glue(create_concepts_3)
     dbExecute(db_con, query_final)
     
