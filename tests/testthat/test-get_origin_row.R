@@ -74,7 +74,7 @@ test_that("get_origin_row handles non-existent IDs gracefully", {
   con <- setup_test_db()
   on.exit(dbDisconnect(con, shutdown = TRUE))
 
-  # Test with non-existent ori_id
+  # Test with non-existent unique_id
   ids <- data.table(unique_id = c("999", "1"), ori_table = c("EVENTS","EVENTS"))
   result <- get_origin_row(con, ids)
 
@@ -102,13 +102,13 @@ test_that("get_origin_row handles non-existent tables gracefully", {
 
 
 test_that(
-  "get_origin_row returns empty list when ori_id column does not exist",
+  "get_origin_row returns empty list when unique_id column does not exist",
   {
     # Setup
     con <- setup_test_db()
     on.exit(dbDisconnect(con, shutdown = TRUE))
 
-    # Test with non-existent ori_id column
+    # Test with non-existent unique_id column
     ids <- data.table(WRONG_COLUMN = c("EVENTS-1"))
     result <- get_origin_row(con, ids)
 
@@ -147,7 +147,7 @@ test_that("get_origin_row handles empty input gracefully", {
 
 
 test_that(
-  "get_origin_row returns handles wrong ori_id input value",
+  "get_origin_row returns handles wrong unique_id input value",
   {
     # Setup
     con <- setup_test_db()
