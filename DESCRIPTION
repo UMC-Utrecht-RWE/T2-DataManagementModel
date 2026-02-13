@@ -24,7 +24,9 @@ Imports:
     logr (>= 1.3.6),
     R6 (>= 2.6.1),
     tidyverse,
-    readr
+    readr,
+    openxlsx,
+    tictoc
 Suggests:
     testthat (>= 3.0.0),
     withr (>= 3.0.2)
