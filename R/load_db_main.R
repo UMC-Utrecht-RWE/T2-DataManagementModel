@@ -218,8 +218,4 @@ load_db <- function(
     "The final tables can be accessed in the database through: \n",
     data_model, " > ", schema_with_final_tables, " > ", view_or_table
   ))
-
-  # Return output schema
-  output_schema <- paste0(data_model, ".", schema_with_final_tables)
-  return(output_schema)
 }

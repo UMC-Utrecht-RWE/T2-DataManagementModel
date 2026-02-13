@@ -6,8 +6,8 @@
 \usage{
 load_db(
   con = NULL,
-  data_model = "ConcePTION",
-  excel_path_to_cdm_schema = "data/ConcePTION_CDM tables v2.2.xlsx",
+  data_model = "concePTION",
+  excel_path_to_cdm_schema = "tests/testthat/dbtest/ConcePTION_CDM tables v2.2.xlsx",
   format_source_files = "parquet",
   folder_path_to_source_files = "",
   through_parquet = "yes",

@@ -17,7 +17,7 @@
 #' }
 #'
 #' @export
-get_rows_tables <- function(db_connection, schema, verbose = TRUE) {
+get_rows_tables <- function(db_connection, verbose = TRUE) {
   # Get the list of tables
   message("Getting tables from the database")
   tables <- DBI::dbListTables(db_connection)
@@ -28,12 +28,12 @@ get_rows_tables <- function(db_connection, schema, verbose = TRUE) {
   if (verbose) {
     message(glue::glue("Tables found: {paste(tables, collapse = ', ')}"))
   }
-  if (is.null(schema)){schema <- "main"}
+
   # Construct the query to get row counts
   queries <- lapply(tables, function(table) {
     sprintf(
-      "SELECT '%s' AS name, (SELECT COUNT(1) FROM %s.%s) AS row_count",
-      table, schema, table
+      "SELECT '%s' AS name, (SELECT COUNT(1) FROM %s) AS row_count",
+      table, table
     )
   })
 

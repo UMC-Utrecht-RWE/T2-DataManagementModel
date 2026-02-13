@@ -2,7 +2,7 @@
 % Please edit documentation in R/load_db_functions.R
 \name{create_schemas}
 \alias{create_schemas}
-\title{Create Schemas}
+\title{Set Up DuckDB Connection and Create Schemas}
 \usage{
 create_schemas(
   schema_individual_views,
@@ -26,7 +26,8 @@ The function will create schemas in this database.}
 }
 \description{
 This function initializes a DuckDB connection and creates the specified
- schemas for organizing views and CDM tables.
+ schemas for organizing views and CDM tables. If a database file already
+ exists at the specified path, it will be removed and replaced.
 }
 \examples{
 \dontrun{
@@ -34,7 +35,7 @@ con <- setup_db_connection(
   schema_individual_views = "individual_views",
   schema_conception = "cdm_conception",
   schema_combined_views = "combined_views",
-  con = db_con
+  file_path_to_target_db = "data/target/my_database.duckdb"
 )
 }
 }

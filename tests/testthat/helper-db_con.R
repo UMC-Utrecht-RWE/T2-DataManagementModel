@@ -1,18 +1,18 @@
-create_loaded_test_db <- function(csv_dir = "dbtest",
+create_loaded_test_db <- function(csv_dir = "dbtest/",
                                   tables = c("PERSONS", "VACCINES"),
                                   metadata = concePTION_metadata_v2) {
   dbname <- tempfile("ConcePTION.duckdb")
   con <- DBI::dbConnect(duckdb::duckdb(), dbname)
 
-  schema <- T2.DMM:::load_db(
+  suppressMessages(T2.DMM:::load_db(
     con = con,
     excel_path_to_cdm_schema = "dbtest/ConcePTION_CDM tables v2.2.xlsx",
     format_source_files = "csv",
     folder_path_to_source_files = csv_dir,
     tables_in_cdm = tables
-  )
+  ))
 
-  return(list(con = con, schema = schema))
+  return(con)
 }
 
 create_database_loader <- function(config_path) {

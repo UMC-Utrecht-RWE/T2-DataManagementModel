@@ -1,7 +1,5 @@
 test_that("Names and number of new columns added", {
-  output <- suppressMessages(create_loaded_test_db())
-  db_con <- output$con
-  schema_name <- output$schema
+  db_con <- suppressMessages(create_loaded_test_db())
   withr::defer(DBI::dbDisconnect(db_con))
 
   create_unique_id(db_con,
@@ -17,9 +15,7 @@ test_that("Names and number of new columns added", {
 })
 
 test_that("Checking the OriTable is the same as the included table", {
-  output <- suppressMessages(create_loaded_test_db())
-  db_con <- output$con
-  schema_name <- output$schema
+  db_con <- suppressMessages(create_loaded_test_db())
   withr::defer(DBI::dbDisconnect(db_con))
 
   create_unique_id(db_con,
