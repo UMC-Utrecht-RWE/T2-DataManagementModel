@@ -1,6 +1,8 @@
 test_that("Checking that number of rows match with original csvs", {
   # Load the database
-  db_con <- suppressMessages(create_loaded_test_db())
+  output <- suppressMessages(create_loaded_test_db())
+  db_con <- output$con
+  schema_name <- output$schema
   withr::defer(DBI::dbDisconnect(db_con))
 
   # Check if the number of rows in the database matches the original CSV files

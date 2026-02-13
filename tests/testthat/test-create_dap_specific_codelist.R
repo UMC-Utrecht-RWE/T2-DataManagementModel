@@ -1,6 +1,8 @@
 test_that("Checking the result is a data.table", {
   # Setup: Create a test database connection with MEDICINES table
-  db_con <- suppressMessages(create_loaded_test_db(tables = c("MEDICINES")))
+  output <- suppressMessages(create_loaded_test_db(tables = c("MEDICINES")))
+  db_con <- output$con
+  schema_name <- output$schema
   # Ensure database connection is closed after test completion
 
   # Define column mapping for extracting unique codes from the database
@@ -12,7 +14,8 @@ test_that("Checking the result is a data.table", {
   unique_codelist <- T2.DMM:::get_unique_codelist(
     db_connection = db_con,
     column_info_list = column_info_list,
-    tb_name = "MEDICINES"
+    tb_name = "MEDICINES",
+    schema_name = schema_name
   )[[1]]
   unique_codelist <- unique_codelist[!is.na(unique_codelist$code), ]
 
@@ -53,7 +56,9 @@ test_that("Checking the result is a data.table", {
 
 test_that("Check expected format of the codelist and unique codelist work", {
   # Setup: Create a test database connection with MEDICINES table
-  db_con <- suppressMessages(create_loaded_test_db(tables = c("MEDICINES")))
+  output <- suppressMessages(create_loaded_test_db(tables = c("MEDICINES")))
+  db_con <- output$con
+  schema_name <- output$schema
   # Ensure database connection is closed after test completion
   withr::defer(DBI::dbDisconnect(db_con))
 
@@ -67,7 +72,8 @@ test_that("Check expected format of the codelist and unique codelist work", {
     T2.DMM:::get_unique_codelist(
       db_connection = db_con,
       column_info_list = column_info_list,
-      tb_name = "MEDICINES"
+      tb_name = "MEDICINES",
+      schema_name = schema_name
     )[[1]]
   )
   
@@ -191,7 +197,9 @@ test_that("Check expected format of the codelist and unique codelist work", {
 
 test_that("Check expected format of the codelist and unique codelist work v2", {
   # Setup: Create a test database connection with MEDICINES table
-  db_con <- suppressMessages(create_loaded_test_db(tables = c("MEDICINES")))
+  output <- suppressMessages(create_loaded_test_db(tables = c("MEDICINES")))
+  db_con <- output$con
+  schema_name <- output$schema
   # Ensure database connection is closed after test completion
   withr::defer(DBI::dbDisconnect(db_con))
 
@@ -205,7 +213,8 @@ test_that("Check expected format of the codelist and unique codelist work v2", {
     T2.DMM:::get_unique_codelist(
       db_connection = db_con,
       column_info_list = column_info_list,
-      tb_name = "MEDICINES"
+      tb_name = "MEDICINES",
+      schema_name = schema_name
     )[[1]]
   )
   unique_codelist[, coding_system := "PRODCODEID"]
@@ -240,7 +249,9 @@ test_that("Check expected format of the codelist and unique codelist work v2", {
 
 test_that("Check expected format of the codelist and unique codelist work v3", {
   # Setup: Create a test database connection with MEDICINES table
-  db_con <- suppressMessages(create_loaded_test_db(tables = c("MEDICINES")))
+  output <- suppressMessages(create_loaded_test_db(tables = c("MEDICINES")))
+  db_con <- output$con
+  schema_name <- output$schema
   # Ensure database connection is closed after test completion
   withr::defer(DBI::dbDisconnect(db_con))
 
@@ -254,7 +265,8 @@ test_that("Check expected format of the codelist and unique codelist work v3", {
     T2.DMM:::get_unique_codelist(
       db_connection = db_con,
       column_info_list = column_info_list,
-      tb_name = "MEDICINES"
+      tb_name = "MEDICINES",
+      schema_name = schema_name
     )[[1]]
   )
   unique_codelist[, coding_system := "PRODCODEID"]

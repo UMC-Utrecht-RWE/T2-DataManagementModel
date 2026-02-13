@@ -8,6 +8,7 @@
 #'   distinct, along with their new names. Each inner list should contain two
 #'   elements: "column_name" and "new_name".
 #' @param tb_name name of the CDM table
+#' @param schema name of the schema where the CDM table is located
 #'
 #' @return A data.table with distinct values based on the specified columns.
 #'
@@ -49,7 +50,10 @@
 #' }
 #'
 #' @export
-get_unique_codelist <- function(db_connection, column_info_list, tb_name) {
+get_unique_codelist <- function(db_connection, column_info_list, tb_name, schema) {
+  if (is.null(schema)) {
+    schema <- "main"
+  }
   # Initialize an empty list to store the individual queries
   queries <- list()
 
@@ -62,9 +66,9 @@ get_unique_codelist <- function(db_connection, column_info_list, tb_name) {
     # take EVENTS table for example, switch to function argument later
     select_clause <-
       sprintf(
-        "SELECT %s, count(*) AS COUNT FROM %s",
+        "SELECT %s, count(*) AS COUNT FROM %s.%s",
         paste(sprintf("%s AS %s", column_name, alias_name), collapse = ", "),
-        tb_name
+        schema, tb_name
       )
 
     # Generate the GROUP BY clause

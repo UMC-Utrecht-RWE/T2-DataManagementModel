@@ -51,8 +51,7 @@ check_params <- function(
   # 1. Does the folder with the CSV files exist?
   if (!dir.exists(folder_path_to_source_files)) {
     stop(paste(
-      "The folder path does not exist:", folder_path_to_source_files,
-      ". Did you make sure to end the path with a '/'?"
+      "The folder path does not exist:", folder_path_to_source_files
     ))
   }
 
@@ -122,11 +121,10 @@ check_params <- function(
 ########################## Setup Database Connection ###########################
 ################################################################################
 
-#' Set Up DuckDB Connection and Create Schemas
+#' Create Schemas
 #'
 #' This function initializes a DuckDB connection and creates the specified
-#'  schemas for organizing views and CDM tables. If a database file already
-#'  exists at the specified path, it will be removed and replaced.
+#'  schemas for organizing views and CDM tables.
 #'
 #' @param schema_individual_views Character.
 #'  Name of the schema to store individual views.
@@ -143,7 +141,7 @@ check_params <- function(
 #'   schema_individual_views = "individual_views",
 #'   schema_conception = "cdm_conception",
 #'   schema_combined_views = "combined_views",
-#'   file_path_to_target_db = "data/target/my_database.duckdb"
+#'   con = db_con
 #' )
 #' }
 #' @keywords internal
@@ -806,7 +804,8 @@ combine_parquet_views <- function(
     }
 
     # Now combine all individual views for this target
-    combined_name <- paste0("combined_", target)
+    # combined_name <- paste0("combined_", target)
+    combined_name <- target
     union_selects <- paste(
       vapply(individual_view_names, function(vn) {
         sprintf("SELECT * FROM %s.%s.%s", data_model, schema_combined_views, vn)
