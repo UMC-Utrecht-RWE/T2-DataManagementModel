@@ -17,8 +17,7 @@ test_that("apply_codelist performs input validation", {
 
 test_that("apply_codelist executes hierarchical SQL flow", {
 
-  # Define dummy variables that the function expects in its environment
-  dir_sqlqueries_t2 <- "."
+
   # 1. SETUP: Create temporary DB and mock CDM table
   loader <- suppressMessages(create_loader_from_file("APPLYCODELIST_CONFIG_PATH"))
   suppressMessages(loader$set_database())
@@ -37,9 +36,8 @@ test_that("apply_codelist executes hierarchical SQL flow", {
     order_index = c(1, 2)             # L suffix ensures Integer type
   )
   
-  conn <- loader$db
   # 3. EXECUTE: We wrap in capture_messages to check the flow
-  msgs <- capture_messages(apply_codelist(conn, test_codelist))
+  msgs <- capture_messages(apply_codelist(db_con = loader$db, test_codelist))
 
   # 4. VERIFY: Check if the logic branched correctly
   expect_match(msgs[2], "Applying parent scheme")
