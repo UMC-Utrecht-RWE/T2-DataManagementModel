@@ -1,0 +1,24 @@
+Revert "sorry I lost track of what changes I made in this commit"
+
+This reverts commit 4ff91f9ddb5bf2bc6e9e4d8df5022db28ecfb1f5.
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch loadDB_update
+# Your branch is ahead of 'origin/loadDB_update' by 2 commits.
+#   (use "git push" to publish your local commits)
+#
+# Changes to be committed:
+#	modified:   R/get_rows_tables.R
+#	modified:   R/get_unique_codelist.R
+#	modified:   R/load_db_functions.R
+#	modified:   R/load_db_main.R
+#	modified:   man/create_schemas.Rd
+#	modified:   man/load_db.Rd
+#	modified:   tests/testthat/helper-db_con.R
+#	modified:   tests/testthat/test-create_dap_specific_codelist.R
+#	modified:   tests/testthat/test-create_unique_id.R
+#	modified:   tests/testthat/test-delete_duplicates_origin.R
+#	modified:   tests/testthat/test-get_rows_tables.R
+#
