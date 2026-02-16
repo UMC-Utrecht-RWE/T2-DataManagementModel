@@ -29,7 +29,10 @@
 #' the column name with the date will be stored in the concept_table. Default: keep_date
 #' @param keep_column_prefix The prefix value to identify the column where
 #' the column name with the value will stored in the concept_table. Default: keep_value
-#'
+#' @param save_in_parquet: Logical; if TRUE, exports to parquet; if FALSE, inserts to concept_table
+#' @param partition_var: Concept_table column to partition on. Default: concept_id
+#' @param dir_save: Directory path for parquet output (required if save_in_parquet = TRUE)
+
 #' @export
 create_dap_specific_concept <- function(
     codelist,
@@ -42,7 +45,10 @@ create_dap_specific_concept <- function(
     keep_date_prefix = "keep_date",
     keep_column_prefix = "keep_value",
     add_meaning = FALSE,
-    intermediate_type = "TABLE") {
+    intermediate_type = "TABLE",
+    save_in_parquet = FALSE,
+    partition_var = "concept_id",
+    dir_save = NULL) {
   if (nrow(codelist) <= 0) {
     stop("Codelist does not contain any data.")
   }
@@ -218,17 +224,45 @@ create_dap_specific_concept <- function(
       }
     }
     print(where_statement)
-    rs <- DBI::dbSendStatement(
-      save_db,
-      paste0(
-        "INSERT INTO concept_table
-        SELECT t1.ori_table, t1.unique_id, t1.person_id, ",
+    # Execute COPY to parquet OR INSERT to database table
+    if (save_in_parquet == TRUE) {
+      if(!is.null(partition_var)){
+        # Export filtered data to parquet format, partitioned by partition_var
+        dbExecute(save_db, paste0(
+          "COPY ( SELECT t1.ori_table, t1.unique_id, t1.person_id, ",
+          coding_system, " AS code, ", coding_system, " AS coding_system, ",
+          value, " AS value, '", concept_name, "' AS concept_id, ",
+          date_col, " AS date ", meaning_clause, ", 1 AS tag FROM ",
+          name_edited, " t1", " WHERE ", where_statement, ")
+                                TO '", dir_save, "'
+                                (FORMAT PARQUET,
+                                  PARTITION_BY (",partition_var,"),
+                                APPEND TRUE);"
+        ))
+      }else{
+        # Export filtered data to parquet format, partitioned by concept_id
+        dbExecute(save_db, paste0(
+          "COPY ( SELECT t1.ori_table, t1.unique_id, t1.person_id, ",
+          coding_system, " AS code, ", coding_system, " AS coding_system, ",
+          value, " AS value, '", concept_name, "' AS concept_id, ",
+          date_col, " AS date ", meaning_clause, ", 1 AS tag FROM ",
+          name_edited, " t1", " WHERE ", where_statement, ")
+                                TO '", dir_save, "'
+                                (FORMAT PARQUET,
+                                APPEND TRUE);"
+        ))
+      }
+    } else {
+      # Insert filtered data into concept_table in the database
+      rs <- DBI::dbSendStatement(save_db, paste0(
+        "INSERT INTO concept_table\n        SELECT t1.ori_table, t1.unique_id, t1.person_id, ",
         coding_system, " AS code, ", coding_system, " AS coding_system, ",
         value, " AS value, '", concept_name, "' AS concept_id, ",
         date_col, " AS date ", meaning_clause, "FROM ",
         name_edited, " t1", " WHERE ", where_statement
-      )
-    )
-    DBI::dbClearResult(rs)
+      ))
+      # Clear the result set
+      DBI::dbClearResult(rs)
+    }
   }
 }
