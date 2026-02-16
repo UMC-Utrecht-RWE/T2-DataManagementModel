@@ -25,52 +25,60 @@
 #' function. This is specific for the ConcePTION CDM.
 #' Default: FALSE.
 #' @param intermediate_type Type of intermediate structure to create.
-#' @param keep_date_prefix The prefix value to identify the column where
-#' the column name with the date will be stored in the concept_table. Default: keep_date
-#' @param keep_column_prefix The prefix value to identify the column where
-#' the column name with the value will stored in the concept_table. Default: keep_value
-#' @param save_in_parquet: Logical; if TRUE, exports to parquet; if FALSE, inserts to concept_table
-#' @param partition_var: Concept_table column to partition on. Default: concept_id
-#' @param dir_save: Directory path for parquet output (required if save_in_parquet = TRUE)
-
+#' @param keep_date_prefix Characther default: keep_date.
+#' The prefix value to identify the column where the column name with the
+#' date will be stored in the concept_table.
+#' @param keep_column_prefix Characther default: keep_value
+#' The prefix value to identify the column where the column name with the value
+#'  will stored in the concept_table.
+#' @param save_in_parquet: Logical; if TRUE, exports to parquet;
+#' if FALSE, inserts to concept_table
+#' @param partition_var Default: concept_id.
+#' Concept_table column to partition on.
+#' @param dir_save: Directory path for parquet output
+#' (required if save_in_parquet = TRUE)
 #' @export
 create_dap_specific_concept <- function(
-    codelist,
-    name_attachment,
-    save_db,
-    date_col_filter = NULL,
-    table_name = "cdm_table_name",
-    column_name_prefix = "column_name",
-    expected_value_prefix = "expected_value",
-    keep_date_prefix = "keep_date",
-    keep_column_prefix = "keep_value",
-    add_meaning = FALSE,
-    intermediate_type = "TABLE",
-    save_in_parquet = FALSE,
-    partition_var = "concept_id",
-    dir_save = NULL) {
+  codelist,
+  name_attachment,
+  save_db,
+  date_col_filter = NULL,
+  table_name = "cdm_table_name",
+  column_name_prefix = "column_name",
+  expected_value_prefix = "expected_value",
+  keep_date_prefix = "keep_date",
+  keep_column_prefix = "keep_value",
+  add_meaning = FALSE,
+  intermediate_type = "TABLE",
+  save_in_parquet = FALSE,
+  partition_var = "concept_id",
+  dir_save = NULL
+) {
   if (nrow(codelist) <= 0) {
     stop("Codelist does not contain any data.")
   }
   if (any(intermediate_type == c("TABLE", "VIEW")) != TRUE) {
     stop("intermediate_type has to be either TABLE or VIEW.")
   }
-  # Adding . to attachement name in case it is missing it. (Useuful for query later)
+  # Adding . to attachement name in case it is missing it.
+  # (Useuful for query later)
   name_attachment <- ifelse(endsWith(name_attachment, "."),
     name_attachment, paste0(name_attachment, ".")
   )
 
   scheme <- unique(codelist[[table_name]])
-  cols_names <- grep(paste0("^", column_name_prefix), names(codelist),
+  cols_names <- utils::grep(
+    pattern = base::paste0("^", column_name_prefix),
+    x = base::names(codelist),
     value = TRUE
   )
 
-  cols <- codelist[, ..cols_names]
+  cols <- codelist[, cols_names, with = FALSE]
   value_names <- grep(paste0("^", expected_value_prefix),
     names(codelist),
     value = TRUE
   )
-  values <- codelist[, ..value_names]
+  values <- codelist[, value_names, with = FALSE]
 
   keep_date_names <- grep(paste0("^", keep_date_prefix),
     names(codelist),
@@ -83,12 +91,25 @@ create_dap_specific_concept <- function(
 
   for (name in scheme) {
     name_edited <- paste0(name, "_EDITED")
-    to_upper_cols <- unique(na.omit(unlist(codelist[get(table_name) %in%
-      name, ..cols_names])))
-    keep_date <- unique(na.omit(unlist(codelist[get(table_name) %in%
-      name, ..keep_date_names])))
-    keep_value <- unique(na.omit(unlist(codelist[get(table_name) %in%
-      name, ..keep_value_names])))
+    to_upper_cols <- unique(
+      na.omit(
+        unlist(codelist[get(table_name) %in% name, cols_names, with = FALSE])
+      )
+    )
+    keep_date <- unique(
+      na.omit(
+        unlist(
+          codelist[get(table_name) %in% name, keep_date_names, with = FALSE]
+        )
+      )
+    )
+    keep_value <- unique(
+      na.omit(
+        unlist(
+          codelist[get(table_name) %in% name, keep_value_names, with = FALSE]
+        )
+      )
+    )
     keep_value <- keep_value[keep_value %notin% to_upper_cols]
 
     to_upper_query <- paste0(paste0(
@@ -104,16 +125,21 @@ create_dap_specific_concept <- function(
 
     if (!name_edited %in% DBI::dbListTables(save_db) ||
       all(
-        c(keep_value, dates_query, to_upper_cols) %in% DBI::dbListFields(save_db, name_edited)
+        c(keep_value, dates_query, to_upper_cols) %in%
+          DBI::dbListFields(save_db, name_edited)
       ) == FALSE) {
       meaning_column_name <- ""
       if (add_meaning == TRUE) {
-        columns_db_table <- DBI::dbGetQuery(save_db, paste0("PRAGMA table_info('", name_attachment, name, "')"))$name
+        columns_db_table <- DBI::dbGetQuery(
+          save_db, paste0("PRAGMA table_info('", name_attachment, name, "')")
+        )$name
         meaning_column_name <- columns_db_table[
           stringr::str_detect(columns_db_table, "meaning")
         ]
-        if (meaning_column_name %in% to_upper_cols | # Checking if we already retrieve meaning through the codelist
-          meaning_column_name %in% select_cols_query) {
+        # Checking if we already retrieve meaning through the codelist
+        if (meaning_column_name %in% to_upper_cols ||
+            meaning_column_name %in% select_cols_query
+        ) {
           meaning_column_name <- ""
         }
         if (length(meaning_column_name) == 0) {
@@ -201,7 +227,7 @@ create_dap_specific_concept <- function(
         ),
         collapse = " AND "
       )
-      if (!is.null(date_col_filter) & date_col != "NULL") {
+      if (!is.null(date_col_filter) && date_col != "NULL") {
         where_statement <- paste0(
           where_statement, " AND ",
           date_col, " >= DATE '", date_col_filter, "'"
@@ -216,7 +242,7 @@ create_dap_specific_concept <- function(
         ),
         collapse = " AND "
       )
-      if (!is.null(date_col_filter) & date_col != "NULL") {
+      if (!is.null(date_col_filter) && date_col != "NULL") {
         where_statement <- paste0(
           where_statement, " AND ",
           date_col, " >= ", as.integer(date_col_filter)
@@ -226,41 +252,57 @@ create_dap_specific_concept <- function(
     print(where_statement)
     # Execute COPY to parquet OR INSERT to database table
     if (save_in_parquet == TRUE) {
-      if(!is.null(partition_var)){
+      if (!is.null(partition_var)) {
         # Export filtered data to parquet format, partitioned by partition_var
-        dbExecute(save_db, paste0(
-          "COPY ( SELECT t1.ori_table, t1.unique_id, t1.person_id, ",
-          coding_system, " AS code, ", coding_system, " AS coding_system, ",
-          value, " AS value, '", concept_name, "' AS concept_id, ",
-          date_col, " AS date ", meaning_clause, ", 1 AS tag FROM ",
-          name_edited, " t1", " WHERE ", where_statement, ")
-                                TO '", dir_save, "'
-                                (FORMAT PARQUET,
-                                  PARTITION_BY (",partition_var,"),
-                                APPEND TRUE);"
-        ))
-      }else{
+        DBI::dbExecute(
+          save_db,
+          paste0(
+            "COPY ( SELECT t1.ori_table, t1.unique_id, t1.person_id, ",
+            coding_system, " AS code, ",
+            coding_system, " AS coding_system, ",
+            value, " AS value, '",
+            concept_name, "' AS concept_id, ",
+            date_col, " AS date ",
+            meaning_clause, ", 1 AS tag FROM ",
+            name_edited, " t1",
+            " WHERE ", where_statement, ") TO '", dir_save,
+            "'(FORMAT PARQUET, PARTITION_BY (",
+            partition_var, "), APPEND TRUE);"
+          )
+        )
+      } else {
         # Export filtered data to parquet format, partitioned by concept_id
-        dbExecute(save_db, paste0(
-          "COPY ( SELECT t1.ori_table, t1.unique_id, t1.person_id, ",
-          coding_system, " AS code, ", coding_system, " AS coding_system, ",
-          value, " AS value, '", concept_name, "' AS concept_id, ",
-          date_col, " AS date ", meaning_clause, ", 1 AS tag FROM ",
-          name_edited, " t1", " WHERE ", where_statement, ")
-                                TO '", dir_save, "'
-                                (FORMAT PARQUET,
-                                APPEND TRUE);"
-        ))
+        DBI::dbExecute(
+          save_db,
+          paste0(
+            "COPY ( SELECT t1.ori_table, t1.unique_id, t1.person_id, ",
+            coding_system, " AS code, ",
+            coding_system, " AS coding_system, ",
+            value, " AS value, '",
+            concept_name, "' AS concept_id, ",
+            date_col, " AS date ",
+            meaning_clause, ", 1 AS tag FROM ",
+            name_edited, " t1  WHERE ", where_statement,
+            ") TO '", dir_save, "'(FORMAT PARQUET, APPEND TRUE);"
+          )
+        )
       }
     } else {
       # Insert filtered data into concept_table in the database
-      rs <- DBI::dbSendStatement(save_db, paste0(
-        "INSERT INTO concept_table\n        SELECT t1.ori_table, t1.unique_id, t1.person_id, ",
-        coding_system, " AS code, ", coding_system, " AS coding_system, ",
-        value, " AS value, '", concept_name, "' AS concept_id, ",
-        date_col, " AS date ", meaning_clause, "FROM ",
-        name_edited, " t1", " WHERE ", where_statement
-      ))
+      rs <- DBI::dbSendStatement(
+        save_db,
+        paste0(
+          "INSERT INTO concept_table
+          SELECT t1.ori_table, t1.unique_id, t1.person_id, ",
+          coding_system, " AS code, ",
+          coding_system, " AS coding_system, ",
+          value, " AS value, '",
+          concept_name, "' AS concept_id, ",
+          date_col, " AS date ",
+          meaning_clause, "FROM ",
+          name_edited, " t1 WHERE ", where_statement
+        )
+      )
       # Clear the result set
       DBI::dbClearResult(rs)
     }
