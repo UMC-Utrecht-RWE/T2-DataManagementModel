@@ -1,5 +1,5 @@
 # create a good input example
-good_input <- data.table(
+good_input <- data.table::data.table(
   concept_id = "WEIGHT_BIRTH",
   dap_name = "CPRD",
   cdm_name = "CONCEPTION",
@@ -116,7 +116,7 @@ testthat::test_that("retrieve mo concepts", {
 #
 #   create_dap_specific_concept(codelist= codelist_wo_date,
 #                               name_attachment = attach_name,
-#                               save_db= concepts_db_conn,
+#                               save_db = concepts_db_conn,
 #                               date_col_filter = "1900-01-01",
 #                               add_meaning = TRUE)
 #   mo_concept_table <-
@@ -132,7 +132,7 @@ testthat::test_that("retrieve mo concepts", {
 #
 #   create_dap_specific_concept(codelist= codelist_wo_date,
 #                               name_attachment = attach_name,
-#                               save_db= concepts_db_conn,
+#                               save_db = concepts_db_conn,
 #                               date_col_filter = "1900-01-01",
 #                               add_meaning = TRUE)
 #   mo_concept_table <-
@@ -169,9 +169,9 @@ testthat::test_that("created MEDICAL_OBSERVATIONS_EDITED", {
     overwrite = TRUE
   )
   create_dap_specific_concept(
-    codelist=good_input,
+    codelist = good_input,
     name_attachment = attach_name,
-    save_db= concepts_db_conn,
+    save_db = concepts_db_conn,
     date_col_filter = "1900-01-01",
     add_meaning = TRUE
   )
@@ -196,7 +196,7 @@ testthat::test_that("reference non-existent column", {
     create_dap_specific_concept(
       codelist = codelist,
       name_attachment = attach_name,
-      save_db= concepts_db_conn,
+      save_db = concepts_db_conn,
       date_col_filter = "1900-01-01",
       add_meaning = TRUE
     ),

@@ -7,12 +7,12 @@
 #'
 #' @param codelist A data.table containing information about tables,
 #' columns, and values for DAP-specific concepts.
-#' @param name_attachment Attachment to the database table names.
+#' @param name_attachment Name of the table to be insert into the database.
 #' @param save_db The database connection object where the edited tables
 #' and concepts will be saved.
 #' @param date_col_filter An optional filter to subset data based on
 #' a specified date column.
-#' @param table_name Name of the table in the codelist.
+#' @param table_name Name of the table in the codelist database.
 #' Default: "cdm_table_name".
 #' @param column_name_prefix An optional string that defines the prefix name
 #' of the column name variable column(s) from the DAP-specific concept map.
@@ -20,10 +20,9 @@
 #' @param expected_value_prefix An optional string that defines the prefix name
 #'  of the expected value variable column(s) from the DAP-specific concept map.
 #' Default: "expected_value".
-#' @param add_meaning An optional boolean that defines whether the possibility
-#'  to save the meaning of any CDM table -if available- in the results of the
-#' function. This is specific for the ConcePTION CDM.
-#' Default: FALSE.
+#' @param add_meaning A boolean that defines whether to save the meaning of any
+#' CDM table -if available- in the results of the function.
+#' This is specific for the ConcePTION CDM. Default: FALSE.
 #' @param intermediate_type Type of intermediate structure to create.
 #' @param keep_date_prefix Characther default: keep_date.
 #' The prefix value to identify the column where the column name with the
@@ -43,16 +42,16 @@ create_dap_specific_concept <- function(
   name_attachment,
   save_db,
   date_col_filter = NULL,
+  dir_save = NULL,
+  add_meaning = FALSE,
+  save_in_parquet = FALSE,
   table_name = "cdm_table_name",
   column_name_prefix = "column_name",
   expected_value_prefix = "expected_value",
   keep_date_prefix = "keep_date",
   keep_column_prefix = "keep_value",
-  add_meaning = FALSE,
   intermediate_type = "TABLE",
-  save_in_parquet = FALSE,
-  partition_var = "concept_id",
-  dir_save = NULL
+  partition_var = "concept_id"
 ) {
   if (nrow(codelist) <= 0) {
     stop("Codelist does not contain any data.")
@@ -62,30 +61,35 @@ create_dap_specific_concept <- function(
   }
   # Adding . to attachement name in case it is missing it.
   # (Useuful for query later)
-  name_attachment <- ifelse(endsWith(name_attachment, "."),
-    name_attachment, paste0(name_attachment, ".")
+  name_attachment <- base::ifelse(base::endsWith(name_attachment, "."),
+    name_attachment, base::paste0(name_attachment, ".")
   )
 
   scheme <- unique(codelist[[table_name]])
-  cols_names <- utils::grep(
+
+  cols_names <- base::grep(
     pattern = base::paste0("^", column_name_prefix),
     x = base::names(codelist),
     value = TRUE
   )
-
   cols <- codelist[, cols_names, with = FALSE]
-  value_names <- grep(paste0("^", expected_value_prefix),
-    names(codelist),
+
+  value_names <- base::grep(
+    pattern = base::paste0("^", expected_value_prefix),
+    x = base::names(codelist),
     value = TRUE
   )
   values <- codelist[, value_names, with = FALSE]
 
-  keep_date_names <- grep(paste0("^", keep_date_prefix),
-    names(codelist),
+  keep_date_names <- base::grep(
+    pattern = base::paste0("^", keep_date_prefix),
+    x = base::names(codelist),
     value = TRUE
   )
-  keep_value_names <- grep(paste0("^", keep_column_prefix),
-    names(codelist),
+
+  keep_value_names <- grep(
+    pattern = base::paste0("^", keep_column_prefix),
+    x = base::names(codelist),
     value = TRUE
   )
 
@@ -110,16 +114,18 @@ create_dap_specific_concept <- function(
         )
       )
     )
-    keep_value <- keep_value[keep_value %notin% to_upper_cols]
+    keep_value <- keep_value[!keep_value %in% to_upper_cols]
 
-    to_upper_query <- paste0(paste0(
-      " UPPER(", to_upper_cols,
-      ") AS ", to_upper_cols
-    ), collapse = ", ")
-    dates_query <- paste0(paste0(
-      " TRY_CAST(", keep_date,
-      " AS DATE) AS ", keep_date
-    ), collapse = ", ")
+    to_upper_query <- base::paste0(
+      base::paste0(
+        " UPPER(", to_upper_cols, ") AS ", to_upper_cols
+      ), collapse = ", "
+    )
+    dates_query <- base::paste0(
+      base::paste0(
+        " TRY_CAST(", keep_date, " AS DATE) AS ", keep_date
+      ), collapse = ", "
+    )
 
     select_cols_query <- paste0(keep_value, collapse = ", ")
 
@@ -129,7 +135,7 @@ create_dap_specific_concept <- function(
           DBI::dbListFields(save_db, name_edited)
       ) == FALSE) {
       meaning_column_name <- ""
-      if (add_meaning == TRUE) {
+      if (add_meaning) {
         columns_db_table <- DBI::dbGetQuery(
           save_db, paste0("PRAGMA table_info('", name_attachment, name, "')")
         )$name
@@ -174,19 +180,20 @@ create_dap_specific_concept <- function(
       )
     }
   }
-  for (j in seq_len(nrow(codelist))) {
-    table_temp <- codelist[[j, table_name]]
-    name_edited <- paste0(table_temp, "_EDITED_dapspec")
-    concept_name <- codelist[[j, "concept_id"]]
-    date_col <- codelist[[j, "keep_date_column_name"]]
-    codelist_id <- codelist[[j, "dap_spec_id"]]
 
-    cols_temp <- unique(na.omit(unlist(cols[j, ])))
-    values_temp <- toupper(unique(na.omit(unlist(values[j, ]))))
+  for (num in seq_len(nrow(codelist))) {
+    table_temp <- codelist[[num, table_name]]
+    name_edited <- paste0(table_temp, "_EDITED_dapspec")
+    concept_name <- codelist[[num, "concept_id"]]
+    date_col <- codelist[[num, "keep_date_column_name"]]
+    codelist_id <- codelist[[num, "dap_spec_id"]]
+
+    cols_temp <- unique(na.omit(unlist(cols[num, ])))
+    values_temp <- toupper(unique(na.omit(unlist(values[num, ]))))
     cols_temp <- setdiff(cols_temp, "NA")
     values_temp <- setdiff(values_temp, "NA")
 
-    value <- codelist[[j, "keep_value_column_name"]]
+    value <- codelist[[num, "keep_value_column_name"]]
     if (add_meaning) {
       columns_db_table <- DBI::dbListFields(save_db, name_edited)
       meaning_column_name <- columns_db_table[
@@ -235,10 +242,11 @@ create_dap_specific_concept <- function(
       }
     } else {
       where_statement <- paste(
-        paste(cols_temp, paste0(
-          "'", values_temp, "'"
-        ),
-        sep = " = "
+        paste(cols_temp,
+          paste0(
+            "'", values_temp, "'"
+          ),
+          sep = " = "
         ),
         collapse = " AND "
       )
