@@ -92,30 +92,34 @@ create_dap_specific_concept <- function(
     x = base::names(codelist),
     value = TRUE
   )
-
+  ## PHASE 1
+  # For each unique table name in codelist:
   for (name in scheme) {
-    name_edited <- paste0(name, "_EDITED")
-    to_upper_cols <- unique(
+    name_edited <- base::paste0(name, "_EDITED")
+    # collects columns that should be uppercased for matching (to_upper_cols)
+    to_upper_cols <- base::unique(
       na.omit(
         unlist(codelist[get(table_name) %in% name, cols_names, with = FALSE])
       )
     )
-    keep_date <- unique(
+    # collects date/value passthrough columns (keep_date, keep_value)
+    keep_date <- base::unique(
       na.omit(
         unlist(
           codelist[get(table_name) %in% name, keep_date_names, with = FALSE]
         )
       )
     )
-    keep_value <- unique(
+    keep_value <- base::unique(
       na.omit(
         unlist(
           codelist[get(table_name) %in% name, keep_value_names, with = FALSE]
         )
       )
     )
+    # removes duplicates where keep_value overlaps uppercased columns
     keep_value <- keep_value[!keep_value %in% to_upper_cols]
-
+    # builds SQL select fragments:
     to_upper_query <- base::paste0(
       base::paste0(
         " UPPER(", to_upper_cols, ") AS ", to_upper_cols
@@ -127,17 +131,19 @@ create_dap_specific_concept <- function(
       ), collapse = ", "
     )
 
-    select_cols_query <- paste0(keep_value, collapse = ", ")
+    select_cols_query <- base::paste0(keep_value, collapse = ", ")
 
     if (!name_edited %in% DBI::dbListTables(save_db) ||
       all(
         c(keep_value, dates_query, to_upper_cols) %in%
           DBI::dbListFields(save_db, name_edited)
       ) == FALSE) {
+      # optionally finds a meaning column if add_meaning=TRUE
       meaning_column_name <- ""
       if (add_meaning) {
         columns_db_table <- DBI::dbGetQuery(
-          save_db, paste0("PRAGMA table_info('", name_attachment, name, "')")
+          save_db,
+          base::paste0("PRAGMA table_info('", name_attachment, name, "')")
         )$name
         meaning_column_name <- columns_db_table[
           stringr::str_detect(columns_db_table, "meaning")
@@ -156,42 +162,48 @@ create_dap_specific_concept <- function(
           meaning_column_name <- ""
         }
       }
-
+      # creates temp object ${table}_EDITED_dapspec with
+      # ori_table, unique_id, person_id and
+      # selected passthrough columns, uppercase-normalized match columns,
+      #  optional meaning, casted dates.
       DBI::dbExecute(
         save_db,
-        paste0(
+        base::paste0(
           "CREATE TEMP ",
-          intermediate_type, " ", name_edited,
-          "_dapspec AS
+          intermediate_type, " ", name_edited, "_dapspec AS
           SELECT ori_table, unique_id, person_id, ",
-          if (nchar(select_cols_query) > 0) {
-            paste0(select_cols_query, ",")
+          if (base::nchar(select_cols_query) > 0) {
+            base::paste0(select_cols_query, ",")
           },
-          if (nchar(to_upper_query) > 0) {
-            paste0(to_upper_query, ",")
+          if (base::nchar(to_upper_query) > 0) {
+            base::paste0(to_upper_query, ",")
           },
-          if (nchar(meaning_column_name) > 0) {
-            paste0(meaning_column_name, ",")
+          if (base::nchar(meaning_column_name) > 0) {
+            base::paste0(meaning_column_name, ",")
           },
-          dates_query,
-          " FROM ",
-          name_attachment, name
+          dates_query, " FROM ", name_attachment, name
         )
       )
     }
   }
 
+  ## PHASE 2
+  # For each row in codelist:
   for (num in seq_len(nrow(codelist))) {
     table_temp <- codelist[[num, table_name]]
-    name_edited <- paste0(table_temp, "_EDITED_dapspec")
+    name_edited <- base::paste0(table_temp, "_EDITED_dapspec")
     concept_name <- codelist[[num, "concept_id"]]
     date_col <- codelist[[num, "keep_date_column_name"]]
     codelist_id <- codelist[[num, "dap_spec_id"]]
 
-    cols_temp <- unique(na.omit(unlist(cols[num, ])))
-    values_temp <- toupper(unique(na.omit(unlist(values[num, ]))))
-    cols_temp <- setdiff(cols_temp, "NA")
-    values_temp <- setdiff(values_temp, "NA")
+    # gets row-specific match columns + expected values, uppercases
+    # expected values, removes "NA" strings
+    cols_temp <- base::unique(na.omit(base::unlist(cols[num, ])))
+    values_temp <- base::toupper(
+      base::unique(na.omit(base::unlist(values[num, ])))
+    )
+    cols_temp <- base::setdiff(cols_temp, "NA")
+    values_temp <- base::setdiff(values_temp, "NA")
 
     value <- codelist[[num, "keep_value_column_name"]]
     if (add_meaning) {
@@ -200,7 +212,7 @@ create_dap_specific_concept <- function(
         stringr::str_detect(columns_db_table, "meaning")
       ]
       if (length(meaning_column_name) > 0) {
-        meaning_clause <- paste0(
+        meaning_clause <- base::paste0(
           ", ", meaning_column_name,
           " AS meaning "
         )
@@ -209,41 +221,29 @@ create_dap_specific_concept <- function(
           "[create_dap_specific_concept] Meaning not identified for: ",
           name_edited
         ))
-        meaning_clause <- paste0(", NULL AS meaning ")
+        meaning_clause <- base::paste0(", NULL AS meaning ")
       }
     } else {
       meaning_clause <- ""
     }
-    if (is.null(value)) {
+
+    if (base::is.null(value)) {
       value <- TRUE
     } else if (any(is.na(value))) {
       value <- TRUE
     }
-    if (is.null(date_col)) {
+    if (base::is.null(date_col)) {
       date_col <- "NULL"
     } else if (any(is.na(date_col))) {
       date_col <- "NULL"
     }
-    coding_system <- paste0("'", codelist_id, "'")
+
+    coding_system <- base::paste0("'", codelist_id, "'")
     if (class(save_db)[1] %in% "duckdb_connection") {
-      where_statement <- paste(
-        paste(cols_temp, paste0(
-          "'", values_temp, "'"
-        ),
-        sep = " = "
-        ),
-        collapse = " AND "
-      )
-      if (!is.null(date_col_filter) && date_col != "NULL") {
-        where_statement <- paste0(
-          where_statement, " AND ",
-          date_col, " >= DATE '", date_col_filter, "'"
-        )
-      }
-    } else {
-      where_statement <- paste(
-        paste(cols_temp,
-          paste0(
+      where_statement <- base::paste(
+        base::paste(
+          cols_temp,
+          base::paste0(
             "'", values_temp, "'"
           ),
           sep = " = "
@@ -251,9 +251,25 @@ create_dap_specific_concept <- function(
         collapse = " AND "
       )
       if (!is.null(date_col_filter) && date_col != "NULL") {
-        where_statement <- paste0(
+        where_statement <- base::paste0(
           where_statement, " AND ",
-          date_col, " >= ", as.integer(date_col_filter)
+          date_col, " >= DATE '", date_col_filter, "'"
+        )
+      }
+    } else {
+      where_statement <- base::paste(
+        base::paste(cols_temp,
+          base::paste0(
+            "'", values_temp, "'"
+          ),
+          sep = " = "
+        ),
+        collapse = " AND "
+      )
+      if (!is.null(date_col_filter) && date_col != "NULL") {
+        where_statement <- base::paste0(
+          where_statement, " AND ",
+          date_col, " >= ", base::as.integer(date_col_filter)
         )
       }
     }
@@ -264,7 +280,7 @@ create_dap_specific_concept <- function(
         # Export filtered data to parquet format, partitioned by partition_var
         DBI::dbExecute(
           save_db,
-          paste0(
+          base::paste0(
             "COPY ( SELECT t1.ori_table, t1.unique_id, t1.person_id, ",
             coding_system, " AS code, ",
             coding_system, " AS coding_system, ",
@@ -282,7 +298,7 @@ create_dap_specific_concept <- function(
         # Export filtered data to parquet format, partitioned by concept_id
         DBI::dbExecute(
           save_db,
-          paste0(
+          base::paste0(
             "COPY ( SELECT t1.ori_table, t1.unique_id, t1.person_id, ",
             coding_system, " AS code, ",
             coding_system, " AS coding_system, ",
@@ -299,7 +315,7 @@ create_dap_specific_concept <- function(
       # Insert filtered data into concept_table in the database
       rs <- DBI::dbSendStatement(
         save_db,
-        paste0(
+        base::paste0(
           "INSERT INTO concept_table
           SELECT t1.ori_table, t1.unique_id, t1.person_id, ",
           coding_system, " AS code, ",
