@@ -154,8 +154,8 @@ create_dap_specific_concept <- function(
         ) {
           meaning_column_name <- ""
         }
-        if (length(meaning_column_name) == 0) {
-          print(paste0(
+        if (base::length(meaning_column_name) == 0) {
+          base::print(base::paste0(
             "[create_dap_specific_concept] Meaning not identified for: ",
             name_edited
           ))
@@ -211,13 +211,13 @@ create_dap_specific_concept <- function(
       meaning_column_name <- columns_db_table[
         stringr::str_detect(columns_db_table, "meaning")
       ]
-      if (length(meaning_column_name) > 0) {
+      if (base::length(meaning_column_name) > 0) {
         meaning_clause <- base::paste0(
           ", ", meaning_column_name,
           " AS meaning "
         )
       } else {
-        print(paste0(
+        base::print(base::paste0(
           "[create_dap_specific_concept] Meaning not identified for: ",
           name_edited
         ))
@@ -275,7 +275,7 @@ create_dap_specific_concept <- function(
     }
     print(where_statement)
     # Execute COPY to parquet OR INSERT to database table
-    if (save_in_parquet == TRUE) {
+    if (save_in_parquet) {
       if (!is.null(partition_var)) {
         # Export filtered data to parquet format, partitioned by partition_var
         DBI::dbExecute(
