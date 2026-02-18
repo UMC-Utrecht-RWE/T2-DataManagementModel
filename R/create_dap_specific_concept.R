@@ -241,40 +241,23 @@ create_dap_specific_concept <- function(
     }
 
     coding_system <- base::paste0("'", codelist_id, "'")
-    if (class(save_db)[1] %in% "duckdb_connection") {
-      where_statement <- base::paste(
-        base::paste(
-          cols_temp,
-          base::paste0(
-            "'", values_temp, "'"
-          ),
-          sep = " = "
+    where_statement <- base::paste(
+      base::paste(
+        cols_temp,
+        base::paste0(
+          "'", values_temp, "'"
         ),
-        collapse = " AND "
+        sep = " = "
+      ),
+      collapse = " AND "
+    )
+    if (!is.null(date_col_filter) && date_col != "NULL") {
+      where_statement <- base::paste0(
+        where_statement, " AND ",
+        date_col, " >= DATE '", date_col_filter, "'"
       )
-      if (!is.null(date_col_filter) && date_col != "NULL") {
-        where_statement <- base::paste0(
-          where_statement, " AND ",
-          date_col, " >= DATE '", date_col_filter, "'"
-        )
-      }
-    } else {
-      where_statement <- base::paste(
-        base::paste(cols_temp,
-          base::paste0(
-            "'", values_temp, "'"
-          ),
-          sep = " = "
-        ),
-        collapse = " AND "
-      )
-      if (!is.null(date_col_filter) && date_col != "NULL") {
-        where_statement <- base::paste0(
-          where_statement, " AND ",
-          date_col, " >= ", base::as.integer(date_col_filter)
-        )
-      }
     }
+  
     print(where_statement)
     # Execute COPY to parquet OR INSERT to database table
     if (save_in_parquet) {
