@@ -12,6 +12,7 @@
 #' and concepts will be saved.
 #' @param date_col_filter An optional filter to subset data based on
 #' a specified date column.
+#' @param dir_save Directory path for parquet output (required if save_in_parquet = TRUE)
 #' @param table_name Name of the table in the codelist database.
 #' Default: "cdm_table_name".
 #' @param column_name_prefix An optional string that defines the prefix name
@@ -22,7 +23,9 @@
 #' Default: "expected_value".
 #' @param add_meaning A boolean that defines whether to save the meaning of any
 #' CDM table -if available- in the results of the function.
-#' This is specific for the ConcePTION CDM. Default: FALSE.
+#' This is specific for the ConcePTION CDM. Default: FALSE.]
+#' @param save_in_parquet Logical; if TRUE, exports to parquet;
+#' if FALSE, inserts to concept_table
 #' @param intermediate_type Type of intermediate structure to create.
 #' @param keep_date_prefix Characther default: keep_date.
 #' The prefix value to identify the column where the column name with the
@@ -30,12 +33,10 @@
 #' @param keep_column_prefix Characther default: keep_value
 #' The prefix value to identify the column where the column name with the value
 #' will stored in the concept_table.
-#' @param save_in_parquet: Logical; if TRUE, exports to parquet;
-#' if FALSE, inserts to concept_table
+
 #' @param partition_var Default: concept_id.
 #' Concept_table column to partition on.
-#' @param dir_save: Directory path for parquet output
-#' (required if save_in_parquet = TRUE)
+
 #' @export
 create_dap_specific_concept <- function(
   codelist,

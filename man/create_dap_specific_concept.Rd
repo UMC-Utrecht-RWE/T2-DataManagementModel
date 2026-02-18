@@ -33,9 +33,14 @@ and concepts will be saved.}
 \item{date_col_filter}{An optional filter to subset data based on
 a specified date column.}
 
+\item{dir_save}{Directory path for parquet output (required if save_in_parquet = TRUE)}
+
 \item{add_meaning}{A boolean that defines whether to save the meaning of any
 CDM table -if available- in the results of the function.
-This is specific for the ConcePTION CDM. Default: FALSE.}
+This is specific for the ConcePTION CDM. Default: FALSE.]}
+
+\item{save_in_parquet}{Logical; if TRUE, exports to parquet;
+if FALSE, inserts to concept_table}
 
 \item{table_name}{Name of the table in the codelist database.
 Default: "cdm_table_name".}
@@ -60,12 +65,6 @@ will stored in the concept_table.}
 
 \item{partition_var}{Default: concept_id.
 Concept_table column to partition on.}
-
-\item{save_in_parquet:}{Logical; if TRUE, exports to parquet;
-if FALSE, inserts to concept_table}
-
-\item{dir_save:}{Directory path for parquet output
-(required if save_in_parquet = TRUE)}
 }
 \description{
 This function Creates DAP-specific concepts into a database using a
