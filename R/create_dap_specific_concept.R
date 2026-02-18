@@ -18,7 +18,7 @@
 #' of the column name variable column(s) from the DAP-specific concept map.
 #' Default: "column_name".
 #' @param expected_value_prefix An optional string that defines the prefix name
-#'  of the expected value variable column(s) from the DAP-specific concept map.
+#' of the expected value variable column(s) from the DAP-specific concept map.
 #' Default: "expected_value".
 #' @param add_meaning A boolean that defines whether to save the meaning of any
 #' CDM table -if available- in the results of the function.
@@ -29,7 +29,7 @@
 #' date will be stored in the concept_table.
 #' @param keep_column_prefix Characther default: keep_value
 #' The prefix value to identify the column where the column name with the value
-#'  will stored in the concept_table.
+#' will stored in the concept_table.
 #' @param save_in_parquet: Logical; if TRUE, exports to parquet;
 #' if FALSE, inserts to concept_table
 #' @param partition_var Default: concept_id.
@@ -123,12 +123,14 @@ create_dap_specific_concept <- function(
     to_upper_query <- base::paste0(
       base::paste0(
         " UPPER(", to_upper_cols, ") AS ", to_upper_cols
-      ), collapse = ", "
+      ),
+      collapse = ", "
     )
     dates_query <- base::paste0(
       base::paste0(
         " TRY_CAST(", keep_date, " AS DATE) AS ", keep_date
-      ), collapse = ", "
+      ),
+      collapse = ", "
     )
 
     select_cols_query <- base::paste0(keep_value, collapse = ", ")
@@ -164,7 +166,7 @@ create_dap_specific_concept <- function(
       # creates temp object ${table}_EDITED_dapspec with
       # ori_table, unique_id, person_id and
       # selected passthrough columns, uppercase-normalized match columns,
-      #  optional meaning, casted dates.
+      # optional meaning, casted dates.
       DBI::dbExecute(
         save_db,
         base::paste0(
