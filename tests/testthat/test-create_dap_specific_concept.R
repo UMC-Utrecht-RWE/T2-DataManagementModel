@@ -22,7 +22,7 @@ create_codelist_example <- function() {
 create_test_db <- function() {
   attach_name <- "d2_db_conn"
 
-  mo <- readRDS("tests/testthat/dbtest/MEDICAL_OBSERVATIONS.rds")
+  mo <- readRDS(testthat::test_path("dbtest/MEDICAL_OBSERVATIONS.rds"))
   mo <- as.data.frame(mo)
   source_db_path <- tempfile(fileext = ".duckdb")
   source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)

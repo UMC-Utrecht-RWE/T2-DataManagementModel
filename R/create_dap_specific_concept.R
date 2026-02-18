@@ -199,9 +199,9 @@ create_dap_specific_concept <- function(
 
     # gets row-specific match columns + expected values, uppercases
     # expected values, removes "NA" strings
-    cols_temp <- base::unique(na.omit(base::unlist(cols[num, ])))
+    cols_temp <- base::unique(stats::na.omit(base::unlist(cols[num, ])))
     values_temp <- base::toupper(
-      base::unique(na.omit(base::unlist(values[num, ])))
+      base::unique(stats::na.omit(base::unlist(values[num, ])))
     )
     cols_temp <- base::setdiff(cols_temp, "NA")
     values_temp <- base::setdiff(values_temp, "NA")
