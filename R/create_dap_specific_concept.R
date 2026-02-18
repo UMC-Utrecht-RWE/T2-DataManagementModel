@@ -87,7 +87,7 @@ create_dap_specific_concept <- function(
     value = TRUE
   )
 
-  keep_value_names <- grep(
+  keep_value_names <- base::grep(
     pattern = base::paste0("^", keep_column_prefix),
     x = base::names(codelist),
     value = TRUE
@@ -98,13 +98,13 @@ create_dap_specific_concept <- function(
     name_edited <- base::paste0(name, "_EDITED")
     # collects columns that should be uppercased for matching (to_upper_cols)
     to_upper_cols <- base::unique(
-      na.omit(
+      stats::na.omit(
         unlist(codelist[get(table_name) %in% name, cols_names, with = FALSE])
       )
     )
     # collects date/value passthrough columns (keep_date, keep_value)
     keep_date <- base::unique(
-      na.omit(
+      stats::na.omit(
         unlist(
           codelist[get(table_name) %in% name, keep_date_names, with = FALSE]
         )

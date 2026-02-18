@@ -94,15 +94,28 @@ testthat::test_that("retrieve MEDICAL_OBSERVATIONS concepts", {
   testthat::expect_equal(nrow(mo_concept_table), 39)
 })
 
-testthat::expect_error(
-  create_dap_specific_concept(
-    codelist = create_codelist_example(),
-    name_attachment = test_env$attachment,
-    save_db = test_env$conn,
-    intermediate_type = "something.something"
-  ),
-  "intermediate_type has to be either TABLE or VIEW."
-)
+testthat::test_that("Error messages", {
+  testthat::expect_error(
+    create_dap_specific_concept(
+      codelist = data.table::data.table(),
+      name_attachment = test_env$attachment,
+      save_db = test_env$conn,
+      intermediate_type = "something.something"
+    ),
+    "Codelist does not contain any data."
+  )
+
+  testthat::expect_error(
+    create_dap_specific_concept(
+      codelist = create_codelist_example(),
+      name_attachment = test_env$attachment,
+      save_db = test_env$conn,
+      intermediate_type = "something.something"
+    ),
+    "intermediate_type has to be either TABLE or VIEW."
+  )
+})
+
 
 testthat::test_that("existing MEDICAL_OBSERVATIONS_EDITED is handled", {
   test_env <- create_test_db()
