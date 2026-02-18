@@ -111,7 +111,7 @@ create_dap_specific_concept <- function(
       )
     )
     keep_value <- base::unique(
-      na.omit(
+      stats::na.omit(
         unlist(
           codelist[get(table_name) %in% name, keep_value_names, with = FALSE]
         )
@@ -149,19 +149,18 @@ create_dap_specific_concept <- function(
           stringr::str_detect(columns_db_table, "meaning")
         ]
         # Checking if we already retrieve meaning through the codelist
-        if (meaning_column_name %in% to_upper_cols ||
-            meaning_column_name %in% select_cols_query
-        ) {
+        if (length(meaning_column_name) > 0 &&
+              (any(meaning_column_name %in% to_upper_cols) ||
+                 any(meaning_column_name %in% keep_value))) {
           meaning_column_name <- ""
         }
-        if (base::length(meaning_column_name) == 0) {
-          base::print(base::paste0(
-            "[create_dap_specific_concept] Meaning not identified for: ",
-            name_edited
-          ))
-          meaning_column_name <- ""
-        }
+        base::print(base::paste0(
+          "[create_dap_specific_concept] Meaning not identified for: ",
+          name_edited
+        ))
+        meaning_column_name <- ""
       }
+
       # creates temp object ${table}_EDITED_dapspec with
       # ori_table, unique_id, person_id and
       # selected passthrough columns, uppercase-normalized match columns,

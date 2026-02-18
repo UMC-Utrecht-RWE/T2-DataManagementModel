@@ -304,3 +304,32 @@ testthat::test_that("save_in_parquet TRUE without partitioning", {
   )
   testthat::expect_equal(non_partitioned_rows$n_rows[[1]], 39)
 })
+
+testthat::test_that("prints 'Meaning not identified'", {
+  test_env <- create_test_db()
+  withr::defer(DBI::dbDisconnect(test_env$conn))
+  withr::defer(cleanup_concept_tables(test_env$conn))
+
+  # Remove any column containing "meaning"
+  DBI::dbExecute(
+    test_env$conn,
+    paste0(
+      "ALTER TABLE ", test_env$attachment,
+      ".MEDICAL_OBSERVATIONS RENAME COLUMN mo_meaning TO mo_label"
+    )
+  )
+
+  # Use the renamed column for matching
+  codelist <- create_codelist_example()[, column_name_1 := "mo_label"]
+
+  testthat::expect_output(
+    create_dap_specific_concept(
+      codelist = codelist,
+      name_attachment = test_env$attachment,
+      save_db = test_env$conn,
+      date_col_filter = "1900-01-01",
+      add_meaning = TRUE
+    ),
+    "\\[create_dap_specific_concept\\] Meaning not identified for:"
+  )
+})
