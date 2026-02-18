@@ -49,6 +49,17 @@ create_loader_from_file <- function(config_path) {
   )
 }
 
+create_loader_from_file_2 <- function(config_path, db_path) {
+  DatabaseLoader$new(
+    db_path = db_path,
+    data_instance = "dbtest",
+    cdm_metadata = file.path(
+      getwd(), "dbtest", "CDM_metadata.rds"
+    ),
+    config_path = Sys.getenv(config_path)
+  )
+}
+
 create_loader_from_wrong_file <- function(config_path) {
   DatabaseLoader$new(
     db_path = NULL,

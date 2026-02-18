@@ -45,7 +45,11 @@
 #' @import data.table DBI glue
 #' @export
   
-apply_codelist <- function(db_con, codelist) {
+apply_codelist <- function(db_con, 
+                           codelist,
+                           materialize = "in_parquet", #in_database
+                           path_parquets = NULL,
+                           keep_id_set = TRUE) {
   # ---- Input checks ----
   if (!DBI::dbIsValid(db_con)) {
     stop("[apply_codelist] The provided database connection is not valid.")
@@ -57,6 +61,44 @@ apply_codelist <- function(db_con, codelist) {
   
   if (nrow(codelist) == 0) {
     stop("[apply_codelist] The codelist is empty. Nothing to process.")
+  }
+  
+  if (!materialize %in% c("in_parquet", "in_database")) {
+    stop("Argument 'materialize' must be either 'in_parquet' or 'in_database'.")
+  }
+  
+  # ---- Parquet path checks ----
+  if (materialize == "in_parquet") {
+    
+    if (is.null(path_parquets)) {
+      stop("[apply_codelist] 'path_parquets' must be provided when materialize = 'in_parquet'.")
+    }
+    
+    if (!is.character(path_parquets) || length(path_parquets) != 1L) {
+      stop("[apply_codelist] 'path_parquets' must be a single character string.")
+    }
+    
+    path_parquets <- normalizePath(path_parquets, mustWork = FALSE)
+    
+    if (!dir.exists(path_parquets)) {
+      message("[apply_codelist] Creating parquet directory: ", path_parquets)
+      dir.create(path_parquets, recursive = TRUE, showWarnings = FALSE)
+    }
+    
+    if (!dir.exists(path_parquets)) {
+      stop("[apply_codelist] Failed to create parquet directory: ", path_parquets)
+    }
+    
+    if (file.access(path_parquets, 2) != 0) {
+      stop("[apply_codelist] No write permission for parquet directory: ", path_parquets)
+    }
+  }
+  
+  if (materialize == "in_database" && !is.null(path_parquets)) {
+    warning(
+      "[apply_codelist] 'path_parquets' is ignored when materialize = 'in_database'.",
+      call. = FALSE
+    )
   }
   
   required_cols <- c(
@@ -71,6 +113,15 @@ apply_codelist <- function(db_con, codelist) {
   if (!is.integer(codelist$order_index) && !is.numeric(codelist$order_index)) {
     stop("[apply_codelist] 'order_index' must be numeric/integer.")
   }
+  
+  if(!dbExistsTable(db_con,"concept_table") & materialize %in% "in_database"){
+    initialize_concept_table(db_con, 
+                             type_table = "table", 
+                             path_parquets = NULL, 
+                             partition = TRUE,
+                             add_id_set = keep_id_set)
+  }
+  
   # Proceed with logic
   # Group ignoring cdm_column to capture parent-child relationships
   codelist[, family_group := .GRP, by = .(
@@ -87,6 +138,16 @@ apply_codelist <- function(db_con, codelist) {
   )])
   
   sql_dir <- here::here("R", "sql")
+  
+  if(length(dbListTables(db_con)) == 0){
+    stop("[apply_codelist] database empty")
+  }
+  
+  #Checkinbg if any required table exists in the database
+  if(!any(unique(codelist[, cdm_table_name]) %in% dbListTables(db_con))){
+    warning("[apply_codelist] requiered tables do not exist")
+    return()
+  }
   
   for (fam_idx in seq_len(nrow(family_groups))) {
     fam_info <- family_groups[fam_idx]
@@ -153,8 +214,43 @@ apply_codelist <- function(db_con, codelist) {
     # 3 Finalize Family
     # -------------------
     create_concepts_3 <- getSQL(file.path(file.path(sql_dir, "create_concepts_3.sql")))
-    query_final <- glue(create_concepts_3)
-    dbExecute(db_con, query_final)
+    
+    if(keep_id_set){
+      id_set_query <- ", 
+      t2.id_set"
+    }else{
+      id_set_query <- ""
+    }
+    create_concepts_3 <- glue(create_concepts_3)
+    
+    if(materialize == "in_database"){
+      query_final <- glue("INSERT INTO concept_table 
+                        {create_concepts_3}
+                        ON CONFLICT DO UPDATE SET
+                        unique_id = EXCLUDED.unique_id,
+                        concept_id = EXCLUDED.concept_id;")
+      
+    }else if(materialize == "in_parquet"){
+      query_final <- glue("COPY (
+                            {create_concepts_3}
+                            )
+                          TO '{path_parquets}' 
+                          (FORMAT PARQUET, 
+                          PARTITION_BY (concept_id), 
+                          APPEND TRUE);")
+    }
+    dbExecute(db_con,query_final)
+    dbExecute(db_con,"DROP TABLE identified_ids;")
     
   }
+  
+  if(!dbExistsTable(db_con,"concept_table") & materialize %in% "in_parquet"){
+    initialize_concept_table(con, 
+                             type_table = "view", 
+                             path_parquets = path_parquets, 
+                             partition = TRUE,
+                             overwrite = TRUE,
+                             add_id_set = keep_id_set)
+  }
+  
 }

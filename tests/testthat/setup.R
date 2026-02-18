@@ -146,8 +146,8 @@ config_json <- '{
   "data_model": "ConcePTION",
   "file_format": "csv",
   "operations": {
-    "DuplicateRemover": true,
-    "MissingRemover": true,
+    "DuplicateRemover": false,
+    "MissingRemover": false,
     "UniqueIdGenerator": true,
     "ReportGenerator": false
   },

@@ -4,7 +4,13 @@
 \alias{apply_codelist}
 \title{Apply a harmonized codelist to a CDM database}
 \usage{
-apply_codelist(db_con, codelist)
+apply_codelist(
+  db_con,
+  codelist,
+  materialize = "in_parquet",
+  path_parquets = NULL,
+  keep_id_set = TRUE
+)
 }
 \arguments{
 \item{db_con}{A database connection object (e.g., a DuckDB connection) where the CDM tables
