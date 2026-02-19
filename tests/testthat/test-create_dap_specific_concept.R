@@ -158,7 +158,9 @@ test_that("created MEDICAL_OBSERVATIONS_EDITED", {
 
 test_that("reference non-existent column", {
   concepts_db_conn <- db_setup_test()
-  codelist <- good_input %>% dplyr::mutate(column_name_1 = "something", expected_value_1 = "anything")
+  codelist <- copy(good_input)[, `:=`(column_name_1 = "something", 
+                                      expected_value_1 = "anything")]
+  
   expect_error(create_dap_specific_concept(codelist = codelist,
                                              name_attachment = attachName, 
                                              save_db= concepts_db_conn, 
@@ -172,7 +174,8 @@ test_that("reference non-existent column", {
 
 test_that("NA keep_value_column_name", {
   concepts_db_conn <- db_setup_test()
-  codelist <- good_input %>% dplyr::mutate(keep_value_column_name = NA)
+  codelist <- copy(good_input)[, `:=`(keep_value_column_name = NA)]
+
   create_dap_specific_concept(codelist = codelist,
                                            name_attachment = attachName, 
                                            save_db= concepts_db_conn, 
@@ -186,7 +189,8 @@ test_that("NA keep_value_column_name", {
   rs <- DBI::dbSendQuery(concepts_db_conn, "DELETE FROM concept_table")
   DBI::dbClearResult(rs)
   
-  codelist <- good_input %>% dplyr::select(-keep_value_column_name)
+  
+  codelist <- good_input[, keep_value_column_name := NULL]
   create_dap_specific_concept(codelist = codelist,
                               name_attachment = attachName, 
                               save_db= concepts_db_conn, 
