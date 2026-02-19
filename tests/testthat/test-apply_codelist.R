@@ -47,16 +47,21 @@ test_that("apply_codelist performs input validation", {
   )
   
   # --- 5. Warnings ---
-  expect_warning(
-    apply_codelist(con, get_valid_dt(), materialize = "in_database", path_parquets = "ignored/path"),
-    "path_parquets' is ignored"
+  warnings <- capture_warnings(
+    apply_codelist(con, get_valid_dt(), materialize = "in_database", path_parquets = "ignored/path")
   )
+  
+  expect_length(warnings, 2)
+  
+  expect_true(any(grepl("path_parquets' is ignored", warnings)))
+  expect_true(any(grepl("requiered tables do not exist", warnings)))
+
   
   dbDisconnect(con, shutdown = TRUE)
 })
 
 test_that("apply_codelist executes hierarchical SQL flow", {
-  
+
   db_path <- tempfile(fileext = ".duckdb")
   # 1. SETUP: Create temporary DB and mock CDM table
   loader <- suppressMessages(DatabaseLoader$new(
@@ -69,7 +74,7 @@ test_that("apply_codelist executes hierarchical SQL flow", {
   )
   suppressMessages(loader$set_database())
   suppressMessages(loader$run_db_ops())
-  
+
   # 2. SETUP: Create a hierarchical codelist
   # We have one family with a parent (order 1) and a child (order 2)
   test_codelist <- data.table(
@@ -82,12 +87,12 @@ test_that("apply_codelist executes hierarchical SQL flow", {
     keep_date_column_name = c("start_date_record","start_date_record"),
     order_index = c(1, 2)             # L suffix ensures Integer type
   )
-  
+
   con <- dbConnect(duckdb(),db_path)
   list_tables <- dbListTables(con)
   expect_contains(list_tables,"PERSONS")
   # 3. EXECUTE: We wrap in capture_messages to check the flow
-  msgs <- capture_messages(apply_codelist(db_con = con, 
+  msgs <- capture_messages(apply_codelist(db_con = con,
                                           test_codelist,
                                           materialize = "in_database"))
 
@@ -98,40 +103,40 @@ test_that("apply_codelist executes hierarchical SQL flow", {
   # Verify that the temporary table 'codelist' was created in the DB during the process
   # (Note: In a real run, it might be dropped, but we check logic flow via messages)
   expect_true(any(grepl("Order index: 2", msgs)))
-  
+
   #Verifying that the only identificable case was identified
   concept_table <- dbReadTable(con,"concept_table")
   expect_equal(nrow(concept_table),1)
   expect_equal(concept_table$person_id,"21110000001")
-  
+
   dbDisconnect(con, shutdown = TRUE)
-  
+
   con <- dbConnect(duckdb(),db_path)
   list_tables <- dbListTables(con)
   expect_contains(list_tables,"PERSONS")
-  
+
   temp_parquet_path <- tempdir()
-  
+
   # 3. EXECUTE: We wrap in capture_messages to check the flow
-  msgs <- capture_messages(apply_codelist(db_con = con, 
+  msgs <- capture_messages(apply_codelist(db_con = con,
                                           test_codelist,
                                           materialize = "in_parquet",
                                           path_parquets = temp_parquet_path))
-  
+
   # 4. VERIFY: Check if the logic branched correctly
   expect_match(msgs[2], "Applying parent scheme")
   expect_match(msgs[3], "Processing child with cdm_column=event_record_vocabulary")
-  
+
   # Verify that the temporary table 'codelist' was created in the DB during the process
   # (Note: In a real run, it might be dropped, but we check logic flow via messages)
   expect_true(any(grepl("Order index: 2", msgs)))
-  
+
   #Verifying that the only identificable case was identified
   concept_table <- dbReadTable(con,"concept_table")
   expect_equal(nrow(concept_table),1)
   expect_equal(concept_table$person_id,"21110000001")
-  
+
   dbDisconnect(con, shutdown = TRUE)
-  
+
 })
 
