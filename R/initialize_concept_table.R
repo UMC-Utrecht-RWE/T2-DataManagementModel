@@ -1,11 +1,33 @@
 #' Initialize Concept Table
 #'
-#' @param con A database connection object.
-#' @param type_table Character. Either `"view"` or `"table"`.
-#' @param path_parquets Character. Path to Parquet files.
-#' @param partition Logical. If `TRUE`, uses Hive partitioning.
+#' This function sets up the `concept_table` within the database. Depending on the 
+#' \code{type_table} argument, it either creates a persistent SQL table with constraints 
+#' or a virtual view that reads from Parquet files using DuckDB's \code{read_parquet} 
+#' functionality.
 #'
-#' @return Invisibly returns the result of the `dbExecute` call or NULL if skipped.
+#' @param con A database connection object (typically a DuckDB connection).
+#' @param type_table Character. Either \code{"view"} or \code{"table"}. If \code{"view"}, 
+#'   the function creates a view pointing to Parquet files. If \code{"table"}, 
+#'   it creates an empty physical table with a unique constraint.
+#' @param path_parquets Character. The directory path to the Parquet files. 
+#'   Required only if \code{type_table = "view"}.
+#' @param partition Logical. If \code{TRUE}, enables Hive partitioning when 
+#'   reading Parquet files.
+#' @param overwrite Logical. If \code{TRUE}, an existing \code{concept_table} will 
+#'   be dropped before being re-initialized. Defaults to \code{FALSE}.
+#' @param add_id_set Logical. If \code{TRUE} (default), includes the \code{id_set} 
+#'   column in the table schema or view definition.
+#'
+#' @details 
+#' When creating a \code{"table"}, the function enforces a unique constraint on 
+#' \code{(unique_id, concept_id)} to prevent duplicate concept mappings. When 
+#' creating a \code{"view"}, it leverages DuckDB's ability to scan Parquet files 
+#' directly, which is useful for large-scale CDM datasets.
+#'
+#' @return Invisibly returns the result of the \code{dbExecute} call, or 
+#'   \code{NULL} if the table already exists and \code{overwrite} is \code{FALSE}.
+#' 
+#' @importFrom DBI dbExecute dbExistsTable dbRemoveTable
 #' @export
 initialize_concept_table <- function(con, 
                                      type_table = "view", 

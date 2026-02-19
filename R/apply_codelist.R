@@ -18,13 +18,21 @@
 #'     \item{keep_value_column_name}{The column to keep as value when creating concepts.}
 #'     \item{keep_date_column_name}{The column to keep as date when creating concepts.}
 #'   }
+#' @param materialize A character string specifying how to store the results. 
+#'   Options are \code{"in_parquet"} (default) to save as partitioned parquet files, 
+#'   or \code{"in_database"} to insert directly into a database table.
+#' @param path_parquets A character string specifying the directory path where parquet 
+#'   files should be saved. Required only if \code{materialize = "in_parquet"}.
+#' @param keep_id_set Logical. If \code{TRUE} (default), keeps the \code{id_set} identifier 
+#'   during the harmonization process.
 #'
 #' @details
 #' The function works in three phases for each codelist family:
 #' \enumerate{
 #'   \item **Parent codes** are applied first using a predefined SQL script.
 #'   \item **Child codes** are applied next, ordered by `order_index`.
-#'   \item **Finalization** merges processed concepts back into the concepts table.
+#'   \item **Finalization** merges processed concepts back into the concepts table or 
+#'   exports them to Parquet files based on the \code{materialize} argument.
 #' }
 #'
 #' This implementation uses external SQL scripts:
@@ -34,15 +42,17 @@
 #'   \item `create_concepts_3.sql` for final merging.
 #' }
 #'
-#' @return No return value. The function updates the database by executing SQL queries.
+#' @return No return value. The function updates the database or creates parquet files 
+#'   by executing SQL queries.
 #'
 #' @examples
 #' \dontrun{
 #' # Assuming `concepts_db_conn_ref` is a valid DBI connection and `codelist_long` is prepared:
-#' apply_codelist(concepts_db_conn_ref, codelist_long)
+#' apply_codelist(concepts_db_conn_ref, codelist_long, materialize = "in_database")
 #' }
 #'
 #' @import data.table DBI glue
+#' @importFrom here here
 #' @export
   
 apply_codelist <- function(db_con, 
@@ -147,9 +157,7 @@ apply_codelist <- function(db_con,
   if(!any(unique(codelist[, cdm_table_name]) %in% dbListTables(db_con))){
     warning("[apply_codelist] requiered tables do not exist")
     return()
-  }
-  
-  for (fam_idx in seq_len(nrow(family_groups))) {
+  }else{for (fam_idx in seq_len(nrow(family_groups))) {
     fam_info <- family_groups[fam_idx]
     message(paste0("[apply_codelist] Processing family ", fam_idx, ": ",
                    paste(fam_info, collapse = ", ")))
@@ -170,7 +178,10 @@ apply_codelist <- function(db_con,
         if(order_idx == 1){
           message("  └─ Applying parent scheme(s)")
           dbWriteTable(db_con, name = "codelist", value = current_codelist, TEMPORARY = TRUE, overwrite = TRUE)
-          create_concepts_1 <- getSQL(file.path(sql_dir, "create_concepts_1.sql"))
+          
+          sql_path <- system.file("sql", "create_concepts_1.sql", package = "T2.DMM")
+          create_concepts_1 <- getSQL(sql_path)
+          
           query_parent <- glue(create_concepts_1)
           dbExecute(db_con, query_parent)
         }
@@ -199,7 +210,8 @@ apply_codelist <- function(db_con,
                 current_codelist <- current_child[order_index == child_order]
                 dbWriteTable(db_con, name = "codelist", value = current_codelist, TEMPORARY = TRUE, overwrite = TRUE)
                 current_order_index <- order_idx
-                create_concepts_2 <- getSQL(file.path(sql_dir,"create_concepts_2.sql"))
+                sql_path <- system.file("sql", "create_concepts_2.sql", package = "T2.DMM")
+                create_concepts_2 <- getSQL(sql_path)
                 query_child <- glue(create_concepts_2)
                 dbExecute(db_con, query_child)
               }
@@ -213,7 +225,8 @@ apply_codelist <- function(db_con,
     # -------------------
     # 3 Finalize Family
     # -------------------
-    create_concepts_3 <- getSQL(file.path(file.path(sql_dir, "create_concepts_3.sql")))
+    sql_path <- system.file("sql", "create_concepts_3.sql", package = "T2.DMM")
+    create_concepts_3 <- getSQL(sql_path)
     
     if(keep_id_set){
       id_set_query <- ", 
@@ -243,14 +256,17 @@ apply_codelist <- function(db_con,
     dbExecute(db_con,"DROP TABLE identified_ids;")
     
   }
+    
+    if(!dbExistsTable(db_con,"concept_table") & materialize %in% "in_parquet"){
+      initialize_concept_table(con, 
+                               type_table = "view", 
+                               path_parquets = path_parquets, 
+                               partition = TRUE,
+                               overwrite = TRUE,
+                               add_id_set = keep_id_set)
+    }
+    }
   
-  if(!dbExistsTable(db_con,"concept_table") & materialize %in% "in_parquet"){
-    initialize_concept_table(con, 
-                             type_table = "view", 
-                             path_parquets = path_parquets, 
-                             partition = TRUE,
-                             overwrite = TRUE,
-                             add_id_set = keep_id_set)
-  }
+  
   
 }

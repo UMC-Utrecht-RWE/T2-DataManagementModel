@@ -14,17 +14,37 @@ initialize_concept_table(
 )
 }
 \arguments{
-\item{con}{A database connection object.}
+\item{con}{A database connection object (typically a DuckDB connection).}
 
-\item{type_table}{Character. Either `"view"` or `"table"`.}
+\item{type_table}{Character. Either \code{"view"} or \code{"table"}. If \code{"view"}, 
+the function creates a view pointing to Parquet files. If \code{"table"}, 
+it creates an empty physical table with a unique constraint.}
 
-\item{path_parquets}{Character. Path to Parquet files.}
+\item{path_parquets}{Character. The directory path to the Parquet files. 
+Required only if \code{type_table = "view"}.}
 
-\item{partition}{Logical. If `TRUE`, uses Hive partitioning.}
+\item{partition}{Logical. If \code{TRUE}, enables Hive partitioning when 
+reading Parquet files.}
+
+\item{overwrite}{Logical. If \code{TRUE}, an existing \code{concept_table} will 
+be dropped before being re-initialized. Defaults to \code{FALSE}.}
+
+\item{add_id_set}{Logical. If \code{TRUE} (default), includes the \code{id_set} 
+column in the table schema or view definition.}
 }
 \value{
-Invisibly returns the result of the `dbExecute` call or NULL if skipped.
+Invisibly returns the result of the \code{dbExecute} call, or 
+  \code{NULL} if the table already exists and \code{overwrite} is \code{FALSE}.
 }
 \description{
-Initialize Concept Table
+This function sets up the `concept_table` within the database. Depending on the 
+\code{type_table} argument, it either creates a persistent SQL table with constraints 
+or a virtual view that reads from Parquet files using DuckDB's \code{read_parquet} 
+functionality.
+}
+\details{
+When creating a \code{"table"}, the function enforces a unique constraint on 
+\code{(unique_id, concept_id)} to prevent duplicate concept mappings. When 
+creating a \code{"view"}, it leverages DuckDB's ability to scan Parquet files 
+directly, which is useful for large-scale CDM datasets.
 }
