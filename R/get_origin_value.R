@@ -29,7 +29,7 @@ get_origin_value <- function(
 ) {
   # Input validation
   # Check if cases_dt is a data.table
-  cases_dt <- T2.DMM:::ensure_data_table(
+  cases_dt <- ensure_data_table(
     cases_dt,
     error_message = "[get_origin_value] 'cases_dt' must be a data.table"
   )

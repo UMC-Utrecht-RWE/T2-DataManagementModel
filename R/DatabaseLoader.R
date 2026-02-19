@@ -89,7 +89,7 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
       self$config <- jsonlite::fromJSON(config_path)
       # Load cdm_metadata
       if (is.character(cdm_metadata) && grepl("\\.rds$", cdm_metadata)) {
-        self$metadata <- T2.DMM:::ensure_data_table(base::readRDS(cdm_metadata))
+        self$metadata <- ensure_data_table(base::readRDS(cdm_metadata))
       } else if (is.data.table(cdm_metadata)) {
         self$metadata <- cdm_metadata
       } else {
