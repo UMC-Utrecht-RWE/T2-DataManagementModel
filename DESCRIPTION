@@ -27,7 +27,8 @@ Imports:
     R6 (>= 2.6.1),
     here (>= 1.0.2),
     readr,
-    utils
+    utils,
+    stats
 Suggests:
     testthat (>= 3.0.0),
     withr (>= 3.0.2)
