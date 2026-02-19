@@ -176,7 +176,7 @@ apply_codelist <- function(db_con,
       current_codelist <- family_subset[order_index == order_idx]
       for(cdm_column in unique(current_codelist[, cdm_column])){
         if(order_idx == 1){
-          message("  └─ Applying parent scheme(s)")
+          message("   Applying parent scheme(s)")
           dbWriteTable(db_con, name = "codelist", value = current_codelist, TEMPORARY = TRUE, overwrite = TRUE)
           
           sql_path <- system.file("sql", "create_concepts_1.sql", package = "T2.DMM")
@@ -199,13 +199,13 @@ apply_codelist <- function(db_con,
             
             for (child_idx in seq_len(nrow(child_groups))) {
               child_col <- child_groups[child_idx, cdm_column]
-              message(paste0("  └─ Processing child with cdm_column=", child_col))
+              message(paste0("    Processing child with cdm_column=", child_col))
               
               current_child <- child_subset[cdm_column == child_col]
               setorderv(current_child, "order_index")
               
               for (child_order in unique(current_child$order_index)) {
-                message(paste0("      └─ Order index: ", child_order))
+                message(paste0("        Order index: ", child_order))
                 
                 current_codelist <- current_child[order_index == child_order]
                 dbWriteTable(db_con, name = "codelist", value = current_codelist, TEMPORARY = TRUE, overwrite = TRUE)
