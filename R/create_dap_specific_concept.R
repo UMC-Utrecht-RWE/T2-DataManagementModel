@@ -77,11 +77,11 @@ create_dap_specific_concept <- function(
 
   for (name in scheme) {
     name_edited <- paste0(name, "_EDITED")
-    to_upper_cols <- unique(na.omit(unlist(codelist[get(table_name) %in%
+    to_upper_cols <- unique(stats::na.omit(unlist(codelist[get(table_name) %in%
       name, ..cols_names])))
-    keep_date <- unique(na.omit(unlist(codelist[get(table_name) %in%
+    keep_date <- unique(stats::na.omit(unlist(codelist[get(table_name) %in%
       name, ..keep_date_names])))
-    keep_value <- unique(na.omit(unlist(codelist[get(table_name) %in%
+    keep_value <- unique(stats::na.omit(unlist(codelist[get(table_name) %in%
       name, ..keep_value_names])))
     keep_value <- keep_value[keep_value %notin% to_upper_cols]
 
@@ -149,8 +149,8 @@ create_dap_specific_concept <- function(
     date_col <- codelist[[j, "keep_date_column_name"]]
     codelist_id <- codelist[[j, "dap_spec_id"]]
 
-    cols_temp <- unique(na.omit(unlist(cols[j, ])))
-    values_temp <- toupper(unique(na.omit(unlist(values[j, ]))))
+    cols_temp <- unique(stats::na.omit(unlist(cols[j, ])))
+    values_temp <- toupper(unique(stats::na.omit(unlist(values[j, ]))))
     cols_temp <- setdiff(cols_temp, "NA")
     values_temp <- setdiff(values_temp, "NA")
 
