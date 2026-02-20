@@ -77,7 +77,7 @@ clean_missing_values <- function(con,
           transform_sql <- sprintf("SELECT * FROM %%s WHERE %s", filter_sql)
           pipeline_name <- paste0(table_to_clean, pipeline_extension)
 
-          T2.DMM::add_view(
+          add_view(
             con = con,
             pipeline = pipeline_name,
             # only used if pipeline not initialized
