@@ -1,38 +1,56 @@
-test_that("initialize_concept_table respects existing tables", {
+test_that("initialize_concept_table handles overwriting and schema", {
   con <- dbConnect(duckdb::duckdb(), ":memory:")
   on.exit(dbDisconnect(con, shutdown = TRUE))
   
-  # --- 1. SETUP: Create an initial table ---
-  dbExecute(con, "CREATE TABLE concept_table (id INTEGER)")
+  # 1. Test creation with 'id_set' (default)
+  initialize_concept_table(con, type_table = "table", add_id_set = TRUE)
+  cols <- dbListFields(con, "concept_table")
+  expect_true("id_set" %in% cols)
+  expect_true("unique_id" %in% cols)
   
-  # --- 2. TEST: Attempt to initialize again ---
-  # It should NOT throw an error, but it should NOT overwrite the table.
-  # We check the 'message' to confirm it skipped.
+  # 2. Test overwrite = TRUE
+  # Create a dummy table with different columns
+  dbExecute(con, "DROP TABLE concept_table")
+  dbExecute(con, "CREATE TABLE concept_table (old_col INTEGER)")
+  
   expect_message(
-    initialize_concept_table(con, type_table = "table"),
-    "already exists"
+    initialize_concept_table(con, type_table = "table", overwrite = TRUE, add_id_set = FALSE),
+    "Dropping table"
   )
   
-  # Verify the original structure is still there (our dummy 'id' column)
-  # instead of the full schema the function would have created.
-  cols <- dbListFields(con, "concept_table")
-  expect_equal(cols, "id")
-  expect_false("unique_id" %in% cols)
+  new_cols <- dbListFields(con, "concept_table")
+  expect_false("old_col" %in% new_cols)
+  expect_false("id_set" %in% new_cols) # Checked that add_id_set = FALSE worked
+  expect_true("unique_id" %in% new_cols)
 })
 
-test_that("initialize_concept_table basic functionality and validation", {
+test_that("initialize_concept_table handles view creation and invalid inputs", {
   con <- dbConnect(duckdb::duckdb(), ":memory:")
   on.exit(dbDisconnect(con, shutdown = TRUE))
   
-  # Test creation of table when it doesn't exist
-  expect_no_error(initialize_concept_table(con, type_table = "table"))
-  expect_true(dbExistsTable(con, "concept_table"))
-  
-  # Test validation: Missing path for view
-  # Create a new connection to clear the previous 'concept_table'
-  con2 <- dbConnect(duckdb::duckdb(), ":memory:")
+  # 1. Test Invalid type_table
   expect_error(
-    initialize_concept_table(con2, type_table = "view", path_parquets = NULL),
-    "valid 'path_parquets' must be provided"
+    initialize_concept_table(con, type_table = "invalid_type"),
+    "must be either 'view' or 'table'"
   )
+  
+  # 2. Test View Creation (Mocking a Parquet environment)
+  # We create a temporary directory and a dummy parquet file so DuckDB doesn't error on scan
+  tmp_dir <- tempdir()
+  tmp_path <- file.path(tmp_dir, "test.parquet")
+  arrow::write_parquet(data.frame(
+    unique_id = "a", ori_table = "b", person_id = "c", 
+    concept_id = "d", value = "e", date = as.Date("2023-01-01"), id_set = "f"
+  ), tmp_path)
+  
+  expect_no_error(
+    initialize_concept_table(con, type_table = "view", path_parquets = tmp_dir, partition = FALSE)
+  )
+  
+  # Verify it is a view and not a table
+  # In DuckDB, views appear in information_schema
+  res <- dbGetQuery(con, "SELECT table_type FROM information_schema.tables WHERE table_name = 'concept_table'")
+  expect_equal(res$table_type, "VIEW")
+  
+  unlink(tmp_path)
 })
