@@ -139,7 +139,7 @@ delete_duplicates_origin <- function(
              FROM %s ;
             "
           )
-          T2.DMM:::add_view(
+          add_view(
             con = db_connection,
             pipeline = pipeline_name,
             base_table = table_from_name,

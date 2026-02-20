@@ -50,7 +50,7 @@ get_origin_row <- function(
   ###################
   # Validate inputs
   ###################
-  ids <- T2.DMM:::ensure_data_table(ids)
+  ids <- ensure_data_table(ids)
   unique_identifiers <- c('ori_table','unique_id')
   
   return_values <- list()

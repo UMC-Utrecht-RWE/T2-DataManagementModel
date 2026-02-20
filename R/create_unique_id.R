@@ -71,7 +71,7 @@ create_unique_id <- function(
 
     if (to_view == TRUE) {
       pipeline_name <- paste0(table, pipeline_extension)
-      T2.DMM:::add_view(
+      add_view(
         db_connection,
         pipeline = pipeline_name,
         base_table = table_from_name,
