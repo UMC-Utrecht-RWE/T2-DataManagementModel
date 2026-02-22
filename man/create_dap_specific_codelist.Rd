@@ -17,9 +17,9 @@ create_dap_specific_codelist(
 
 \item{codelist}{Data.table containing the study code list.}
 
-\item{priority_col}{Name of the priority column to use for sorting. Defaults to "priority".}
+\item{start_with_codingsystems}{Columns to start with.}
 
-\item{start_with_colls}{Columns to start with.}
+\item{priority_col}{Name of the priority column to use for sorting. Defaults to "priority".}
 }
 \description{
 Create DAP-Specific Codelist

@@ -2,7 +2,7 @@
 #'
 #' @param dap_codes Data.table containing unique code list output.
 #' @param codelist Data.table containing the study code list.
-#' @param start_with_colls Columns to start with.
+#' @param start_with_codingsystems Columns to start with.
 #' @param priority_col Name of the priority column to use for sorting. Defaults to "priority".
 #'
 #' @export
