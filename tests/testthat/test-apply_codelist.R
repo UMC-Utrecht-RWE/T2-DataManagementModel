@@ -59,7 +59,7 @@ test_that("apply_codelist performs input validation", {
       materialize = "in_parquet",
       path_parquets = NULL
     ),
-    "'path_parquets' must be provided"
+    regexp = "'path_parquets' needed if materialize = 'in_parquet'"
   )
 
   # --- 5. Warnings ---
@@ -74,7 +74,7 @@ test_that("apply_codelist performs input validation", {
 
   expect_length(warnings, 2)
 
-  expect_true(any(grepl("path_parquets' is ignored", warnings)))
+  expect_true(any(grepl(" 'path_parquets' ignored if ", warnings)))
   expect_true(any(grepl("requiered tables do not exist", warnings)))
 
 
