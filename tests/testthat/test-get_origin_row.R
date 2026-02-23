@@ -165,8 +165,10 @@ test_that(
     expect_message(
       get_origin_row(con, ids),
       fixed = TRUE,
-      "[get_origin_row] The unique identifier 'unique_id'
-      does not exist in the ids"
+      paste0(
+        "[get_origin_row] The unique identifier ",
+        "'unique_id' does not exist in the ids"
+      )
 
     )
   }

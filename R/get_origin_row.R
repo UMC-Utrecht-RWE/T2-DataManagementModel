@@ -138,5 +138,5 @@ get_origin_row <- function(
     return_values[[table]] <- result
   }
 
-  return(return_values)
+  return_values
 }

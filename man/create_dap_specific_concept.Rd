@@ -33,7 +33,8 @@ and concepts will be saved.}
 \item{date_col_filter}{An optional filter to subset data based on
 a specified date column.}
 
-\item{dir_save}{Directory path for parquet output (required if save_in_parquet = TRUE)}
+\item{dir_save}{Directory path for parquet output
+(required if save_in_parquet = TRUE)}
 
 \item{add_meaning}{A boolean that defines whether to save the meaning of any
 CDM table -if available- in the results of the function.

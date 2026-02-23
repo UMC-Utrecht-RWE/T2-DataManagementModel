@@ -1,4 +1,4 @@
-test_that("wrangling_dapspecificconceptmap transforms wide to long correctly", {
+test_that("wrangling_concept_map transforms wide to long correctly", {
   # 1. SETUP: Create a mock concept map with 2 sets of mapping columns
   mock_map <- data.table(
     concept_id = c("C1", "C2"),
@@ -12,7 +12,7 @@ test_that("wrangling_dapspecificconceptmap transforms wide to long correctly", {
   )
 
   # 2. EXECUTE
-  result <- wrangling_dapspecificconceptmap(mock_map)
+  result <- wrangling_concept_map(mock_map)
 
   # 3. VERIFY
   # Expected total rows: 3 (2 for C1, 1 for C2 because
@@ -40,7 +40,7 @@ test_that("Function handles missing required columns", {
   bad_data <- data.table(concept_id = "C1") # Missing table_name, etc.
 
   expect_error(
-    wrangling_dapspecificconceptmap(bad_data),
+    wrangling_concept_map(bad_data),
     "Missing required columns"
   )
 })
@@ -55,7 +55,7 @@ test_that("Function handles missing mapping columns", {
   # No column_name_1 or expected_value_1
 
   expect_error(
-    wrangling_dapspecificconceptmap(bad_data),
+    wrangling_concept_map(bad_data),
     "No 'column_name_\\*' columns found"
   )
 })
@@ -70,7 +70,7 @@ test_that("Function correctly filters out NA cdm_columns", {
     expected_value_1 = "code_1"
   )
 
-  result <- wrangling_dapspecificconceptmap(mock_map)
+  result <- wrangling_concept_map(mock_map)
 
   # Since column_name_1 is NA, it should be filtered out by:
   expect_equal(nrow(result), 0)

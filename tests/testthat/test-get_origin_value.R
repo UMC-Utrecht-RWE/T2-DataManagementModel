@@ -304,8 +304,10 @@ test_that("get_origin_value handleswrong multiple column in list", {
   # This should run without error, but only return results for Table1
   expect_error(
     result <- get_origin_value(cases_dt, db_connection, search_scheme),
-    "\\[get_origin_value\\] Each element in 'search_scheme'
-    must be a single character string"
+    paste0(
+      "\\[get_origin_value\\] Each element in 'search_scheme'",
+      " must be a single character string"
+    )
   )
 
   # Close connection for testing

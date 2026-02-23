@@ -25,5 +25,5 @@ ensure_data_table <- function(
       }
     )
   }
-  return(obj)
+  obj
 }

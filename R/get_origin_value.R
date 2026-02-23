@@ -4,7 +4,8 @@
 #' search_scheme and tables.
 #'
 #' @param cases_dt Data table containing information about cases.
-#' Must be a data.table with at least the search_scheme "unique_id" and "ori_table".
+#' Must be a data.table with at least the search_scheme
+#' "unique_id" and "ori_table".
 #' @param db_connection Database connection object.
 #' Must be an active DuckDB connection.
 #' @param search_scheme A list specifying the search_scheme to retrieve
