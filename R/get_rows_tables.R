@@ -45,5 +45,5 @@ get_rows_tables <- function(db_connection, verbose = TRUE) {
   }
 
   # Execute the query and retrieve the result
-  return(DBI::dbGetQuery(db_connection, full_query))
+  DBI::dbGetQuery(db_connection, full_query)
 }

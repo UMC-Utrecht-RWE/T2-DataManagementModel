@@ -25,9 +25,9 @@ test_that("database gets loaded in auto", {
     data_instance_path = "dbtest",
     cdm_metadata = concePTION_metadata_v2,
     cdm_tables_names = c("PERSONS", "VACCINES", "MEDICINES"),
-    file_format = 'csv'
+    file_format = "csv"
   )
-  
+
   # Testing that all column names are the same
   med_db <- DBI::dbReadTable(db_connection_origin, "MEDICINES")
   med_1 <- import_file("dbtest/MEDICINES_TEST1.csv")

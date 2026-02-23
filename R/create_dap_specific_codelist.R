@@ -43,7 +43,7 @@ create_dap_specific_codelist <- function(
 
   # Preprocess both datasets
   study_codelist <- add_codenodot(study_codelist, "code")
-  study_codelist[, length_str := nchar(code_no_dot)] 
+  study_codelist[, length_str := nchar(code_no_dot)]
   data.table::setnames(
     study_codelist, "code.study_codelist", "code.CDM_CODELIST"
   )
@@ -100,11 +100,13 @@ create_dap_specific_codelist <- function(
         )]
         return(temp_dt[
           ,
-          .(coding_system, code.DAP_UNIQUE_CODELIST, code_no_dot,
-          code_no_dot2, length_str, ori_length_str, COUNT, variable)
+          .(
+            coding_system, code.DAP_UNIQUE_CODELIST, code_no_dot,
+            code_no_dot2, length_str, ori_length_str, COUNT, variable
+          )
         ])
       }
-      return(data.table())
+      data.table()
     }))
 
     #Adding original information and selecting codes
@@ -174,9 +176,7 @@ create_dap_specific_codelist <- function(
   )
 
   # Subset and keep the order
-  dap_specific_codelist <- dap_specific_codelist[, ..cols_to_select]
-
-  return(dap_specific_codelist)
+  dap_specific_codelist[, ..cols_to_select]
 }
 
 # Data Input Requirements Validation
@@ -228,10 +228,10 @@ validate_codelists <- function(unique_codelist, study_codelist, priority) {
 
   validate_column_type(
     unique_codelist$coding_system, "unique_codelist$coding_system"
-    )
+  )
   validate_column_type(
     study_codelist$coding_system, "study_codelist$coding_system"
-    )
+  )
   validate_column_type(unique_codelist$code, "unique_codelist$code")
   validate_column_type(study_codelist$code, "study_codelist$code")
 

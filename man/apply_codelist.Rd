@@ -13,48 +13,57 @@ apply_codelist(
 )
 }
 \arguments{
-\item{db_con}{A database connection object (e.g., a DuckDB connection) where the CDM tables
-and concept tables are stored.}
+\item{db_con}{A database connection object (e.g., a DuckDB connection)
+where the CDM tables and concept tables are stored.}
 
-\item{codelist}{A `data.table` containing the harmonized codelist. The codelist must include
-the following columns:
-\describe{
-  \item{cdm_table_name}{Name of the CDM table or view to which the codes apply.}
-  \item{cdm_column}{The column in the CDM table containing the code or coding system.}
-  \item{concept_id}{The target concept identifier.}
-  \item{code}{The source code to match.}
-  \item{order_index}{An integer indicating processing order (parent = 1, children > 1).}
-  \item{keep_value_column_name}{The column to keep as value when creating concepts.}
-  \item{keep_date_column_name}{The column to keep as date when creating concepts.}
-}}
+\item{codelist}{A `data.table` containing the harmonized codelist.
+The codelist must include the following columns:
+  \describe{
+    \item{cdm_table_name}{
+Name of the CDM table or view to which the codes apply.
+}
+    \item{cdm_column}{
+The column in the CDM table containing the code or coding system.}
+    \item{concept_id}{The target concept identifier.}
+    \item{code}{The source code to match.}
+    \item{order_index}{An integer indicating processing order
+(parent = 1, children > 1).}
+    \item{keep_value_column_name}{
+The column to keep as value when creating concepts.}
+    \item{keep_date_column_name}{
+The column to keep as date when creating concepts.}
+  }}
 
-\item{materialize}{A character string specifying how to store the results. 
-Options are \code{"in_parquet"} (default) to save as partitioned parquet files, 
-or \code{"in_database"} to insert directly into a database table.}
+\item{materialize}{A character string specifying how to store the results.
+Options are \code{"in_parquet"} (default) to save as partitioned parquet
+files, or \code{"in_database"} to insert directly into a database table.}
 
-\item{path_parquets}{A character string specifying the directory path where parquet 
-files should be saved. Required only if \code{materialize = "in_parquet"}.}
+\item{path_parquets}{A character string specifying the directory path where
+parquet files should be saved.
+Required only if \code{materialize = "in_parquet"}.}
 
-\item{keep_id_set}{Logical. If \code{TRUE} (default), keeps the \code{id_set} identifier 
-during the harmonization process.}
+\item{keep_id_set}{Logical. If \code{TRUE} (default), keeps the \code{id_set}
+identifier during the harmonization process.}
 }
 \value{
-No return value. The function updates the database or creates parquet files 
+Null. The function updates the database or creates parquet files
   by executing SQL queries.
 }
 \description{
-This function applies a prepared codelist to the specified Common Data Model (CDM) database
-connection. It processes concept mappings by grouping codes into families and applying SQL
-queries to create harmonized concepts. Parent and child relationships in the codelist are
-handled in hierarchical order.
+This function applies a prepared codelist to the specified Common Data Model
+ (CDM) database connection. It processes concept mappings by grouping codes
+into families and applying SQL queries to create harmonized concepts.
+Parent and child relationships in the codelist are handled in hierarchical
+ order.
 }
 \details{
 The function works in three phases for each codelist family:
 \enumerate{
   \item **Parent codes** are applied first using a predefined SQL script.
   \item **Child codes** are applied next, ordered by `order_index`.
-  \item **Finalization** merges processed concepts back into the concepts table or 
-  exports them to Parquet files based on the \code{materialize} argument.
+  \item **Finalization** merges processed concepts back into the concepts
+table or exports them to Parquet files based on the \code{materialize}
+argument.
 }
 
 This implementation uses external SQL scripts:
@@ -66,8 +75,9 @@ This implementation uses external SQL scripts:
 }
 \examples{
 \dontrun{
-# Assuming `concepts_db_conn_ref` is a valid DBI connection and `codelist_long` is prepared:
-apply_codelist(concepts_db_conn_ref, codelist_long, materialize = "in_database")
+# Assuming `concepts_db_conn_ref` is a valid DBI connection and
+`codelist_long` is prepared: apply_codelist(concepts_db_conn_ref,
+codelist_long, materialize = "in_database")
 }
 
 }

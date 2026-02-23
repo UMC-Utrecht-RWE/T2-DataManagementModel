@@ -84,7 +84,7 @@ create_unique_id <- function(
                 FROM %s)"
         )
       )
-    }else{
+    } else {
       DBI::dbExecute(
         db_connection,
         paste0(
@@ -94,7 +94,7 @@ create_unique_id <- function(
             rn AS unique_id, 
             * EXCLUDE(rn)
             FROM (SELECT *, uuid() AS rn
-                  FROM ",table_from_name,")"
+                  FROM ", table_from_name, ")"
         )
       )
       DBI::dbExecute(db_connection, paste0("DROP TABLE ",
