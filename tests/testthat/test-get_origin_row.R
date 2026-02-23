@@ -57,7 +57,9 @@ test_that("get_origin_row correctly retrieves data from multiple tables", {
   on.exit(dbDisconnect(con, shutdown = TRUE))
 
   # Test with multiple tables
-  ids <- data.table(unique_id = c("1", "101"), ori_table = c("EVENTS","PATIENTS"))
+  ids <- data.table(
+    unique_id = c("1", "101"), ori_table = c("EVENTS", "PATIENTS")
+  )
   result <- get_origin_row(con, ids)
 
   # Expectations
@@ -75,7 +77,9 @@ test_that("get_origin_row handles non-existent IDs gracefully", {
   on.exit(dbDisconnect(con, shutdown = TRUE))
 
   # Test with non-existent unique_id
-  ids <- data.table(unique_id = c("999", "1"), ori_table = c("EVENTS","EVENTS"))
+  ids <- data.table(
+    unique_id = c("999", "1"), ori_table = c("EVENTS", "EVENTS")
+  )
   result <- get_origin_row(con, ids)
 
   # Expectations
@@ -90,7 +94,9 @@ test_that("get_origin_row handles non-existent tables gracefully", {
   on.exit(dbDisconnect(con, shutdown = TRUE))
 
   # Test with non-existent table
-  ids <- data.table(unique_id = c("NONEXISTENT", "1"), ori_table = c("NONEXISTENT","EVENTS"))
+  ids <- data.table(
+    unique_id = c("NONEXISTENT", "1"), ori_table = c("NONEXISTENT","EVENTS")
+  )
   result <- get_origin_row(con, ids)
 
   # Expectations
@@ -159,7 +165,8 @@ test_that(
     expect_message(
       get_origin_row(con, ids),
       fixed = TRUE,
-      "[get_origin_row] The unique identifier 'unique_id' does not exist in the ids"
+      "[get_origin_row] The unique identifier 'unique_id'
+      does not exist in the ids"
 
     )
   }
