@@ -173,7 +173,6 @@ apply_codelist <- function(
     keep_date_column_name
   )])
 
-  sql_dir <- here::here("R", "sql")
 
   if (length(DBI::dbListTables(db_con)) == 0) {
     stop("[apply_codelist] database empty")
