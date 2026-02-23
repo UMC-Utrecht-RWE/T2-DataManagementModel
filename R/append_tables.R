@@ -72,6 +72,6 @@ append_tables <- function(
       DBI::dbGetQuery(db, paste0("SELECT * FROM ", name))
     )
     results[, eval(dt_coll) := as.Date(get(dt_coll), origin = "1970-01-01")]
-    return(data.table::as.data.table((results)))
+    data.table::as.data.table((results))
   }
 }

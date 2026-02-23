@@ -412,7 +412,10 @@ test_that("get_origin_value handles missing requiered column in cases_dt", {
   # This should run without error, but only return results for Table1
   expect_error(
     result <- get_origin_value(cases_dt, db_connection, search_scheme),
-    "\\[get_origin_value\\] 'cases_dt' is missing required search_scheme: ori_table"
+    paste0(
+      "\\[get_origin_value\\] 'cases_dt' is missing ",
+      "required search_scheme: ori_table"
+    )
   )
 
   # Close connection for testing

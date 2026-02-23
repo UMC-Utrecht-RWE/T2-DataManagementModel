@@ -258,7 +258,7 @@ create_dap_specific_concept <- function(
         date_col, " >= DATE '", date_col_filter, "'"
       )
     }
-  
+
     print(where_statement)
     # Execute COPY to parquet OR INSERT to database table
     if (save_in_parquet) {

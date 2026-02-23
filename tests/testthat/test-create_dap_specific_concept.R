@@ -58,7 +58,6 @@ create_test_db <- function(
     concept_db_conn,
     paste0("ATTACH DATABASE '", source_db_path, "' AS ", attach_name)
   )
-  
 }
 
 cleanup_concept_tables <- function(db_connection) {
@@ -108,7 +107,7 @@ testthat::test_that("Error messages", {
 
   attach_name <- "d2_db_conn"
 
-  create_test_db(source_db_path, source_db_conn,concept_db_conn, attach_name)
+  create_test_db(source_db_path, source_db_conn, concept_db_conn, attach_name)
 
   testthat::expect_error(
     create_dap_specific_concept(
@@ -205,7 +204,7 @@ testthat::test_that("NA or missing keep_value_column_name yields TRUE", {
 
   attach_name <- "d2_db_conn"
 
-  create_test_db(source_db_path, source_db_conn,concept_db_conn, attach_name)
+  create_test_db(source_db_path, source_db_conn, concept_db_conn, attach_name)
   withr::defer(DBI::dbDisconnect(concept_db_conn), envir = parent.frame())
   withr::defer(cleanup_concept_tables(concept_db_conn), envir = parent.frame())
 
@@ -392,7 +391,7 @@ testthat::test_that("prints 'Meaning not identified'", {
 
   attach_name <- "d2_db_conn"
 
-  create_test_db(source_db_path, source_db_conn,concept_db_conn, attach_name)
+  create_test_db(source_db_path, source_db_conn, concept_db_conn, attach_name)
   withr::defer(DBI::dbDisconnect(concept_db_conn))
   withr::defer(cleanup_concept_tables(concept_db_conn))
 

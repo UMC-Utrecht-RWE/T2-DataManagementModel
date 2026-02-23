@@ -117,7 +117,9 @@ delete_duplicates_origin <- function(
       # Check if the table exists in the database
       #Adjusting name of table to the Scheme where this is located in the db
       table_from_name <- paste0(schema_name, ".", case_name)
-      message(paste0("[delete_duplicates_origin] Deleting records from: ", case_name))
+      message(
+        paste0("[delete_duplicates_origin] Deleting records from: ", case_name)
+      )
       if (case_name %in% DBI::dbListTables(db_connection)) {
         # Determine columns to select based on the scheme
         if (all(scheme[[case_name]] %in% "*")) {
@@ -130,7 +132,7 @@ delete_duplicates_origin <- function(
         }
         cols_to_select <- paste(cols_to_select, collapse = ", ")
 
-        
+
         if (to_view == TRUE) {
 
           pipeline_name <- paste0(case_name, pipeline_extension)
@@ -148,13 +150,18 @@ delete_duplicates_origin <- function(
         }
         # Execute the query and handle results
         if (save_deleted == FALSE && to_view == FALSE) {
-          row_count_0 <- DBI::dbGetQuery(db_connection, paste0("SELECT COUNT(*) AS n FROM ",table_from_name))
+          row_count_0 <- DBI::dbGetQuery(
+            db_connection,
+            paste0("SELECT COUNT(*) AS n FROM ", table_from_name)
+          )
           # Build the SQL query to delete duplicate rows
           query <- paste0("CREATE OR REPLACE TABLE ", case_name, " AS
                        SELECT DISTINCT *
                        FROM ", table_from_name)
           DBI::dbExecute(db_connection, query)
-          row_count_1 <- DBI::dbGetQuery(db_connection, paste0("SELECT COUNT(*) AS n FROM ",case_name))
+          row_count_1 <- DBI::dbGetQuery(
+            db_connection, paste0("SELECT COUNT(*) AS n FROM ", case_name)
+          )
           message(paste0(
             "[delete_duplicates_origin] Number of record deleted: ",
             row_count_0 - row_count_1
@@ -231,5 +238,5 @@ table_exists <- function(con, table_name, schema = NULL) {
   }
 
   result <- DBI::dbGetQuery(con, sql)$n
-  return(result > 0)
+  result > 0
 }

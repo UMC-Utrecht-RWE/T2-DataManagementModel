@@ -6,10 +6,12 @@ setup_test_db <- function() {
   # Create test tables
   DBI::dbExecute(
     con,
-    "CREATE TABLE EVENTS (unique_id VARCHAR, ori_table VARCHAR, event_name VARCHAR, event_date DATE)"
+    "CREATE TABLE EVENTS (unique_id VARCHAR, ori_table VARCHAR,
+    event_name VARCHAR, event_date DATE)"
   )
   DBI::dbExecute(
-    con, "CREATE TABLE PATIENTS (unique_id VARCHAR, ori_table VARCHAR, name VARCHAR, age INTEGER)"
+    con, "CREATE TABLE PATIENTS (unique_id VARCHAR, ori_table
+    VARCHAR, name VARCHAR, age INTEGER)"
   )
 
   # Insert test data
@@ -95,7 +97,7 @@ test_that("get_origin_row handles non-existent tables gracefully", {
 
   # Test with non-existent table
   ids <- data.table(
-    unique_id = c("NONEXISTENT", "1"), ori_table = c("NONEXISTENT","EVENTS")
+    unique_id = c("NONEXISTENT", "1"), ori_table = c("NONEXISTENT", "EVENTS")
   )
   result <- get_origin_row(con, ids)
 

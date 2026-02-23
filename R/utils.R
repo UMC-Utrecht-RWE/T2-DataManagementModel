@@ -2,7 +2,7 @@
 #### Function to make sure we read SQL scripts properly     ##
 #### (replace -- to /* .... */ top prevent line end errors) ##
 ##############################################################
-getSQL <- function(filepath) {
+getSQL <- function(filepath) { #nolint
   con <- file(filepath, "r")
   sql_string <- ""
 

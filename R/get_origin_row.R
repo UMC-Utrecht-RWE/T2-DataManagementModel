@@ -51,8 +51,8 @@ get_origin_row <- function(
   # Validate inputs
   ###################
   ids <- ensure_data_table(ids)
-  unique_identifiers <- c('ori_table','unique_id')
-  
+  unique_identifiers <- c("ori_table", "unique_id")
+
   return_values <- list()
   # Check if the specified unique identifier exists in ids
   if (nrow(ids) == 0) {
