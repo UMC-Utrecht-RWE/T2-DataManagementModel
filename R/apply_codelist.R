@@ -179,7 +179,7 @@ apply_codelist <- function(
   }
 
   #Checkinbg if any required table exists in the database
-  if (!any(unique(codelist[, cdm_table_name]) %in% dbListTables(db_con))) {
+  if (!any(unique(codelist[, cdm_table_name]) %in% DBI::dbListTables(db_con))) {
     warning("[apply_codelist] requiered tables do not exist")
   } else {
     for (fam_idx in seq_len(nrow(family_groups))) {
