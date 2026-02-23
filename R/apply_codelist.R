@@ -175,7 +175,7 @@ apply_codelist <- function(
 
   sql_dir <- here::here("R", "sql")
 
-  if (length(dbListTables(db_con)) == 0) {
+  if (length(DBI::dbListTables(db_con)) == 0) {
     stop("[apply_codelist] database empty")
   }
 
