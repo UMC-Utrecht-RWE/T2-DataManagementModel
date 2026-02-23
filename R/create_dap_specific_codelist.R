@@ -19,6 +19,9 @@ create_dap_specific_codelist <- function(
   if (!is.character(start_with_codingsystems)) {
     stop("start_with_codingsystems must be a character vector")
   }
+  message(paste0("-----> The following coding systems will be searched 
+                 with a start with approach: ",
+          paste0(start_with_codingsystems, collapse = ", ")))
   
   # 2. INPUT VALIDATION
   # Ensure data.tables are not empty and contain mandatory columns
