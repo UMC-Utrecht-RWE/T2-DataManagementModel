@@ -50,7 +50,10 @@ test_that("get_origin_value returns correct values", {
   # Check result structure
   expect_s3_class(result, "data.table")
   expect_equal(ncol(result), 4)
-  expect_equal(names(result), c("ori_table", "unique_id", "column_origin", "value"))
+  expect_equal(
+    names(result),
+    c("ori_table", "unique_id", "column_origin", "value")
+  )
 
   # Check result content
   expect_equal(nrow(result), 5)
@@ -198,7 +201,7 @@ test_that("get_origin_value handles empty cases data table", {
   dbDisconnect(db_connection, shutdown = TRUE)
 })
 
-test_that("get_origin_value handles invented column names not in columns list", {
+test_that("get_origin_value handles invented column names not in columns", {
   # Create a temporary DuckDB connection
   db_connection <- DBI::dbConnect(duckdb::duckdb(), dir = temp())
 
@@ -243,177 +246,178 @@ test_that("get_origin_value handles invented column names not in columns list", 
 test_that("get_origin_value handles empty scheme", {
   # Create a temporary DuckDB connection
   db_connection <- DBI::dbConnect(duckdb::duckdb(), dir = temp())
-  
+
   # Setup test tables
   DBI::dbExecute(
     db_connection,
     "CREATE TABLE Table1 (ori_table TEXT, unique_id INTEGER, Column1 TEXT)"
   )
-  
+
   # Insert test data
   DBI::dbExecute(
     db_connection, "INSERT INTO Table1 VALUES ('Table1',1, 'Value1')"
   )
-  
+
   # Create test cases data table including a table not in columns list
   cases_dt <- data.table::data.table(
     unique_id = c(1),
     ori_table = c("Table1")
   )
-  
+
   search_scheme <- list()
-  
+
   # This should run without error, but only return results for Table1
   expect_error(
     result <- get_origin_value(cases_dt, db_connection, search_scheme),
     "\\[get_origin_value\\] 'search_scheme' must be a non-empty list"
   )
-  
+
   # Close connection for testing
   dbDisconnect(db_connection, shutdown = TRUE)
-  
 })
 
 
 test_that("get_origin_value handleswrong multiple column in list", {
   # Create a temporary DuckDB connection
   db_connection <- DBI::dbConnect(duckdb::duckdb(), dir = temp())
-  
+
   # Setup test tables
   DBI::dbExecute(
     db_connection,
     "CREATE TABLE Table1 (ori_table TEXT, unique_id INTEGER, Column1 TEXT)"
   )
-  
+
   # Insert test data
   DBI::dbExecute(
     db_connection, "INSERT INTO Table1 VALUES ('Table1',1, 'Value1')"
   )
-  
+
   # Create test cases data table including a table not in columns list
   cases_dt <- data.table::data.table(
     unique_id = c(1),
     ori_table = c("Table1")
   )
-  
+
   # Testing scheme correct definition
-  search_scheme <- list("Table1" = c("Column1","Column2"))
-  
+  search_scheme <- list("Table1" = c("Column1", "Column2"))
+
   # This should run without error, but only return results for Table1
   expect_error(
     result <- get_origin_value(cases_dt, db_connection, search_scheme),
-    "\\[get_origin_value\\] Each element in 'search_scheme' must be a single character string"
+    paste0(
+      "\\[get_origin_value\\] Each element in 'search_scheme'",
+      " must be a single character string"
+    )
   )
-  
+
   # Close connection for testing
   dbDisconnect(db_connection, shutdown = TRUE)
-  
+
 })
 
 
 test_that("get_origin_value handles closed connection", {
   # Create a temporary DuckDB connection
   db_connection <- DBI::dbConnect(duckdb::duckdb(), dir = temp())
-  
+
   # Setup test tables
   DBI::dbExecute(
     db_connection,
     "CREATE TABLE Table1 (ori_table TEXT, unique_id INTEGER, Column1 TEXT)"
   )
-  
+
   # Insert test data
   DBI::dbExecute(
     db_connection, "INSERT INTO Table1 VALUES ('Table1',1, 'Value1')"
   )
-  
+
   # Create test cases data table including a table not in columns list
   cases_dt <- data.table::data.table(
     unique_id = c(1),
     ori_table = c("Table1")
   )
-  
+
   # Testing scheme correct definition
-  search_scheme <- list("Table1" = c("Column1","Column2"))
-  
+  search_scheme <- list("Table1" = c("Column1", "Column2"))
+
   # Close connection for testing
   dbDisconnect(db_connection, shutdown = TRUE)
-  
+
   # This should run without error, but only return results for Table1
   expect_error(
     result <- get_origin_value(cases_dt, db_connection, search_scheme),
     "\\[get_origin_value\\] 'db_connection' must be a valid DuckDB connection"
   )
-  
 })
 
 test_that("get_origin_value handles missing table", {
   # Create a temporary DuckDB connection
   db_connection <- DBI::dbConnect(duckdb::duckdb(), dir = temp())
-  
+
   # Setup test tables
   DBI::dbExecute(
     db_connection,
     "CREATE TABLE Table1 (ori_table TEXT, unique_id INTEGER, Column1 TEXT)"
   )
-  
+
   # Insert test data
   DBI::dbExecute(
     db_connection, "INSERT INTO Table1 VALUES ('Table1',1, 'Value1')"
   )
-  
+
   # Create test cases data table including a table not in columns list
   cases_dt <- data.table::data.table(
     unique_id = c(1),
     ori_table = c("Table1")
   )
-  
+
   # Testing if tables from scheme exist in database
   search_scheme <- list("Table2" = c("Column1"))
-  
+
   # This should run without error, but only return results for Table1
   expect_warning(
     result <- get_origin_value(cases_dt, db_connection, search_scheme),
     "\\[get_origin_value\\] Table 'Table2' does not exist in the database"
   )
-  
-  
+
+
   # Close connection for testing
   dbDisconnect(db_connection, shutdown = TRUE)
-  
 })
 
 
 test_that("get_origin_value handles missing requiered column in cases_dt", {
   # Create a temporary DuckDB connection
   db_connection <- DBI::dbConnect(duckdb::duckdb(), dir = temp())
-  
+
   # Setup test tables
   DBI::dbExecute(
     db_connection,
     "CREATE TABLE Table1 (ori_table TEXT, unique_id INTEGER, Column1 TEXT)"
   )
-  
+
   # Insert test data
   DBI::dbExecute(
     db_connection, "INSERT INTO Table1 VALUES ('Table1',1, 'Value1')"
   )
-  
+
   # Create test cases data table including a table not in columns list
   cases_dt <- data.table::data.table(
     unique_id = c(1)
   )
-  
+
   # Testing if tables from scheme exist in database
   search_scheme <- list("Table1" = c("A"))
-  
+
   # This should run without error, but only return results for Table1
   expect_error(
     result <- get_origin_value(cases_dt, db_connection, search_scheme),
-    "\\[get_origin_value\\] 'cases_dt' is missing required search_scheme: ori_table"
+    paste0(
+      "\\[get_origin_value\\] 'cases_dt' is missing ",
+      "required search_scheme: ori_table"
+    )
   )
-  
-  
+
   # Close connection for testing
   dbDisconnect(db_connection, shutdown = TRUE)
-  
 })

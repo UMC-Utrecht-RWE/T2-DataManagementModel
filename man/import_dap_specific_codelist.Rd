@@ -21,6 +21,6 @@ import_dap_specific_codelist(
 \item{columns}{Character vector. Columns to keep and transform.}
 }
 \description{
-Reads a codelist, filters for active rows ("BOTH"), converts specified 
+Reads a codelist, filters for active rows ("BOTH"), converts specified
 columns to uppercase, and writes the result to a database.
 }

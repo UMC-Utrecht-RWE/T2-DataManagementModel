@@ -6,10 +6,12 @@ setup_test_db <- function() {
   # Create test tables
   DBI::dbExecute(
     con,
-    "CREATE TABLE EVENTS (unique_id VARCHAR, ori_table VARCHAR, event_name VARCHAR, event_date DATE)"
+    "CREATE TABLE EVENTS (unique_id VARCHAR, ori_table VARCHAR,
+    event_name VARCHAR, event_date DATE)"
   )
   DBI::dbExecute(
-    con, "CREATE TABLE PATIENTS (unique_id VARCHAR, ori_table VARCHAR, name VARCHAR, age INTEGER)"
+    con, "CREATE TABLE PATIENTS (unique_id VARCHAR, ori_table
+    VARCHAR, name VARCHAR, age INTEGER)"
   )
 
   # Insert test data
@@ -57,7 +59,9 @@ test_that("get_origin_row correctly retrieves data from multiple tables", {
   on.exit(dbDisconnect(con, shutdown = TRUE))
 
   # Test with multiple tables
-  ids <- data.table(unique_id = c("1", "101"), ori_table = c("EVENTS","PATIENTS"))
+  ids <- data.table(
+    unique_id = c("1", "101"), ori_table = c("EVENTS", "PATIENTS")
+  )
   result <- get_origin_row(con, ids)
 
   # Expectations
@@ -74,8 +78,10 @@ test_that("get_origin_row handles non-existent IDs gracefully", {
   con <- setup_test_db()
   on.exit(dbDisconnect(con, shutdown = TRUE))
 
-  # Test with non-existent ori_id
-  ids <- data.table(unique_id = c("999", "1"), ori_table = c("EVENTS","EVENTS"))
+  # Test with non-existent unique_id
+  ids <- data.table(
+    unique_id = c("999", "1"), ori_table = c("EVENTS", "EVENTS")
+  )
   result <- get_origin_row(con, ids)
 
   # Expectations
@@ -90,7 +96,9 @@ test_that("get_origin_row handles non-existent tables gracefully", {
   on.exit(dbDisconnect(con, shutdown = TRUE))
 
   # Test with non-existent table
-  ids <- data.table(unique_id = c("NONEXISTENT", "1"), ori_table = c("NONEXISTENT","EVENTS"))
+  ids <- data.table(
+    unique_id = c("NONEXISTENT", "1"), ori_table = c("NONEXISTENT", "EVENTS")
+  )
   result <- get_origin_row(con, ids)
 
   # Expectations
@@ -102,13 +110,13 @@ test_that("get_origin_row handles non-existent tables gracefully", {
 
 
 test_that(
-  "get_origin_row returns empty list when ori_id column does not exist",
+  "get_origin_row returns empty list when unique_id column does not exist",
   {
     # Setup
     con <- setup_test_db()
     on.exit(dbDisconnect(con, shutdown = TRUE))
 
-    # Test with non-existent ori_id column
+    # Test with non-existent unique_id column
     ids <- data.table(WRONG_COLUMN = c("EVENTS-1"))
     result <- get_origin_row(con, ids)
 
@@ -147,7 +155,7 @@ test_that("get_origin_row handles empty input gracefully", {
 
 
 test_that(
-  "get_origin_row returns handles wrong ori_id input value",
+  "get_origin_row returns handles wrong unique_id input value",
   {
     # Setup
     con <- setup_test_db()
@@ -159,7 +167,10 @@ test_that(
     expect_message(
       get_origin_row(con, ids),
       fixed = TRUE,
-      "[get_origin_row] The unique identifier 'unique_id' does not exist in the ids"
+      paste0(
+        "[get_origin_row] The unique identifier ",
+        "'unique_id' does not exist in the ids"
+      )
 
     )
   }
