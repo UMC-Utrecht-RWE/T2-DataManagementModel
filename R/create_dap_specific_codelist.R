@@ -74,12 +74,6 @@ create_dap_specific_codelist <- function(
   # Process start-with matches
   results_startwith2 <- data.table()
   if (nrow(start_unique_codelist) > 0 && nrow(start_study_codelist) > 0) {
-    # Handle exact matches in start-with category first
-    start_exact_match <- merge(
-      start_unique_codelist, start_study_codelist,
-      by = c("coding_system", "code_no_dot")
-    )
-
     # Create length of codes
     start_unique_codelist[, ori_length_str := nchar(code_no_dot)]
     max_code_length <- max(start_unique_codelist$ori_length_str)
@@ -176,7 +170,7 @@ create_dap_specific_codelist <- function(
   )
 
   # Subset and keep the order
-  dap_specific_codelist[, ..cols_to_select]
+  dap_specific_codelist[, (cols_to_select) := NULL]
 }
 
 # Data Input Requirements Validation

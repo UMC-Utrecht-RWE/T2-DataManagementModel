@@ -259,6 +259,7 @@ apply_codelist <- function(
                   sql_path <- system.file(
                     "sql", "create_concepts_2.sql", package = "T2.DMM"
                   )
+                  print(current_order_index)
                   create_concepts_2 <- getSQL(sql_path)
                   query_child <- glue(create_concepts_2)
                   DBI::dbExecute(db_con, query_child)
@@ -282,6 +283,7 @@ apply_codelist <- function(
       } else {
         id_set_query <- ""
       }
+      print(id_set_query)
       create_concepts_3 <- glue(create_concepts_3)
 
       if (materialize == "in_database") {

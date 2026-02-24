@@ -80,9 +80,6 @@ get_origin_value <- function(
     ))
   }
 
-  # Extract unique ori_tables from the cases data table
-  ori_tables <- unique(cases_dt[, ori_table])
-
   # Write cases data table to a temporary table in the database
   tryCatch(
     {

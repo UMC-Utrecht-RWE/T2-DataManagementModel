@@ -12,6 +12,7 @@ utils::globalVariables(c(
   ".I",     # Row indices
   ".GRP",   # Group counter
   ".BY",     # List of by values
+  ":=",
   # Variables from apply_codelist and basic wrangling
   "code_no_dot", "family_group", "order_index", "con", "variable", "id_set",
 
