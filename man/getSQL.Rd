@@ -2,7 +2,9 @@
 % Please edit documentation in R/utils.R
 \name{getSQL}
 \alias{getSQL}
-\title{Read SQL script from file and return as a single string}
+\title{Read SQL script from file and return as a single string
+Function to make sure we read SQL scripts properly
+(replace -- to /* .... */ top prevent line end errors)}
 \usage{
 getSQL(filepath)
 }
@@ -14,4 +16,6 @@ A single string containing the SQL script
 }
 \description{
 Read SQL script from file and return as a single string
+Function to make sure we read SQL scripts properly
+(replace -- to /* .... */ top prevent line end errors)
 }
