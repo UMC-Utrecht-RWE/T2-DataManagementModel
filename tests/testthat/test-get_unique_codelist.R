@@ -1,30 +1,75 @@
-testthat::test_that("get_unique_codelist generates correct SQL queries", {
+
+
+test_that("get_unique_codelist: success cases and structure", {
+  # 1. Setup Mock Database
+  db <- dbConnect(duckdb::duckdb(), dbname = ":memory:")
+  test_data <- data.frame(
+    event_code = c("A", "A", "B"),
+    vocab = c("ICD10", "ICD10", "CPT"),
+    free_text = c("Text1", "Text2", "Text1")
+  )
+  dbWriteTable(db, "events", test_data)
+  
+  # 2. Define complex input (multi-column and single-column)
   column_info_list <- list(
-    list(column_name = "id", alias_name = "table_id"),
-    list(column_name = "codes", alias_name = "codes")
+    # Case: Grouping by two columns into two aliases
+    list(
+      source_column = c("event_code", "vocab"),
+      alias_name = c("code", "system")
+    ),
+    # Case: Simple single column
+    list(
+      source_column = "free_text",
+      alias_name = "description"
+    )
   )
+  
+  # 3. Run Function
+  result_list <- get_unique_codelist(db, column_info_list, "events")
+  
+  # --- Assertions ---
+  expect_length(result_list, 2)
+  expect_s3_class(result_list[[1]], "data.table")
+  
+  # Check Column Names (Aliases)
+  expect_named(result_list[[1]], c("code", "system", "COUNT"))
+  expect_named(result_list[[2]], c("description", "COUNT"))
+  
+  # Check Logic: "A" + "ICD10" appears twice in the raw data
+  # We expect a count of 2 for that specific row
+  res1 <- result_list[[1]]
+  count_val <- res1[code == "A" & system == "ICD10", COUNT]
+  expect_equal(count_val, 2)
+  
+  dbDisconnect(db, shutdown = TRUE)
+})
 
-  db <- DBI::dbConnect(duckdb::duckdb(), dbname = tempfile(fileext = ".duckdb"))
-  DBI::dbWriteTable(db, "my_table", data.frame(
-    id = 1:5,
-    codes = Sys.Date() + 1:5
+test_that("get_unique_codelist: validation checks", {
+  # Setup empty connection for validation only
+  db <- dbConnect(duckdb::duckdb(), dbname = ":memory:")
+  
+  # Error 1: Wrong key names (using the old 'column_name')
+  bad_keys <- list(list(column_name = "id", alias_name = "id"))
+  expect_error(
+    get_unique_codelist(db, bad_keys, "table"),
+    "missing 'source_column' or 'alias_name'"
+  )
+  
+  # Error 2: Mismatched lengths (2 sources, 1 alias)
+  mismatched <- list(list(
+    source_column = c("col1", "col2"),
+    alias_name = "alias1"
   ))
-
-  result_list <- get_unique_codelist(
-    db_connection = db, column_info_list, tb_name = "my_table"
+  expect_error(
+    get_unique_codelist(db, mismatched, "table"),
+    "must have the same length"
   )
-
-  # Test that the results are data tables
-  testthat::expect_true(inherits(result_list[[1]], "data.table"))
-  testthat::expect_true(inherits(result_list[[2]], "data.table"))
-
-  # Test that the results contain the expected columns
-  testthat::expect_named(result_list[[1]], c("table_id", "COUNT"))
-  testthat::expect_named(result_list[[2]], c("codes", "COUNT"))
-
-  # Test that the counts are correct
-  testthat::expect_equal(result_list[[1]]$COUNT, rep(1, 5))
-  testthat::expect_equal(result_list[[2]]$COUNT, rep(1, 5))
-
-  DBI::dbDisconnect(db)
+  
+  # Error 3: Empty list
+  expect_error(
+    get_unique_codelist(db, list(), "table"),
+    "must be a non-empty list"
+  )
+  
+  dbDisconnect(db, shutdown = TRUE)
 })
