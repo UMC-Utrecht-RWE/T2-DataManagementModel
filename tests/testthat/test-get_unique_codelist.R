@@ -1,15 +1,13 @@
-
-
-test_that("get_unique_codelist: success cases and structure", {
+testthat::test_that("get_unique_codelist: success cases and structure", {
   # 1. Setup Mock Database
-  db <- dbConnect(duckdb::duckdb(), dbname = ":memory:")
+  db <- DBI::dbConnect(duckdb::duckdb(), dbname = ":memory:")
   test_data <- data.frame(
     event_code = c("A", "A", "B"),
     vocab = c("ICD10", "ICD10", "CPT"),
     free_text = c("Text1", "Text2", "Text1")
   )
-  dbWriteTable(db, "events", test_data)
-  
+  DBI::dbWriteTable(db, "events", test_data)
+
   # 2. Define complex input (multi-column and single-column)
   column_info_list <- list(
     # Case: Grouping by two columns into two aliases
@@ -23,53 +21,53 @@ test_that("get_unique_codelist: success cases and structure", {
       alias_name = "description"
     )
   )
-  
+
   # 3. Run Function
   result_list <- get_unique_codelist(db, column_info_list, "events")
-  
+
   # --- Assertions ---
-  expect_length(result_list, 2)
-  expect_s3_class(result_list[[1]], "data.table")
-  
+  testthat::expect_length(result_list, 2)
+  testthat::expect_s3_class(result_list[[1]], "data.table")
+
   # Check Column Names (Aliases)
-  expect_named(result_list[[1]], c("code", "system", "COUNT"))
-  expect_named(result_list[[2]], c("description", "COUNT"))
-  
+  testthat::expect_named(result_list[[1]], c("code", "system", "COUNT"))
+  testthat::expect_named(result_list[[2]], c("description", "COUNT"))
+
   # Check Logic: "A" + "ICD10" appears twice in the raw data
   # We expect a count of 2 for that specific row
   res1 <- result_list[[1]]
   count_val <- res1[code == "A" & system == "ICD10", COUNT]
-  expect_equal(count_val, 2)
-  
-  dbDisconnect(db, shutdown = TRUE)
+  testthat::expect_equal(count_val, 2)
+
+  DBI::dbDisconnect(db, shutdown = TRUE)
 })
 
-test_that("get_unique_codelist: validation checks", {
+testthat::test_that("get_unique_codelist: validation checks", {
   # Setup empty connection for validation only
-  db <- dbConnect(duckdb::duckdb(), dbname = ":memory:")
-  
+  db <- DBI::dbConnect(duckdb::duckdb(), dbname = ":memory:")
+
   # Error 1: Wrong key names (using the old 'column_name')
   bad_keys <- list(list(column_name = "id", alias_name = "id"))
-  expect_error(
+  testthat::expect_error(
     get_unique_codelist(db, bad_keys, "table"),
-    "missing 'source_column' or 'alias_name'"
+    regexp = "is missing columns: 'source_column' or 'alias_name'."
   )
-  
+
   # Error 2: Mismatched lengths (2 sources, 1 alias)
   mismatched <- list(list(
     source_column = c("col1", "col2"),
     alias_name = "alias1"
   ))
-  expect_error(
+  testthat::expect_error(
     get_unique_codelist(db, mismatched, "table"),
     "must have the same length"
   )
-  
+
   # Error 3: Empty list
-  expect_error(
+  testthat::expect_error(
     get_unique_codelist(db, list(), "table"),
     "must be a non-empty list"
   )
-  
-  dbDisconnect(db, shutdown = TRUE)
+
+  DBI::dbDisconnect(db, shutdown = TRUE)
 })
