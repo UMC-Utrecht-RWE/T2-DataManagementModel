@@ -50,7 +50,7 @@ testthat::test_that("get_unique_codelist: validation checks", {
   bad_keys <- list(list(column_name = "id", alias_name = "id"))
   testthat::expect_error(
     get_unique_codelist(db, bad_keys, "table"),
-    regexp = "is missing columns: 'source_column' or 'alias_name'."
+    regexp = "is missing columns: 'source_column' and/or 'alias_name'."
   )
 
   # Error 2: Mismatched lengths (2 sources, 1 alias)

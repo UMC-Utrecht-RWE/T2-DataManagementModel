@@ -5,7 +5,7 @@ test_that("Checking the result is a data.table", {
 
   # Define column mapping for extracting unique codes from the database
   column_info_list <- list(
-    list(column_name = "medicinal_product_id", alias_name = "code")
+    list(source_column = "medicinal_product_id", alias_name = "code")
   )
 
   # Extract unique codelist from the MEDICINES table
@@ -59,7 +59,7 @@ test_that("Check expected format of the codelist and unique codelist work", {
 
   # Define column mapping for extracting unique codes
   column_info_list <- list(
-    list(column_name = "medicinal_product_id", alias_name = "code")
+    list(source_column = "medicinal_product_id", alias_name = "code")
   )
 
   # Extract unique codelist and ensure it is a data.table
@@ -194,7 +194,7 @@ test_that("Check expected format of the codelist and unique codelist work v2", {
 
   # Define column mapping for extracting unique codes
   column_info_list <- list(
-    list(column_name = "medicinal_product_id", alias_name = "code")
+    list(source_column = "medicinal_product_id", alias_name = "code")
   )
 
   # Extract unique codelist and ensure it is a data.table
@@ -244,7 +244,7 @@ test_that("Check expected format of the codelist and unique codelist work v3", {
 
   # Define column mapping for extracting unique codes
   column_info_list <- list(
-    list(column_name = "medicinal_product_id", alias_name = "code")
+    list(source_column = "medicinal_product_id", alias_name = "code")
   )
 
   # Extract unique codelist and ensure it is a data.table

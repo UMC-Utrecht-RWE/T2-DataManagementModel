@@ -27,7 +27,7 @@ get_unique_codelist <- function(db_connection, column_info_list, tb_name) {
     if (!all(required_names %in% names(item))) {
       stop(
         sprintf(
-          "Element '%s' is missing columns: 'source_column' or 'alias_name'.",
+          "Element '%s' is missing columns: 'source_column' and/or 'alias_name'.",
           i
         )
       )
