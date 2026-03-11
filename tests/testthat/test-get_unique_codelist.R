@@ -30,14 +30,24 @@ testthat::test_that("get_unique_codelist: success cases and structure", {
   testthat::expect_s3_class(result_list[[1]], "data.table")
 
   # Check Column Names (Aliases)
-  testthat::expect_named(result_list[[1]], c("code", "system", "COUNT"))
-  testthat::expect_named(result_list[[2]], c("description", "COUNT"))
+  testthat::expect_named(
+    result_list[[1]],
+    c("code", "system", "COUNT", "source_column")
+  )
+  testthat::expect_named(
+    result_list[[2]],
+    c("description", "COUNT", "source_column")
+  )
 
   # Check Logic: "A" + "ICD10" appears twice in the raw data
   # We expect a count of 2 for that specific row
   res1 <- result_list[[1]]
   count_val <- res1[code == "A" & system == "ICD10", COUNT]
   testthat::expect_equal(count_val, 2)
+  testthat::expect_equal(unique(res1$source_column), "event_code")
+
+  res2 <- result_list[[2]]
+  testthat::expect_equal(unique(res2$source_column), "free_text")
 
   DBI::dbDisconnect(db, shutdown = TRUE)
 })

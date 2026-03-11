@@ -51,11 +51,19 @@ get_unique_codelist <- function(db_connection, column_info_list, tb_name) {
     # Renamed from column_name to source_column
     source_column <- col_info$source_column
     alias_name <- col_info$alias_name
+    # We need to keep a column as 'source_column' as the codebook says:
+    # source_column = Column name from the database where the code was identified.
+    code_source_column <- source_column[1]
+
+    if ("code" %in% alias_name) {
+      code_source_column <- source_column[match("code", alias_name)]
+    }
 
     # Construct SELECT clause with mapping
     select_clause <- sprintf(
-      "SELECT %s, count(*) AS COUNT FROM %s",
+      "SELECT %s, count(*) AS COUNT, '%s' AS source_column FROM %s",
       paste(sprintf("%s AS %s", source_column, alias_name), collapse = ", "),
+      code_source_column,
       tb_name
     )
 
