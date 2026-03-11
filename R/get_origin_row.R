@@ -44,73 +44,94 @@
 #'
 #' @export
 get_origin_row <- function(db_connection, ids) {
-  
   # 1. Validate inputs and ensure data.table
   # Using requireNamespace check for internal safety
-  ids <- ensure_data_table(ids)
-  unique_identifiers <- c('ori_table', 'unique_id')
+  ids <- T2.DMM:::ensure_data_table(ids)
+  unique_identifiers <- c("ori_table", "unique_id")
   return_values <- list()
-  
+
   if (nrow(ids) == 0) {
     message("[get_origin_row] The data.table ids is empty")
     return(return_values)
   }
-  
-  # Check if required columns exist in the input 'ids'
+
+  # Check if required columns exist in the input "ids"
   if (any(!unique_identifiers %in% names(ids))) {
     missing_id <- unique_identifiers[!unique_identifiers %in% names(ids)]
-    message(paste0("[get_origin_row] Missing columns in 'ids': ", paste(missing_id, collapse = ", ")))
+    message(
+      paste0(
+        "[get_origin_row] Missing columns in 'ids': ",
+        paste(missing_id, collapse = ", ")
+      )
+    )
     return(return_values)
   }
-  
+
   # 2. Loop through unique tables
   tables_to_query <- unique(ids$ori_table)
-  
+
   for (table in tables_to_query) {
     # Skip if table is NA
     if (is.na(table)) next
-    
+
     # Verify table exists in database
     if (!DBI::dbExistsTable(db_connection, table)) {
-      message(paste0("[get_origin_row] Table '", table, "' does not exist in the database"))
+      message(
+        paste0(
+          "[get_origin_row] Table '", table, "' does not exist in the database"
+        )
+      )
       return_values[[table]] <- data.table::data.table()
       next
     }
-    
+
     # FIX: Get actual column names from the database
     col_names_db <- DBI::dbListFields(db_connection, table)
-    
+
     # FIX: Check if the DATABASE table has the required columns
     if (any(!unique_identifiers %in% col_names_db)) {
       missing_cols <- unique_identifiers[!unique_identifiers %in% col_names_db]
-      message(paste0("[get_origin_row] The unique identifier '", 
-                     paste(missing_cols, collapse = ", "), "' does not exist in the ", table))
+      message(paste0(
+        "[get_origin_row] The unique identifier '",
+        paste(missing_cols, collapse = ", "), "' does not exist in the ", table
+      ))
       return_values[[table]] <- data.table::data.table()
       next
     }
-    
+
     # Get IDs for this table
     table_ids <- ids[ori_table == table, unique_id]
     if (length(table_ids) == 0) {
       return_values[[table]] <- data.table::data.table()
       next
     }
-    
+
     # 3. Execution with Error Handling
     # Note: Using SQL() to handle table names and quoting IDs for safety
-    formatted_ids <- paste0("'", gsub("'", "''", table_ids), "'", collapse = ",")
-    query <- paste0("SELECT * FROM ", DBI::dbQuoteIdentifier(db_connection, table), 
-                    " WHERE unique_id IN (", formatted_ids, ")")
-    
-    result <- tryCatch({
-      data.table::as.data.table(DBI::dbGetQuery(db_connection, query))
-    }, error = function(e) {
-      message(paste0("[get_origin_row] Error querying table '", table, "': ", e$message))
-      data.table::data.table()
-    })
-    
+    formatted_ids <- paste0(
+      "'", gsub("'", "''", table_ids), "'", collapse = ","
+    )
+    query <- paste0(
+      "SELECT * FROM ", DBI::dbQuoteIdentifier(db_connection, table),
+      " WHERE unique_id IN (", formatted_ids, ")"
+    )
+
+    result <- tryCatch(
+      {
+        data.table::as.data.table(DBI::dbGetQuery(db_connection, query))
+      },
+      error = function(e) {
+        message(
+          paste0(
+            "[get_origin_row] Error querying table '", table, "': ", e$message
+          )
+        )
+        data.table::data.table()
+      }
+    )
+
     return_values[[table]] <- result
   }
-  
+
   return(return_values)
 }
