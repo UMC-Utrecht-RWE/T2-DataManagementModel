@@ -1,15 +1,16 @@
-create_loaded_test_db <- function(csv_dir = "dbtest",
+data("concePTION_metadata_v2", package = "T2.DMM")
+create_loaded_test_db <- function(csv_dir = "tests/testthat/dbtest",
                                   tables = c("PERSONS", "VACCINES"),
                                   metadata = concePTION_metadata_v2) {
   dbname <- tempfile(fileext = ".duckdb")
   con <- DBI::dbConnect(duckdb::duckdb(), dbname)
 
-  suppressMessages(T2.DMM:::load_db(
+  T2.DMM:::load_db(
     db_connection = con,
     data_instance_path = csv_dir,
     cdm_metadata = metadata,
     cdm_tables_names = tables
-  ))
+  )
 
   return(con)
 }
