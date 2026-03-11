@@ -1,4 +1,4 @@
-test_that("Checking the result is a data.table", {
+testthat::test_that("Checking the result is a data.table", {
   # Setup: Create a test database connection with MEDICINES table
   db_con <- suppressMessages(create_loaded_test_db(tables = c("MEDICINES")))
   # Ensure database connection is closed after test completion
@@ -9,7 +9,7 @@ test_that("Checking the result is a data.table", {
   )
 
   # Extract unique codelist from the MEDICINES table
-  unique_codelist <- T2.DMM:::get_unique_codelist(
+  unique_codelist <- get_unique_codelist(
     db_connection = db_con,
     column_info_list = column_info_list,
     tb_name = "MEDICINES"
@@ -41,7 +41,7 @@ test_that("Checking the result is a data.table", {
   study_codelist <- unique(study_codelist)[, priority := ifelse(tags == "narrow", 1, 2)]
 
   # Create DAP-specific codelist by merging unique and study codelists
-  dap_specific_codeslist <- T2.DMM::create_dap_specific_codelist(
+  dap_specific_codeslist <- create_dap_specific_codelist(
     dap_codes = unique_codelist,
     codelist = study_codelist
   )
@@ -51,7 +51,7 @@ test_that("Checking the result is a data.table", {
 
 })
 
-test_that("Check expected format of the codelist and unique codelist work", {
+testthat::test_that("Check expected format of the codelist and unique codelist work", {
   # Setup: Create a test database connection with MEDICINES table
   db_con <- suppressMessages(create_loaded_test_db(tables = c("MEDICINES")))
   # Ensure database connection is closed after test completion
@@ -64,7 +64,7 @@ test_that("Check expected format of the codelist and unique codelist work", {
 
   # Extract unique codelist and ensure it is a data.table
   unique_codelist <- as.data.table(
-    T2.DMM:::get_unique_codelist(
+    get_unique_codelist(
       db_connection = db_con,
       column_info_list = column_info_list,
       tb_name = "MEDICINES"
@@ -73,7 +73,7 @@ test_that("Check expected format of the codelist and unique codelist work", {
 
   # Test 1: Verify error when study_codelist is NULL
   testthat::expect_error(
-    dap_specific_codeslist <- T2.DMM::create_dap_specific_codelist(
+    dap_specific_codeslist <- create_dap_specific_codelist(
       dap_codes = unique_codelist,
       codelist =  NULL
     ),
@@ -88,7 +88,7 @@ test_that("Check expected format of the codelist and unique codelist work", {
   # Test 2: Verify error when unique_codelist is missing
   # required "coding_system" column
   testthat::expect_error(
-    dap_specific_codeslist <- T2.DMM::create_dap_specific_codelist(
+    dap_specific_codeslist <- create_dap_specific_codelist(
       dap_codes = unique_codelist,
       codelist =  study_codelist
     ),
@@ -97,7 +97,7 @@ test_that("Check expected format of the codelist and unique codelist work", {
 
   # Test 3: Verify error when unique_codelist is NULL
   testthat::expect_error(
-    dap_specific_codeslist <- T2.DMM::create_dap_specific_codelist(
+    dap_specific_codeslist <- create_dap_specific_codelist(
       dap_codes = NULL,
       codelist =  study_codelist
     ),
@@ -106,7 +106,7 @@ test_that("Check expected format of the codelist and unique codelist work", {
 
   # Test 4: Verify error when unique_codelist is empty data.table
   testthat::expect_error(
-    dap_specific_codeslist <- T2.DMM::create_dap_specific_codelist(
+    dap_specific_codeslist <- create_dap_specific_codelist(
       dap_codes = data.table(),
       codelist =  study_codelist
     ),
@@ -115,7 +115,7 @@ test_that("Check expected format of the codelist and unique codelist work", {
 
   # Test 5: Verify error when study_codelist is empty data.table
   testthat::expect_error(
-    dap_specific_codeslist <- T2.DMM::create_dap_specific_codelist(
+    dap_specific_codeslist <- create_dap_specific_codelist(
       dap_codes = unique_codelist,
       codelist =  data.table()
     ),
@@ -139,7 +139,7 @@ test_that("Check expected format of the codelist and unique codelist work", {
   # Test 6: Verify error when unique_codelist$coding_system
   # has wrong data type
   testthat::expect_error(
-    dap_specific_codeslist <- T2.DMM::create_dap_specific_codelist(
+    dap_specific_codeslist <- create_dap_specific_codelist(
       dap_codes = unique_codelist,
       codelist =  study_codelist
     ),
@@ -162,7 +162,7 @@ test_that("Check expected format of the codelist and unique codelist work", {
   # Verify error when study_codelist is missing required
   # "coding_system" column
   testthat::expect_error(
-    dap_specific_codeslist <- T2.DMM::create_dap_specific_codelist(
+    dap_specific_codeslist <- create_dap_specific_codelist(
       dap_codes = unique_codelist,
       codelist =  study_codelist
     ),
@@ -176,7 +176,7 @@ test_that("Check expected format of the codelist and unique codelist work", {
   study_codelist[, coding_system := 1]
 
   testthat::expect_error(
-    dap_specific_codeslist <- T2.DMM::create_dap_specific_codelist(
+    dap_specific_codeslist <- create_dap_specific_codelist(
       dap_codes = unique_codelist,
       codelist =  study_codelist
     ),
@@ -186,7 +186,7 @@ test_that("Check expected format of the codelist and unique codelist work", {
 
 })
 
-test_that("Check expected format of the codelist and unique codelist work v2", {
+testthat::test_that("Check expected format of the codelist and unique codelist work v2", {
   # Setup: Create a test database connection with MEDICINES table
   db_con <- suppressMessages(create_loaded_test_db(tables = c("MEDICINES")))
   # Ensure database connection is closed after test completion
@@ -199,7 +199,7 @@ test_that("Check expected format of the codelist and unique codelist work v2", {
 
   # Extract unique codelist and ensure it is a data.table
   unique_codelist <- as.data.table(
-    T2.DMM:::get_unique_codelist(
+    get_unique_codelist(
       db_connection = db_con,
       column_info_list = column_info_list,
       tb_name = "MEDICINES"
@@ -226,7 +226,7 @@ test_that("Check expected format of the codelist and unique codelist work v2", {
 
   # Test 9: Verify error when study_codelist$code has wrong data type
   testthat::expect_error(
-    dap_specific_codeslist <- T2.DMM::create_dap_specific_codelist(
+    dap_specific_codeslist <- create_dap_specific_codelist(
       dap_codes = unique_codelist,
       codelist =  study_codelist
     ),
@@ -236,7 +236,7 @@ test_that("Check expected format of the codelist and unique codelist work v2", {
 }
 )
 
-test_that("Check expected format of the codelist and unique codelist work v3", {
+testthat::test_that("Check expected format of the codelist and unique codelist work v3", {
   # Setup: Create a test database connection with MEDICINES table
   db_con <- suppressMessages(create_loaded_test_db(tables = c("MEDICINES")))
   # Ensure database connection is closed after test completion
@@ -249,7 +249,7 @@ test_that("Check expected format of the codelist and unique codelist work v3", {
 
   # Extract unique codelist and ensure it is a data.table
   unique_codelist <- as.data.table(
-    T2.DMM:::get_unique_codelist(
+    get_unique_codelist(
       db_connection = db_con,
       column_info_list = column_info_list,
       tb_name = "MEDICINES"
@@ -276,7 +276,7 @@ test_that("Check expected format of the codelist and unique codelist work v3", {
 
   # Test: Verify error when unique_codelist$code has wrong data type
   testthat::expect_error(
-    dap_specific_codeslist <- T2.DMM::create_dap_specific_codelist(
+    dap_specific_codeslist <- create_dap_specific_codelist(
       dap_codes = unique_codelist,
       codelist =  study_codelist
     ),
@@ -285,7 +285,7 @@ test_that("Check expected format of the codelist and unique codelist work v3", {
   )
 })
 
-test_that("Start-with matching logic works for ATC codes", {
+testthat::test_that("Start-with matching logic works for ATC codes", {
   # Setup: ATC codes are in the default start_with_colls
   unique_codelist <- data.table(
     coding_system = "ATC",
@@ -302,7 +302,7 @@ test_that("Start-with matching logic works for ATC codes", {
   )
   study_codelist <- unique(study_codelist)[, priority := ifelse(tags == "narrow", 1, 2)]
 
-  result <- T2.DMM::create_dap_specific_codelist(
+  result <- create_dap_specific_codelist(
     dap_codes = unique_codelist,
     codelist =  study_codelist
   )
@@ -317,7 +317,7 @@ test_that("Start-with matching logic works for ATC codes", {
   expect_equal(missing_row$match_status, "ONLY_IN_DATA")
 })
 
-test_that("Priority column correctly breaks ties in matches", {
+testthat::test_that("Priority column correctly breaks ties in matches", {
   unique_codelist <- data.table(
     coding_system = "ATC",
     code = "N02BE01",
@@ -335,7 +335,7 @@ test_that("Priority column correctly breaks ties in matches", {
   )
 
   # Test with priority column
-  result <- T2.DMM::create_dap_specific_codelist(
+  result <- create_dap_specific_codelist(
     dap_codes = unique_codelist,
     codelist = study_codelist,
     priority = "priority_val"
@@ -345,7 +345,7 @@ test_that("Priority column correctly breaks ties in matches", {
   expect_equal(result[code.codelist == "N02B" & tags == "narrow"]$match_status, "MATCHED")
 })
 
-test_that("match_status column correctly identifies ONLY_IN_DATA, ONLY_IN_CODELIST, and MATCHED", {
+testthat::test_that("match_status column correctly identifies ONLY_IN_DATA, ONLY_IN_CODELIST, and MATCHED", {
   unique_codelist <- data.table(
     coding_system = "SYSTEM1",
     code = c("MATCH", "CODE_ONLY_IN_DATA"),
@@ -359,7 +359,7 @@ test_that("match_status column correctly identifies ONLY_IN_DATA, ONLY_IN_CODELI
     concept_id = "test_id"
   )
   study_codelist <- study_codelist[, priority := 1]
-  result <- T2.DMM::create_dap_specific_codelist(dap_codes = unique_codelist, codelist = study_codelist)
+  result <- create_dap_specific_codelist(dap_codes = unique_codelist, codelist = study_codelist)
 
   expect_equal(result[code.dap_codes == "MATCH" & code == "MATCH"]$match_status, "MATCHED")
   expect_equal(result[code.dap_codes == "CODE_ONLY_IN_DATA"]$match_status, "ONLY_IN_DATA")
