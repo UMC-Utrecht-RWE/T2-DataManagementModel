@@ -21,9 +21,6 @@ testthat::test_that("Checking the result is a data.table", {
   # Therefore, we manually add the coding system identifier
   unique_codelist[, coding_system := "PRODCODEID"]
 
-  # add source_column tag
-  unique_codelist <- unique_codelist[, source_column := "NA"]
-
   # Load study-specific codelist from CSV file for comparison/mapping
   study_codelist <- import_file("dbtest/codelist_example_medicines.csv")
 
