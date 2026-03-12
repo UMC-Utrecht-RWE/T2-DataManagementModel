@@ -44,17 +44,45 @@ library(duckdb)
 
 ## Workflow Overview
 
-The typical workflow consists of three main stages:
+The T2-DataManagementModel workflow consists of **3 main processes**:
 
-1. **Set Up Database**: Load CSV files into a database
-2. **Apply Transformations**: Clean and standardize the data via database operations
-3. **Extract Information**: Generate codelists and counts
+1. **Set Database**: Load and clean raw CDM data
+2. **Process Codelist**: Extract and standardize codes from the data
+3. **Apply Codelist**: Harmonize codes and create standardized concepts
+
+```
+Raw Data (CSV/Parquet)
+    ↓
+[PROCESS 1: SET DATABASE]
+    ├─ Load data into database
+    ├─ Remove missing person IDs
+    ├─ Add unique identifiers
+    └─ Remove duplicates
+    ↓
+Cleaned CDM Database
+    ↓
+[PROCESS 2: PROCESS CODELIST]
+    ├─ Extract unique codes from database
+    ├─ Create DAP-specific codelist
+    └─ Standardize codes across systems
+    ↓
+Harmonized Codelist
+    ↓
+[PROCESS 3: APPLY CODELIST]
+    ├─ Prepare concept map (wrangling)
+    ├─ Initialize concept table
+    └─ Apply codelist to create concepts
+    ↓
+Harmonized Concept Table
+```
 
 ---
 
-## Stage 1: Set Up Database
+# PROCESS 1: SET DATABASE
 
-### Step 1.1: Initialize Database Connection and Loader
+This process loads raw data files, applies data quality transformations, and prepares the database for analysis.
+
+## Step 1.1: Initialize Database Connection and Loader
 
 Begin by creating a `DatabaseLoader` object, which manages the database connection, configuration, and data loading process.
 
@@ -76,7 +104,7 @@ loader <- DatabaseLoader$new(
 - `config_path`: Path to JSON configuration file specifying operations and settings
 - `cdm_metadata`: Path to RDS file containing CDM variable metadata
 
-### Step 1.2: Load CSV/Parquet Files into Database
+## Step 1.2: Load CSV/Parquet Files into Database
 
 Use the `set_database()` method to load your CDM data from CSV or Parquet files.
 
@@ -107,6 +135,16 @@ The config.json should include table names and loading parameters:
   "unique_id_generator": {
     "instance_name": "_T2DMM"
   },
+  "duplicate_remover": {
+    "scheme": {
+      "EVENTS": "*",
+      "VACCINES": ["person_id", "vx_record_date"]
+    }
+  },
+  "report_generator": {
+    "report_name": "count_rows_origin.csv",
+    "report_path": "./"
+  },
   "operations": {
     "MissingRemover": true,
     "UniqueIdGenerator": true,
@@ -116,34 +154,28 @@ The config.json should include table names and loading parameters:
 }
 ```
 
----
+## Step 1.3: Execute Transformations via `run_db_ops()`
 
-## Stage 2: Apply Transformations
-
-After loading the database, transformations are applied through the `run_db_ops()` method, which executes a series of database operations defined in your configuration file. Operations run sequentially in the order specified.
-
-### Step 2.1: Remove Records with Missing Person IDs
-
-The `MissingRemover` operation identifies and removes rows with missing or invalid values in critical columns (like person_id). This ensures data integrity by preventing orphaned records.
+All data quality transformations are applied through the `run_db_ops()` method, which executes database operations defined in your configuration file sequentially.
 
 ```{r eval=FALSE}
-# The MissingRemover is configured in config.json:
-# "missing_remover": {
-#   "columns": ["person_id"],
-#   "to_view": false
-# }
-
-# It will be executed when you call:
+# Execute all configured operations
 loader$run_db_ops()
 ```
 
-**What MissingRemover does:**
+### Transformation Operations
+
+#### MissingRemover: Remove Records with Missing Person IDs
+
+The `MissingRemover` operation identifies and removes rows with missing or invalid values in critical columns (like person_id). This ensures data integrity by preventing orphaned records.
+
+**What it does:**
 - Removes rows where specified columns are NULL, empty string, or 'NA'
 - Configurable per table
 - Can optionally create views instead of deleting (with `to_view: true`)
 - Reports how many rows were removed from each table
 
-**Example Configuration for Multiple Tables:**
+**Configuration:**
 
 ```json
 {
@@ -158,63 +190,66 @@ loader$run_db_ops()
 }
 ```
 
-### Step 2.2: Add Unique Identifiers
+#### UniqueIdGenerator: Add Unique Identifiers
 
 The `UniqueIdGenerator` operation creates unique identifiers for all records, enabling audit trails and tracking data through the pipeline.
 
-```{r eval=FALSE}
-# The UniqueIdGenerator is configured in config.json:
-# "unique_id_generator": {
-#   "instance_name": "_T2DMM"
-# }
-
-# It will be executed when you call:
-loader$run_db_ops()
-```
-
-**What UniqueIdGenerator does:**
+**What it does:**
 - Generates unique IDs for each record in specified tables
 - Uses instance name as suffix (e.g., "record_id_T2DMM")
 - Creates a column for tracking records through processing
 - Useful for linking back to original records
 
-### Step 2.3: Remove Duplicate Records
+**Configuration:**
+
+```json
+{
+  "unique_id_generator": {
+    "instance_name": "_T2DMM"
+  }
+}
+```
+
+#### DuplicateRemover: Remove Duplicate Records
 
 The `DuplicateRemover` operation identifies and removes duplicate records based on specified column combinations.
 
-```{r eval=FALSE}
-# The DuplicateRemover is configured in config.json:
-# "duplicate_remover": {
-#   "scheme": {
-#     "EVENTS": "*",
-#     "VACCINES": ["person_id", "vx_record_date"]
-#   },
-#   "save_deleted": false
-# }
-
-# It will be executed when you call:
-loader$run_db_ops()
-```
-
-**What DuplicateRemover does:**
+**What it does:**
 - Identifies duplicate rows within each table
 - Keeps first occurrence, removes others
 - `"*"` means use all columns for duplicate detection
 - Can optionally save deleted records as CSV files for auditing
+- Improves data quality and reduces analysis bias
 
-### Step 2.4: Count Records per Table
+**Configuration:**
+
+```json
+{
+  "duplicate_remover": {
+    "scheme": {
+      "EVENTS": "*",
+      "VACCINES": ["person_id", "vx_record_date"],
+      "MEDICINES": ["person_id", "medicine_code"]
+    },
+    "save_deleted": false,
+    "save_path": "./deleted_records"
+  }
+}
+```
+
+#### ReportGenerator: Count Records per Table
 
 The `ReportGenerator` operation counts records in each table after all transformations are complete.
 
-```{r eval=FALSE}
-# The ReportGenerator is configured in config.json:
-# "report_generator": {
-#   "report_name": "count_rows_origin.csv",
-#   "report_path": "./"
-# }
+**Configuration:**
 
-# It will be executed when you call:
-loader$run_db_ops()
+```json
+{
+  "report_generator": {
+    "report_name": "count_rows_origin.csv",
+    "report_path": "./"
+  }
+}
 ```
 
 **Output Example:**
@@ -227,27 +262,13 @@ loader$run_db_ops()
 4    MEDICINES         8500
 ```
 
-### Running All Transformations
-
-All database operations are executed together in the configured order:
-
-```{r eval=FALSE}
-# Execute all configured operations
-loader$run_db_ops()
-```
-
-This will:
-1. Remove records with missing person IDs (MissingRemover)
-2. Add unique identifiers to remaining records (UniqueIdGenerator)
-3. Remove duplicate records (DuplicateRemover)
-4. Generate a report with final record counts (ReportGenerator)
-5. Disconnect from database
-
 ---
 
-## Stage 3: Extract Information
+# PROCESS 2: PROCESS CODELIST
 
-### Step 3.1: Get Unique Codelist
+This process extracts codes from your cleaned database and standardizes them against reference codelists for consistent mapping across different coding systems.
+
+## Step 2.1: Extract Unique Codes with `get_unique_codelist()`
 
 Extract unique codes from your database using `get_unique_codelist()`. This function identifies all distinct codes in specified columns and provides counts for data quality assessment.
 
@@ -293,7 +314,7 @@ head(unique_codelists[[1]])
 - `tb_name`: Table name to extract from
 - `COUNT`: Automatically added - frequency of each code
 
-### Step 3.2: Create DAP-Specific Codelist
+## Step 2.2: Create DAP-Specific Codelist with `create_dap_specific_codelist()`
 
 Create a data analysis-specific codelist by matching codes from your data against a reference codelist. This is essential for standardizing codes across different coding systems (ICD-10, SNOMED CT, ATC, etc.).
 
@@ -302,7 +323,7 @@ Create a data analysis-specific codelist by matching codes from your data agains
 # This typically contains all standard codes and their mappings
 reference_codelist <- data.table::fread("reference_codelist.csv")
 
-# Extract DAP codes from your database using T2.DMM::get_unique_codelist.R
+# Extract DAP codes from your database
 # (codes actually found in your data)
 dap_codes <- data.table::fread("dap_codes.csv")
 
@@ -313,7 +334,8 @@ dap_specific_codelist <- create_dap_specific_codelist(
   start_with_codingsystems = c(
     "ICD10CM", "ICD10", "ICD10DA", "ICD9CM", "MTHICD9",
     "ICPC", "ICPC2P", "ICPC2EENG", "ATC"
-  )
+  ),
+  priority_col = "priority"
 )
 
 # View results
@@ -331,15 +353,178 @@ head(dap_specific_codelist)
    - For prefix-based systems, tries multiple prefix lengths to find matches
    - Example: "I10" matches reference code "I10.9"
 
+**Example Results:**
+
+```
+   code coding_system description      priority matched_code
+1  U071      ICD10CM   COVID-19       1         U07.1
+2  I10       ICD10    Heart Disease   1         I10.9
+3  ATC01    ATC       Antibiotic      1         A06AC
+4  MED001    MEDCODE   Medication     2         MED001
+```
 
 ---
 
-## Complete Workflow Example
+# PROCESS 3: APPLY CODELIST
 
-Here's a complete example combining all three stages:
+This process transforms your codelist into a format suitable for CDM application and applies harmonized codes to create standardized concepts.
+
+## Step 3.1: Prepare Concept Map with `wrangling_concept_map()`
+
+Transform your DAP-specific concept map from wide format to long format suitable for applying to the CDM.
 
 ```{r eval=FALSE}
-# Stage 1: Initialize and Load Database
+# Load your concept map in RWE BRIDGE metadata format
+# Expected columns: concept_id, cdm_table_name, 
+#                   column_name_*, expected_value_*,
+#                   keep_value_column_name, keep_date_column_name
+
+dap_concept_map <- data.table::fread("concept_map.csv")
+
+# Transform to long format
+long_format_codelist <- wrangling_concept_map(dap_concept_map)
+
+# View the structure
+head(long_format_codelist)
+```
+
+**Input Format (Wide):**
+
+The concept map should be in RWE BRIDGE format with columns like:
+- `concept_id`: Target concept identifier
+- `cdm_table_name`: CDM table to map from
+- `column_name_1`, `column_name_2`: CDM columns to match
+- `expected_value_1`, `expected_value_2`: Values to match against
+- `keep_value_column_name`: Column whose value to retain
+- `keep_date_column_name`: Column for the date value
+
+**Output Format (Long):**
+
+The function returns a normalized long format:
+
+```
+  id_set concept_id cdm_table_name cdm_column  code keep_value_column_name keep_date_column_name order_index
+1      1   COVID_19         EVENTS event_code U07.1           event_free_text      start_date_record          1
+2      1   COVID_19         EVENTS event_code  U08             event_free_text      start_date_record          1
+3      2    FEVER_01         EVENTS event_code R50.9           event_free_text      start_date_record          1
+```
+
+**What `wrangling_concept_map` Does:**
+
+- Assigns unique `id_set` identifier to each mapping
+- Converts wide format (`column_name_*`, `expected_value_*`) to long format
+- Generates `order_index` for hierarchical processing (parent=1, children>1)
+- Filters out NA values in `cdm_column`
+
+## Step 3.2: Initialize Concept Table with `initialize_concept_table()`
+
+Create the target `concept_table` that will store harmonized concepts:
+
+```{r eval=FALSE}
+# Initialize the concept table as a database table
+initialize_concept_table(
+  con = db_connection,
+  type_table = "table",  # or "view" for Parquet-backed table
+  partition = TRUE,
+  add_id_set = TRUE
+)
+
+# Alternatively, initialize as a view reading from Parquet files
+initialize_concept_table(
+  con = db_connection,
+  type_table = "view",
+  path_parquets = "/path/to/parquet/files",
+  partition = TRUE,
+  add_id_set = TRUE
+)
+```
+
+**Parameters:**
+
+- `type_table`: Either `"table"` (persistent SQL table) or `"view"` (Parquet-backed view)
+- `path_parquets`: Required if `type_table = "view"` - directory containing Parquet files
+- `partition`: If TRUE, enables Hive partitioning for Parquet reads
+- `add_id_set`: If TRUE, includes the `id_set` column in the schema
+- `overwrite`: If TRUE, drops and recreates existing concept_table
+
+**Concept Table Schema:**
+
+The table includes:
+- `unique_id`: Unique identifier from CDM records
+- `ori_table`: Original CDM table name
+- `person_id`: Patient identifier
+- `concept_id`: Harmonized concept
+- `value`: Clinical value (upper-cased)
+- `date`: Associated date
+- `id_set`: Mapping set identifier (optional)
+
+## Step 3.3: Apply Codelist with `apply_codelist()`
+
+Apply the harmonized codelist to create standardized concepts:
+
+```{r eval=FALSE}
+# Apply the prepared codelist to the database
+apply_codelist(
+  db_con = db_connection,
+  codelist = long_format_codelist,
+  materialize = "in_database",  # or "in_parquet"
+  path_parquets = NULL,  # "/path/to/save" if materialize = "in_parquet"
+  keep_id_set = TRUE
+)
+```
+
+**Parameters:**
+
+- `db_con`: Valid DuckDB database connection
+- `codelist`: Long-format data.table from `wrangling_concept_map()`
+- `materialize`: Where to store results:
+  - `"in_database"`: Insert into concept_table in database
+  - `"in_parquet"`: Export to partitioned Parquet files
+- `path_parquets`: Required only if `materialize = "in_parquet"`
+- `keep_id_set`: If TRUE, keeps the mapping set identifier in results
+
+**How `apply_codelist` Works:**
+
+The function processes codelists in three phases per family:
+
+1. **Grouping**: Organizes codes into families by (cdm_table_name, keep_value_column, keep_date_column)
+
+2. **Parent Codes** (order_index = 1):
+   - Uses SQL script `create_concepts_1.sql`
+   - Matches parent codes against CDM table values
+   - Creates `identified_ids` table with matched records
+
+3. **Child Codes** (order_index > 1):
+   - Uses SQL script `create_concepts_2.sql` iteratively
+   - Applies hierarchical filtering based on child column values
+   - Refines matched record set at each level
+
+4. **Finalization**:
+   - Uses SQL script `create_concepts_3.sql`
+   - Assembles final record set with all required columns
+   - Inserts into concept_table or exports to Parquet
+
+**Output Example:**
+
+```
+   unique_id      ori_table person_id   concept_id          value       date id_set
+1  uuid-1234-...      EVENTS   PER001     COVID_19    COVID-19 VIRUS 2022-04-10    1
+2  uuid-1235-...      EVENTS   PER002     FEVER_01          HIGH FEVER 2022-04-11    2
+3  uuid-1236-...      VACCINES PER001  COVID_VAX_1  PFIZER-BIONTECH  2022-03-15    3
+```
+
+---
+
+# Complete End-to-End Example
+
+Here's a complete example combining all three processes:
+
+```{r eval=FALSE}
+# ============================================================================
+# PROCESS 1: SET DATABASE
+# ============================================================================
+
+# 1.1 Initialize loader
 loader <- DatabaseLoader$new(
   db_path = "analysis.duckdb",
   data_instance = "./data/cdm_instance",
@@ -347,32 +532,61 @@ loader <- DatabaseLoader$new(
   cdm_metadata = "./data/CDM_metadata.rds"
 )
 
-# Load CSV/Parquet files
+# 1.2 Load CSV/Parquet files
 loader$set_database()
 
-# Stage 2: Apply Transformations
-# Run all configured operations (remove missing, add IDs, remove duplicates, report)
+# 1.3 Execute transformations (remove missing, add IDs, remove duplicates, report)
 loader$run_db_ops()
 
-# Stage 3: Extract Information
-# Reconnect for further analysis
+# ============================================================================
+# PROCESS 2: PROCESS CODELIST
+# ============================================================================
+
 db_connection <- DBI::dbConnect(duckdb::duckdb(), "analysis.duckdb")
 
-# Get unique codelists
+# 2.1 Get unique codelists
 column_info <- list(
   list(source_column = "event_code", alias_name = "code")
 )
-codelists <- get_unique_codelist(db_connection, column_info, "EVENTS")
+unique_codelists <- get_unique_codelist(
+  db_connection, 
+  column_info, 
+  "EVENTS"
+)
 
-# Create DAP-specific codelist
+# 2.2 Create DAP-specific codelist
 reference_codes <- data.table::fread("reference_codes.csv")
 dap_specific <- create_dap_specific_codelist(
-  dap_codes = codelists[[1]],
+  dap_codes = unique_codelists[[1]],
   codelist = reference_codes
 )
 
-# View results
-head(dap_specific)
+# ============================================================================
+# PROCESS 3: APPLY CODELIST
+# ============================================================================
+
+# 3.1 Prepare concept map
+concept_map <- data.table::fread("concept_map.csv")
+long_codelist <- wrangling_concept_map(concept_map)
+
+# 3.2 Initialize concept table
+initialize_concept_table(
+  db_connection,
+  type_table = "table",
+  add_id_set = TRUE
+)
+
+# 3.3 Apply the codelist
+apply_codelist(
+  db_con = db_connection,
+  codelist = long_codelist,
+  materialize = "in_database",
+  keep_id_set = TRUE
+)
+
+# Verify harmonized concepts
+harmonized <- DBI::dbReadTable(db_connection, "concept_table")
+head(harmonized)
 
 # Clean up
 DBI::dbDisconnect(db_connection)
@@ -380,87 +594,68 @@ DBI::dbDisconnect(db_connection)
 
 ---
 
-## Configuration File Structure
+## Key Functions Reference
 
-Here's a complete example of a configuration file:
+### Process 1: Set Database
 
-```json
-{
-  "cdm_tables_names": ["PERSONS", "EVENTS", "VACCINES", "MEDICINES"],
-  "file_format": "auto",
-  "extension_name": "",
-  "missing_remover": {
-    "columns": {
-      "EVENTS": ["person_id"],
-      "VACCINES": ["person_id"],
-      "MEDICINES": ["person_id"]
-    },
-    "to_view": false
-  },
-  "unique_id_generator": {
-    "instance_name": "_T2DMM"
-  },
-  "duplicate_remover": {
-    "scheme": {
-      "EVENTS": "*",
-      "VACCINES": ["person_id", "vx_record_date"],
-      "MEDICINES": ["person_id", "medicine_code"]
-    },
-    "save_deleted": false,
-    "save_path": "./deleted_records"
-  },
-  "report_generator": {
-    "report_name": "count_rows_origin.csv",
-    "report_path": "./"
-  },
-  "operations": {
-    "MissingRemover": true,
-    "UniqueIdGenerator": true,
-    "DuplicateRemover": true,
-    "ReportGenerator": true
-  }
-}
-```
+| Function | Purpose |
+|----------|---------|
+| `DatabaseLoader$new()` | Initialize loader with configuration |
+| `loader$set_database()` | Load CDM data from CSV/Parquet files |
+| `loader$run_db_ops()` | Execute all configured transformations |
+| `MissingRemover` | Remove records with missing values |
+| `UniqueIdGenerator` | Add unique identifiers |
+| `DuplicateRemover` | Remove duplicate records |
+| `ReportGenerator` | Generate record count report |
+
+### Process 2: Process Codelist
+
+| Function | Purpose |
+|----------|---------|
+| `get_unique_codelist()` | Extract unique codes with frequencies |
+| `create_dap_specific_codelist()` | Match and standardize codes |
+| `import_dap_specific_codelist()` | Import codelist into database |
+
+### Process 3: Apply Codelist
+
+| Function | Purpose |
+|----------|---------|
+| `wrangling_concept_map()` | Transform concept map to long format |
+| `initialize_concept_table()` | Create concept_table for results |
+| `apply_codelist()` | Apply harmonized codelists to CDM |
+| `getSQL()` | Read SQL scripts for apply_codelist |
 
 ---
 
-## Key Functions and Classes Summary
+## Data Quality Best Practices
 
-| Component | Purpose |
-|-----------|---------|
-| `DatabaseLoader$new()` | Initialize loader with database and configuration |
-| `loader$set_database()` | Load CDM data from CSV/Parquet files |
-| `loader$run_db_ops()` | Execute all configured transformations |
-| `MissingRemover` | Remove records with missing critical values |
-| `UniqueIdGenerator` | Add unique identifiers to records |
-| `DuplicateRemover` | Remove duplicate records |
-| `ReportGenerator` | Generate data quality reports |
-| `get_unique_codelist()` | Extract unique codes with frequencies |
-| `create_dap_specific_codelist()` | Match and standardize codes |
+1. **Process 1**: Always remove missing person IDs early to prevent orphaned records
+2. **Process 2**: Verify all coding systems are properly mapped before processing
+3. **Process 3**: Check that concept mappings are semantically correct
+4. **Throughout**: Keep configuration files versioned with your analysis
+5. **Validation**: Compare record counts at each process stage
 
 ---
 
 ## Troubleshooting
 
-**Issue**: Files not found during `set_database()`
-- Check that `data_instance` path is correct
-- Verify file names match CDM table names exactly
-- Check file format specification (csv, parquet, or auto)
+**Process 1: Set Database**
 
-**Issue**: Operations not running in `run_db_ops()`
-- Verify operations are enabled in config.json (set to `true`)
-- Check that operation classes exist (MissingRemover, UniqueIdGenerator, etc.)
-- Review console messages for specific error details
+- **Files not found**: Verify `data_instance` path is correct and file names match table names
+- **Operations not running**: Check operations are enabled (`true`) in config.json
+- **Connection errors**: Ensure DuckDB is installed and file paths are writable
 
-**Issue**: Database connection errors
-- Ensure DuckDB is installed: `install.packages("duckdb")`
-- For persistent databases, check file path and permissions
-- Verify database file isn't locked by another process
+**Process 2: Process Codelist**
 
-**Issue**: Codelist matching issues
-- Verify coding systems are in `start_with_codingsystems` for hierarchical matching
-- Check that priority column exists in reference codelist
-- Ensure column names match your database exactly
+- **Codelist matching issues**: Verify coding systems match `start_with_codingsystems` parameter
+- **Missing codes**: Check that priority column exists in reference codelist
+- **Column mismatches**: Ensure `alias_name` matches actual column names
+
+**Process 3: Apply Codelist**
+
+- **Wrangling errors**: Verify concept map has `column_name_*` and `expected_value_*` columns
+- **Table initialization fails**: Check that database is writable and path_parquets exists
+- **Apply_codelist errors**: Ensure referenced CDM tables exist in database
 
 ---
 
