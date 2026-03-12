@@ -1,0 +1,471 @@
+---
+title: "Getting Started with the Concept Management Model Package"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with the SCA Package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{css,  echo = F}
+/*-- Specify div's for 'boxes', change color of TOC and center align titles: --*/
+div.box1 {background-color: #f5f5f0; border-radius: 5px; padding: 30px; margin-right: 0px}
+div.box2 {background-color: #d4e5d2; border-radius: 5px; padding: 30px; margin-right: 0px}
+div.box3 {border-style: solid; border-color: #f5f5f0; border-width: medium; border-radius: 30px; padding: 5px; margin-right: 0px}
+ 
+.list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover {background-color: #76b82a; border-color: #76b82a}
+h1 {text-align: center; color: #3c7b8a}
+h2 {text-align: center; color: #76b82a}
+```
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Overview
+
+The T2-DataManagementModel R package provides a comprehensive data model and functionality for processing Real-World Data (RWD) in a Common Data Model (CDM) format. This vignette demonstrates a complete workflow for loading, transforming, and analyzing CDM data.
+
+## Installation
+
+```{r eval=FALSE}
+# Install the package (example installation method)
+devtools::install_github("UMC-Utrecht-RWE/T2-DataManagementModel")
+```
+
+```{r}
+library(T2.DMM)
+library(data.table)
+library(DBI)
+library(duckdb)
+```
+
+## Workflow Overview
+
+The typical workflow consists of three main stages:
+
+1. **Set Up Database**: Load CSV files into a database
+2. **Apply Transformations**: Clean and standardize the data via database operations
+3. **Extract Information**: Generate codelists and counts
+
+---
+
+## Stage 1: Set Up Database
+
+### Step 1.1: Initialize Database Connection and Loader
+
+Begin by creating a `DatabaseLoader` object, which manages the database connection, configuration, and data loading process.
+
+```{r eval=FALSE}
+library(T2.DMM)
+
+# Initialize the DatabaseLoader
+loader <- DatabaseLoader$new(
+  db_path = "analysis.duckdb",
+  data_instance = "/path/to/cdm/data",
+  config_path = "/path/to/config.json",
+  cdm_metadata = "path/to/CDM_metadata.rds"
+)
+```
+
+**Parameters:**
+- `db_path`: Path to the DuckDB database file (created if doesn't exist)
+- `data_instance`: Path to the directory containing CSV or Parquet files
+- `config_path`: Path to JSON configuration file specifying operations and settings
+- `cdm_metadata`: Path to RDS file containing CDM variable metadata
+
+### Step 1.2: Load CSV/Parquet Files into Database
+
+Use the `set_database()` method to load your CDM data from CSV or Parquet files.
+
+```{r eval=FALSE}
+# Load the data into the database
+loader$set_database()
+```
+
+This method:
+- Reads all files from `data_instance` directory
+- Automatically detects file format (CSV, Parquet, or auto-detect)
+- Creates database tables matching CDM structure
+- Applies any extension names specified in configuration
+
+**Configuration Example:**
+
+The config.json should include table names and loading parameters:
+
+```json
+{
+  "cdm_tables_names": ["PERSONS", "EVENTS", "VACCINES", "MEDICINES"],
+  "file_format": "auto",
+  "extension_name": "",
+  "missing_remover": {
+    "columns": ["person_id"],
+    "to_view": false
+  },
+  "unique_id_generator": {
+    "instance_name": "_T2DMM"
+  },
+  "operations": {
+    "MissingRemover": true,
+    "UniqueIdGenerator": true,
+    "DuplicateRemover": true,
+    "ReportGenerator": true
+  }
+}
+```
+
+---
+
+## Stage 2: Apply Transformations
+
+After loading the database, transformations are applied through the `run_db_ops()` method, which executes a series of database operations defined in your configuration file. Operations run sequentially in the order specified.
+
+### Step 2.1: Remove Records with Missing Person IDs
+
+The `MissingRemover` operation identifies and removes rows with missing or invalid values in critical columns (like person_id). This ensures data integrity by preventing orphaned records.
+
+```{r eval=FALSE}
+# The MissingRemover is configured in config.json:
+# "missing_remover": {
+#   "columns": ["person_id"],
+#   "to_view": false
+# }
+
+# It will be executed when you call:
+loader$run_db_ops()
+```
+
+**What MissingRemover does:**
+- Removes rows where specified columns are NULL, empty string, or 'NA'
+- Configurable per table
+- Can optionally create views instead of deleting (with `to_view: true`)
+- Reports how many rows were removed from each table
+
+**Example Configuration for Multiple Tables:**
+
+```json
+{
+  "missing_remover": {
+    "columns": {
+      "EVENTS": ["person_id", "event_code"],
+      "VACCINES": ["person_id"],
+      "MEDICINES": ["person_id"]
+    },
+    "to_view": false
+  }
+}
+```
+
+### Step 2.2: Add Unique Identifiers
+
+The `UniqueIdGenerator` operation creates unique identifiers for all records, enabling audit trails and tracking data through the pipeline.
+
+```{r eval=FALSE}
+# The UniqueIdGenerator is configured in config.json:
+# "unique_id_generator": {
+#   "instance_name": "_T2DMM"
+# }
+
+# It will be executed when you call:
+loader$run_db_ops()
+```
+
+**What UniqueIdGenerator does:**
+- Generates unique IDs for each record in specified tables
+- Uses instance name as suffix (e.g., "record_id_T2DMM")
+- Creates a column for tracking records through processing
+- Useful for linking back to original records
+
+### Step 2.3: Remove Duplicate Records
+
+The `DuplicateRemover` operation identifies and removes duplicate records based on specified column combinations.
+
+```{r eval=FALSE}
+# The DuplicateRemover is configured in config.json:
+# "duplicate_remover": {
+#   "scheme": {
+#     "EVENTS": "*",
+#     "VACCINES": ["person_id", "vx_record_date"]
+#   },
+#   "save_deleted": false
+# }
+
+# It will be executed when you call:
+loader$run_db_ops()
+```
+
+**What DuplicateRemover does:**
+- Identifies duplicate rows within each table
+- Keeps first occurrence, removes others
+- `"*"` means use all columns for duplicate detection
+- Can optionally save deleted records as CSV files for auditing
+
+### Step 2.4: Count Records per Table
+
+The `ReportGenerator` operation counts records in each table after all transformations are complete.
+
+```{r eval=FALSE}
+# The ReportGenerator is configured in config.json:
+# "report_generator": {
+#   "report_name": "count_rows_origin.csv",
+#   "report_path": "./"
+# }
+
+# It will be executed when you call:
+loader$run_db_ops()
+```
+
+**Output Example:**
+
+```
+  table_name record_count
+1     PERSONS         1000
+2      EVENTS         5250
+3     VACCINES         3100
+4    MEDICINES         8500
+```
+
+### Running All Transformations
+
+All database operations are executed together in the configured order:
+
+```{r eval=FALSE}
+# Execute all configured operations
+loader$run_db_ops()
+```
+
+This will:
+1. Remove records with missing person IDs (MissingRemover)
+2. Add unique identifiers to remaining records (UniqueIdGenerator)
+3. Remove duplicate records (DuplicateRemover)
+4. Generate a report with final record counts (ReportGenerator)
+5. Disconnect from database
+
+---
+
+## Stage 3: Extract Information
+
+### Step 3.1: Get Unique Codelist
+
+Extract unique codes from your database using `get_unique_codelist()`. This function identifies all distinct codes in specified columns and provides counts for data quality assessment.
+
+```{r eval=FALSE}
+# Reconnect to database if needed
+db_connection <- DBI::dbConnect(duckdb::duckdb(), "analysis.duckdb")
+
+# Define which columns to extract as codelists
+column_info_list <- list(
+  list(
+    source_column = c("event_code", "event_record_vocabulary"),
+    alias_name = c("code", "coding_system")
+  ),
+  list(
+    source_column = c("vx_atc"),
+    alias_name = c("code")
+  )
+)
+
+# Extract unique codelists
+unique_codelists <- get_unique_codelist(
+  db_connection = db_connection,
+  column_info_list = column_info_list,
+  tb_name = "EVENTS"
+)
+
+# View the results
+head(unique_codelists[[1]])
+```
+
+**Output:**
+
+```
+      code coding_system COUNT source_column
+1   U07.1      ICD10CM     45       event_code
+2   U08        ICD10CM     32       event_code
+3   12990621   MEDCODEID    18       event_code
+```
+
+**Parameters:**
+- `source_column`: Column name(s) in database to extract
+- `alias_name`: New name(s) for the column(s) in output
+- `tb_name`: Table name to extract from
+- `COUNT`: Automatically added - frequency of each code
+
+### Step 3.2: Create DAP-Specific Codelist
+
+Create a data analysis-specific codelist by matching codes from your data against a reference codelist. This is essential for standardizing codes across different coding systems (ICD-10, SNOMED CT, ATC, etc.).
+
+```{r eval=FALSE}
+# Load your reference codelist
+# This typically contains all standard codes and their mappings
+reference_codelist <- data.table::fread("reference_codelist.csv")
+
+# Extract DAP codes from your database using T2.DMM::get_unique_codelist.R
+# (codes actually found in your data)
+dap_codes <- data.table::fread("dap_codes.csv")
+
+# Create a standardized codelist with intelligent matching
+dap_specific_codelist <- create_dap_specific_codelist(
+  dap_codes = dap_codes,
+  codelist = reference_codelist,
+  start_with_codingsystems = c(
+    "ICD10CM", "ICD10", "ICD10DA", "ICD9CM", "MTHICD9",
+    "ICPC", "ICPC2P", "ICPC2EENG", "ATC"
+  )
+)
+
+# View results
+head(dap_specific_codelist)
+```
+
+**How `create_dap_specific_codelist` Works:**
+
+1. **Input Validation**: Checks that input data tables contain required columns
+2. **Code Standardization**: Marks source codes to avoid collisions during merging
+3. **System Classification**: Separates codes by matching strategy:
+   - **Hierarchical Systems** (ICD-10, ATC): Use "start-with" prefix matching
+   - **Exact Match Systems** (PRODCODEID): Use exact code matching
+4. **Intelligent Matching**: 
+   - For prefix-based systems, tries multiple prefix lengths to find matches
+   - Example: "I10" matches reference code "I10.9"
+
+
+---
+
+## Complete Workflow Example
+
+Here's a complete example combining all three stages:
+
+```{r eval=FALSE}
+# Stage 1: Initialize and Load Database
+loader <- DatabaseLoader$new(
+  db_path = "analysis.duckdb",
+  data_instance = "./data/cdm_instance",
+  config_path = "./config/loader_config.json",
+  cdm_metadata = "./data/CDM_metadata.rds"
+)
+
+# Load CSV/Parquet files
+loader$set_database()
+
+# Stage 2: Apply Transformations
+# Run all configured operations (remove missing, add IDs, remove duplicates, report)
+loader$run_db_ops()
+
+# Stage 3: Extract Information
+# Reconnect for further analysis
+db_connection <- DBI::dbConnect(duckdb::duckdb(), "analysis.duckdb")
+
+# Get unique codelists
+column_info <- list(
+  list(source_column = "event_code", alias_name = "code")
+)
+codelists <- get_unique_codelist(db_connection, column_info, "EVENTS")
+
+# Create DAP-specific codelist
+reference_codes <- data.table::fread("reference_codes.csv")
+dap_specific <- create_dap_specific_codelist(
+  dap_codes = codelists[[1]],
+  codelist = reference_codes
+)
+
+# View results
+head(dap_specific)
+
+# Clean up
+DBI::dbDisconnect(db_connection)
+```
+
+---
+
+## Configuration File Structure
+
+Here's a complete example of a configuration file:
+
+```json
+{
+  "cdm_tables_names": ["PERSONS", "EVENTS", "VACCINES", "MEDICINES"],
+  "file_format": "auto",
+  "extension_name": "",
+  "missing_remover": {
+    "columns": {
+      "EVENTS": ["person_id"],
+      "VACCINES": ["person_id"],
+      "MEDICINES": ["person_id"]
+    },
+    "to_view": false
+  },
+  "unique_id_generator": {
+    "instance_name": "_T2DMM"
+  },
+  "duplicate_remover": {
+    "scheme": {
+      "EVENTS": "*",
+      "VACCINES": ["person_id", "vx_record_date"],
+      "MEDICINES": ["person_id", "medicine_code"]
+    },
+    "save_deleted": false,
+    "save_path": "./deleted_records"
+  },
+  "report_generator": {
+    "report_name": "count_rows_origin.csv",
+    "report_path": "./"
+  },
+  "operations": {
+    "MissingRemover": true,
+    "UniqueIdGenerator": true,
+    "DuplicateRemover": true,
+    "ReportGenerator": true
+  }
+}
+```
+
+---
+
+## Key Functions and Classes Summary
+
+| Component | Purpose |
+|-----------|---------|
+| `DatabaseLoader$new()` | Initialize loader with database and configuration |
+| `loader$set_database()` | Load CDM data from CSV/Parquet files |
+| `loader$run_db_ops()` | Execute all configured transformations |
+| `MissingRemover` | Remove records with missing critical values |
+| `UniqueIdGenerator` | Add unique identifiers to records |
+| `DuplicateRemover` | Remove duplicate records |
+| `ReportGenerator` | Generate data quality reports |
+| `get_unique_codelist()` | Extract unique codes with frequencies |
+| `create_dap_specific_codelist()` | Match and standardize codes |
+
+---
+
+## Troubleshooting
+
+**Issue**: Files not found during `set_database()`
+- Check that `data_instance` path is correct
+- Verify file names match CDM table names exactly
+- Check file format specification (csv, parquet, or auto)
+
+**Issue**: Operations not running in `run_db_ops()`
+- Verify operations are enabled in config.json (set to `true`)
+- Check that operation classes exist (MissingRemover, UniqueIdGenerator, etc.)
+- Review console messages for specific error details
+
+**Issue**: Database connection errors
+- Ensure DuckDB is installed: `install.packages("duckdb")`
+- For persistent databases, check file path and permissions
+- Verify database file isn't locked by another process
+
+**Issue**: Codelist matching issues
+- Verify coding systems are in `start_with_codingsystems` for hierarchical matching
+- Check that priority column exists in reference codelist
+- Ensure column names match your database exactly
+
+---
+
+## Session Information
+
+```{r}
+sessionInfo()
+```
