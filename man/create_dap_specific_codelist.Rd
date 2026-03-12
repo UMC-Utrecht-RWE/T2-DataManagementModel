@@ -32,6 +32,10 @@ prefix matching (e.g., ATC codes "N02BE01" matches parent codes like "N02BE" and
 Default: c("ICD10CM", "ICD10", "ICD10DA", "ICD9CM", "MTHICD9", "ICPC", "ICPC2P", "ICPC2EENG", "ATC").
 Coding systems not in this list use exact matching only.}
 
+<<<<<<< HEAD
+\item{priority_col}{Name of the priority column to use for sorting. Defaults
+to "priority".}
+=======
 \item{priority_col}{Character; Name of the column in `codelist` to use for prioritizing 
 matches when a single DAP code matches multiple study codes (e.g., tie-breaking).
 Lower values indicate higher priority. Default: "priority".}
@@ -50,6 +54,7 @@ A data.table with the following columns:
     - `"ONLY_IN_DATA"`: Present in DAP but not in codelist (unmatched)
     - `"ONLY_IN_CODELIST"`: Present in codelist but not in DAP (unused study codes)
   - All additional columns from the study codelist are preserved
+>>>>>>> 306cc1e (Add wrangling_codelist Rd and update docs/NAMESPACE)
 }
 \description{
 Intelligently matches database-sourced codes (DAP codes) against study-specific codelists
