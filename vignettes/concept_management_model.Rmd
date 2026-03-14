@@ -55,21 +55,21 @@ Raw Data (CSV/Parquet)
     ↓
 [PROCESS 1: SET DATABASE]
     ├─ Load data into database
-    ├─ Remove missing person IDs
-    ├─ Add unique identifiers
-    └─ Remove duplicates
+    ├─ Remove missing person IDs (optional)
+    ├─ Remove duplicates (optional)
+    └─ Add unique identifiers  
     ↓
 Cleaned CDM Database
     ↓
 [PROCESS 2: PROCESS CODELIST]
     ├─ Extract unique codes from database
-    ├─ Create DAP-specific codelist
-    └─ Standardize codes across systems
+    └─  Create DAP-specific codelist
     ↓
 Harmonized Codelist
     ↓
 [PROCESS 3: APPLY CODELIST]
     ├─ Prepare concept map (wrangling)
+    ├─ Load DAP-specific codelist + concept map
     ├─ Initialize concept table
     └─ Apply codelist to create concepts
     ↓
@@ -189,27 +189,6 @@ The `MissingRemover` operation identifies and removes rows with missing or inval
   }
 }
 ```
-
-#### UniqueIdGenerator: Add Unique Identifiers
-
-The `UniqueIdGenerator` operation creates unique identifiers for all records, enabling audit trails and tracking data through the pipeline.
-
-**What it does:**
-- Generates unique IDs for each record in specified tables
-- Uses instance name as suffix (e.g., "record_id_T2DMM")
-- Creates a column for tracking records through processing
-- Useful for linking back to original records
-
-**Configuration:**
-
-```json
-{
-  "unique_id_generator": {
-    "instance_name": "_T2DMM"
-  }
-}
-```
-
 #### DuplicateRemover: Remove Duplicate Records
 
 The `DuplicateRemover` operation identifies and removes duplicate records based on specified column combinations.
@@ -233,6 +212,26 @@ The `DuplicateRemover` operation identifies and removes duplicate records based 
     },
     "save_deleted": false,
     "save_path": "./deleted_records"
+  }
+}
+```
+
+#### UniqueIdGenerator: Add Unique Identifiers
+
+The `UniqueIdGenerator` operation creates unique identifiers for all records, enabling audit trails and tracking data through the pipeline.
+
+**What it does:**
+- Generates unique IDs for each record in specified tables
+- Uses instance name as suffix (e.g., "record_id_T2DMM")
+- Creates a column for tracking records through processing
+- Useful for linking back to original records
+
+**Configuration:**
+
+```json
+{
+  "unique_id_generator": {
+    "instance_name": "_T2DMM"
   }
 }
 ```
@@ -283,7 +282,7 @@ column_info_list <- list(
     alias_name = c("code", "coding_system")
   ),
   list(
-    source_column = c("vx_atc"),
+    source_column = c("event_free_text"),
     alias_name = c("code")
   )
 )
@@ -360,7 +359,7 @@ head(dap_specific_codelist)
 1  U071      ICD10CM   COVID-19       1         U07.1
 2  I10       ICD10    Heart Disease   1         I10.9
 3  ATC01    ATC       Antibiotic      1         A06AC
-4  MED001    MEDCODE   Medication     2         MED001
+4  MED001    MEDCODEID   Medication     2         MED001
 ```
 
 ---
@@ -379,10 +378,10 @@ Transform your DAP-specific concept map from wide format to long format suitable
 #                   column_name_*, expected_value_*,
 #                   keep_value_column_name, keep_date_column_name
 
-dap_concept_map <- data.table::fread("concept_map.csv")
+dap_specific_concept_map <- data.table::fread("dap_specific_concept_map.csv")
 
 # Transform to long format
-long_format_codelist <- wrangling_concept_map(dap_concept_map)
+long_format_codelist <- wrangling_concept_map(dap_specific_concept_map)
 
 # View the structure
 head(long_format_codelist)
