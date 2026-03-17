@@ -87,14 +87,12 @@ This process loads raw data files, applies data quality transformations, and pre
 Begin by creating a `DatabaseLoader` object, which manages the database connection, configuration, and data loading process.
 
 ```{r eval=FALSE}
-library(T2.DMM)
-
 # Initialize the DatabaseLoader
 loader <- DatabaseLoader$new(
-  db_path = "analysis.duckdb",
-  data_instance = "/path/to/cdm/data",
-  config_path = "/path/to/config.json",
-  cdm_metadata = "path/to/CDM_metadata.rds"
+  db_path = "",
+  data_instance = file.path(getwd(),"data/"),
+  config_path = file.path(getwd(),"data/set_db.json"),
+  cdm_metadata = file.path(getwd(),"data/CDM_metadata.rds")
 )
 ```
 
@@ -372,19 +370,17 @@ This process transforms your codelist into a format suitable for CDM application
 
 Transform your DAP-specific concept map from wide format to long format suitable for applying to the CDM.
 
-```{r eval=FALSE}
+```{r}
 # Load your concept map in RWE BRIDGE metadata format
 # Expected columns: concept_id, cdm_table_name, 
 #                   column_name_*, expected_value_*,
 #                   keep_value_column_name, keep_date_column_name
 
-dap_specific_concept_map <- data.table::fread("dap_specific_concept_map.csv")
+dap_specific_concept_map <- data.table::fread("data/dap_specific_concept_map.csv")
 
 # Transform to long format
 long_format_codelist <- wrangling_concept_map(dap_specific_concept_map)
 
-# View the structure
-head(long_format_codelist)
 ```
 
 **Input Format (Wide):**
@@ -397,15 +393,16 @@ The concept map should be in RWE BRIDGE format with columns like:
 - `keep_value_column_name`: Column whose value to retain
 - `keep_date_column_name`: Column for the date value
 
+```{r}
+DT::datatable(dap_specific_concept_map,options = list(scrollX = TRUE))
+```
+
 **Output Format (Long):**
 
 The function returns a normalized long format:
 
-```
-  id_set concept_id cdm_table_name cdm_column  code keep_value_column_name keep_date_column_name order_index
-1      1   COVID_19         EVENTS event_code U07.1           event_free_text      start_date_record          1
-2      1   COVID_19         EVENTS event_code  U08             event_free_text      start_date_record          1
-3      2    FEVER_01         EVENTS event_code R50.9           event_free_text      start_date_record          1
+```{r}
+DT::datatable(long_format_codelist,options = list(scrollX = TRUE))
 ```
 
 **What `wrangling_concept_map` Does:**
