@@ -26,7 +26,7 @@ knitr::opts_chunk$set(
 
 ## Overview
 
-The T2-DataManagementModel R package provides a comprehensive data model and functionality for processing Real-World Data (RWD) in a Common Data Model (CDM) format. This vignette demonstrates a complete workflow for loading, transforming, and analyzing CDM data.
+The Concept Management Model R package provides a comprehensive data model and functionality for processing Real-World Data (RWD) in a Common Data Model (CDM) format. This vignette demonstrates a complete workflow for loading, transforming, and analyzing CDM data.
 
 ## Installation
 
@@ -85,11 +85,14 @@ This process loads raw data files, applies data quality transformations, and pre
 ## Step 1.1: Initialize Database Connection and Loader
 
 Begin by creating a `DatabaseLoader` object, which manages the database connection, configuration, and data loading process.
+```{r eval=FALSE}
+  db_path <- tempfile(pattern = "cdm", fileext = ".duckdb")
+```
 
 ```{r eval=FALSE}
 # Initialize the DatabaseLoader
 loader <- DatabaseLoader$new(
-  db_path = "",
+  db_path = db_path,
   data_instance = file.path(getwd(),"data/"),
   config_path = file.path(getwd(),"data/set_db.json"),
   cdm_metadata = file.path(getwd(),"data/CDM_metadata.rds")
@@ -123,33 +126,59 @@ The config.json should include table names and loading parameters:
 
 ```json
 {
-  "cdm_tables_names": ["PERSONS", "EVENTS", "VACCINES", "MEDICINES"],
-  "file_format": "auto",
-  "extension_name": "",
-  "missing_remover": {
-    "columns": ["person_id"],
-    "to_view": false
-  },
-  "unique_id_generator": {
-    "instance_name": "_T2DMM"
-  },
-  "duplicate_remover": {
-    "scheme": {
-      "EVENTS": "*",
-      "VACCINES": ["person_id", "vx_record_date"]
+    "data_model": "ConcePTION",
+    "file_format" : "csv",
+    "operations_path": "R",
+    "operations": {
+      "DuplicateRemover": true,
+      "MissingRemover": true,
+      "UniqueIdGenerator": true,
+      "ReportGenerator": true
+    },
+    "duplicate_remover": {
+      "save_path": "intermediate_data_file",
+      "add_postfix": null,
+      "save_deleted": true,
+      "cdm_tables_columns": {
+        "PERSONS": ["person_id", "country_of_birth"],
+        "VACCINES": ["person_id", "vx_manufacturer"]
+      },
+      "to_view": false
+    },
+    "missing_remover": {
+      "columns": {
+        "PERSONS": ["person_id"],
+        "VACCINES": ["person_id"],
+        "OBSERVATION_PERIODS": ["person_id"],
+        "MEDICAL_OBSERVATIONS": ["person_id"],
+        "MEDICINES": ["person_id"],
+        "EVENTS": ["person_id"],
+        "SURVEY_OBSERVATIONS": ["person_id"],
+        "SURVEY_ID": ["person_id"],
+        "VISIT_OCCURRENCE": ["person_id"]
+      },
+      "to_view": false
+    },
+    "cdm_tables_names": [
+      "PERSONS",
+      "VACCINES",
+      "OBSERVATION_PERIODS",
+      "MEDICAL_OBSERVATIONS",
+      "MEDICINES",
+      "EVENTS",
+      "SURVEY_OBSERVATIONS",
+      "SURVEY_ID",
+      "VISIT_OCCURRENCE"
+    ],
+    "unique_id_generator":{
+      "instance_name": "",
+      "to_view": false
+    },
+    "report_generator": {
+      "report_path": ".",
+      "report_name": "count_rows_origin.fst"
     }
-  },
-  "report_generator": {
-    "report_name": "count_rows_origin.csv",
-    "report_path": "./"
-  },
-  "operations": {
-    "MissingRemover": true,
-    "UniqueIdGenerator": true,
-    "DuplicateRemover": true,
-    "ReportGenerator": true
   }
-}
 ```
 
 ## Step 1.3: Execute Transformations via `run_db_ops()`
@@ -271,7 +300,7 @@ Extract unique codes from your database using `get_unique_codelist()`. This func
 
 ```{r eval=FALSE}
 # Reconnect to database if needed
-db_connection <- DBI::dbConnect(duckdb::duckdb(), "analysis.duckdb")
+db_connection <- DBI::dbConnect(duckdb::duckdb(), db_path)
 
 # Define which columns to extract as codelists
 column_info_list <- list(
