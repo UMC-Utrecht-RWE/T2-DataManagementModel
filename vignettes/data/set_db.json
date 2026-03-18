@@ -1,6 +1,6 @@
 {
     "data_model": "ConcePTION",
-    "file_format" : "parquet",
+    "file_format" : "csv",
     "operations_path": "R",
     "operations": {
       "DuplicateRemover": true,
