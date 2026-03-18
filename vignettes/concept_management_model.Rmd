@@ -85,11 +85,11 @@ This process loads raw data files, applies data quality transformations, and pre
 ## Step 1.1: Initialize Database Connection and Loader
 
 Begin by creating a `DatabaseLoader` object, which manages the database connection, configuration, and data loading process.
-```{r eval=FALSE}
+```{r}
   db_path <- tempfile(pattern = "cdm", fileext = ".duckdb")
 ```
 
-```{r eval=FALSE}
+```{r}
 # Initialize the DatabaseLoader
 loader <- DatabaseLoader$new(
   db_path = db_path,
@@ -109,7 +109,7 @@ loader <- DatabaseLoader$new(
 
 Use the `set_database()` method to load your CDM data from CSV or Parquet files.
 
-```{r eval=FALSE}
+```{r}
 # Load the data into the database
 loader$set_database()
 ```
@@ -185,7 +185,7 @@ The config.json should include table names and loading parameters:
 
 All data quality transformations are applied through the `run_db_ops()` method, which executes database operations defined in your configuration file sequentially.
 
-```{r eval=FALSE}
+```{r}
 # Execute all configured operations
 loader$run_db_ops()
 ```
@@ -298,7 +298,7 @@ This process extracts codes from your cleaned database and standardizes them aga
 
 Extract unique codes from your database using `get_unique_codelist()`. This function identifies all distinct codes in specified columns and provides counts for data quality assessment.
 
-```{r eval=FALSE}
+```{r}
 # Reconnect to database if needed
 db_connection <- DBI::dbConnect(duckdb::duckdb(), db_path)
 
@@ -307,32 +307,21 @@ column_info_list <- list(
   list(
     source_column = c("event_code", "event_record_vocabulary"),
     alias_name = c("code", "coding_system")
-  ),
-  list(
-    source_column = c("event_free_text"),
-    alias_name = c("code")
   )
 )
 
 # Extract unique codelists
-unique_codelists <- get_unique_codelist(
+dap_codes <- T2.DMM::get_unique_codelist(
   db_connection = db_connection,
   column_info_list = column_info_list,
   tb_name = "EVENTS"
 )
 
+dap_codes <- as.data.table(dap_codes[[1]])
 # View the results
-head(unique_codelists[[1]])
+DT::datatable(dap_codes)
 ```
 
-**Output:**
-
-```
-      code coding_system COUNT source_column
-1   U07.1      ICD10CM     45       event_code
-2   U08        ICD10CM     32       event_code
-3   12990621   MEDCODEID    18       event_code
-```
 
 **Parameters:**
 - `source_column`: Column name(s) in database to extract
@@ -344,28 +333,23 @@ head(unique_codelists[[1]])
 
 Create a data analysis-specific codelist by matching codes from your data against a reference codelist. This is essential for standardizing codes across different coding systems (ICD-10, SNOMED CT, ATC, etc.).
 
-```{r eval=FALSE}
+```{r}
 # Load your reference codelist
 # This typically contains all standard codes and their mappings
-reference_codelist <- data.table::fread("reference_codelist.csv")
-
-# Extract DAP codes from your database
-# (codes actually found in your data)
-dap_codes <- data.table::fread("dap_codes.csv")
+reference_codelist <- data.table::fread(file.path(getwd(),"data/code_list.csv"))
 
 # Create a standardized codelist with intelligent matching
-dap_specific_codelist <- create_dap_specific_codelist(
+dap_specific_codelist <- T2.DMM::create_dap_specific_codelist(
   dap_codes = dap_codes,
   codelist = reference_codelist,
   start_with_codingsystems = c(
     "ICD10CM", "ICD10", "ICD10DA", "ICD9CM", "MTHICD9",
     "ICPC", "ICPC2P", "ICPC2EENG", "ATC"
-  ),
-  priority_col = "priority"
+  )
 )
 
 # View results
-head(dap_specific_codelist)
+DT::datatable(dap_specific_codelist)
 ```
 
 **How `create_dap_specific_codelist` Works:**
@@ -378,16 +362,6 @@ head(dap_specific_codelist)
 4. **Intelligent Matching**: 
    - For prefix-based systems, tries multiple prefix lengths to find matches
    - Example: "I10" matches reference code "I10.9"
-
-**Example Results:**
-
-```
-   code coding_system description      priority matched_code
-1  U071      ICD10CM   COVID-19       1         U07.1
-2  I10       ICD10    Heart Disease   1         I10.9
-3  ATC01    ATC       Antibiotic      1         A06AC
-4  MED001    MEDCODEID   Medication     2         MED001
-```
 
 ---
 
@@ -405,10 +379,10 @@ Transform your DAP-specific concept map from wide format to long format suitable
 #                   column_name_*, expected_value_*,
 #                   keep_value_column_name, keep_date_column_name
 
-dap_specific_concept_map <- data.table::fread("data/dap_specific_concept_map.csv")
+dap_specific_concept_map <- data.table::fread(file.path(getwd(),"data/dap_specific_concept_map.csv"))
 
 # Transform to long format
-long_format_codelist <- wrangling_concept_map(dap_specific_concept_map)
+long_format_codelist <- T2.DMML::wrangling_concept_map(dap_specific_concept_map)
 
 ```
 
@@ -487,7 +461,7 @@ The table includes:
 
 Apply the harmonized codelist to create standardized concepts:
 
-```{r eval=FALSE}
+```{r}
 # Apply the prepared codelist to the database
 apply_codelist(
   db_con = db_connection,
