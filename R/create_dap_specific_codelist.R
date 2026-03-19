@@ -156,7 +156,7 @@ create_dap_specific_codelist <- function(
     default = "MATCHED"                         # Successful match identified
   )]
   # Final column cleanup and selection for output
-  output_cols <- c(
+  output_cols <- c("cdm_name","cdm_table_name",
     "coding_system", "COUNT", "source_column",
     "code.dap_codes", "concept_id", "code.codelist",
     "tags", priority_col, "length_str", "code", "match_status"
@@ -190,7 +190,7 @@ validate_codelists <- function(dap_codes, codelist, priority_col) {
 
   # Required columns validation
   required_unique_cols <- c("coding_system", "code")
-  required_study_cols <- c("coding_system", "code", "concept_id", priority_col)
+  required_study_cols <- c("cdm_name","cdm_table_name","coding_system", "code", "concept_id", priority_col)
   
   # PRIORITY HANDLING
   # Check if the user-defined priority column exists in the study data.
