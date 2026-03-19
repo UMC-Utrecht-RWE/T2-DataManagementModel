@@ -2,7 +2,7 @@
 % Please edit documentation in R/create_dap_specific_codelist.R
 \name{create_dap_specific_codelist}
 \alias{create_dap_specific_codelist}
-\title{Create DAP-Specific Codelist}
+\title{Match and Merge DAP Codes with Study Codelists}
 \usage{
 create_dap_specific_codelist(
   dap_codes,
@@ -13,14 +13,86 @@ create_dap_specific_codelist(
 )
 }
 \arguments{
-\item{dap_codes}{Data.table containing unique code list output.}
+\item{dap_codes}{A data.table containing unique codes extracted from the database/data source.
+Must include columns:
+- `coding_system` (character): The coding system identifier (e.g., "ICD10", "ATC", "PRODCODEID")
+- `code` (character): The code value to match
+- `COUNT` (numeric, optional): Frequency/count of the code in the source data
+- `source_column` (character, optional): Origin column name in the source data}
 
-\item{codelist}{Data.table containing the study code list.}
+\item{codelist}{A data.table containing the study-specific reference codelist.
+Must include columns:
+- `coding_system` (character): The coding system identifier
+- `code` (character): The code value to match
+- `concept_id` (character): Unique concept identifier for this code
+- Additional columns (e.g., `tags`, descriptions) are preserved in output}
 
-\item{start_with_codingsystems}{Columns to start with.}
+\item{start_with_codingsystems}{Character vector of coding systems that support hierarchical
+prefix matching (e.g., ATC codes "N02BE01" matches parent codes like "N02BE" and "N02").
+Default: c("ICD10CM", "ICD10", "ICD10DA", "ICD9CM", "MTHICD9", "ICPC", "ICPC2P", "ICPC2EENG", "ATC").
+Coding systems not in this list use exact matching only.}
 
-\item{priority_col}{Name of the priority column to use for sorting. Defaults to "priority".}
+\item{priority_col}{Character; Name of the column in `codelist` to use for prioritizing 
+matches when a single DAP code matches multiple study codes (e.g., tie-breaking).
+Lower values indicate higher priority. Default: "priority".}
+}
+\value{
+A data.table with the following columns:
+  - `coding_system`: The coding system identifier
+  - `COUNT`: Frequency of the DAP code
+  - `source_column`: Origin column from source data
+  - `code.dap_codes`: The original database code
+  - `concept_id`: The matched concept identifier from the study codelist
+  - `code.codelist`: The matched study codelist code
+  - `code`: Final mapped code (preferred over `code.dap_codes` when available)
+  - `match_status`: One of:
+    - `"MATCHED"`: Successfully matched between DAP and codelist
+    - `"ONLY_IN_DATA"`: Present in DAP but not in codelist (unmatched)
+    - `"ONLY_IN_CODELIST"`: Present in codelist but not in DAP (unused study codes)
+  - All additional columns from the study codelist are preserved
 }
 \description{
-Create DAP-Specific Codelist
+Intelligently matches database-sourced codes (DAP codes) against study-specific codelists
+using a two-pronged approach: exact matching for non-hierarchical coding systems (e.g., PRODCODEID)
+and hierarchical prefix-based matching for taxonomic systems (e.g., ICD10, ATC).
+Returns a consolidated codelist with match status and prioritized results.
+}
+\details{
+The function implements a multi-stage matching strategy:
+
+**Stage 1: Exact Matching** (for non-hierarchical systems)
+Performs direct one-to-one matching on `coding_system` and `code`.
+
+**Stage 2: Prefix Matching** (for hierarchical systems)
+Generates all possible prefixes of DAP codes and matches against study codes.
+Handles tie-breaking using the `priority_col` to select the best match when
+a single DAP code matches multiple study codes at the same length.
+
+**Stage 3: Consolidation**
+Combines matched and unmatched records, assigning appropriate `match_status` labels.
+}
+\examples{
+\dontrun{
+# Example: Match drug codes from database against study codelist
+dap_drugs <- data.table(
+  coding_system = c("ATC", "PRODCODEID", "ATC"),
+  code = c("N02BE01", "PROD123", "N02BE"),
+  COUNT = c(100, 50, 25),
+  source_column = "drug_id"
+)
+
+study_drugs <- data.table(
+  coding_system = c("ATC", "ATC", "PRODCODEID"),
+  code = c("N02BE", "N02", "PROD123"),
+  concept_id = c("PAIN_RELIEF_MED", "PAIN_RELIEF", "PROD_X"),
+  priority = c(1, 2, 1)
+)
+
+result <- create_dap_specific_codelist(
+  dap_codes = dap_drugs,
+  codelist = study_drugs,
+  priority_col = "priority"
+)
+}
+
 }
