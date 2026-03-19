@@ -157,7 +157,10 @@ apply_codelist <- function(
       add_id_set = keep_id_set
     )
   }
-
+  
+  #If keep_value_column_name is empty then asign "TRUE" to the column value
+  codelist[is.na(keep_value_column_name), keep_value_column_name:= "'TRUE'"]
+  
   # Proceed with logic
   # Group ignoring cdm_column to capture parent-child relationships
   codelist[, family_group := .GRP, by = .(
