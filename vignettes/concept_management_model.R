@@ -76,6 +76,21 @@ dap_specific_codelist <- T2.DMM::create_dap_specific_codelist(
 DT::datatable(dap_specific_codelist)
 
 ## -----------------------------------------------------------------------------
+# Transform to long format the codelist to comply with the apply_codelist() function
+dap_specific_codelist <- dap_specific_codelist[match_status == "MATCHED"]
+dap_specific_codelist[, keep_value_column_name := NA ]
+dap_specific_codelist[, keep_date_column_name := "end_date_record" ]
+
+long_format_codelist <- wrangling_codelist(
+    codelist = dap_specific_codelist,
+    code_column_name = "event_code",
+    codingsystem_column_name = "event_record_vocabulary"
+  )
+
+# View results
+DT::datatable(long_format_codelist)
+
+## -----------------------------------------------------------------------------
 # Load your concept map in RWE BRIDGE metadata format
 # Expected columns: concept_id, cdm_table_name, 
 #                   column_name_*, expected_value_*,
@@ -84,14 +99,14 @@ DT::datatable(dap_specific_codelist)
 dap_specific_concept_map <- data.table::fread(file.path(getwd(),"data/dap_specific_concept_map.csv"))
 
 # Transform to long format
-long_format_codelist <- T2.DMM::wrangling_concept_map(dap_specific_concept_map)
+long_format_concept_map <- T2.DMM::wrangling_concept_map(dap_specific_concept_map)
 
 
 ## -----------------------------------------------------------------------------
 DT::datatable(dap_specific_concept_map,options = list(scrollX = TRUE))
 
 ## -----------------------------------------------------------------------------
-DT::datatable(long_format_codelist,options = list(scrollX = TRUE))
+DT::datatable(long_format_concept_map,options = list(scrollX = TRUE))
 
 ## ----eval=FALSE---------------------------------------------------------------
 # # Initialize the concept table as a database table
@@ -112,87 +127,15 @@ DT::datatable(long_format_codelist,options = list(scrollX = TRUE))
 # )
 
 ## ----eval=FALSE---------------------------------------------------------------
+# long_format_codelist[, id_set := paste0("codelist-",id_set)]
+# long_format_codelist[, id_set := paste0("conceptmap-",id_set)]
+# codelist <- rbindlist(list(long_format_codelist,long_format_concept_map), use.names = TRUE, fill = TRUE)
 # # Apply the prepared codelist to the database
 # apply_codelist(
 #   db_con = db_connection,
-#   codelist = long_format_codelist,
+#   codelist = codelist,
 #   materialize = "in_database",  # or "in_parquet"
 #   path_parquets = NULL,  # "/path/to/save" if materialize = "in_parquet"
 #   keep_id_set = TRUE
 # )
-
-## ----eval=FALSE---------------------------------------------------------------
-# # ============================================================================
-# # PROCESS 1: SET DATABASE
-# # ============================================================================
-# 
-# # 1.1 Initialize loader
-# loader <- DatabaseLoader$new(
-#   db_path = "analysis.duckdb",
-#   data_instance = "./data/cdm_instance",
-#   config_path = "./config/loader_config.json",
-#   cdm_metadata = "./data/CDM_metadata.rds"
-# )
-# 
-# # 1.2 Load CSV/Parquet files
-# loader$set_database()
-# 
-# # 1.3 Execute transformations (remove missing, add IDs, remove duplicates, report)
-# loader$run_db_ops()
-# 
-# # ============================================================================
-# # PROCESS 2: PROCESS CODELIST
-# # ============================================================================
-# 
-# db_connection <- DBI::dbConnect(duckdb::duckdb(), "analysis.duckdb")
-# 
-# # 2.1 Get unique codelists
-# column_info <- list(
-#   list(source_column = "event_code", alias_name = "code")
-# )
-# unique_codelists <- get_unique_codelist(
-#   db_connection,
-#   column_info,
-#   "EVENTS"
-# )
-# 
-# # 2.2 Create DAP-specific codelist
-# reference_codes <- data.table::fread("reference_codes.csv")
-# dap_specific <- create_dap_specific_codelist(
-#   dap_codes = unique_codelists[[1]],
-#   codelist = reference_codes
-# )
-# 
-# # ============================================================================
-# # PROCESS 3: APPLY CODELIST
-# # ============================================================================
-# 
-# # 3.1 Prepare concept map
-# concept_map <- data.table::fread("concept_map.csv")
-# long_codelist <- wrangling_concept_map(concept_map)
-# 
-# # 3.2 Initialize concept table
-# initialize_concept_table(
-#   db_connection,
-#   type_table = "table",
-#   add_id_set = TRUE
-# )
-# 
-# # 3.3 Apply the codelist
-# apply_codelist(
-#   db_con = db_connection,
-#   codelist = long_codelist,
-#   materialize = "in_database",
-#   keep_id_set = TRUE
-# )
-# 
-# # Verify harmonized concepts
-# harmonized <- DBI::dbReadTable(db_connection, "concept_table")
-# head(harmonized)
-# 
-# # Clean up
-# DBI::dbDisconnect(db_connection)
-
-## -----------------------------------------------------------------------------
-sessionInfo()
 
