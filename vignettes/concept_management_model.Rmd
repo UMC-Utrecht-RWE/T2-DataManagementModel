@@ -2,7 +2,7 @@
 title: "Getting Started with the Concept Management Model Package"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Getting Started with the SCA Package}
+  %\VignetteIndexEntry{Getting Started with the Concept Management Model Package}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
@@ -390,9 +390,24 @@ This process transforms your codelist into a format suitable for CDM
 application and applies harmonized codes to create standardized
 concepts.
 
-## Step 2.3: Prepare Concept Map with `wrangling_dapspecificcodelist()`
+## Step 2.3: Prepare Codelist with `wrangling_codelist()`
+```{r}
+# Transform to long format the codelist to comply with the apply_codelist() function
+dap_specific_codelist <- dap_specific_codelist[match_status == "MATCHED"]
+dap_specific_codelist[, keep_value_column_name := NA ]
+dap_specific_codelist[, keep_date_column_name := "event_date" ]
 
-## Step 3.4: Prepare Concept Map with `wrangling_concept_map()`
+long_format_codelist <- wrangling_codelist(
+    codelist = dap_specific_codelist,
+    code_column_name = "event_code",
+    codingsystem_column_name = "event_record_vocabulary"
+  )
+
+# View results
+DT::datatable(long_format_codelist)
+```
+
+## Step 2.4: Prepare Concept Map with `wrangling_concept_map()`
 
 Transform your DAP-specific concept map from wide format to long format
 suitable for applying to the CDM.
@@ -406,7 +421,7 @@ suitable for applying to the CDM.
 dap_specific_concept_map <- data.table::fread(file.path(getwd(),"data/dap_specific_concept_map.csv"))
 
 # Transform to long format
-long_format_codelist <- T2.DMM::wrangling_concept_map(dap_specific_concept_map)
+long_format_concept_map <- T2.DMM::wrangling_concept_map(dap_specific_concept_map)
 
 ```
 
@@ -428,7 +443,7 @@ DT::datatable(dap_specific_concept_map,options = list(scrollX = TRUE))
 The function returns a normalized long format:
 
 ```{r}
-DT::datatable(long_format_codelist,options = list(scrollX = TRUE))
+DT::datatable(long_format_concept_map,options = list(scrollX = TRUE))
 ```
 
 **What `wrangling_concept_map` Does:**
@@ -490,10 +505,12 @@ identifier (optional)
 Apply the harmonized codelist to create standardized concepts:
 
 ```{r eval=FALSE}
+
+codelist <- rbindlist(list(long_format_codelist,long_format_concept_map), use.names = TRUE, fill = TRUE)
 # Apply the prepared codelist to the database
 apply_codelist(
   db_con = db_connection,
-  codelist = long_format_codelist,
+  codelist = codelist,
   materialize = "in_database",  # or "in_parquet"
   path_parquets = NULL,  # "/path/to/save" if materialize = "in_parquet"
   keep_id_set = TRUE
