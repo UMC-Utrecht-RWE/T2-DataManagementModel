@@ -330,7 +330,7 @@ column_info_list <- list(
 )
 
 # Extract unique codelists
-dap_codes <- T2.DMM::get_unique_codelist(
+dap_codes <- get_unique_codelist(
   db_connection = db_connection,
   column_info_list = column_info_list,
   tb_name = "EVENTS"
@@ -505,7 +505,8 @@ identifier (optional)
 Apply the harmonized codelist to create standardized concepts:
 
 ```{r eval=FALSE}
-
+long_format_codelist[, id_set := paste0("codelist-",id_set)]
+long_format_codelist[, id_set := paste0("conceptmap-",id_set)]
 codelist <- rbindlist(list(long_format_codelist,long_format_concept_map), use.names = TRUE, fill = TRUE)
 # Apply the prepared codelist to the database
 apply_codelist(
@@ -554,13 +555,10 @@ The function processes codelists in three phases per family:
 
 **Output Example:**
 
-```         
-   unique_id      ori_table person_id   concept_id          value       date id_set
-1  uuid-1234-...      EVENTS   PER001     COVID_19    COVID-19 VIRUS 2022-04-10    1
-2  uuid-1235-...      EVENTS   PER002     FEVER_01          HIGH FEVER 2022-04-11    2
-3  uuid-1236-...      VACCINES PER001  COVID_VAX_1  PFIZER-BIONTECH  2022-03-15    3
+```{r}
+concept_table <- dbReadTable(db_connection,"concept_table")
+DT::datatable(concept_table,,options = list(scrollX = TRUE))
 ```
-
 ------------------------------------------------------------------------
 
 # Complete End-to-End Example
