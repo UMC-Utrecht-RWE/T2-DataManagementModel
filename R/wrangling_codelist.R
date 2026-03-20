@@ -135,9 +135,7 @@ wrangling_codelist <- function(
   }
   
   # Ensure it's a data.table
-  if (!is.data.table(codelist)) {
-    codelist <- as.data.table(codelist)
-  }
+  codelist <- ensure_data_table(codelist)
   
   if (nrow(codelist) == 0) {
     stop("codelist cannot be empty")
@@ -163,6 +161,7 @@ wrangling_codelist <- function(
     is_valid <- any(sapply(allowed_types, function(type) {
       switch(type,
              "character" = is.character(col),
+             "factor" = is.factor(col),
              FALSE)
     }))
     if (!is_valid) {
