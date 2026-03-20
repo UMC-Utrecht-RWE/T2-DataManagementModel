@@ -30,7 +30,7 @@ utils::globalVariables(c(
   # Specific joined/aliased columns
   "code.CDM_CODELIST", "code.DAP_UNIQUE_CODELIST",
 
-  # Variables for the crete_dap_specific_codelist
+  # Variables for the create_dap_specific_codelist
   "code.codelist", "code", "code.dap_codes","code_substring","source_column",
   "match_status","..output_cols", "concept_id"
   
