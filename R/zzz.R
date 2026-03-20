@@ -28,8 +28,12 @@ utils::globalVariables(c(
   "TABLE", "Variable", "Mandatory", "Format", "ori_table", "unique_id",
 
   # Specific joined/aliased columns
-  "code.CDM_CODELIST", "code.DAP_UNIQUE_CODELIST"
+  "code.CDM_CODELIST", "code.DAP_UNIQUE_CODELIST",
 
+  # Variables for the crete_dap_specific_codelist
+  "code.codelist", "code", "code.dap_codes","code_substring","source_column",
+  "match_status","..output_cols", "concept_id"
+  
   # Add unquoted column names here if needed:
   # "column_name",
   # "another_column"
