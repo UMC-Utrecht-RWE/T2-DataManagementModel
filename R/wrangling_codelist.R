@@ -155,25 +155,11 @@ wrangling_codelist <- function(
     ))
   }
   
-  # Validate data types for required columns (allow both character and factor)
-  validate_column_type <- function(col_name, allowed_types = c("character")) {
-    col <- codelist[[col_name]]
-    is_valid <- any(sapply(allowed_types, function(type) {
-      switch(type,
-             "character" = is.character(col),
-             "factor" = is.factor(col),
-             FALSE)
-    }))
-    if (!is_valid) {
-      stop(paste(col_name, "must be", paste(allowed_types, collapse = " or ")))
-    }
-  }
-  
   character_cols <- c( "concept_id", "cdm_name", "cdm_table_name", "code", 
                        "coding_system", "keep_date_column_name"
   )
   for (col in character_cols) {
-    validate_column_type(col, c("character"))
+    validate_column_type(data = codelist, col_name = col, c("character"))
   }
   
   # 2. CONVERT FACTOR COLUMNS TO CHARACTER
