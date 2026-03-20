@@ -128,7 +128,7 @@ DT::datatable(long_format_concept_map,options = list(scrollX = TRUE))
 
 ## -----------------------------------------------------------------------------
 long_format_codelist[, id_set := paste0("codelist-",id_set)]
-long_format_codelist[, id_set := paste0("conceptmap-",id_set)]
+long_format_concept_map[, id_set := paste0("conceptmap-",id_set)]
 codelist <- rbindlist(list(long_format_codelist,long_format_concept_map), use.names = TRUE, fill = TRUE)
 # Apply the prepared codelist to the database
 apply_codelist(
