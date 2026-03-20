@@ -369,6 +369,23 @@ testthat::test_that("Data type validation for required columns", {
   )
 })
 
+testthat::test_that("Rejects non-character keep_value_column_name column", {
+  codelist_numeric_kvcn <- data.table(
+    concept_id = "TEST",
+    cdm_name = "CDM",
+    cdm_table_name = "TABLE",
+    code = "CODE",
+    coding_system = "ICD10",
+    keep_value_column_name = 123,  # Should be character or NA_character_
+    keep_date_column_name = "date"
+  )
+  
+  testthat::expect_error(
+    wrangling_codelist(codelist_numeric_kvcn),
+    "must be character"
+  )
+})
+
 testthat::test_that("Invalid code_column_name parameter type", {
   codelist <- data.table(
     concept_id = "TEST",

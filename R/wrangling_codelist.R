@@ -170,6 +170,9 @@ wrangling_codelist <- function(
     }
   }
   
+  # Validate keep_value_column_name after factor conversion: must be character (NA_character_ allowed)
+  validate_column_type(data = codelist, col_name = "keep_value_column_name", c("character"))
+  
   # Validate custom column name parameters
   if (!is.character(code_column_name) || length(code_column_name) != 1) {
     stop("code_column_name must be a single character value")
@@ -201,7 +204,7 @@ wrangling_codelist <- function(
     stop("keep_date_column_name cannot contain NA values")
   }
   
-  # keep_value_column_name can be NA (no validation needed)
+  # keep_value_column_name can contain NA values (NA_character_ is valid)
   
   # 5. MELT CODE AND CODING_SYSTEM COLUMNS
   long_data <- melt(
