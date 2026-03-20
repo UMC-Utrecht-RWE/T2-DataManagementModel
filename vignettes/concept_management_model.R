@@ -47,7 +47,7 @@ column_info_list <- list(
 )
 
 # Extract unique codelists
-dap_codes <- T2.DMM::get_unique_codelist(
+dap_codes <- get_unique_codelist(
   db_connection = db_connection,
   column_info_list = column_info_list,
   tb_name = "EVENTS"
@@ -126,16 +126,23 @@ DT::datatable(long_format_concept_map,options = list(scrollX = TRUE))
 #   add_id_set = TRUE
 # )
 
-## ----eval=FALSE---------------------------------------------------------------
-# long_format_codelist[, id_set := paste0("codelist-",id_set)]
-# long_format_codelist[, id_set := paste0("conceptmap-",id_set)]
-# codelist <- rbindlist(list(long_format_codelist,long_format_concept_map), use.names = TRUE, fill = TRUE)
-# # Apply the prepared codelist to the database
-# apply_codelist(
-#   db_con = db_connection,
-#   codelist = codelist,
-#   materialize = "in_database",  # or "in_parquet"
-#   path_parquets = NULL,  # "/path/to/save" if materialize = "in_parquet"
-#   keep_id_set = TRUE
-# )
+## -----------------------------------------------------------------------------
+long_format_codelist[, id_set := paste0("codelist-",id_set)]
+long_format_codelist[, id_set := paste0("conceptmap-",id_set)]
+codelist <- rbindlist(list(long_format_codelist,long_format_concept_map), use.names = TRUE, fill = TRUE)
+# Apply the prepared codelist to the database
+apply_codelist(
+  db_con = db_connection,
+  codelist = codelist,
+  materialize = "in_database",  # or "in_parquet"
+  path_parquets = NULL,  # "/path/to/save" if materialize = "in_parquet"
+  keep_id_set = TRUE
+)
+
+## -----------------------------------------------------------------------------
+concept_table <- dbReadTable(db_connection,"concept_table")
+DT::datatable(concept_table,,options = list(scrollX = TRUE))
+
+## -----------------------------------------------------------------------------
+sessionInfo()
 
