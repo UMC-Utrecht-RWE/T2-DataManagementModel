@@ -338,7 +338,7 @@ dap_codes <- get_unique_codelist(
 
 dap_codes <- as.data.table(dap_codes[[1]])
 # View the results
-DT::datatable(dap_codes)
+DT::datatable(dap_codes,options = list(scrollX = TRUE))
 ```
 
 **Parameters:** - `source_column`: Column name(s) in database to
@@ -368,7 +368,7 @@ dap_specific_codelist <- create_dap_specific_codelist(
 )
 
 # View results
-DT::datatable(dap_specific_codelist)
+DT::datatable(dap_specific_codelist,options = list(scrollX = TRUE))
 ```
 
 **How `create_dap_specific_codelist` Works:**
@@ -404,7 +404,7 @@ long_format_codelist <- wrangling_codelist(
   )
 
 # View results
-DT::datatable(long_format_codelist)
+DT::datatable(long_format_codelist,options = list(scrollX = TRUE))
 ```
 
 ## Step 2.4: Prepare Concept Map with `wrangling_concept_map()`
@@ -459,7 +459,7 @@ DT::datatable(long_format_concept_map,options = list(scrollX = TRUE))
 
 # PROCESS 3: APPLY CODELIST
 
-## Step 3.3: Initialize Concept Table with `initialize_concept_table()`
+## Step 3.1: Initialize Concept Table with `initialize_concept_table()`
 
 Create the target `concept_table` that will store harmonized concepts:
 
@@ -500,13 +500,13 @@ The table includes: - `unique_id`: Unique identifier from CDM records -
 (upper-cased) - `date`: Associated date - `id_set`: Mapping set
 identifier (optional)
 
-## Step 3.4: Apply Codelist with `apply_codelist()`
+## Step 3.2: Apply Codelist with `apply_codelist()`
 
 Apply the harmonized codelist to create standardized concepts:
 
 ```{r}
 long_format_codelist[, id_set := paste0("codelist-",id_set)]
-long_format_codelist[, id_set := paste0("conceptmap-",id_set)]
+long_format_concept_map[, id_set := paste0("conceptmap-",id_set)]
 codelist <- rbindlist(list(long_format_codelist,long_format_concept_map), use.names = TRUE, fill = TRUE)
 # Apply the prepared codelist to the database
 apply_codelist(
@@ -557,7 +557,7 @@ The function processes codelists in three phases per family:
 
 ```{r}
 concept_table <- dbReadTable(db_connection,"concept_table")
-DT::datatable(concept_table,,options = list(scrollX = TRUE))
+DT::datatable(concept_table,options = list(scrollX = TRUE))
 ```
 
 ------------------------------------------------------------------------
@@ -578,33 +578,20 @@ DT::datatable(concept_table,,options = list(scrollX = TRUE))
 
 ### Process 2: Process Codelist
 
-| Function                         | Purpose                               |
-|----------------------------------|---------------------------------------|
-| `get_unique_codelist()`          | Extract unique codes with frequencies |
-| `create_dap_specific_codelist()` | Match and standardize codes           |
-| `import_dap_specific_codelist()` | Import codelist into database         |
+| Function                         | Purpose                                                     |
+|----------------------------------|-------------------------------------------------------------|
+| `get_unique_codelist()`          | Extract unique codes with frequencies                       |
+| `create_dap_specific_codelist()` | Match and standardize codes                                 |
+| `wrangling_codelist()`           | Transform codelist to format needed in apply_codelist()     |
+| `wrangling_concept_map()`        | Transform concept map to format needed in apply_codelist()  |
 
 ### Process 3: Apply Codelist
 
 | Function                     | Purpose                              |
 |------------------------------|--------------------------------------|
-| `wrangling_concept_map()`    | Transform concept map to long format |
 | `initialize_concept_table()` | Create concept_table for results     |
 | `apply_codelist()`           | Apply harmonized codelists to CDM    |
-| `getSQL()`                   | Read SQL scripts for apply_codelist  |
 
-------------------------------------------------------------------------
-
-## Data Quality Best Practices
-
-1.  **Process 1**: Always remove missing person IDs early to prevent
-    orphaned records
-2.  **Process 2**: Verify all coding systems are properly mapped before
-    processing
-3.  **Process 3**: Check that concept mappings are semantically correct
-4.  **Throughout**: Keep configuration files versioned with your
-    analysis
-5.  **Validation**: Compare record counts at each process stage
 
 ------------------------------------------------------------------------
 
