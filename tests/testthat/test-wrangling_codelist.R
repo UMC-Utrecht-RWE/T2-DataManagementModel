@@ -365,7 +365,7 @@ testthat::test_that("Data type validation for required columns", {
   
   testthat::expect_error(
     wrangling_codelist(codelist_wrong_type),
-    "must be character or factor"
+    "must be character"
   )
 })
 
@@ -531,15 +531,11 @@ testthat::test_that("Factor columns in input are converted to character", {
     keep_date_column_name = as.factor("mo_date")
   )
   
-  result <- wrangling_codelist(codelist)
+  testthat::expect_error(
+    wrangling_codelist(codelist, id_set_col = "custom_id"),
+    "concept_id must be character"
+  )
   
-  # Verify all character columns are character, not factor
-  testthat::expect_true(is.character(result$concept_id))
-  testthat::expect_true(is.character(result$cdm_table_name))
-  testthat::expect_true(is.character(result$cdm_column))
-  testthat::expect_true(is.character(result$code))
-  testthat::expect_true(is.character(result$keep_value_column_name))
-  testthat::expect_true(is.character(result$keep_date_column_name))
 })
 
 testthat::test_that("Result is always data.table", {
