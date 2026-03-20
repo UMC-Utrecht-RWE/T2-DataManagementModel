@@ -18,7 +18,9 @@
 #'   - `coding_system` (character): The coding system identifier
 #'   - `code` (character): The code value to match
 #'   - `concept_id` (character): Unique concept identifier for this code
-#'   - Additional columns (e.g., `tags`, descriptions) are preserved in output
+#'   - `cdm_name` (character): Name or identifier of the CDM / data source
+#'   - `cdm_table_name` (character): Name of the CDM table associated with the code
+#'   Additional columns (e.g., `tags`, descriptions) are optional and are preserved in output
 #'
 #' @param start_with_codingsystems Character vector of coding systems that support hierarchical
 #'   prefix matching (e.g., ATC codes "N02BE01" matches parent codes like "N02BE" and "N02").
