@@ -140,7 +140,7 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
       dap_codes = unique_codelist,
       codelist =  study_codelist
     ),
-    "dap_codes$coding_system must be character or factor",
+    "coding_system must be character",
     fixed = TRUE
   )
 
@@ -177,7 +177,7 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
       dap_codes = unique_codelist,
       codelist =  study_codelist
     ),
-    "codelist$coding_system must be character or factor",
+    "coding_system must be character",
     fixed = TRUE
   )
 
@@ -227,7 +227,7 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
       dap_codes = unique_codelist,
       codelist =  study_codelist
     ),
-    "codelist$code must be character or factor",
+    "code must be character",
     fixed = TRUE
   )
 }
@@ -277,7 +277,7 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
       dap_codes = unique_codelist,
       codelist =  study_codelist
     ),
-    "dap_codes$code must be character or factor",
+    "code must be character",
     fixed = TRUE
   )
 })

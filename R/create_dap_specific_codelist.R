@@ -289,28 +289,15 @@ validate_codelists <- function(dap_codes, codelist, priority_col) {
                paste(missing_study_cols, collapse = ", ")))
   }
 
-  # Validate column data types
-  validate_column_type <- function(
-    col, name, allowed_types = c("character", "factor")
-  ) {
-    if (!any(sapply(allowed_types, function(type) {
-      switch(type,
-             "character" = is.character(col),
-             "factor" = is.factor(col))
-    }))) {
-      stop(paste(name, "must be character or factor"))
-    }
+  
+  character_cols <- c(  "code", "coding_system")
+  for (col in character_cols) {
+    validate_column_type(data = dap_codes, col_name = col, c("character"))
   }
-
-  validate_column_type(
-    dap_codes$coding_system, "dap_codes$coding_system"
-    )
-  validate_column_type(
-    codelist$coding_system, "codelist$coding_system"
-    )
-  validate_column_type(dap_codes$code, "dap_codes$code")
-  validate_column_type(codelist$code, "codelist$code")
-
+  for (col in character_cols) {
+    validate_column_type(data = codelist, col_name = col, c("character"))
+  }
+  
   # Check for NA values and warn
   na_checks <- list(
     list(
