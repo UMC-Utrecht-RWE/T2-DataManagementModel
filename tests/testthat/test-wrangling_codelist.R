@@ -16,7 +16,7 @@ testthat::test_that("Basic wrangling transforms one row into two rows", {
   testthat::expect_equal(nrow(result), 2)
   
   # Verify columns
-  expected_cols <- c("id_set", "concept_id", "cdm_table_name", "cdm_column", 
+  expected_cols <- c("id_set", "concept_id", "cdm_name","cdm_table_name", "cdm_column", 
                      "code", "keep_value_column_name", "keep_date_column_name", "order_index")
   testthat::expect_setequal(names(result), expected_cols)
   
