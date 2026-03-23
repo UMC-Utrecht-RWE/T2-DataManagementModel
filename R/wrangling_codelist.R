@@ -241,6 +241,7 @@ wrangling_codelist <- function(
   output_cols <- c(
     "id_set",
     "concept_id",
+    "cdm_name",
     "cdm_table_name",
     "cdm_column",
     "code",
