@@ -98,7 +98,7 @@ get_origin_row <- function(db_connection, ids) {
       return_values[[table]] <- data.table::data.table()
       next
     }
-    
+
     # Get IDs for this table
     table_ids <- ids[ori_table == table, unique_id]
     if (length(table_ids) == 0) {
@@ -132,6 +132,6 @@ get_origin_row <- function(db_connection, ids) {
 
     return_values[[table]] <- result
   }
-  
+
   return(return_values)
 }
