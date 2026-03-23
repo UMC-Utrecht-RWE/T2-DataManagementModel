@@ -78,7 +78,7 @@ DT::datatable(dap_specific_codelist)
 ## -----------------------------------------------------------------------------
 # Transform to long format the codelist to comply with the apply_codelist() function
 dap_specific_codelist <- dap_specific_codelist[match_status == "MATCHED"]
-dap_specific_codelist[, keep_value_column_name := NA ]
+dap_specific_codelist[, keep_value_column_name := NA_character_ ]
 dap_specific_codelist[, keep_date_column_name := "end_date_record" ]
 
 long_format_codelist <- wrangling_codelist(
