@@ -60,7 +60,7 @@ DT::datatable(dap_codes)
 ## -----------------------------------------------------------------------------
 # Load your reference codelist
 # This typically contains all standard codes and their mappings
-reference_codelist <- data.table::fread(file.path(getwd(),"data/code_list.csv"))
+reference_codelist <- data.table::fread(file.path(getwd(),"vignettes/data/code_list.csv"))
 
 # Create a standardized codelist with intelligent matching
 dap_specific_codelist <- T2.DMM::create_dap_specific_codelist(
