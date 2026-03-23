@@ -11,6 +11,7 @@ wrangling_concept_map(dap_specific_concept_map)
 **RWE BRIDGE metadata scheme**, including at least the following columns:
 \describe{
   \item{concept_id}{The harmonized concept identifier.}
+  \item{cdm_name}{Name of the CDM}
   \item{cdm_table_name}{Name of the CDM table where the mapping applies.}
   \item{keep_value_column_name}{
      Column name whose value should be kept when applying the mapping.
@@ -28,6 +29,7 @@ A `data.table` in long format with the following columns:
   \describe{
     \item{id_set}{Unique identifier for each mapping set.}
     \item{concept_id}{Harmonized concept identifier.}
+    \item{cdm_name}{Name of the CDM}
     \item{cdm_table_name}{CDM table name (original).}
     \item{cdm_column}{Name of the CDM column being mapped.}
     \item{code}{Expected code for the CDM column.}

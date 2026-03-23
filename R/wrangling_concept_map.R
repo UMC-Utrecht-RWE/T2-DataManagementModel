@@ -10,6 +10,7 @@
 #'   **RWE BRIDGE metadata scheme**, including at least the following columns:
 #'   \describe{
 #'     \item{concept_id}{The harmonized concept identifier.}
+#'     \item{cdm_name}{Name of the CDM}
 #'     \item{cdm_table_name}{Name of the CDM table where the mapping applies.}
 #'     \item{keep_value_column_name}{
 #'        Column name whose value should be kept when applying the mapping.
@@ -42,6 +43,7 @@
 #'   \describe{
 #'     \item{id_set}{Unique identifier for each mapping set.}
 #'     \item{concept_id}{Harmonized concept identifier.}
+#'     \item{cdm_name}{Name of the CDM}
 #'     \item{cdm_table_name}{CDM table name (original).}
 #'     \item{cdm_column}{Name of the CDM column being mapped.}
 #'     \item{code}{Expected code for the CDM column.}
@@ -70,7 +72,7 @@ wrangling_concept_map <- function(dap_specific_concept_map) {
   }
 
   required_cols <- c(
-    "concept_id", "cdm_table_name",
+    "concept_id", "cdm_name","cdm_table_name",
     "keep_value_column_name", "keep_date_column_name"
   )
   missing_cols <- setdiff(required_cols, colnames(dap_specific_concept_map))
@@ -116,7 +118,7 @@ wrangling_concept_map <- function(dap_specific_concept_map) {
     melted <- melt(
       dap_specific_concept_map,
       id.vars = c(
-        "id_set", "concept_id", "cdm_table_name", "keep_value_column_name",
+        "id_set", "concept_id", "cdm_name","cdm_table_name", "keep_value_column_name",
         "keep_date_column_name", column_names[index]
       ),  # Use the current column_name
       measure.vars = expected_values[index],

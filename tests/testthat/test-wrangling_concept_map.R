@@ -2,6 +2,7 @@ test_that("wrangling_concept_map transforms wide to long correctly", {
   # 1. SETUP: Create a mock concept map with 2 sets of mapping columns
   mock_map <- data.table(
     concept_id = c("C1", "C2"),
+    cdm_name = "CDM1",
     cdm_table_name = c("TABLE1", "TABLE2"),
     keep_value_column_name = c("VAL1", "VAL2"),
     keep_date_column_name = c("DATE1", "DATE2"),
@@ -48,6 +49,7 @@ test_that("Function handles missing required columns", {
 test_that("Function handles missing mapping columns", {
   bad_data <- data.table(
     concept_id = "C1",
+    cdm_name = "CDM1",
     cdm_table_name = "T1",
     keep_value_column_name = "V1",
     keep_date_column_name = "D1"
@@ -63,6 +65,7 @@ test_that("Function handles missing mapping columns", {
 test_that("Function correctly filters out NA cdm_columns", {
   mock_map <- data.table(
     concept_id = "C1",
+    cdm_name = "CDM1",
     cdm_table_name = "T1",
     keep_value_column_name = "V1",
     keep_date_column_name = "D1",
