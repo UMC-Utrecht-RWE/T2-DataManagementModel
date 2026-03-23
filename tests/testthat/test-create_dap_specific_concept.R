@@ -56,12 +56,11 @@ create_test_db <- function(source_db_path, source_db_conn, concept_db_conn, atta
     concept_db_conn,
     paste0("ATTACH DATABASE '", source_db_path, "' AS ", attach_name)
   )
-  
 }
 
 cleanup_concept_tables <- function(db_connection) {
   if ("MEDICAL_OBSERVATIONS_EDITED_dapspec" %in%
-        DBI::dbListTables(db_connection)) {
+    DBI::dbListTables(db_connection)) {
     DBI::dbExecute(
       db_connection, "DROP TABLE MEDICAL_OBSERVATIONS_EDITED_dapspec"
     )
@@ -72,15 +71,15 @@ cleanup_concept_tables <- function(db_connection) {
 testthat::test_that("retrieve MEDICAL_OBSERVATIONS concepts", {
   source_db_path <- tempfile(fileext = ".duckdb")
   source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
-  
+
   concept_db_conn <- DBI::dbConnect(
     duckdb::duckdb(), tempfile(fileext = ".duckdb")
   )
-  
+
   attach_name <- "d2_db_conn"
-  
-  create_test_db(source_db_path, source_db_conn,concept_db_conn, attach_name)
-  
+
+  create_test_db(source_db_path, source_db_conn, concept_db_conn, attach_name)
+
   withr::defer(DBI::dbDisconnect(concept_db_conn), envir = parent.frame())
   withr::defer(cleanup_concept_tables(concept_db_conn), envir = parent.frame())
 
@@ -99,15 +98,15 @@ testthat::test_that("retrieve MEDICAL_OBSERVATIONS concepts", {
 testthat::test_that("Error messages", {
   source_db_path <- tempfile(fileext = ".duckdb")
   source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
-  
+
   concept_db_conn <- DBI::dbConnect(
     duckdb::duckdb(), tempfile(fileext = ".duckdb")
   )
-  
+
   attach_name <- "d2_db_conn"
-  
-  create_test_db(source_db_path, source_db_conn,concept_db_conn, attach_name)
-  
+
+  create_test_db(source_db_path, source_db_conn, concept_db_conn, attach_name)
+
   testthat::expect_error(
     create_dap_specific_concept(
       codelist = data.table::data.table(),
@@ -133,14 +132,14 @@ testthat::test_that("Error messages", {
 testthat::test_that("existing MEDICAL_OBSERVATIONS_EDITED is handled", {
   source_db_path <- tempfile(fileext = ".duckdb")
   source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
-  
+
   concept_db_conn <- DBI::dbConnect(
     duckdb::duckdb(), tempfile(fileext = ".duckdb")
   )
-  
+
   attach_name <- "d2_db_conn"
-  
-  create_test_db(source_db_path, source_db_conn,concept_db_conn, attach_name)
+
+  create_test_db(source_db_path, source_db_conn, concept_db_conn, attach_name)
   withr::defer(DBI::dbDisconnect(concept_db_conn), envir = parent.frame())
   withr::defer(cleanup_concept_tables(concept_db_conn), envir = parent.frame())
 
@@ -167,14 +166,14 @@ testthat::test_that("existing MEDICAL_OBSERVATIONS_EDITED is handled", {
 testthat::test_that("reference non-existent column errors", {
   source_db_path <- tempfile(fileext = ".duckdb")
   source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
-  
+
   concept_db_conn <- DBI::dbConnect(
     duckdb::duckdb(), tempfile(fileext = ".duckdb")
   )
-  
+
   attach_name <- "d2_db_conn"
-  
-  create_test_db(source_db_path, source_db_conn,concept_db_conn, attach_name)
+
+  create_test_db(source_db_path, source_db_conn, concept_db_conn, attach_name)
   withr::defer(DBI::dbDisconnect(concept_db_conn), envir = parent.frame())
   withr::defer(cleanup_concept_tables(concept_db_conn), envir = parent.frame())
 
@@ -196,14 +195,14 @@ testthat::test_that("reference non-existent column errors", {
 testthat::test_that("NA or missing keep_value_column_name yields TRUE", {
   source_db_path <- tempfile(fileext = ".duckdb")
   source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
-  
+
   concept_db_conn <- DBI::dbConnect(
     duckdb::duckdb(), tempfile(fileext = ".duckdb")
   )
-  
+
   attach_name <- "d2_db_conn"
-  
-  create_test_db(source_db_path, source_db_conn,concept_db_conn, attach_name)
+
+  create_test_db(source_db_path, source_db_conn, concept_db_conn, attach_name)
   withr::defer(DBI::dbDisconnect(concept_db_conn), envir = parent.frame())
   withr::defer(cleanup_concept_tables(concept_db_conn), envir = parent.frame())
 
@@ -248,14 +247,14 @@ testthat::test_that("save_in_parquet FALSE with or without partition_var", {
   local({
     source_db_path <- tempfile(fileext = ".duckdb")
     source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
-    
+
     concept_db_conn <- DBI::dbConnect(
       duckdb::duckdb(), tempfile(fileext = ".duckdb")
     )
-    
+
     attach_name <- "d2_db_conn"
-    
-    create_test_db(source_db_path, source_db_conn,concept_db_conn, attach_name)
+
+    create_test_db(source_db_path, source_db_conn, concept_db_conn, attach_name)
     withr::defer(DBI::dbDisconnect(concept_db_conn))
     withr::defer(cleanup_concept_tables(concept_db_conn))
 
@@ -276,14 +275,14 @@ testthat::test_that("save_in_parquet FALSE with or without partition_var", {
   local({
     source_db_path <- tempfile(fileext = ".duckdb")
     source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
-    
+
     concept_db_conn <- DBI::dbConnect(
       duckdb::duckdb(), tempfile(fileext = ".duckdb")
     )
-    
+
     attach_name <- "d2_db_conn"
-    
-    create_test_db(source_db_path, source_db_conn,concept_db_conn, attach_name)
+
+    create_test_db(source_db_path, source_db_conn, concept_db_conn, attach_name)
     withr::defer(DBI::dbDisconnect(concept_db_conn))
     withr::defer(cleanup_concept_tables(concept_db_conn))
 
@@ -307,14 +306,14 @@ testthat::test_that("save_in_parquet FALSE with or without partition_var", {
 testthat::test_that("save_in_parquet TRUE with partitioning", {
   source_db_path <- tempfile(fileext = ".duckdb")
   source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
-  
+
   concept_db_conn <- DBI::dbConnect(
     duckdb::duckdb(), tempfile(fileext = ".duckdb")
   )
-  
+
   attach_name <- "d2_db_conn"
-  
-  create_test_db(source_db_path, source_db_conn,concept_db_conn, attach_name)
+
+  create_test_db(source_db_path, source_db_conn, concept_db_conn, attach_name)
   withr::defer(DBI::dbDisconnect(concept_db_conn))
   withr::defer(cleanup_concept_tables(concept_db_conn))
 
@@ -346,14 +345,14 @@ testthat::test_that("save_in_parquet TRUE with partitioning", {
 testthat::test_that("save_in_parquet TRUE without partitioning", {
   source_db_path <- tempfile(fileext = ".duckdb")
   source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
-  
+
   concept_db_conn <- DBI::dbConnect(
     duckdb::duckdb(), tempfile(fileext = ".duckdb")
   )
-  
+
   attach_name <- "d2_db_conn"
-  
-  create_test_db(source_db_path, source_db_conn,concept_db_conn, attach_name)
+
+  create_test_db(source_db_path, source_db_conn, concept_db_conn, attach_name)
   withr::defer(DBI::dbDisconnect(concept_db_conn))
   withr::defer(cleanup_concept_tables(concept_db_conn))
 
@@ -384,14 +383,14 @@ testthat::test_that("save_in_parquet TRUE without partitioning", {
 testthat::test_that("prints 'Meaning not identified'", {
   source_db_path <- tempfile(fileext = ".duckdb")
   source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
-  
+
   concept_db_conn <- DBI::dbConnect(
     duckdb::duckdb(), tempfile(fileext = ".duckdb")
   )
-  
+
   attach_name <- "d2_db_conn"
-  
-  create_test_db(source_db_path, source_db_conn,concept_db_conn, attach_name)
+
+  create_test_db(source_db_path, source_db_conn, concept_db_conn, attach_name)
   withr::defer(DBI::dbDisconnect(concept_db_conn))
   withr::defer(cleanup_concept_tables(concept_db_conn))
 

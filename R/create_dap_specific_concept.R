@@ -39,21 +39,20 @@
 
 #' @export
 create_dap_specific_concept <- function(
-  codelist,
-  name_attachment,
-  save_db,
-  date_col_filter = NULL,
-  dir_save = NULL,
-  add_meaning = FALSE,
-  save_in_parquet = FALSE,
-  table_name = "cdm_table_name",
-  column_name_prefix = "column_name",
-  expected_value_prefix = "expected_value",
-  keep_date_prefix = "keep_date",
-  keep_column_prefix = "keep_value",
-  intermediate_type = "TABLE",
-  partition_var = "concept_id"
-) {
+    codelist,
+    name_attachment,
+    save_db,
+    date_col_filter = NULL,
+    dir_save = NULL,
+    add_meaning = FALSE,
+    save_in_parquet = FALSE,
+    table_name = "cdm_table_name",
+    column_name_prefix = "column_name",
+    expected_value_prefix = "expected_value",
+    keep_date_prefix = "keep_date",
+    keep_column_prefix = "keep_value",
+    intermediate_type = "TABLE",
+    partition_var = "concept_id") {
   if (nrow(codelist) <= 0) {
     stop("Codelist does not contain any data.")
   }
@@ -153,8 +152,8 @@ create_dap_specific_concept <- function(
         ]
         # Checking if we already retrieve meaning through the codelist
         if (length(meaning_column_name) > 0 &&
-              (any(meaning_column_name %in% to_upper_cols) ||
-                 any(meaning_column_name %in% keep_value))) {
+          (any(meaning_column_name %in% to_upper_cols) ||
+            any(meaning_column_name %in% keep_value))) {
           meaning_column_name <- ""
         }
         base::print(base::paste0(
@@ -257,7 +256,7 @@ create_dap_specific_concept <- function(
         date_col, " >= DATE '", date_col_filter, "'"
       )
     }
-  
+
     print(where_statement)
     # Execute COPY to parquet OR INSERT to database table
     if (save_in_parquet) {

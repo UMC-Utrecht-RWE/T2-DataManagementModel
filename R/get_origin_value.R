@@ -19,14 +19,14 @@
 #'   cases_dt,
 #'   db_connection,
 #'   list("Table1" = "Column1", "Table2" = "Column2")
-#' )}
+#' )
+#' }
 #'
 #' @export
 get_origin_value <- function(
-  cases_dt,
-  db_connection,
-  search_scheme = NULL
-) {
+    cases_dt,
+    db_connection,
+    search_scheme = NULL) {
   # Input validation
   # Check if cases_dt is a data.table
   cases_dt <- T2.DMM:::ensure_data_table(
@@ -62,7 +62,7 @@ get_origin_value <- function(
   }
 
   if (!all(sapply(search_scheme, is.character)) ||
-        !all(sapply(search_scheme, length) == 1)) {
+    !all(sapply(search_scheme, length) == 1)) {
     stop(paste0(
       "[get_origin_value] Each element in 'search_scheme'",
       " must be a single character string"
@@ -170,7 +170,8 @@ get_origin_value <- function(
 
       # Combine the result set with the updated values list
       updated_values <- data.table::rbindlist(
-        list(updated_values, rs), use.names = TRUE, fill = TRUE
+        list(updated_values, rs),
+        use.names = TRUE, fill = TRUE
       )
 
       # Remove the result set from memory

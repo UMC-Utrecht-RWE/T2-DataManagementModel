@@ -1,6 +1,6 @@
 #' Load CDM Data Set Instance from CSV or Parquet Files into a Database
 #'
-#' This function is designed for loading a CDM data set instance from CSV or 
+#' This function is designed for loading a CDM data set instance from CSV or
 #' Parquet files into a database.
 #'
 #' @param db_connection A database connection object (SQLiteConnection).
@@ -21,7 +21,6 @@ load_db <- function(
     cdm_tables_names,
     extension_name = "",
     file_format = "auto") {
-
   # Validate file_format parameter
   if (!file_format %in% c("csv", "parquet", "auto")) {
     stop("file_format must be one of: 'csv', 'parquet', or 'auto'")
@@ -79,23 +78,27 @@ load_db <- function(
 
     message(paste0(
       "[load_db]: Using ", selected_format, " format for table: ", table
-      ))
+    ))
 
     # Construct the appropriate query based on file format
     if (selected_format == "parquet") {
       # For parquet files
-      query <- paste0("CREATE OR REPLACE TABLE ", table, ' AS
+      query <- paste0(
+        "CREATE OR REPLACE TABLE ", table, ' AS
                       SELECT * FROM read_parquet("',
-                      file.path(data_instance_path, table), '*.parquet",
-                      union_by_name = true );')
+        file.path(data_instance_path, table), '*.parquet",
+                      union_by_name = true );'
+      )
     } else {
       # For CSV files (original logic)
-      query <- paste0("CREATE OR REPLACE TABLE ", table, ' AS
+      query <- paste0(
+        "CREATE OR REPLACE TABLE ", table, ' AS
                       SELECT * FROM read_csv_auto("',
-                      file.path(data_instance_path, table), '*.csv",
+        file.path(data_instance_path, table), '*.csv",
                       union_by_name = true,
                       ALL_VARCHAR = true,
-                      nullstr = "NA" );')
+                      nullstr = "NA" );'
+      )
     }
 
     # Execute the query
@@ -157,8 +160,8 @@ load_db <- function(
         paste0(
           "[load_db]: The following columns are not part",
           " of the CDM table but are in the files : "
-        )
-        , paste(additional_columns, collapse = ",")
+        ),
+        paste(additional_columns, collapse = ",")
       ))
 
       invisible(lapply(additional_columns, function(new_column) {
@@ -166,16 +169,17 @@ load_db <- function(
           "    Dropping column : ", new_column
         ))
         tryCatch(
-                 {
-                   DBI::dbExecute(db_connection, paste0(
-                     "ALTER TABLE ", table, " DROP COLUMN ", new_column, " ;"
-                   ))
-                 },
-                 error = function(e) {
-                   message(paste0(
-                     "    ACTION FAILED "
-                   ))
-                 })
+          {
+            DBI::dbExecute(db_connection, paste0(
+              "ALTER TABLE ", table, " DROP COLUMN ", new_column, " ;"
+            ))
+          },
+          error = function(e) {
+            message(paste0(
+              "    ACTION FAILED "
+            ))
+          }
+        )
       }))
     }
 
@@ -208,36 +212,39 @@ load_db <- function(
             if (selected_format == "parquet") {
               # Parquet might have dates in different formats
               # Try common parquet date formats first
-              tryCatch({
-                DBI::dbExecute(db_connection, paste0(
-                  "UPDATE ", table,
-                  " SET ", new_column,
-                  " = CAST(", new_column, " AS DATE) WHERE ",
-                  new_column, " IS NOT NULL;"
-                ))
-              }, error = function(e2) {
-                # Fall back to string-based conversion
-                DBI::dbExecute(db_connection, paste0(
-                  "UPDATE ", table,
-                  " SET ", new_column, " = NULL WHERE ",
-                  new_column,
-                  " NOT SIMILAR TO '^[0-9]{8}$|^[0-9]{4}-[0-9]{2}-[0-9]{2}$';"
-                ))
+              tryCatch(
+                {
+                  DBI::dbExecute(db_connection, paste0(
+                    "UPDATE ", table,
+                    " SET ", new_column,
+                    " = CAST(", new_column, " AS DATE) WHERE ",
+                    new_column, " IS NOT NULL;"
+                  ))
+                },
+                error = function(e2) {
+                  # Fall back to string-based conversion
+                  DBI::dbExecute(db_connection, paste0(
+                    "UPDATE ", table,
+                    " SET ", new_column, " = NULL WHERE ",
+                    new_column,
+                    " NOT SIMILAR TO '^[0-9]{8}$|^[0-9]{4}-[0-9]{2}-[0-9]{2}$';"
+                  ))
 
-                # Handle both YYYYMMDD and YYYY-MM-DD formats
-                DBI::dbExecute(db_connection, paste0(
-                  "UPDATE ", table,
-                  " SET ", new_column, " = CASE
+                  # Handle both YYYYMMDD and YYYY-MM-DD formats
+                  DBI::dbExecute(db_connection, paste0(
+                    "UPDATE ", table,
+                    " SET ", new_column, " = CASE
                   WHEN ", new_column,
-                  " SIMILAR TO '^[0-9]{8}$' THEN STRPTIME(",
-                  new_column, ", '%Y%m%d')
+                    " SIMILAR TO '^[0-9]{8}$' THEN STRPTIME(",
+                    new_column, ", '%Y%m%d')
                   WHEN ", new_column,
-                  " SIMILAR TO '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' THEN STRPTIME(",
-                  new_column, ", '%Y-%m-%d')
+                    " SIMILAR TO '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' THEN STRPTIME(",
+                    new_column, ", '%Y-%m-%d')
                   ELSE NULL
                 END WHERE ", new_column, " IS NOT NULL;"
-                ))
-              })
+                  ))
+                }
+              )
             } else {
               # CSV format handling (original logic)
               # Nullify invalid values first
@@ -288,7 +295,8 @@ load_db <- function(
                             SET ", new_column, " = NULL
                             WHERE ", new_column, " = '';")
           DBI::dbExecute(db_connection, update_query)
-        }, error = function(e) {
+        },
+        error = function(e) {
           message(" ACTION FAILED ")
         }
       )

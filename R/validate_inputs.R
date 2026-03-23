@@ -8,9 +8,8 @@
 #' @return A data.table object.
 #' @keywords internal
 ensure_data_table <- function(
-  obj,
-  error_message = "Input must be convertible to a data.table"
-) {
+    obj,
+    error_message = "Input must be convertible to a data.table") {
   if (!data.table::is.data.table(obj)) {
     if (is.null(obj)) {
       stop("Input is NULL.")
