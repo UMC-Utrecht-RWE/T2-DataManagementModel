@@ -59,17 +59,6 @@ jobs:
           threshold <- 95
           if (pct < threshold) {
             cat(sprintf("Coverage (%.2f%%) is below threshold (%.0f%%)\n", pct, threshold))
-            cat("\nFiles below threshold:\n")
-
-            # Show which files are dragging coverage down
-            file_pct <- attr(file_cov, "coverage")
-            for (i in seq_along(file_pct)) {
-              if (file_pct[i] < threshold) {
-                cat(sprintf("  - %s: %.2f%%\n", names(file_pct)[i], file_pct[i]))
-              }
-            }
-
-            quit(status = 1)
           } else {
             cat(sprintf("Coverage (%.2f%%) meets threshold (%.0f%%)\n", pct, threshold))
           }

@@ -158,6 +158,16 @@ apply_codelist <- function(
     )
   }
   
+  
+  if (any(unique(codelist[, cdm_table_name]) %in% DBI::dbListTables(db_con))) {
+    #Checking searching table:
+    available_tables <- dbListTables(db_con)
+    searching_tables <- unique(codelist[, cdm_table_name])
+    match_tables <- searching_tables[searching_tables %in% available_tables]
+    
+    codelist <- codelist[cdm_table_name %in% match_tables]
+  }
+  
   #If keep_value_column_name is empty then asign "TRUE" to the column value
   codelist[is.na(keep_value_column_name), keep_value_column_name:= "'TRUE'"]
   
@@ -184,6 +194,7 @@ apply_codelist <- function(
   #Checkinbg if any required table exists in the database
   if (!any(unique(codelist[, cdm_table_name]) %in% DBI::dbListTables(db_con))) {
     warning("[apply_codelist] requiered tables do not exist")
+    return()
   } else {
     for (fam_idx in seq_len(nrow(family_groups))) {
       fam_info <- family_groups[fam_idx]
