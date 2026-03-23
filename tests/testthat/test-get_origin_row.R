@@ -15,7 +15,7 @@ setup_comprehensive_db <- function() {
   return(con)
 }
 
-test_that("get_origin_row handles SQL execution errors via tryCatch", {
+testthat::test_that("get_origin_row handles SQL execution errors via tryCatch", {
   con <- setup_comprehensive_db()
   on.exit(dbDisconnect(con, shutdown = TRUE))
   
@@ -29,7 +29,7 @@ test_that("get_origin_row handles SQL execution errors via tryCatch", {
   expect_equal(nrow(res$BROKEN_VIEW), 0)
 })
 
-test_that("get_origin_row validates database columns correctly", {
+testthat::test_that("get_origin_row validates database columns correctly", {
   con <- setup_comprehensive_db()
   on.exit(dbDisconnect(con, shutdown = TRUE))
   
@@ -38,7 +38,7 @@ test_that("get_origin_row validates database columns correctly", {
   expect_message(get_origin_row(con, ids), "unique_id' does not exist in the MALFORMED")
 })
 
-test_that("get_origin_row validates input data structures", {
+testthat::test_that("get_origin_row validates input data structures", {
   con <- setup_comprehensive_db()
   on.exit(dbDisconnect(con, shutdown = TRUE))
   
@@ -50,7 +50,7 @@ test_that("get_origin_row validates input data structures", {
   )
 })
 
-test_that("get_origin_row handles complex multi-table scenarios", {
+testthat::test_that("get_origin_row handles complex multi-table scenarios", {
   con <- setup_comprehensive_db()
   on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
   
@@ -69,7 +69,7 @@ test_that("get_origin_row handles complex multi-table scenarios", {
   testthat::expect_equal(nrow(res$NON_EXISTENT), 0)
 })
 
-test_that("get_origin_row handles special characters", {
+testthat::test_that("get_origin_row handles special characters", {
   con <- setup_comprehensive_db()
   on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
   
