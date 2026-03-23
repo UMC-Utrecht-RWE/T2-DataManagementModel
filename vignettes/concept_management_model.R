@@ -55,15 +55,15 @@ dap_codes <- get_unique_codelist(
 
 dap_codes <- as.data.table(dap_codes[[1]])
 # View the results
-DT::datatable(dap_codes)
+DT::datatable(dap_codes,options = list(scrollX = TRUE))
 
 ## -----------------------------------------------------------------------------
 # Load your reference codelist
 # This typically contains all standard codes and their mappings
-reference_codelist <- data.table::fread(file.path(getwd(),"vignettes/data/code_list.csv"))
+reference_codelist <- data.table::fread(file.path(getwd(),"data/code_list.csv"))
 
 # Create a standardized codelist with intelligent matching
-dap_specific_codelist <- T2.DMM::create_dap_specific_codelist(
+dap_specific_codelist <- create_dap_specific_codelist(
   dap_codes = dap_codes,
   codelist = reference_codelist,
   start_with_codingsystems = c(
@@ -73,13 +73,13 @@ dap_specific_codelist <- T2.DMM::create_dap_specific_codelist(
 )
 
 # View results
-DT::datatable(dap_specific_codelist)
+DT::datatable(dap_specific_codelist,options = list(scrollX = TRUE))
 
 ## -----------------------------------------------------------------------------
 # Transform to long format the codelist to comply with the apply_codelist() function
 dap_specific_codelist <- dap_specific_codelist[match_status == "MATCHED"]
 dap_specific_codelist[, keep_value_column_name := NA_character_ ]
-dap_specific_codelist[, keep_date_column_name := "end_date_record" ]
+dap_specific_codelist[, keep_date_column_name := "start_date_record" ]
 
 long_format_codelist <- wrangling_codelist(
     codelist = dap_specific_codelist,
@@ -88,7 +88,7 @@ long_format_codelist <- wrangling_codelist(
   )
 
 # View results
-DT::datatable(long_format_codelist)
+DT::datatable(long_format_codelist,options = list(scrollX = TRUE))
 
 ## -----------------------------------------------------------------------------
 # Load your concept map in RWE BRIDGE metadata format
@@ -99,7 +99,7 @@ DT::datatable(long_format_codelist)
 dap_specific_concept_map <- data.table::fread(file.path(getwd(),"data/dap_specific_concept_map.csv"))
 
 # Transform to long format
-long_format_concept_map <- T2.DMM::wrangling_concept_map(dap_specific_concept_map)
+long_format_concept_map <- wrangling_concept_map(dap_specific_concept_map)
 
 
 ## -----------------------------------------------------------------------------
@@ -141,7 +141,7 @@ apply_codelist(
 
 ## -----------------------------------------------------------------------------
 concept_table <- dbReadTable(db_connection,"concept_table")
-DT::datatable(concept_table,,options = list(scrollX = TRUE))
+DT::datatable(concept_table,options = list(scrollX = TRUE))
 
 ## -----------------------------------------------------------------------------
 sessionInfo()
