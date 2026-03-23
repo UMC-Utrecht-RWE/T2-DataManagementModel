@@ -69,7 +69,7 @@ test_that("get_origin_row handles complex multi-table scenarios", {
   testthat::expect_equal(nrow(res$NON_EXISTENT), 0)
 })
 
-test_that("get_origin_row handles SQL injection and special characters", {
+test_that("get_origin_row handles special characters", {
   con <- setup_comprehensive_db()
   on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
   
