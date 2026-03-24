@@ -3,7 +3,8 @@
 #' @param dap_codes Data.table containing unique code list output.
 #' @param codelist Data.table containing the study code list.
 #' @param start_with_codingsystems Columns to start with.
-#' @param priority_col Name of the priority column to use for sorting. Defaults to "priority".
+#' @param priority_col Name of the priority column to use for sorting. Defaults
+#' to "priority".
 #'
 #' @export
 create_dap_specific_codelist <- function(
@@ -29,27 +30,32 @@ create_dap_specific_codelist <- function(
   validate_codelists(dap_codes, codelist, priority_col)
 
   # 3. COLUMN STANDARDIZATION
-  # Distinguish the source of the 'code' column before merging to prevent collisions
+  # Distinguish the source of the 'code' column before
+  # merging to prevent collisions
   codelist[, code.codelist := code]
   dap_codes[, code.dap_codes := code]
 
-  # Calculate string length for study codes to determine the minimum prefix needed for matching
+  # Calculate string length for study codes to determine the minimum prefix
+  #needed for matching
   codelist[, length_str := nchar(code.codelist)]
   min_length_codelist <- min(codelist$length_str, na.rm = TRUE)
 
   # 4. DATA SPLITTING
-  # Identify rows belonging to coding systems that allow prefix matching (e.g., ATC, ICD10)
-  is_start_with_dapcodes <- dap_codes$coding_system %in% start_with_codingsystems
+  # Identify rows belonging to coding systems that allow
+  # prefix matching (e.g., ATC, ICD10)
+  is_start_with_dapcodes <- dap_codes$coding_system %in% start_with_codingsystems#nolint
   is_start_with_codelist <- codelist$coding_system %in% start_with_codingsystems
 
-  # Split datasets into groups requiring exact matches vs hierarchical start-with matches
+  # Split datasets into groups requiring
+  # exact matches vs hierarchical start-with matches
   start_dap_codes <- dap_codes[is_start_with_dapcodes]
   start_codelist <- codelist[is_start_with_codelist]
   exact_dap_codes <- dap_codes[!is_start_with_dapcodes]
   exact_codelist <- codelist[!is_start_with_codelist]
 
   # 5. EXACT MATCHING LOGIC
-  # Performs a direct join on coding system and the raw code string for systems like 'PRODCODEID'
+  # Performs a direct join on coding system and the
+  # raw code string for systems like 'PRODCODEID'
   exact_match <- data.table()
   if (nrow(exact_dap_codes) > 0 && nrow(exact_codelist) > 0) {
     exact_match <- data.table::merge.data.table(
@@ -68,12 +74,14 @@ create_dap_specific_codelist <- function(
     message(paste0("[SetCodesheets] Max length of
                    code from the DAP is : ", max_code_length))
 
-    # Define the range of possible prefix lengths to search (Study min length to DAP max length)
+    # Define the range of possible prefix
+    # lengths to search (Study min length to DAP max length)
     length_range <- seq(min_length_codelist, max_code_length)
 
     # SUBSTRING EXPANSION:
-    # Iterate through all possible lengths. For each DAP code, generate its parent prefixes.
-    # e.g., DAP code 'N02BE01' will generate rows for 'N02', 'N02B', 'N02BE', etc.
+    # Iterate through all possible lengths. For each DAP code, generate
+    # its parent prefixes. e.g., DAP code 'N02BE01' will generate rows
+    # for 'N02', 'N02B', 'N02BE', etc.
     start_expanded <- rbindlist(lapply(length_range, function(len) {
       temp_dt <- start_dap_codes[ori_length_str >= len]
       if (nrow(temp_dt) > 0) {
@@ -101,8 +109,9 @@ create_dap_specific_codelist <- function(
       )
 
       # TIE-BREAKING & DEDUPLICATION:
-      # If one granular DAP code matches multiple study codes (e.g., both 'N02' and 'N02B'),
-      # we prioritize the longest match (most specific) and then the priority column.
+      # If one granular DAP code matches multiple study codes (e.g., both 'N02'
+      # and 'N02B'), we prioritize the longest match (most specific)
+      # and then the priority column.
       if (nrow(results_startwith) > 0) {
         cols_by <- c("code.dap_codes", "concept_id", "coding_system")
 
@@ -111,7 +120,7 @@ create_dap_specific_codelist <- function(
 
         # Keep only the single best match per unique DAP code
         results_startwith <- results_startwith[, .SD[1], by = cols_by]
-        data.table::setnames(results_startwith, "code_substring", "code.codelist")
+        data.table::setnames(results_startwith, "code_substring", "code.codelist")#nolint
       }
     }
   }
@@ -129,7 +138,9 @@ create_dap_specific_codelist <- function(
   setnames(all_matches, match_cols)
 
   # Combine results (rbindlist handles the types if results exist)
-  found_matches <- rbindlist(list(exact_match, results_startwith), use.names = TRUE, fill = TRUE)
+  found_matches <- rbindlist(list(exact_match, results_startwith),
+                                  use.names = TRUE,
+                                  fill = TRUE)
 
   if (nrow(found_matches) > 0) {
     all_matches <- rbindlist(list(all_matches, found_matches), fill = TRUE)
@@ -137,10 +148,13 @@ create_dap_specific_codelist <- function(
 
   # Identify records that failed to match using anti-joins
   # These will now work even if all_matches is empty because the columns exist
-  missing_from_cdm <- dap_codes[!all_matches, on = .(coding_system, code.dap_codes)]
-  missing_from_codelist <- codelist[!all_matches, on = .(coding_system, code.codelist)]
+  missing_from_cdm <- dap_codes[!all_matches
+                                , on = .(coding_system, code.dap_codes)]
+  missing_from_codelist <- codelist[!all_matches,
+                                    on = .(coding_system, code.codelist)]
 
-  # Final vertical stack: Matches, Codes only in DAP, and Codes only in Study Codelist
+  # Final vertical stack: Matches, Codes only in DAP,
+  # and Codes only in Study Codelist
   dap_specific_codelist <- rbindlist(
     list(all_matches, missing_from_cdm, missing_from_codelist),
     fill = TRUE
@@ -155,8 +169,8 @@ create_dap_specific_codelist <- function(
   # 8. match_statusING LOGIC
   # Label the source/status of each entry
   dap_specific_codelist[, match_status := fcase(
-    is.na(code.dap_codes), "ONLY_IN_CODELIST", # Present in study list, absent in database (DAP)
-    is.na(code.codelist), "ONLY_IN_DATA", # Present in database (DAP), absent in study list
+    is.na(code.dap_codes), "ONLY_IN_CODELIST", # Present in study list, absent in database (DAP) #nolint
+    is.na(code.codelist), "ONLY_IN_DATA", # Present in database (DAP), absent in study list #nolint
     default = "MATCHED" # Successful match identified
   )]
   # Final column cleanup and selection for output
@@ -200,9 +214,10 @@ validate_codelists <- function(dap_codes, codelist, priority_col) {
 
   # PRIORITY HANDLING
   # Check if the user-defined priority column exists in the study data.
-  # If missing, assign a default value of 1 to all rows so the sort logic still runs.
+  # If missing, assign a default value of 1 to all rows so 
+  # the sort logic still runs.
   if (!priority_col %in% names(codelist)) {
-    message(paste0("Column '", priority_col, "' not found. Assigning default value 1."))
+    message(paste0("Column '", priority_col, "' not found. Assigning default value 1."))#nolint
     codelist[, (priority_col) := 1]
   }
 
