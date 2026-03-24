@@ -46,7 +46,7 @@ test_that("import_dap_specific_codelist throws error on missing file", {
   con <- dbConnect(duckdb::duckdb(), ":memory:")
 
   expect_error(
-    import_dap_specific_codelist("non_existent_file.rds", "table", con, c("col1")),
+    import_dap_specific_codelist("non_existent_file.rds", "table", con, c("col1")),#nolint
     "File not found."
   )
 
