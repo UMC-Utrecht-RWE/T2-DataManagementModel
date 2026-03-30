@@ -17,33 +17,76 @@
 #' }
 #'
 #' @export
-get_rows_tables <- function(db_connection, verbose = TRUE) {
-  # Get the list of tables
-  message("Getting tables from the database")
-  tables <- DBI::dbListTables(db_connection)
+get_rows_tables <- function(db_connection) {
+  # Retrieve the names of all tables in the database
+  print(glue::glue("Retrieving dbListTables from {db_connection}"))
 
+  tryCatch(
+    {
+      tables <- DBI::dbListTables(db_connection)
+    },
+    error = function(e) {
+      stop(
+        "Error retrieving table names from the database. ",
+        "Please check the database connection.\n",
+        "Error message: ", e$message
+      )
+    }
+  )
+
+  #################
+  # input validation
+  #################
+  # Check for empty or invalid table names
   if (length(tables) == 0) {
     stop("No tables found in the database.")
   }
-  if (verbose) {
-    message(glue::glue("Tables found: {paste(tables, collapse = ', ')}"))
-  }
 
-  # Construct the query to get row counts
-  queries <- lapply(tables, function(table) {
-    sprintf(
-      "SELECT '%s' AS name, (SELECT COUNT(1) FROM %s) AS row_count",
-      table, table
+  invalid_tables <- tables[tables == "" | is.na(tables)]
+  if (length(invalid_tables) > 0) {
+    warning(
+      "The following tables have invalid names and will be skipped: ",
+      paste(invalid_tables, collapse = ", ")
     )
-  })
-
-  # Combine all queries using UNION ALL
-  full_query <- paste(queries, collapse = " UNION ALL ")
-
-  if (verbose) {
-    message(glue::glue("Generated query: {full_query}"))
+    tables <- tables[!(tables == "" | is.na(tables))]
   }
 
+  # Handle the case where no valid tables remain
+  if (length(tables) == 0) {
+    stop("No valid tables found in the database after filtering.")
+  }
+
+  ###############
+  # Query formation
+  ###############
+  # Construct the SQLite query to get the row counts for all tables
+  query <- paste0(
+    "SELECT '", tables[1], "' AS name, (SELECT COUNT(1) FROM ",
+    tables[1], ") AS row_count"
+  )
+
+  for (i in 2:length(tables)) {
+    query <- paste0(
+      query, " UNION ALL SELECT '", tables[i],
+      "' AS name, (SELECT COUNT(1) FROM ", tables[i],
+      ") AS row_count"
+    )
+  }
+
+  ###############
   # Execute the query and retrieve the result
-  return(DBI::dbGetQuery(db_connection, full_query))
+  ###############
+  tryCatch(
+    {
+      DBI::dbGetQuery(db_connection, query)
+    },
+    error = function(e) {
+      stop(
+        "Error executing query. Problematic query: ",
+        query,
+        "\nError message: ",
+        e$message
+      )
+    }
+  )
 }
