@@ -78,7 +78,7 @@ get_rows_tables <- function(db_connection) {
   ###############
   tryCatch(
     {
-      DBI::dbGetQuery(db_connection, query)
+      return(DBI::dbGetQuery(db_connection, query))
     },
     error = function(e) {
       stop(
