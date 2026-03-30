@@ -42,20 +42,6 @@ get_rows_tables <- function(db_connection) {
     stop("No tables found in the database.")
   }
 
-  invalid_tables <- tables[tables == "" | is.na(tables)]
-  if (length(invalid_tables) > 0) {
-    warning(
-      "The following tables have invalid names and will be skipped: ",
-      paste(invalid_tables, collapse = ", ")
-    )
-    tables <- tables[!(tables == "" | is.na(tables))]
-  }
-
-  # Handle the case where no valid tables remain
-  if (length(tables) == 0) {
-    stop("No valid tables found in the database after filtering.")
-  }
-
   ###############
   # Query formation
   ###############
