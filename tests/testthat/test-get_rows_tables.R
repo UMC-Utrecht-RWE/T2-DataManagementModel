@@ -1,25 +1,47 @@
-testthat::test_that("Checking that number of rows match with original csvs", {
-  # Load the database
+testthat::test_that("get_rows_tables returns correct row counts from loaded CSVs", {
+  # Setup using your custom helper
+  # suppressMessages handles the "Retrieving dbListTables..." message if you want a clean output
   db_con <- suppressMessages(create_loaded_test_db())
-  withr::defer(DBI::dbDisconnect(db_con))
+  withr::defer(DBI::dbDisconnect(db_con, shutdown = TRUE))
+  
+  # Execute function
+  result <- get_rows_tables(db_con)
+  
+  # 1. Check structure
+  expect_s3_class(result, "data.frame")
+  expect_named(result, c("name", "row_count"))
+  
+  # 2. Check that the tables we requested in create_loaded_test_db are present
+  expect_setequal(result$name, c("PERSONS", "VACCINES"))
+  
+  # 3. Validation against raw files
+  # Assuming these files exist in your test directory as per your initial prompt
+  vx1 <- import_file(testthat::test_path("dbtest/VACCINES.csv"))
+  vx2 <- import_file(testthat::test_path("dbtest/VACCINES2.csv"))
+  expected_vaccine_total <- nrow(vx1) + nrow(vx2)
+  
+  actual_vaccine_total <- result$row_count[result$name == "VACCINES"]
+  expect_equal(actual_vaccine_total, expected_vaccine_total)
+})
 
-  # Check if the number of rows in the database matches the original CSV files
-  count_rows_origin <- get_rows_tables(db_con)
-  vx1 <- import_file(testthat::test_path("dbtest", "VACCINES.csv"))
-  vx2 <- import_file(testthat::test_path("dbtest", "VACCINES2.csv"))
-  testthat::expect_equal(
-    count_rows_origin[count_rows_origin$"name" %in% "VACCINES", "row_count"],
-    nrow(vx1) + nrow(vx2)
+testthat::test_that("get_rows_tables handles database with no tables", {
+  # We create a fresh connection without calling the loader helper
+  empty_con <- DBI::dbConnect(duckdb::duckdb(), tempfile(fileext = ".duckdb"))
+  withr::defer(DBI::dbDisconnect(empty_con, shutdown = TRUE))
+  
+  expect_error(
+    get_rows_tables(empty_con),
+    "No tables found in the database"
   )
-  testthat::expect_equal(
-    unique(count_rows_origin$name), c("PERSONS", "VACCINES")
-  )
+})
 
-  # Expect an error when calling the function
-  dbname <- tempfile(fileext = ".duckdb")
-  con <- DBI::dbConnect(duckdb::duckdb(), dbname)
-  testthat::expect_error(
+testthat::test_that("get_rows_tables catches connection errors", {
+  # Create and immediately close a connection to trigger the first tryCatch
+  con <- DBI::dbConnect(duckdb::duckdb(), tempfile(fileext = ".duckdb"))
+  DBI::dbDisconnect(con, shutdown = TRUE)
+  
+  expect_error(
     get_rows_tables(con),
-    "No tables found in the database."
+    "Error retrieving table names from the database. "
   )
 })
