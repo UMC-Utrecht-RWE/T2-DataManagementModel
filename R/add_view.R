@@ -17,7 +17,8 @@
 #' first time.
 #' @export
 add_view <- function(
-    con, pipeline, transform_sql, base_table = NULL) {
+  con, pipeline, transform_sql, base_table = NULL
+) {
   # Ensure the pipeline registry exists
   DBI::dbExecute(con, "
     CREATE TABLE IF NOT EXISTS _pipeline_registry (

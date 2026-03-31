@@ -302,7 +302,6 @@ testthat::test_that("save_in_parquet FALSE with or without partition_var", {
 })
 
 
-
 testthat::test_that("save_in_parquet TRUE with partitioning", {
   source_db_path <- tempfile(fileext = ".duckdb")
   source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)

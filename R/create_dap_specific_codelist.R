@@ -8,13 +8,14 @@
 #'
 #' @export
 create_dap_specific_codelist <- function(
-    dap_codes,
-    codelist,
-    start_with_codingsystems = c(
-      "ICD10CM", "ICD10", "ICD10DA", "ICD9CM", "MTHICD9",
-      "ICPC", "ICPC2P", "ICPC2EENG", "ATC"
-    ),
-    priority_col = "priority") {
+  dap_codes,
+  codelist,
+  start_with_codingsystems = c(
+    "ICD10CM", "ICD10", "ICD10DA", "ICD9CM", "MTHICD9",
+    "ICPC", "ICPC2P", "ICPC2EENG", "ATC"
+  ),
+  priority_col = "priority"
+) {
   # 1. PARAMETER VALIDATION
   if (!is.character(start_with_codingsystems)) {
     stop("start_with_codingsystems must be a character vector")
@@ -36,14 +37,14 @@ create_dap_specific_codelist <- function(
   dap_codes[, code.dap_codes := code]
 
   # Calculate string length for study codes to determine the minimum prefix
-  #needed for matching
+  # needed for matching
   codelist[, length_str := nchar(code.codelist)]
   min_length_codelist <- min(codelist$length_str, na.rm = TRUE)
 
   # 4. DATA SPLITTING
   # Identify rows belonging to coding systems that allow
   # prefix matching (e.g., ATC, ICD10)
-  is_start_with_dapcodes <- dap_codes$coding_system %in% start_with_codingsystems#nolint
+  is_start_with_dapcodes <- dap_codes$coding_system %in% start_with_codingsystems # nolint
   is_start_with_codelist <- codelist$coding_system %in% start_with_codingsystems
 
   # Split datasets into groups requiring
@@ -120,7 +121,7 @@ create_dap_specific_codelist <- function(
 
         # Keep only the single best match per unique DAP code
         results_startwith <- results_startwith[, .SD[1], by = cols_by]
-        data.table::setnames(results_startwith, "code_substring", "code.codelist")#nolint
+        data.table::setnames(results_startwith, "code_substring", "code.codelist") # nolint
       }
     }
   }
@@ -150,10 +151,12 @@ create_dap_specific_codelist <- function(
 
   # Identify records that failed to match using anti-joins
   # These will now work even if all_matches is empty because the columns exist
-  missing_from_cdm <- dap_codes[!all_matches
-                                , on = .(coding_system, code.dap_codes)]
+  missing_from_cdm <- dap_codes[!all_matches,
+    on = .(coding_system, code.dap_codes)
+  ]
   missing_from_codelist <- codelist[!all_matches,
-                                    on = .(coding_system, code.codelist)]
+    on = .(coding_system, code.codelist)
+  ]
 
   # Final vertical stack: Matches, Codes only in DAP,
   # and Codes only in Study Codelist
@@ -219,7 +222,7 @@ validate_codelists <- function(dap_codes, codelist, priority_col) {
   # If missing, assign a default value of 1 to all rows so
   # the sort logic still runs.
   if (!priority_col %in% names(codelist)) {
-    message(paste0("Column '", priority_col, "' not found. Assigning default value 1."))#nolint
+    message(paste0("Column '", priority_col, "' not found. Assigning default value 1.")) # nolint
     codelist[, (priority_col) := 1]
   }
 
@@ -240,8 +243,7 @@ validate_codelists <- function(dap_codes, codelist, priority_col) {
   }
 
   # Validate column data types
-  validate_column_type <- function(
-      col, name, allowed_types = c("character", "factor")) {
+  validate_column_type <- function(col, name, allowed_types = c("character", "factor")) {
     if (!any(sapply(allowed_types, function(type) {
       switch(type,
         "character" = is.character(col),

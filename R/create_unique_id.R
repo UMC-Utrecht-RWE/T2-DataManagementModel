@@ -31,12 +31,13 @@
 #'
 #' @keywords internal
 create_unique_id <- function(
-    db_connection,
-    cdm_tables_names,
-    extension_name = "",
-    schema_name = NULL,
-    to_view = FALSE,
-    pipeline_extension = "_T2DMM") {
+  db_connection,
+  cdm_tables_names,
+  extension_name = "",
+  schema_name = NULL,
+  to_view = FALSE,
+  pipeline_extension = "_T2DMM"
+) {
   if (is.null(schema_name)) {
     schema_name <- "main"
   }

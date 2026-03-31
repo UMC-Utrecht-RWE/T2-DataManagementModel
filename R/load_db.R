@@ -15,12 +15,13 @@
 #'
 #' @keywords internal
 load_db <- function(
-    db_connection,
-    data_instance_path,
-    cdm_metadata,
-    cdm_tables_names,
-    extension_name = "",
-    file_format = "auto") {
+  db_connection,
+  data_instance_path,
+  cdm_metadata,
+  cdm_tables_names,
+  extension_name = "",
+  file_format = "auto"
+) {
   # Validate file_format parameter
   if (!file_format %in% c("csv", "parquet", "auto")) {
     stop("file_format must be one of: 'csv', 'parquet', or 'auto'")

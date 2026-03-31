@@ -12,13 +12,14 @@
 #'
 #' @keywords internal
 append_tables <- function(
-    db,
-    tables,
-    name,
-    dt_coll = "date",
-    colls = "*",
-    return = TRUE,
-    sqlite_temp = FALSE) {
+  db,
+  tables,
+  name,
+  dt_coll = "date",
+  colls = "*",
+  return = TRUE,
+  sqlite_temp = FALSE
+) {
   # Check for missing tables in the database
   lists_tables_available <- DBI::dbListTables(db)
   missing <- tables[!tables %in% lists_tables_available]

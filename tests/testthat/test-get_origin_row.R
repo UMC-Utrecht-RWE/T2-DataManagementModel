@@ -18,12 +18,12 @@ setup_comprehensive_db <- function() {
 testthat::test_that("get_origin_row handles SQL execution errors via tryCatch", {
   con <- setup_comprehensive_db()
   on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
-  
+
   ids <- data.table::data.table(unique_id = "1", ori_table = "BROKEN_VIEW")
-  
+
   # 1. Check message
   testthat::expect_message(get_origin_row(con, ids), "Error querying table 'BROKEN_VIEW'")
-  
+
   # 2. Check result is empty data.table
   res <- suppressMessages(get_origin_row(con, ids))
   testthat::expect_equal(nrow(res$BROKEN_VIEW), 0)
@@ -32,16 +32,16 @@ testthat::test_that("get_origin_row handles SQL execution errors via tryCatch", 
 testthat::test_that("get_origin_row validates database columns correctly", {
   con <- setup_comprehensive_db()
   on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
-  
+
   ids <- data.table::data.table(unique_id = "1", ori_table = "MALFORMED")
-  
+
   testthat::expect_message(get_origin_row(con, ids), "unique_id' does not exist in the MALFORMED")
 })
 
 testthat::test_that("get_origin_row validates input data structures", {
   con <- setup_comprehensive_db()
   on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
-  
+
   # Test for missing columns in the INPUT data table
   # Note: The error message changed slightly in the function fix, so update test here
   testthat::expect_message(

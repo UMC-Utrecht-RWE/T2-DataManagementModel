@@ -24,9 +24,10 @@
 #'
 #' @export
 get_origin_value <- function(
-    cases_dt,
-    db_connection,
-    search_scheme = NULL) {
+  cases_dt,
+  db_connection,
+  search_scheme = NULL
+) {
   # Input validation
   # Check if cases_dt is a data.table
   cases_dt <- T2.DMM:::ensure_data_table(
