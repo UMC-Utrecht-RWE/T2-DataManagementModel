@@ -60,7 +60,7 @@ DT::datatable(dap_codes,options = list(scrollX = TRUE))
 ## -----------------------------------------------------------------------------
 # Load your reference codelist
 # This typically contains all standard codes and their mappings
-reference_codelist <- data.table::fread(file.path(getwd(),"data/code_list.csv"))
+reference_codelist <- data.table::fread("data/code_list.csv")
 
 # Create a standardized codelist with intelligent matching
 dap_specific_codelist <- create_dap_specific_codelist(
@@ -96,7 +96,7 @@ DT::datatable(long_format_codelist,options = list(scrollX = TRUE))
 #                   column_name_*, expected_value_*,
 #                   keep_value_column_name, keep_date_column_name
 
-dap_specific_concept_map <- data.table::fread(file.path(getwd(),"data/dap_specific_concept_map.csv"))
+dap_specific_concept_map <- data.table::fread("data/dap_specific_concept_map.csv")
 
 # Transform to long format
 long_format_concept_map <- wrangling_concept_map(dap_specific_concept_map)
