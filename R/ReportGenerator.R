@@ -72,7 +72,6 @@ ReportGenerator <- R6::R6Class("ReportGenerator", # nolint
       subclass_instance$write_report(data, db_loader)
     }
   ),
-
   private = list(
     find_saving_class = function(db_loader) {
       report_name <- db_loader$config$report_generator$report_name
@@ -125,7 +124,6 @@ ReportGenerator <- R6::R6Class("ReportGenerator", # nolint
         tryCatch({
           instance <- cls$new()
           if (is.function(instance$supported_ext)) {
-
             supported <- instance$supported_ext()
             message(glue::glue(
               "Extensions for {cls$classname}: {

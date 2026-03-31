@@ -35,7 +35,7 @@ test_that("VIEW clean_missing_values creates views correctly", {
 })
 
 
-test_that("clean_missing_values overwrites tables in materialized mode", {
+testthat::test_that("clean_missing_values overwrites tables in materialized mode", {
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = ":memory:")
 
   # Sample table
@@ -72,14 +72,13 @@ test_that("clean_missing_values overwrites tables in materialized mode", {
 })
 
 
-test_that("clean_missing_values skips non-existing tables", {
+testthat::test_that("clean_missing_values skips non-existing tables", {
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = ":memory:")
 
   # Provide a table that does not exist
   list_cols <- list(NON_EXISTENT = "id")
 
-
-  expect_message(
+  testthat::expect_message(
     clean_missing_values(con, list_cols, to_view = TRUE),
     fixed = TRUE,
     "Table NON_EXISTENT does not exist"

@@ -28,6 +28,7 @@ get_origin_value(
   cases_dt,
   db_connection,
   list("Table1" = "Column1", "Table2" = "Column2")
-)}
+)
+}
 
 }

@@ -6,14 +6,14 @@ library(testthat)
 con <- dbConnect(duckdb::duckdb(), dbdir = ":memory:")
 
 # Create a sample table
-dbExecute(con, "
+DBI::dbExecute(con, "
 CREATE TABLE persons (
   name TEXT,
   age INTEGER
 );
 ")
 
-dbExecute(con, "
+DBI::dbExecute(con, "
 INSERT INTO persons VALUES
 ('Alice', 25),
 ('Bob', 30),
@@ -24,20 +24,20 @@ INSERT INTO persons VALUES
 
 
 # ---- TESTS ----
-test_that("Pipeline auto-initializes if it does not exist", {
+testthat::test_that("Pipeline auto-initializes if it does not exist", {
   add_view(con,
-           pipeline = "test_pipeline",
-           "SELECT * FROM %s",
-           base_table = "persons")
+    pipeline = "test_pipeline",
+    "SELECT * FROM %s",
+    base_table = "persons"
+  )
 
   # Check registry
   registry <- dbGetQuery(con, "SELECT * FROM _pipeline_registry WHERE pipeline_name = 'test_pipeline'")
-  expect_equal(nrow(registry), 1)
-  expect_equal(registry$current_view, "test_pipeline_view_1")
-
+  testthat::expect_equal(nrow(registry), 1)
+  testthat::expect_equal(registry$current_view, "test_pipeline_view_1")
 })
 
-test_that("Adding multiple steps creates versioned views and updates final alias", {
+testthat::test_that("Adding multiple steps creates versioned views and updates final alias", {
   # Step 2: remove duplicates
   add_view(con, "test_pipeline", "SELECT DISTINCT * FROM %s")
 
@@ -46,23 +46,22 @@ test_that("Adding multiple steps creates versioned views and updates final alias
 
   # Check registry points to latest version
   registry <- dbGetQuery(con, "SELECT current_view FROM _pipeline_registry WHERE pipeline_name='test_pipeline'")
-  expect_equal(registry$current_view, "test_pipeline_view_3")
-
+  testthat::expect_equal(registry$current_view, "test_pipeline_view_3")
 })
 
-test_that("Final view returns expected data", {
+testthat::test_that("Final view returns expected data", {
   result <- dbGetQuery(con, "SELECT * FROM test_pipeline_view_3 ORDER BY name")
 
   # Check that duplicates are removed
-  expect_equal(nrow(result), 3)
+  testthat::expect_equal(nrow(result), 3)
 
   # Check that name_len column exists
-  expect_true("name_len" %in% colnames(result))
+  testthat::expect_true("name_len" %in% colnames(result))
 
   # Check that values are correct
-  expect_equal(result$name_len[ result$name == "Alice"], nchar("Alice"))
-  expect_equal(result$name_len[ result$name == "Bob"], nchar("Bob"))
+  testthat::expect_equal(result$name_len[result$name == "Alice"], nchar("Alice"))
+  testthat::expect_equal(result$name_len[result$name == "Bob"], nchar("Bob"))
 })
 
 # Cleanup
-dbDisconnect(con, shutdown = TRUE)
+DBI::dbDisconnect(con, shutdown = TRUE)

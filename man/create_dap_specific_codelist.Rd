@@ -19,7 +19,8 @@ create_dap_specific_codelist(
 
 \item{start_with_codingsystems}{Columns to start with.}
 
-\item{priority_col}{Name of the priority column to use for sorting. Defaults to "priority".}
+\item{priority_col}{Name of the priority column to use for sorting. Defaults
+to "priority".}
 }
 \description{
 Create DAP-Specific Codelist

@@ -1,5 +1,4 @@
 testthat::test_that("DatabaseLoader initializes with environment variables", {
-
   loader <- create_database_loader(config_path = "CONFIG_SET_DB")
 
   testthat::expect_s3_class(loader, "DatabaseLoader")
@@ -11,7 +10,6 @@ testthat::test_that("DatabaseLoader initializes with environment variables", {
 })
 
 testthat::test_that("DatabaseLoader runs set_database() without error", {
-
   loader <- create_database_loader(config_path = "CONFIG_SET_DB")
 
   # We'll just check that it doesn't throw
@@ -54,7 +52,8 @@ testthat::test_that("DatabaseLoader runs set_database() without error", {
       "person_id", "start_date_record", "end_date_record", "event_code",
       "event_record_vocabulary", "text_linked_to_event_code", "event_free_text",
       "present_on_admission", "laterality_of_event", "meaning_of_event",
-      "origin_of_event", "visit_occurrence_id")
+      "origin_of_event", "visit_occurrence_id"
+    )
   )
   testthat::expect_equal(
     DBI::dbListFields(loader$db, "MEDICINES"),

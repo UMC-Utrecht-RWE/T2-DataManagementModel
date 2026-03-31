@@ -33,10 +33,8 @@
 #' @param keep_column_prefix Characther default: keep_value
 #' The prefix value to identify the column where the column name with the value
 #' will stored in the concept_table.
-
 #' @param partition_var Default: concept_id.
 #' Concept_table column to partition on.
-
 #' @export
 create_dap_specific_concept <- function(
   codelist,
@@ -257,7 +255,7 @@ create_dap_specific_concept <- function(
         date_col, " >= DATE '", date_col_filter, "'"
       )
     }
-  
+
     print(where_statement)
     # Execute COPY to parquet OR INSERT to database table
     if (save_in_parquet) {

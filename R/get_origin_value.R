@@ -19,7 +19,8 @@
 #'   cases_dt,
 #'   db_connection,
 #'   list("Table1" = "Column1", "Table2" = "Column2")
-#' )}
+#' )
+#' }
 #'
 #' @export
 get_origin_value <- function(
@@ -102,7 +103,6 @@ get_origin_value <- function(
   updated_values <- list()
 
   # Loop through each unique ori_table that exists in search_scheme list
-  # valid_tables <- ori_tables[ori_tables %in% names(search_scheme)]
 
   for (i in seq_along(search_scheme)) {
     column <- search_scheme[[i]]
@@ -166,11 +166,10 @@ get_origin_value <- function(
 
     if (!is.null(rs) && nrow(rs) > 0) {
       # Rename the column in the result set
-      # data.table::setnames(rs, column, "value")
-
       # Combine the result set with the updated values list
       updated_values <- data.table::rbindlist(
-        list(updated_values, rs), use.names = TRUE, fill = TRUE
+        list(updated_values, rs),
+        use.names = TRUE, fill = TRUE
       )
 
       # Remove the result set from memory
@@ -193,13 +192,12 @@ get_origin_value <- function(
 
   # Return unique values or empty data.table if no results
   if (length(updated_values) > 0) {
-    unique_updated_values <- unique(updated_values)
-    return(unique_updated_values)
+    unique(updated_values)
   } else {
-    return(data.table::data.table(
+    data.table::data.table(
       ori_table = character(0),
       unique_id = integer(0),
       Value = character(0)
-    ))
+    )
   }
 }
