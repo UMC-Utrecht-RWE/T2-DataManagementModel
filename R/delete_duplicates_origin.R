@@ -28,30 +28,6 @@
 #' clean_missing_values on CDM table we must define the name of the
 #' pipeline extension. See add_view for more information.
 #'
-#' @examples
-#' \dontrun{
-#' # Example 1: Delete duplicates based on specific columns
-#' db_connection <- DBI::dbConnect(duckdb::duckdb(), ":memory:")
-#' scheme <- list("EVENTS" = c("*"), "PERSONS" = c("person_id", "age"))
-#' delete_duplicates_origin(db_connection, scheme)
-#'
-#' # Example 2: Delete duplicates across all columns in multiple tables and
-#' save deleted rows
-#' scheme <- setNames(rep("*", length(CDM_tables_names)), CDM_tables_names)
-#' delete_duplicates_origin(
-#'   db_connection, scheme,
-#'   save_deleted = TRUE,
-#'   save_path = "/path/to/save"
-#' )
-#'
-#' # Example 3: Create views with distinct rows instead of deleting
-#' delete_duplicates_origin(
-#'   db_connection, scheme,
-#'   to_view = TRUE,
-#'   view_prefix = "distinct_"
-#' )
-#' }
-#'
 #' @keywords internal
 
 delete_duplicates_origin <- function(
@@ -64,7 +40,6 @@ delete_duplicates_origin <- function(
   to_view = FALSE,
   pipeline_extension = "_T2DMM"
 ) {
-
   if (is.null(schema_name)) {
     schema_name <- "main"
   }
@@ -77,7 +52,6 @@ delete_duplicates_origin <- function(
         con = db_connection, table_name = case_name, schema = schema_name
       ) == TRUE
     ) {
-
       col_names <- DBI::dbGetQuery(
         db_connection,
         sprintf(
@@ -92,7 +66,6 @@ delete_duplicates_origin <- function(
       if (!all(
         scheme[[case_name]] %in% col_names$column_name
       ) && all(!scheme[[case_name]] %in% "*")) {
-
         wrong_cols <- scheme[[case_name]][
           !scheme[[case_name]] %in% col_names$column_name
         ]
@@ -115,7 +88,7 @@ delete_duplicates_origin <- function(
     # Loop through each specified table in the scheme
     for (case_name in names(scheme)) {
       # Check if the table exists in the database
-      #Adjusting name of table to the Scheme where this is located in the db
+      # Adjusting name of table to the Scheme where this is located in the db
       table_from_name <- paste0(schema_name, ".", case_name)
       message(paste0("[delete_duplicates_origin] Deleting records from: ", case_name))
       if (case_name %in% DBI::dbListTables(db_connection)) {
@@ -130,12 +103,11 @@ delete_duplicates_origin <- function(
         }
         cols_to_select <- paste(cols_to_select, collapse = ", ")
 
-        
-        if (to_view == TRUE) {
 
+        if (to_view == TRUE) {
           pipeline_name <- paste0(case_name, pipeline_extension)
-          query <-  paste0(
-            "SELECT DISTINCT * 
+          query <- paste0(
+            "SELECT DISTINCT *
              FROM %s ;
             "
           )
@@ -149,7 +121,7 @@ delete_duplicates_origin <- function(
         # Execute the query and handle results
         if (save_deleted == FALSE && to_view == FALSE) {
           row_count_0 <- DBI::dbGetQuery(
-            db_connection, paste0("SELECT COUNT(*) AS n FROM ",table_from_name)
+            db_connection, paste0("SELECT COUNT(*) AS n FROM ", table_from_name)
           )
           # Build the SQL query to delete duplicate rows
           query <- paste0("CREATE OR REPLACE TABLE ", case_name, " AS
@@ -157,7 +129,7 @@ delete_duplicates_origin <- function(
                        FROM ", table_from_name)
           DBI::dbExecute(db_connection, query)
           row_count_1 <- DBI::dbGetQuery(
-            db_connection, paste0("SELECT COUNT(*) AS n FROM ",case_name)
+            db_connection, paste0("SELECT COUNT(*) AS n FROM ", case_name)
           )
           message(paste0(
             "[delete_duplicates_origin] Number of record deleted: ",
@@ -173,7 +145,7 @@ delete_duplicates_origin <- function(
                        FROM ", table_from_name, "
                        GROUP BY ", cols_to_select, "
                        )")
-          rs <-  data.table::as.data.table(
+          rs <- data.table::as.data.table(
             DBI::dbGetQuery(
               db_connection,
               paste0(query, " RETURNING *;")
