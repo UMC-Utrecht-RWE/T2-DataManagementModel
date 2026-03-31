@@ -22,6 +22,8 @@ utils::globalVariables(c(
   "coding_system",
   "source_column",
   "COUNT",
+  "concept_id",
+  "tags",
   "length_str",
   "code_substring",
   "ori_length_str",
@@ -29,10 +31,4 @@ utils::globalVariables(c(
   "code",
   "code.codelist",
   "code.dap_codes",
-
-  # Silence R CMD check NSE notes from ggplot2/rlang
-  ".data",
-  "x",
-  "column",
-  "pct_missing"
 ))

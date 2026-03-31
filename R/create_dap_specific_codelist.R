@@ -95,7 +95,7 @@ create_dap_specific_codelist <- function(
           ori_length_str, COUNT, source_column
         )])
       }
-      return(data.table())
+      data.table()
     }))
 
     if (nrow(start_expanded) > 0) {
@@ -138,9 +138,11 @@ create_dap_specific_codelist <- function(
   setnames(all_matches, match_cols)
 
   # Combine results (rbindlist handles the types if results exist)
-  found_matches <- rbindlist(list(exact_match, results_startwith),
-                                  use.names = TRUE,
-                                  fill = TRUE)
+  found_matches <- rbindlist(
+    list(exact_match, results_startwith),
+    use.names = TRUE,
+    fill = TRUE
+  )
 
   if (nrow(found_matches) > 0) {
     all_matches <- rbindlist(list(all_matches, found_matches), fill = TRUE)
@@ -183,7 +185,7 @@ create_dap_specific_codelist <- function(
   missing_cols <- output_cols[output_cols %notin% names(dap_specific_codelist)]
   lapply(
     missing_cols,
-    function(x) dap_specific_codelist[, eval(x) := NA]
+    function(x) dap_specific_codelist[, (x) := NA]
   )
 
   return(dap_specific_codelist[, ..output_cols])
@@ -214,7 +216,7 @@ validate_codelists <- function(dap_codes, codelist, priority_col) {
 
   # PRIORITY HANDLING
   # Check if the user-defined priority column exists in the study data.
-  # If missing, assign a default value of 1 to all rows so 
+  # If missing, assign a default value of 1 to all rows so
   # the sort logic still runs.
   if (!priority_col %in% names(codelist)) {
     message(paste0("Column '", priority_col, "' not found. Assigning default value 1."))#nolint
