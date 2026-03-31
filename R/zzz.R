@@ -27,8 +27,7 @@ utils::globalVariables(c(
   "length_str",
   "code_substring",
   "ori_length_str",
-  "length_str",
   "code",
   "code.codelist",
-  "code.dap_codes",
+  "code.dap_codes"
 ))
