@@ -8,13 +8,13 @@ import_file <- function(path, cols = NULL, cols_new = NULL, exprs = NULL,
     # fread may give unexpected behavior.
     # Now you have a good fixed starting point.
     if (!is.null(cols)) {
-      loaded_file <- fread(path,
+      loaded_file <- data.table::fread(path,
         stringsAsFactors = FALSE, select = cols,
         na.strings = c("", NA), colClasses = c("character"),
         encoding = "UTF-8"
       )
     } else {
-      loaded_file <- fread(path,
+      loaded_file <- data.table::fread(path,
         stringsAsFactors = FALSE, na.strings = c("", NA),
         colClasses = c("character"),
         encoding = "UTF-8"
