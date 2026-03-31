@@ -10,6 +10,13 @@ utils::globalVariables(c(
   ".GRP", # Group counter
   ".BY", # List of by values
 
+  # data.table functions
+  "setnames",
+  ":=",
+
+  # From T2.DMM package
+  "DatabaseLoader",
+
   # Add unquoted column names here if needed:
   "ori_table",
   "unique_id",
