@@ -12,7 +12,7 @@ create_loaded_test_db <- function(csv_dir = testthat::test_path("dbtest"),
     cdm_tables_names = tables
   )
 
-  return(con)
+  con
 }
 
 create_database_loader <- function(config_path) {

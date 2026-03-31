@@ -207,5 +207,5 @@ table_exists <- function(con, table_name, schema = NULL) {
   }
 
   result <- DBI::dbGetQuery(con, sql)$n
-  return(result > 0)
+  result > 0
 }

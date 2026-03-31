@@ -6,13 +6,26 @@ setup_comprehensive_db <- function() {
   DBI::dbExecute(con, "INSERT INTO EVENTS VALUES ('1','EVENTS', 'A')")
 
   # Malformed table
-  DBI::dbExecute(con, "CREATE TABLE MALFORMED (wrong_id VARCHAR, ori_table VARCHAR)")
+  DBI::dbExecute(
+    con,
+    "CREATE TABLE MALFORMED (wrong_id VARCHAR, ori_table VARCHAR)"
+  )
 
   # Broken View: Force a CAST error (String to Integer) to trigger tryCatch
-  DBI::dbExecute(con, "CREATE TABLE CRASH_DATA (unique_id VARCHAR, ori_table VARCHAR, bad_val VARCHAR)")
-  DBI::dbExecute(con, "INSERT INTO CRASH_DATA VALUES ('1', 'CRASH_DATA', 'NOT_A_NUMBER')")
-  DBI::dbExecute(con, "CREATE VIEW BROKEN_VIEW AS SELECT unique_id, ori_table, CAST(bad_val AS INTEGER) AS crash FROM CRASH_DATA")
-  return(con)
+  DBI::dbExecute(
+    con,
+    "CREATE TABLE CRASH_DATA (unique_id VARCHAR, ori_table VARCHAR, bad_val VARCHAR)"
+  )
+  DBI::dbExecute(
+    con,
+    "INSERT INTO CRASH_DATA VALUES ('1', 'CRASH_DATA', 'NOT_A_NUMBER')"
+  )
+  DBI::dbExecute(
+    con,
+    "CREATE VIEW BROKEN_VIEW AS SELECT unique_id,
+    ori_table, CAST(bad_val AS INTEGER) AS crash FROM CRASH_DATA"
+  )
+  con
 }
 
 testthat::test_that("get_origin_row handles SQL execution errors via tryCatch", {

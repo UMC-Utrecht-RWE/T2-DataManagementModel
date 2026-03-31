@@ -63,7 +63,7 @@ get_origin_value <- function(
   }
 
   if (!all(sapply(search_scheme, is.character)) ||
-    !all(sapply(search_scheme, length) == 1)) {
+        !all(sapply(search_scheme, length) == 1)) {
     stop(paste0(
       "[get_origin_value] Each element in 'search_scheme'",
       " must be a single character string"
@@ -103,7 +103,6 @@ get_origin_value <- function(
   updated_values <- list()
 
   # Loop through each unique ori_table that exists in search_scheme list
-  # valid_tables <- ori_tables[ori_tables %in% names(search_scheme)]
 
   for (i in seq_along(search_scheme)) {
     column <- search_scheme[[i]]
@@ -167,8 +166,6 @@ get_origin_value <- function(
 
     if (!is.null(rs) && nrow(rs) > 0) {
       # Rename the column in the result set
-      # data.table::setnames(rs, column, "value")
-
       # Combine the result set with the updated values list
       updated_values <- data.table::rbindlist(
         list(updated_values, rs),
@@ -195,13 +192,12 @@ get_origin_value <- function(
 
   # Return unique values or empty data.table if no results
   if (length(updated_values) > 0) {
-    unique_updated_values <- unique(updated_values)
-    return(unique_updated_values)
+    unique(updated_values)
   } else {
-    return(data.table::data.table(
+    data.table::data.table(
       ori_table = character(0),
       unique_id = integer(0),
       Value = character(0)
-    ))
+    )
   }
 }

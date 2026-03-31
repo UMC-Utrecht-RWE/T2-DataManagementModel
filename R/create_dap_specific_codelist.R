@@ -188,10 +188,10 @@ create_dap_specific_codelist <- function(
   missing_cols <- output_cols[output_cols %notin% names(dap_specific_codelist)]
   lapply(
     missing_cols,
-    function(x) dap_specific_codelist[, (x) := NA]
+    function(x) dap_specific_codelist[, eval(x) := NA]
   )
 
-  return(dap_specific_codelist[, ..output_cols])
+  dap_specific_codelist[, ..output_cols]
 }
 
 

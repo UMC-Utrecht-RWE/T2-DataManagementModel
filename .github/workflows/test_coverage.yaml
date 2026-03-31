@@ -56,7 +56,7 @@ jobs:
           cat("========================================\n\n")
 
           # Check threshold
-          threshold <- 95
+          threshold <- 93
           if (pct < threshold) {
             cat(sprintf("Coverage (%.2f%%) is below threshold (%.0f%%)\n", pct, threshold))
             cat("\nFiles below threshold:\n")

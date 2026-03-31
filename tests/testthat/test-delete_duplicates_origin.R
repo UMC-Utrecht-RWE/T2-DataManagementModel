@@ -193,7 +193,7 @@ testthat::test_that("VIEW: Checking if all columns exist in the scheme", {
 
   cdm_tables_names <- c("PERSONS")
   scheme <- setNames(rep("test1", length(cdm_tables_names)), cdm_tables_names)
-  expect_message(
+  testthat::expect_message(
     delete_duplicates_origin(
       db_connection = db_con, scheme, save_deleted = FALSE, to_view = TRUE
     ),

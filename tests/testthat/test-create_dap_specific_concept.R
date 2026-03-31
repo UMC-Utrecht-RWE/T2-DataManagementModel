@@ -59,8 +59,7 @@ create_test_db <- function(source_db_path, source_db_conn, concept_db_conn, atta
 }
 
 cleanup_concept_tables <- function(db_connection) {
-  if ("MEDICAL_OBSERVATIONS_EDITED_dapspec" %in%
-    DBI::dbListTables(db_connection)) {
+  if ("MEDICAL_OBSERVATIONS_EDITED_dapspec" %in% DBI::dbListTables(db_connection)) {
     DBI::dbExecute(
       db_connection, "DROP TABLE MEDICAL_OBSERVATIONS_EDITED_dapspec"
     )
