@@ -133,5 +133,5 @@ get_origin_row <- function(db_connection, ids) {
     return_values[[table]] <- result
   }
 
-  return(return_values)
+  return_values
 }

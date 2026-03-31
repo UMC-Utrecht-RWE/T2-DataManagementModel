@@ -1,6 +1,6 @@
 #' Load CDM Data Set Instance from CSV or Parquet Files into a Database
 #'
-#' This function is designed for loading a CDM data set instance from CSV or 
+#' This function is designed for loading a CDM data set instance from CSV or
 #' Parquet files into a database.
 #'
 #' @param db_connection A database connection object (SQLiteConnection).
@@ -79,7 +79,7 @@ load_db <- function(
 
     message(paste0(
       "[load_db]: Using ", selected_format, " format for table: ", table
-      ))
+    ))
 
     # Construct the appropriate query based on file format
     if (selected_format == "parquet") {

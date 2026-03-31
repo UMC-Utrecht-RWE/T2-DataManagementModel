@@ -85,7 +85,7 @@ create_dap_specific_codelist <- function(
                            code_substring, length_str, 
                            ori_length_str, COUNT, source_column)])
       }
-      return(data.table())
+      data.table()
     }))
     
     if (nrow(start_expanded) > 0) {

@@ -31,13 +31,16 @@ test_that("Pipeline auto-initializes if it does not exist", {
            base_table = "persons")
 
   # Check registry
-  registry <- dbGetQuery(con, "SELECT * FROM _pipeline_registry WHERE pipeline_name = 'test_pipeline'")
+  registry <- dbGetQuery(
+    con,
+    "SELECT * FROM _pipeline_registry WHERE pipeline_name = 'test_pipeline'"
+  )
   expect_equal(nrow(registry), 1)
   expect_equal(registry$current_view, "test_pipeline_view_1")
 
 })
 
-test_that("Adding multiple steps creates versioned views and updates final alias", {
+test_that("Multiple steps creates versioned views and updates final alias", {
   # Step 2: remove duplicates
   add_view(con, "test_pipeline", "SELECT DISTINCT * FROM %s")
 
@@ -45,7 +48,11 @@ test_that("Adding multiple steps creates versioned views and updates final alias
   add_view(con, "test_pipeline", "SELECT *, LENGTH(name) AS name_len FROM %s")
 
   # Check registry points to latest version
-  registry <- dbGetQuery(con, "SELECT current_view FROM _pipeline_registry WHERE pipeline_name='test_pipeline'")
+  registry <- dbGetQuery(
+    con,
+    "SELECT current_view FROM _pipeline_registry
+    WHERE pipeline_name='test_pipeline'"
+  )
   expect_equal(registry$current_view, "test_pipeline_view_3")
 
 })
@@ -60,8 +67,8 @@ test_that("Final view returns expected data", {
   expect_true("name_len" %in% colnames(result))
 
   # Check that values are correct
-  expect_equal(result$name_len[ result$name == "Alice"], nchar("Alice"))
-  expect_equal(result$name_len[ result$name == "Bob"], nchar("Bob"))
+  expect_equal(result$name_len[result$name == "Alice"], nchar("Alice"))
+  expect_equal(result$name_len[result$name == "Bob"], nchar("Bob"))
 })
 
 # Cleanup

@@ -30,7 +30,7 @@ when loading different CDM instances in the same DB.}
   If "auto", the function will detect and prioritize parquet files over csv.}
 }
 \description{
-This function is designed for loading a CDM data set instance from CSV or 
+This function is designed for loading a CDM data set instance from CSV or
 Parquet files into a database.
 }
 \keyword{internal}
