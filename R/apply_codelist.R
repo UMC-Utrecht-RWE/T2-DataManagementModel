@@ -326,7 +326,7 @@ apply_codelist <- function(
         materialize %in% "in_parquet"
     ) {
       initialize_concept_table(
-        con,
+        db_con,
         type_table = "view",
         path_parquets = path_parquets,
         partition = TRUE,
