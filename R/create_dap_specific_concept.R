@@ -35,6 +35,7 @@
 #' will stored in the concept_table.
 #' @param partition_var Default: concept_id.
 #' Concept_table column to partition on.
+#' @param add_tag Boolean defining whether we hardcode a tag = 1 or not. Default FALSE
 #' @export
 create_dap_specific_concept <- function(
   codelist,
@@ -50,7 +51,8 @@ create_dap_specific_concept <- function(
   keep_date_prefix = "keep_date",
   keep_column_prefix = "keep_value",
   intermediate_type = "TABLE",
-  partition_var = "concept_id"
+  partition_var = "concept_id",
+  add_tag = FALSE
 ) {
   if (nrow(codelist) <= 0) {
     stop("Codelist does not contain any data.")
@@ -270,7 +272,8 @@ create_dap_specific_concept <- function(
             value, " AS value, '",
             concept_name, "' AS concept_id, ",
             date_col, " AS date ",
-            meaning_clause, ", 1 AS tag FROM ",
+            meaning_clause,
+            if(add_tag){ ", 1 AS tag FROM "},
             name_edited, " t1",
             " WHERE ", where_statement, ") TO '", dir_save,
             "'(FORMAT PARQUET, PARTITION_BY (",
@@ -288,7 +291,8 @@ create_dap_specific_concept <- function(
             value, " AS value, '",
             concept_name, "' AS concept_id, ",
             date_col, " AS date ",
-            meaning_clause, ", 1 AS tag FROM ",
+            meaning_clause, 
+            if(add_tag){ ", 1 AS tag FROM "},
             name_edited, " t1  WHERE ", where_statement,
             ") TO '", dir_save, "'(FORMAT PARQUET, APPEND TRUE);"
           )
