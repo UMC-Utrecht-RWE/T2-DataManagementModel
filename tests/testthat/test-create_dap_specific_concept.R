@@ -437,9 +437,9 @@ testthat::test_that("prints 'Meaning not identified'", {
   )
 })
 
-testthat::test_that("add_tag works and generates expected output'", {
-  #save in paquet TRUE with partitioning and check that tag column is not
-  # present when add_tag = FALSE
+testthat::test_that("add_tag works and generates expected output", {
+  #save in parquet TRUE with partitioning and check that tag column is
+  # present when add_tag = TRUE
   local({
     source_db_path <- tempfile(fileext = ".duckdb")
     source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
@@ -569,10 +569,10 @@ testthat::test_that("add_tag works and generates expected output'", {
     )
 
     testthat::expect_true("tag" %in% colnames(parquet_df))
+    testthat::expect_equal(unique(parquet_df$tag), 1)
   })
 
   #save in parquet TRUE with add_tag FALSE does not generate tag column
-  #save_in_parquet TRUE with add_tag TRUE does generate tag column
   local({
     source_db_path <- tempfile(fileext = ".duckdb")
     source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
