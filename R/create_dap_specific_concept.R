@@ -273,8 +273,8 @@ create_dap_specific_concept <- function(
             concept_name, "' AS concept_id, ",
             date_col, " AS date ",
             meaning_clause,
-            if(add_tag){ ", 1 AS tag FROM "},
-            name_edited, " t1",
+            if(add_tag){ ", 1 AS tag "},
+            "FROM ", name_edited, " t1",
             " WHERE ", where_statement, ") TO '", dir_save,
             "'(FORMAT PARQUET, PARTITION_BY (",
             partition_var, "), APPEND TRUE);"
@@ -292,8 +292,9 @@ create_dap_specific_concept <- function(
             concept_name, "' AS concept_id, ",
             date_col, " AS date ",
             meaning_clause, 
-            if(add_tag){ ", 1 AS tag FROM "},
-            name_edited, " t1  WHERE ", where_statement,
+            if(add_tag){ ", 1 AS tag "},
+            "FROM ",name_edited, " t1  
+            WHERE ", where_statement,
             ") TO '", dir_save, "'(FORMAT PARQUET, APPEND TRUE);"
           )
         )
