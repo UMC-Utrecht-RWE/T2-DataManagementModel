@@ -19,7 +19,12 @@ create_codelist_example <- function() {
   )
 }
 
-create_test_db <- function(source_db_path, source_db_conn, concept_db_conn, attach_name) {
+create_test_db <- function(
+  source_db_path,
+  source_db_conn,
+  concept_db_conn,
+  attach_name
+) {
   mo <- readRDS(testthat::test_path("dbtest", "MEDICAL_OBSERVATIONS.rds"))
   mo <- as.data.frame(mo)
   DBI::dbWriteTable(
@@ -35,7 +40,6 @@ create_test_db <- function(source_db_path, source_db_conn, concept_db_conn, atta
     to_view = FALSE
   )
   DBI::dbDisconnect(source_db_conn)
-
 
   DBI::dbExecute(
     concept_db_conn,
@@ -59,9 +63,12 @@ create_test_db <- function(source_db_path, source_db_conn, concept_db_conn, atta
 }
 
 cleanup_concept_tables <- function(db_connection) {
-  if ("MEDICAL_OBSERVATIONS_EDITED_dapspec" %in% DBI::dbListTables(db_connection)) {
+  if (
+    "MEDICAL_OBSERVATIONS_EDITED_dapspec" %in% DBI::dbListTables(db_connection)
+  ) {
     DBI::dbExecute(
-      db_connection, "DROP TABLE MEDICAL_OBSERVATIONS_EDITED_dapspec"
+      db_connection,
+      "DROP TABLE MEDICAL_OBSERVATIONS_EDITED_dapspec"
     )
   }
   DBI::dbExecute(db_connection, "DELETE FROM concept_table")
@@ -72,7 +79,8 @@ testthat::test_that("retrieve MEDICAL_OBSERVATIONS concepts", {
   source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
 
   concept_db_conn <- DBI::dbConnect(
-    duckdb::duckdb(), tempfile(fileext = ".duckdb")
+    duckdb::duckdb(),
+    tempfile(fileext = ".duckdb")
   )
 
   attach_name <- "d2_db_conn"
@@ -99,7 +107,8 @@ testthat::test_that("Error messages", {
   source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
 
   concept_db_conn <- DBI::dbConnect(
-    duckdb::duckdb(), tempfile(fileext = ".duckdb")
+    duckdb::duckdb(),
+    tempfile(fileext = ".duckdb")
   )
 
   attach_name <- "d2_db_conn"
@@ -133,7 +142,8 @@ testthat::test_that("existing MEDICAL_OBSERVATIONS_EDITED is handled", {
   source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
 
   concept_db_conn <- DBI::dbConnect(
-    duckdb::duckdb(), tempfile(fileext = ".duckdb")
+    duckdb::duckdb(),
+    tempfile(fileext = ".duckdb")
   )
 
   attach_name <- "d2_db_conn"
@@ -167,7 +177,8 @@ testthat::test_that("reference non-existent column errors", {
   source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
 
   concept_db_conn <- DBI::dbConnect(
-    duckdb::duckdb(), tempfile(fileext = ".duckdb")
+    duckdb::duckdb(),
+    tempfile(fileext = ".duckdb")
   )
 
   attach_name <- "d2_db_conn"
@@ -176,8 +187,8 @@ testthat::test_that("reference non-existent column errors", {
   withr::defer(DBI::dbDisconnect(concept_db_conn), envir = parent.frame())
   withr::defer(cleanup_concept_tables(concept_db_conn), envir = parent.frame())
 
-  codelist <- create_codelist_example()[
-    , `:=`(column_name_1 = "something", expected_value_1 = "anything")
+  codelist <- create_codelist_example()[,
+    `:=`(column_name_1 = "something", expected_value_1 = "anything")
   ]
 
   testthat::expect_error(
@@ -196,7 +207,8 @@ testthat::test_that("NA or missing keep_value_column_name yields TRUE", {
   source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
 
   concept_db_conn <- DBI::dbConnect(
-    duckdb::duckdb(), tempfile(fileext = ".duckdb")
+    duckdb::duckdb(),
+    tempfile(fileext = ".duckdb")
   )
 
   attach_name <- "d2_db_conn"
@@ -205,8 +217,8 @@ testthat::test_that("NA or missing keep_value_column_name yields TRUE", {
   withr::defer(DBI::dbDisconnect(concept_db_conn), envir = parent.frame())
   withr::defer(cleanup_concept_tables(concept_db_conn), envir = parent.frame())
 
-  codelist_na_keep_value <- create_codelist_example()[
-    , keep_value_column_name := NA_character_
+  codelist_na_keep_value <- create_codelist_example()[,
+    keep_value_column_name := NA_character_
   ]
 
   create_dap_specific_concept(
@@ -222,11 +234,12 @@ testthat::test_that("NA or missing keep_value_column_name yields TRUE", {
 
   DBI::dbExecute(concept_db_conn, "DELETE FROM concept_table")
   DBI::dbExecute(
-    concept_db_conn, "DROP TABLE MEDICAL_OBSERVATIONS_EDITED_dapspec"
+    concept_db_conn,
+    "DROP TABLE MEDICAL_OBSERVATIONS_EDITED_dapspec"
   )
 
-  codelist_no_keep_value <- create_codelist_example()[
-    , keep_value_column_name := NULL
+  codelist_no_keep_value <- create_codelist_example()[,
+    keep_value_column_name := NULL
   ]
 
   create_dap_specific_concept(
@@ -248,7 +261,8 @@ testthat::test_that("save_in_parquet FALSE with or without partition_var", {
     source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
 
     concept_db_conn <- DBI::dbConnect(
-      duckdb::duckdb(), tempfile(fileext = ".duckdb")
+      duckdb::duckdb(),
+      tempfile(fileext = ".duckdb")
     )
 
     attach_name <- "d2_db_conn"
@@ -276,7 +290,8 @@ testthat::test_that("save_in_parquet FALSE with or without partition_var", {
     source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
 
     concept_db_conn <- DBI::dbConnect(
-      duckdb::duckdb(), tempfile(fileext = ".duckdb")
+      duckdb::duckdb(),
+      tempfile(fileext = ".duckdb")
     )
 
     attach_name <- "d2_db_conn"
@@ -306,7 +321,8 @@ testthat::test_that("save_in_parquet TRUE with partitioning", {
   source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
 
   concept_db_conn <- DBI::dbConnect(
-    duckdb::duckdb(), tempfile(fileext = ".duckdb")
+    duckdb::duckdb(),
+    tempfile(fileext = ".duckdb")
   )
 
   attach_name <- "d2_db_conn"
@@ -334,7 +350,8 @@ testthat::test_that("save_in_parquet TRUE with partitioning", {
     concept_db_conn,
     paste0(
       "SELECT COUNT(*) AS n_rows FROM read_parquet('",
-      partitioned_dir, "/*/*.parquet', hive_partitioning = true)"
+      partitioned_dir,
+      "/*/*.parquet', hive_partitioning = true)"
     )
   )
   testthat::expect_equal(partitioned_rows$n_rows[[1]], 39)
@@ -345,7 +362,8 @@ testthat::test_that("save_in_parquet TRUE without partitioning", {
   source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
 
   concept_db_conn <- DBI::dbConnect(
-    duckdb::duckdb(), tempfile(fileext = ".duckdb")
+    duckdb::duckdb(),
+    tempfile(fileext = ".duckdb")
   )
 
   attach_name <- "d2_db_conn"
@@ -372,7 +390,8 @@ testthat::test_that("save_in_parquet TRUE without partitioning", {
     concept_db_conn,
     paste0(
       "SELECT COUNT(*) AS n_rows FROM read_parquet('",
-      output_file, "')"
+      output_file,
+      "')"
     )
   )
   testthat::expect_equal(non_partitioned_rows$n_rows[[1]], 39)
@@ -383,7 +402,8 @@ testthat::test_that("prints 'Meaning not identified'", {
   source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
 
   concept_db_conn <- DBI::dbConnect(
-    duckdb::duckdb(), tempfile(fileext = ".duckdb")
+    duckdb::duckdb(),
+    tempfile(fileext = ".duckdb")
   )
 
   attach_name <- "d2_db_conn"
@@ -396,7 +416,8 @@ testthat::test_that("prints 'Meaning not identified'", {
   DBI::dbExecute(
     concept_db_conn,
     paste0(
-      "ALTER TABLE ", attach_name,
+      "ALTER TABLE ",
+      attach_name,
       ".MEDICAL_OBSERVATIONS RENAME COLUMN mo_meaning TO mo_label"
     )
   )
@@ -414,4 +435,183 @@ testthat::test_that("prints 'Meaning not identified'", {
     ),
     "\\[create_dap_specific_concept\\] Meaning not identified for:"
   )
+})
+
+testthat::test_that("add_tag works and generates expected output'", {
+  #save in paquet TRUE with partitioning and check that tag column is not
+  # present when add_tag = FALSE
+  local({
+    source_db_path <- tempfile(fileext = ".duckdb")
+    source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
+
+    concept_db_conn <- DBI::dbConnect(
+      duckdb::duckdb(),
+      tempfile(fileext = ".duckdb")
+    )
+
+    attach_name <- "d2_db_conn"
+
+    create_test_db(source_db_path, source_db_conn, concept_db_conn, attach_name)
+    withr::defer(DBI::dbDisconnect(concept_db_conn))
+    withr::defer(cleanup_concept_tables(concept_db_conn))
+
+    partitioned_dir <- tempfile(pattern = "dap_partitioned_")
+    dir.create(partitioned_dir)
+    withr::defer(unlink(partitioned_dir, recursive = TRUE))
+
+    create_dap_specific_concept(
+      codelist = create_codelist_example(),
+      name_attachment = attach_name,
+      save_db = concept_db_conn,
+      date_col_filter = "1900-01-01",
+      add_meaning = TRUE,
+      save_in_parquet = TRUE,
+      partition_var = "concept_id",
+      dir_save = partitioned_dir,
+      add_tag = TRUE
+    )
+
+    partitioned_df <- DBI::dbGetQuery(
+      concept_db_conn,
+      paste0(
+        "SELECT * FROM read_parquet('",
+        partitioned_dir,
+        "/*/*.parquet', hive_partitioning = true)"
+      )
+    )
+
+    testthat::expect_true("tag" %in% colnames(partitioned_df))
+    testthat::expect_equal(unique(partitioned_df$tag), 1)
+  })
+
+  #save_in_parquet partition TRUE with add_tag FALSE does not generate tag column
+  local({
+    source_db_path <- tempfile(fileext = ".duckdb")
+    source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
+
+    concept_db_conn <- DBI::dbConnect(
+      duckdb::duckdb(),
+      tempfile(fileext = ".duckdb")
+    )
+
+    attach_name <- "d2_db_conn"
+
+    create_test_db(source_db_path, source_db_conn, concept_db_conn, attach_name)
+    withr::defer(DBI::dbDisconnect(concept_db_conn))
+    withr::defer(cleanup_concept_tables(concept_db_conn))
+
+    partitioned_dir <- tempfile(pattern = "dap_partitioned_")
+    dir.create(partitioned_dir)
+    withr::defer(unlink(partitioned_dir, recursive = TRUE))
+
+    create_dap_specific_concept(
+      codelist = create_codelist_example(),
+      name_attachment = attach_name,
+      save_db = concept_db_conn,
+      date_col_filter = "1900-01-01",
+      add_meaning = TRUE,
+      save_in_parquet = TRUE,
+      partition_var = "concept_id",
+      dir_save = partitioned_dir,
+      add_tag = FALSE
+    )
+
+    partitioned_df <- DBI::dbGetQuery(
+      concept_db_conn,
+      paste0(
+        "SELECT * FROM read_parquet('",
+        partitioned_dir,
+        "/*/*.parquet', hive_partitioning = true)"
+      )
+    )
+
+    testthat::expect_true(!"tag" %in% colnames(partitioned_df))
+  })
+
+  #save_in_parquet TRUE with add_tag TRUE does generate tag column
+  local({
+    source_db_path <- tempfile(fileext = ".duckdb")
+    source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
+
+    concept_db_conn <- DBI::dbConnect(
+      duckdb::duckdb(),
+      tempfile(fileext = ".duckdb")
+    )
+
+    attach_name <- "d2_db_conn"
+
+    create_test_db(source_db_path, source_db_conn, concept_db_conn, attach_name)
+    withr::defer(DBI::dbDisconnect(concept_db_conn))
+    withr::defer(cleanup_concept_tables(concept_db_conn))
+
+    output_file <- tempfile(fileext = ".parquet")
+    withr::defer(unlink(output_file))
+
+    create_dap_specific_concept(
+      codelist = create_codelist_example(),
+      name_attachment = attach_name,
+      save_db = concept_db_conn,
+      date_col_filter = "1900-01-01",
+      add_meaning = TRUE,
+      save_in_parquet = TRUE,
+      partition_var = NULL,
+      dir_save = output_file,
+      add_tag = TRUE
+    )
+
+    parquet_df <- DBI::dbGetQuery(
+      concept_db_conn,
+      paste0(
+        "SELECT * FROM read_parquet('",
+        output_file,
+        "')"
+      )
+    )
+
+    testthat::expect_true("tag" %in% colnames(parquet_df))
+  })
+
+  #save in parquet TRUE with add_tag FALSE does not generate tag column
+  #save_in_parquet TRUE with add_tag TRUE does generate tag column
+  local({
+    source_db_path <- tempfile(fileext = ".duckdb")
+    source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
+
+    concept_db_conn <- DBI::dbConnect(
+      duckdb::duckdb(),
+      tempfile(fileext = ".duckdb")
+    )
+
+    attach_name <- "d2_db_conn"
+
+    create_test_db(source_db_path, source_db_conn, concept_db_conn, attach_name)
+    withr::defer(DBI::dbDisconnect(concept_db_conn))
+    withr::defer(cleanup_concept_tables(concept_db_conn))
+
+    output_file <- tempfile(fileext = ".parquet")
+    withr::defer(unlink(output_file))
+
+    create_dap_specific_concept(
+      codelist = create_codelist_example(),
+      name_attachment = attach_name,
+      save_db = concept_db_conn,
+      date_col_filter = "1900-01-01",
+      add_meaning = TRUE,
+      save_in_parquet = TRUE,
+      partition_var = NULL,
+      dir_save = output_file,
+      add_tag = FALSE
+    )
+
+    parquet_df <- DBI::dbGetQuery(
+      concept_db_conn,
+      paste0(
+        "SELECT * FROM read_parquet('",
+        output_file,
+        "')"
+      )
+    )
+
+    testthat::expect_true(!"tag" %in% colnames(parquet_df))
+  })
 })
