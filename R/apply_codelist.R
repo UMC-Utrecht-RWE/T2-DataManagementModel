@@ -229,7 +229,11 @@ apply_codelist <- function(
             message("   Applying parent scheme(s)")
             DBI::dbWriteTable(
               db_con, name = "codelist", value = current_codelist,
-              TEMPORARY = TRUE, overwrite = TRUE
+              TEMPORARY = TRUE, overwrite = TRUE,
+              field.types = stats::setNames(
+                rep("VARCHAR", ncol(current_codelist)),
+                names(current_codelist)
+              )
             )
 
             sql_path <- system.file(
