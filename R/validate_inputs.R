@@ -27,3 +27,18 @@ ensure_data_table <- function(
   }
   obj
 }
+
+
+# Validate chracter types for required columns
+validate_column_type <- function(data, col_name, allowed_types = c("character")) {
+  col <- data[[col_name]]
+  is_valid <- any(sapply(allowed_types, function(type) {
+    switch(type,
+           "character" = is.character(col),
+           "factor" = is.factor(col),
+           FALSE)
+  }))
+  if (!is_valid) {
+    stop(paste(col_name, "must be", paste(allowed_types, collapse = " or ")))
+  }
+}
