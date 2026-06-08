@@ -231,8 +231,8 @@ apply_codelist <- function(
               db_con, name = "codelist", value = current_codelist,
               TEMPORARY = TRUE, overwrite = TRUE,
               field.types = stats::setNames(
-                rep("VARCHAR", ncol(current_codelist)),
-                names(current_codelist)
+                  ifelse(names(current_codelist) == "order_index", "INTEGER", "VARCHAR"),
+                  names(current_codelist)
               )
             )
 
@@ -271,7 +271,11 @@ apply_codelist <- function(
                   current_codelist <- current_child[order_index == child_order]
                   DBI::dbWriteTable(
                     db_con, name = "codelist", value = current_codelist,
-                    TEMPORARY = TRUE, overwrite = TRUE
+                    TEMPORARY = TRUE, overwrite = TRUE,
+                    field.types = stats::setNames(
+                        ifelse(names(current_codelist) == "order_index", "INTEGER", "VARCHAR"),
+                        names(current_codelist)
+                    )
                   )
                   current_order_index <- order_idx
                   sql_path <- system.file(
