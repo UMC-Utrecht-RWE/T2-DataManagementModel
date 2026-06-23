@@ -153,8 +153,8 @@ create_dap_specific_concept <- function(
         ]
         # Checking if we already retrieve meaning through the codelist
         if (length(meaning_column_name) > 0 &&
-          (any(meaning_column_name %in% to_upper_cols) ||
-            any(meaning_column_name %in% keep_value))) {
+          (any(meaning_column_name %in% to_upper_cols) || # nolint
+            any(meaning_column_name %in% keep_value))) { # nolint
           meaning_column_name <- ""
         }
         base::print(base::paste0(
