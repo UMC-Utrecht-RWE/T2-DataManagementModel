@@ -27,59 +27,65 @@ It provides methods to run database operations and check if they are enabled.
 \keyword{internal}
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-DatabaseOperation-run}{\code{DatabaseOperation$run()}}
-\item \href{#method-DatabaseOperation-is_enabled}{\code{DatabaseOperation$is_enabled()}}
-\item \href{#method-DatabaseOperation-clone}{\code{DatabaseOperation$clone()}}
-}
+  \itemize{
+    \item \href{#method-DatabaseOperation-run}{\code{DatabaseOperation$run()}}
+    \item \href{#method-DatabaseOperation-is_enabled}{\code{DatabaseOperation$is_enabled()}}
+    \item \href{#method-DatabaseOperation-clone}{\code{DatabaseOperation$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DatabaseOperation-run"></a>}}
 \if{latex}{\out{\hypertarget{method-DatabaseOperation-run}{}}}
-\subsection{Method \code{run()}}{
-Abstract method to execute the database operation.
+\subsection{\code{DatabaseOperation$run()}}{
+  Abstract method to execute the database operation.
 Should be implemented by subclasses.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DatabaseOperation$run(db_loader)}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DatabaseOperation$run(db_loader)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{db_loader}}{A `DatabaseLoader` object.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{db_loader}}{A `DatabaseLoader` object.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DatabaseOperation-is_enabled"></a>}}
 \if{latex}{\out{\hypertarget{method-DatabaseOperation-is_enabled}{}}}
-\subsection{Method \code{is_enabled()}}{
-Method to check if the operation is enabled.
+\subsection{\code{DatabaseOperation$is_enabled()}}{
+  Method to check if the operation is enabled.
 Returns TRUE by default but can be overridden.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DatabaseOperation$is_enabled()}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DatabaseOperation$is_enabled()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Logical value indicating if the operation is enabled.
+  }
 }
 
-\subsection{Returns}{
-Logical value indicating if the operation is enabled.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DatabaseOperation-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-DatabaseOperation-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DatabaseOperation$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{DatabaseOperation$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DatabaseOperation$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }
