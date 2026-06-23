@@ -153,8 +153,8 @@ create_dap_specific_concept <- function(
         ]
         # Checking if we already retrieve meaning through the codelist
         if (length(meaning_column_name) > 0 &&
-              (any(meaning_column_name %in% to_upper_cols) ||
-                 any(meaning_column_name %in% keep_value))) {
+          (any(meaning_column_name %in% to_upper_cols) ||
+            any(meaning_column_name %in% keep_value))) {
           meaning_column_name <- ""
         }
         base::print(base::paste0(
@@ -273,7 +273,9 @@ create_dap_specific_concept <- function(
             concept_name, "' AS concept_id, ",
             date_col, " AS date ",
             meaning_clause,
-            if(add_tag){ ", 1 AS tag "},
+            if (add_tag) {
+              ", 1 AS tag "
+            },
             "FROM ", name_edited, " t1",
             " WHERE ", where_statement, ") TO '", dir_save,
             "'(FORMAT PARQUET, PARTITION_BY (",
@@ -291,9 +293,11 @@ create_dap_specific_concept <- function(
             value, " AS value, '",
             concept_name, "' AS concept_id, ",
             date_col, " AS date ",
-            meaning_clause, 
-            if(add_tag){ ", 1 AS tag "},
-            "FROM ",name_edited, " t1  
+            meaning_clause,
+            if (add_tag) {
+              ", 1 AS tag "
+            },
+            "FROM ", name_edited, " t1
             WHERE ", where_statement,
             ") TO '", dir_save, "'(FORMAT PARQUET, APPEND TRUE);"
           )
