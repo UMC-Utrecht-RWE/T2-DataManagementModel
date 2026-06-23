@@ -57,7 +57,7 @@ create_dap_specific_codelist <- function(
   # 5. EXACT MATCHING LOGIC
   # Performs a direct join on coding system and the
   # raw code string for systems like 'PRODCODEID'
-  exact_match <- data.table()
+  exact_match <- data.table::data.table()
   if (nrow(exact_dap_codes) > 0 && nrow(exact_codelist) > 0) {
     exact_match <- data.table::merge.data.table(
       exact_dap_codes, exact_codelist,
@@ -67,7 +67,7 @@ create_dap_specific_codelist <- function(
   }
 
   # 6. START-WITH (HIERARCHICAL) MATCHING LOGIC
-  results_startwith <- data.table()
+  results_startwith <- data.table::data.table()
   if (nrow(start_dap_codes) > 0 && nrow(start_codelist) > 0) {
     # Calculate lengths of the actual codes found in the database (DAP)
     start_dap_codes[, ori_length_str := nchar(code.dap_codes)]
@@ -83,7 +83,7 @@ create_dap_specific_codelist <- function(
     # Iterate through all possible lengths. For each DAP code, generate
     # its parent prefixes. e.g., DAP code 'N02BE01' will generate rows
     # for 'N02', 'N02B', 'N02BE', etc.
-    start_expanded <- rbindlist(lapply(length_range, function(len) {
+    start_expanded <- data.table::rbindlist(lapply(length_range, function(len) {
       temp_dt <- start_dap_codes[ori_length_str >= len]
       if (nrow(temp_dt) > 0) {
         temp_dt[, `:=`(
@@ -96,7 +96,7 @@ create_dap_specific_codelist <- function(
           ori_length_str, COUNT, source_column
         )])
       }
-      data.table()
+      data.table::data.table()
     }))
 
     if (nrow(start_expanded) > 0) {
@@ -135,18 +135,23 @@ create_dap_specific_codelist <- function(
   ))
 
   # Initialize as an empty data.table with the correct columns
-  all_matches <- data.table(matrix(ncol = length(match_cols), nrow = 0))
+  all_matches <- data.table::data.table(
+    matrix(ncol = length(match_cols), nrow = 0)
+  )
   setnames(all_matches, match_cols)
 
   # Combine results (rbindlist handles the types if results exist)
-  found_matches <- rbindlist(
+  found_matches <- data.table::rbindlist(
     list(exact_match, results_startwith),
     use.names = TRUE,
     fill = TRUE
   )
 
   if (nrow(found_matches) > 0) {
-    all_matches <- rbindlist(list(all_matches, found_matches), fill = TRUE)
+    all_matches <- data.table::rbindlist(
+      list(all_matches, found_matches),
+      fill = TRUE
+    )
   }
 
   # Identify records that failed to match using anti-joins
@@ -160,12 +165,12 @@ create_dap_specific_codelist <- function(
 
   # Final vertical stack: Matches, Codes only in DAP,
   # and Codes only in Study Codelist
-  dap_specific_codelist <- rbindlist(
+  dap_specific_codelist <- data.table::rbindlist(
     list(all_matches, missing_from_cdm, missing_from_codelist),
     fill = TRUE
   )
 
-  dap_specific_codelist[, code := fifelse(
+  dap_specific_codelist[, code := data.table::fifelse(
     !is.na(code.dap_codes) & !is.na(code.codelist),
     code.dap_codes,
     NA
@@ -173,7 +178,7 @@ create_dap_specific_codelist <- function(
 
   # 8. match_statusING LOGIC
   # Label the source/status of each entry
-  dap_specific_codelist[, match_status := fcase(
+  dap_specific_codelist[, match_status := data.table::fcase(
     is.na(code.dap_codes), "ONLY_IN_CODELIST", # Present in study list, absent in database (DAP) #nolint
     is.na(code.codelist), "ONLY_IN_DATA", # Present in database (DAP), absent in study list #nolint
     default = "MATCHED" # Successful match identified
@@ -222,7 +227,11 @@ validate_codelists <- function(dap_codes, codelist, priority_col) {
   # If missing, assign a default value of 1 to all rows so
   # the sort logic still runs.
   if (!priority_col %in% names(codelist)) {
-    message(paste0("Column '", priority_col, "' not found. Assigning default value 1.")) # nolint
+    message(
+      paste0(
+        "Column '", priority_col, "' not found. Assigning default value 1."
+      )
+    ) # nolint
     codelist[, (priority_col) := 1]
   }
 
@@ -243,7 +252,9 @@ validate_codelists <- function(dap_codes, codelist, priority_col) {
   }
 
   # Validate column data types
-  validate_column_type <- function(col, name, allowed_types = c("character", "factor")) {
+  validate_column_type <- function(
+    col, name, allowed_types = c("character", "factor")
+  ) {
     if (!any(sapply(allowed_types, function(type) {
       switch(type,
         "character" = is.character(col),
