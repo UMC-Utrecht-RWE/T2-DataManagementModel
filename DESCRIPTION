@@ -1,7 +1,7 @@
 Package: T2.DMM
 Type: Package
 Title: Data Management Model for Real World Evidence
-Version: 0.2.0
+Version: 0.2.1
 Author: c(
   person("Albert", "Cid Royo", email = "A.CidRoyo@umcutrecht.nl", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-1863-3450")),
   person("Mattia", "Cinelli", email = "m.cinelli@umcutrecht.nl", role = "aut", comment = c(ORCID = "0000-0001-9306-8079")),
