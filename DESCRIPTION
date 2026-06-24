@@ -1,7 +1,7 @@
 Package: T2.DMM
 Type: Package
 Title: Data Management Model for Real World Evidence
-Version: 0.2.0
+Version: 0.2.1
 Author: c(
   person("Albert", "Cid Royo", email = "A.CidRoyo@umcutrecht.nl", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-1863-3450")),
   person("Mattia", "Cinelli", email = "m.cinelli@umcutrecht.nl", role = "aut", comment = c(ORCID = "0000-0001-9306-8079")),
@@ -14,7 +14,6 @@ Description: RWE-DataManagementModel is an R package that provides a data model
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.3
 Imports:
     data.table (>= 1.15.2),
     DBI (>= 1.2.2),
@@ -31,3 +30,4 @@ Suggests:
 Config/testthat/edition: 3
 Depends: 
     R (>= 3.5)
+Config/roxygen2/version: 8.0.0

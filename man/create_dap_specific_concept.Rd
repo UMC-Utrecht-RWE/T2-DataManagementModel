@@ -18,7 +18,8 @@ create_dap_specific_concept(
   keep_date_prefix = "keep_date",
   keep_column_prefix = "keep_value",
   intermediate_type = "TABLE",
-  partition_var = "concept_id"
+  partition_var = "concept_id",
+  add_tag = FALSE
 )
 }
 \arguments{
@@ -65,6 +66,8 @@ will stored in the concept_table.}
 
 \item{partition_var}{Default: concept_id.
 Concept_table column to partition on.}
+
+\item{add_tag}{Boolean defining whether we hardcode a tag = 1 or not. Default FALSE}
 }
 \description{
 This function Creates DAP-specific concepts into a database using a
