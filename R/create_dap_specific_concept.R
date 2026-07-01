@@ -12,6 +12,8 @@
 #' and concepts will be saved.
 #' @param date_col_filter An optional filter to subset data based on
 #' a specified date column.
+#' @param date_col_notnull Logical; if TRUE and a date column is available,
+#' keeps only rows where the selected date column is not NULL.
 #' @param dir_save Directory path for parquet output (required if save_in_parquet = TRUE)
 #' @param table_name Name of the table in the codelist database.
 #' Default: "cdm_table_name".
@@ -42,6 +44,7 @@ create_dap_specific_concept <- function(
   name_attachment,
   save_db,
   date_col_filter = NULL,
+  date_col_notnull = FALSE,
   dir_save = NULL,
   add_meaning = FALSE,
   save_in_parquet = FALSE,
@@ -255,6 +258,13 @@ create_dap_specific_concept <- function(
       where_statement <- base::paste0(
         where_statement, " AND ",
         date_col, " >= DATE '", date_col_filter, "'"
+      )
+    }
+
+    if (!is.null(date_col_filter) && date_col != "NULL") {
+      where_statement <- base::paste0(
+        where_statement, " AND ",
+        date_col, " IS NOT NULL"
       )
     }
 
