@@ -230,7 +230,7 @@ testthat::test_that("NA or missing keep_value_column_name yields TRUE", {
   )
 
   mo_concept_table <- DBI::dbReadTable(concept_db_conn, "concept_table")
-  testthat::expect_true(all(mo_concept_table$value == "true"))
+  testthat::expect_true(all(mo_concept_table$value == "TRUE"))
 
   DBI::dbExecute(concept_db_conn, "DELETE FROM concept_table")
   DBI::dbExecute(
@@ -251,7 +251,7 @@ testthat::test_that("NA or missing keep_value_column_name yields TRUE", {
   )
 
   mo_concept_table <- DBI::dbReadTable(concept_db_conn, "concept_table")
-  testthat::expect_true(all(mo_concept_table$value == "true"))
+  testthat::expect_true(all(mo_concept_table$value == "TRUE"))
 })
 
 
@@ -351,7 +351,7 @@ testthat::test_that("save_in_parquet TRUE with partitioning", {
     paste0(
       "SELECT COUNT(*) AS n_rows FROM read_parquet('",
       partitioned_dir,
-      "/*/*.parquet', hive_partitioning = true)"
+      "/*/*.parquet', hive_partitioning = TRUE)"
     )
   )
   testthat::expect_equal(partitioned_rows$n_rows[[1]], 39)
@@ -476,7 +476,7 @@ testthat::test_that("add_tag works and generates expected output", {
       paste0(
         "SELECT * FROM read_parquet('",
         partitioned_dir,
-        "/*/*.parquet', hive_partitioning = true)"
+        "/*/*.parquet', hive_partitioning = TRUE)"
       )
     )
 
@@ -521,7 +521,7 @@ testthat::test_that("add_tag works and generates expected output", {
       paste0(
         "SELECT * FROM read_parquet('",
         partitioned_dir,
-        "/*/*.parquet', hive_partitioning = true)"
+        "/*/*.parquet', hive_partitioning = TRUE)"
       )
     )
 

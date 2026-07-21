@@ -230,9 +230,9 @@ create_dap_specific_concept <- function(
     }
 
     if (base::is.null(value)) {
-      value <- TRUE
+      value <- "'TRUE'"
     } else if (any(is.na(value))) {
-      value <- TRUE
+      value <- "'TRUE'"
     }
     if (base::is.null(date_col)) {
       date_col <- "NULL"
