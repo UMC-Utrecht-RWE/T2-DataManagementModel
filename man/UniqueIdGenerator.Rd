@@ -49,61 +49,63 @@ unique_id_generator$run(loader)
 }
 \keyword{internal}
 \section{Super class}{
-\code{\link[T2.DMM:DatabaseOperation]{T2.DMM::DatabaseOperation}} -> \code{UniqueIdGenerator}
+\code{\link[T2.DMM:DatabaseOperation]{DatabaseOperation}} -> \code{UniqueIdGenerator}
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{classname}}{A string representing the name of the class.}
-}
-\if{html}{\out{</div>}}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{classname}}{A string representing the name of the class.}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-UniqueIdGenerator-run}{\code{UniqueIdGenerator$run()}}
-\item \href{#method-UniqueIdGenerator-clone}{\code{UniqueIdGenerator$clone()}}
+  \itemize{
+    \item \href{#method-UniqueIdGenerator-run}{\code{UniqueIdGenerator$run()}}
+    \item \href{#method-UniqueIdGenerator-clone}{\code{UniqueIdGenerator$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="T2.DMM" data-topic="DatabaseOperation" data-id="is_enabled"><a href='../../T2.DMM/html/DatabaseOperation.html#method-DatabaseOperation-is_enabled'><code>T2.DMM::DatabaseOperation$is_enabled()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="T2.DMM" data-topic="DatabaseOperation" data-id="is_enabled"><a href='../../T2.DMM/html/DatabaseOperation.html#method-DatabaseOperation-is_enabled'><code>DatabaseOperation$is_enabled()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-UniqueIdGenerator-run"></a>}}
 \if{latex}{\out{\hypertarget{method-UniqueIdGenerator-run}{}}}
-\subsection{Method \code{run()}}{
-Executes the unique ID generation process.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{UniqueIdGenerator$run(db_loader)}\if{html}{\out{</div>}}
+\subsection{\code{UniqueIdGenerator$run()}}{
+  Executes the unique ID generation process.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{UniqueIdGenerator$run(db_loader)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{db_loader}}{A `DatabaseLoader` object provides database connection.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{db_loader}}{A `DatabaseLoader` object provides database connection.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-UniqueIdGenerator-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-UniqueIdGenerator-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{UniqueIdGenerator$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{UniqueIdGenerator$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{UniqueIdGenerator$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

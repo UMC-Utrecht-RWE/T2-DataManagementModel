@@ -24,7 +24,6 @@ testthat::test_that(
     if (file.exists("count_rows_origin.fst")) {
       file.remove("count_rows_origin.fst")
     }
-
   }
 )
 
@@ -36,7 +35,8 @@ testthat::test_that(
     loader <- create_database_loader(config_path = "CONFIG_PATH")
     loader$config$report_generator$report_name <- "count_rows_origin"
     loader$set_database()
-    testthat::expect_error(reporter$run(loader),
+    testthat::expect_error(
+      reporter$run(loader),
       "Invalid or missing file extension in report_name: count_rows_origin"
     )
   }
@@ -50,7 +50,8 @@ testthat::test_that(
     loader <- create_database_loader(config_path = "CONFIG_PATH")
     loader$config$report_generator$report_name <- ""
     loader$set_database()
-    testthat::expect_error(reporter$run(loader),
+    testthat::expect_error(
+      reporter$run(loader),
       "The report_name in report_generator is missing or empty."
     )
   }
@@ -64,7 +65,8 @@ testthat::test_that(
     loader <- create_database_loader(config_path = "CONFIG_PATH")
     loader$config$report_generator$report_name <- "count_rows_origin.txt"
     loader$set_database()
-    testthat::expect_error(reporter$run(loader),
+    testthat::expect_error(
+      reporter$run(loader),
       "No ReportGenerator subclass found for extension: txt"
     )
   }

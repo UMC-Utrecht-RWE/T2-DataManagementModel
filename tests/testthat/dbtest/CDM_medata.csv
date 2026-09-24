@@ -205,7 +205,7 @@ Ensure karyotype information is given in variables 23 and 24, and that autopsy a
 In case of conjoined twins, give full description in syndrome text variable 28.
 Local registries are advised to keep photographs and x-ray images of all syndrome cases, as the diagnosis is predominantly established on the basis of specific facial
 dysmorphism.";NA;"EUROCAT";NA;"syndrome"
-"111";"sp-syndrome";"Yes";"SPECIFY SYNDROME 
+"111";"sp_syndrome";"Yes";"SPECIFY SYNDROME 
 Written text description of the ICD10 code in variable 30";NA;"EUROCAT";NA;"sp-syndrome"
 "112";"malfo1";"Yes";"MALFORMATION 
 A baby/fetus with ONLY minor anomalies (see exclusion list, chapter 7) should not be transmitted to Central Registry. 

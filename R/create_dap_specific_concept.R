@@ -34,10 +34,9 @@
 #' @param keep_column_prefix Characther default: keep_value
 #' The prefix value to identify the column where the column name with the value
 #' will stored in the concept_table.
-
 #' @param partition_var Default: concept_id.
 #' Concept_table column to partition on.
-
+#' @param add_tag Boolean defining whether we hardcode a tag = 1 or not. Default FALSE
 #' @export
 create_dap_specific_concept <- function(
   codelist,
@@ -53,7 +52,8 @@ create_dap_specific_concept <- function(
   keep_date_prefix = "keep_date",
   keep_column_prefix = "keep_value",
   intermediate_type = "TABLE",
-  partition_var = "concept_id"
+  partition_var = "concept_id",
+  add_tag = FALSE
 ) {
   if (nrow(codelist) <= 0) {
     stop("Codelist does not contain any data.")
@@ -154,8 +154,8 @@ create_dap_specific_concept <- function(
         ]
         # Checking if we already retrieve meaning through the codelist
         if (length(meaning_column_name) > 0 &&
-              (any(meaning_column_name %in% to_upper_cols) ||
-                 any(meaning_column_name %in% keep_value))) {
+          (any(meaning_column_name %in% to_upper_cols) || # nolint
+            any(meaning_column_name %in% keep_value))) { # nolint
           meaning_column_name <- ""
         }
         base::print(base::paste0(
@@ -231,9 +231,9 @@ create_dap_specific_concept <- function(
     }
 
     if (base::is.null(value)) {
-      value <- TRUE
+      value <- "'TRUE'"
     } else if (any(is.na(value))) {
-      value <- TRUE
+      value <- "'TRUE'"
     }
     if (base::is.null(date_col)) {
       date_col <- "NULL"
@@ -273,8 +273,11 @@ create_dap_specific_concept <- function(
             value, " AS value, '",
             concept_name, "' AS concept_id, ",
             date_col, " AS date ",
-            meaning_clause, ", 1 AS tag FROM ",
-            name_edited, " t1",
+            meaning_clause,
+            if (add_tag) {
+              ", 1 AS tag "
+            },
+            "FROM ", name_edited, " t1",
             " WHERE ", where_statement, ") TO '", dir_save,
             "'(FORMAT PARQUET, PARTITION_BY (",
             partition_var, "), APPEND TRUE);"
@@ -291,8 +294,12 @@ create_dap_specific_concept <- function(
             value, " AS value, '",
             concept_name, "' AS concept_id, ",
             date_col, " AS date ",
-            meaning_clause, ", 1 AS tag FROM ",
-            name_edited, " t1  WHERE ", where_statement,
+            meaning_clause,
+            if (add_tag) {
+              ", 1 AS tag "
+            },
+            "FROM ", name_edited, " t1
+            WHERE ", where_statement,
             ") TO '", dir_save, "'(FORMAT PARQUET, APPEND TRUE);"
           )
         )

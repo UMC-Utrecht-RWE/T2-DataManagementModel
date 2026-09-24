@@ -20,7 +20,8 @@
 #'   cases_dt,
 #'   db_connection,
 #'   list("Table1" = "Column1", "Table2" = "Column2")
-#' )}
+#' )
+#' }
 #'
 #' @export
 get_origin_value <- function(
@@ -164,7 +165,8 @@ get_origin_value <- function(
       # Rename the column in the result set
       # Combine the result set with the updated values list
       updated_values <- data.table::rbindlist(
-        list(updated_values, rs), use.names = TRUE, fill = TRUE
+        list(updated_values, rs),
+        use.names = TRUE, fill = TRUE
       )
 
       # Remove the result set from memory
@@ -187,8 +189,7 @@ get_origin_value <- function(
 
   # Return unique values or empty data.table if no results
   if (length(updated_values) > 0) {
-    unique_updated_values <- unique(updated_values)
-    unique_updated_values
+    unique(updated_values)
   } else {
     data.table::data.table(
       ori_table = character(0),

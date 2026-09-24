@@ -1,4 +1,4 @@
-test_that(
+testthat::test_that(
   "MissingRemover calls delete_missing_origin with expected arguments",
   {
     loader <- create_database_loader(config_path = "CONFIG_PATH")

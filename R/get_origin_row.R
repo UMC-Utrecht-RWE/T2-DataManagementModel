@@ -109,7 +109,8 @@ get_origin_row <- function(db_connection, ids) {
     # 3. Execution with Error Handling
     # Note: Using SQL() to handle table names and quoting IDs for safety
     formatted_ids <- paste0(
-      "'", gsub("'", "''", table_ids), "'", collapse = ","
+      "'", gsub("'", "''", table_ids), "'",
+      collapse = ","
     )
     query <- paste0(
       "SELECT * FROM ", DBI::dbQuoteIdentifier(db_connection, table),

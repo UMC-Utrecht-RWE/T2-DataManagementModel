@@ -45,7 +45,6 @@ testthat::test_that("Checking the result is a data.table", {
 
   # Test assertion: Verify the result is a data.table object
   testthat::expect_true(inherits(dap_specific_codeslist, "data.table"))
-
 })
 
 testthat::test_that("Check expected format of the codelist and unique codelist work", {
@@ -72,7 +71,7 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
   testthat::expect_error(
     dap_specific_codeslist <- create_dap_specific_codelist(
       dap_codes = unique_codelist,
-      codelist =  NULL
+      codelist = NULL
     ),
     "codelist is required and cannot be NULL or missing"
   )
@@ -87,7 +86,7 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
   testthat::expect_error(
     dap_specific_codeslist <- create_dap_specific_codelist(
       dap_codes = unique_codelist,
-      codelist =  study_codelist
+      codelist = study_codelist
     ),
     "dap_codes is missing required columns: coding_system"
   )
@@ -96,7 +95,7 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
   testthat::expect_error(
     dap_specific_codeslist <- create_dap_specific_codelist(
       dap_codes = NULL,
-      codelist =  study_codelist
+      codelist = study_codelist
     ),
     "dap_codes is required and cannot be NULL or missing"
   )
@@ -105,7 +104,7 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
   testthat::expect_error(
     dap_specific_codeslist <- create_dap_specific_codelist(
       dap_codes = data.table(),
-      codelist =  study_codelist
+      codelist = study_codelist
     ),
     "dap_codes cannot be empty"
   )
@@ -114,7 +113,7 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
   testthat::expect_error(
     dap_specific_codeslist <- create_dap_specific_codelist(
       dap_codes = unique_codelist,
-      codelist =  data.table()
+      codelist = data.table()
     ),
     "codelist cannot be empty"
   )
@@ -138,7 +137,7 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
   testthat::expect_error(
     dap_specific_codeslist <- create_dap_specific_codelist(
       dap_codes = unique_codelist,
-      codelist =  study_codelist
+      codelist = study_codelist
     ),
     "dap_codes$coding_system must be character or factor",
     fixed = TRUE
@@ -161,7 +160,7 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
   testthat::expect_error(
     dap_specific_codeslist <- create_dap_specific_codelist(
       dap_codes = unique_codelist,
-      codelist =  study_codelist
+      codelist = study_codelist
     ),
     "codelist is missing required columns: coding_system",
     fixed = TRUE
@@ -175,12 +174,11 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
   testthat::expect_error(
     dap_specific_codeslist <- create_dap_specific_codelist(
       dap_codes = unique_codelist,
-      codelist =  study_codelist
+      codelist = study_codelist
     ),
     "codelist$coding_system must be character or factor",
     fixed = TRUE
   )
-
 })
 
 testthat::test_that("Check expected format of the codelist and unique codelist work v2", {
@@ -225,13 +223,12 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
   testthat::expect_error(
     dap_specific_codeslist <- create_dap_specific_codelist(
       dap_codes = unique_codelist,
-      codelist =  study_codelist
+      codelist = study_codelist
     ),
     "codelist$code must be character or factor",
     fixed = TRUE
   )
-}
-)
+})
 
 testthat::test_that("Check expected format of the codelist and unique codelist work v3", {
   # Setup: Create a test database connection with MEDICINES table
@@ -275,7 +272,7 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
   testthat::expect_error(
     dap_specific_codeslist <- create_dap_specific_codelist(
       dap_codes = unique_codelist,
-      codelist =  study_codelist
+      codelist = study_codelist
     ),
     "dap_codes$code must be character or factor",
     fixed = TRUE
@@ -301,7 +298,7 @@ testthat::test_that("Start-with matching logic works for ATC codes", {
 
   result <- create_dap_specific_codelist(
     dap_codes = unique_codelist,
-    codelist =  study_codelist
+    codelist = study_codelist
   )
 
   # Check that N02BE01 was matched to N02B
@@ -327,7 +324,7 @@ testthat::test_that("Priority column correctly breaks ties in matches", {
     coding_system = "ATC",
     code = c("N02B", "N02B"),
     concept_id = c("Paracetamol", "Paracetamol"),
-    tags = c("narrow","broad"),
+    tags = c("narrow", "broad"),
     priority_val = c(1, 2) # Assume 1 is higher priority
   )
 
