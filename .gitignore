@@ -51,3 +51,4 @@ rsconnect/
 # Mac-specfic files
 .DS_Store
 /tests/testthat/intermediate_data_file
+*.fst
