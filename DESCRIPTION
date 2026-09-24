@@ -23,10 +23,13 @@ Imports:
     jsonlite (>= 2.0.0),
     stringr (>= 1.5.1),
     R6 (>= 2.6.1),
-    readr
+    here (>= 1.0.2),
+    readr,
+    stats
 Suggests:
     testthat (>= 3.0.0),
-    withr (>= 3.0.2)
+    withr (>= 3.0.2),
+    arrow
 Config/testthat/edition: 3
 Depends: 
     R (>= 3.5)

@@ -4,7 +4,8 @@
 #' search_scheme and tables.
 #'
 #' @param cases_dt Data table containing information about cases.
-#' Must be a data.table with at least the search_scheme "unique_id" and "ori_table".
+#' Must be a data.table with at least the search_scheme
+#' "unique_id" and "ori_table".
 #' @param db_connection Database connection object.
 #' Must be an active DuckDB connection.
 #' @param search_scheme A list specifying the search_scheme to retrieve
@@ -30,7 +31,7 @@ get_origin_value <- function(
 ) {
   # Input validation
   # Check if cases_dt is a data.table
-  cases_dt <- T2.DMM:::ensure_data_table(
+  cases_dt <- ensure_data_table(
     cases_dt,
     error_message = "[get_origin_value] 'cases_dt' must be a data.table"
   )
@@ -80,9 +81,6 @@ get_origin_value <- function(
     ))
   }
 
-  # Extract unique ori_tables from the cases data table
-  ori_tables <- unique(cases_dt[, ori_table])
-
   # Write cases data table to a temporary table in the database
   tryCatch(
     {
@@ -103,7 +101,6 @@ get_origin_value <- function(
   updated_values <- list()
 
   # Loop through each unique ori_table that exists in search_scheme list
-
   for (i in seq_along(search_scheme)) {
     column <- search_scheme[[i]]
     ori_table <- names(search_scheme[i])

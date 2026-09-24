@@ -29,6 +29,7 @@
 #' Default is `"CSVReportGenerator"`.
 #'
 #' @importFrom readr write_csv
+#' @import R6
 #' @keywords internal
 CSVReportGenerator <- R6::R6Class("CSVReportGenerator", # nolint
   inherit = T2.DMM:::ReportGenerator,

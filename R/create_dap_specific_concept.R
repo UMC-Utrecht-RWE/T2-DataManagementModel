@@ -12,7 +12,8 @@
 #' and concepts will be saved.
 #' @param date_col_filter An optional filter to subset data based on
 #' a specified date column.
-#' @param dir_save Directory path for parquet output (required if save_in_parquet = TRUE)
+#' @param dir_save Directory path for parquet output
+#' (required if save_in_parquet = TRUE)
 #' @param table_name Name of the table in the codelist database.
 #' Default: "cdm_table_name".
 #' @param column_name_prefix An optional string that defines the prefix name

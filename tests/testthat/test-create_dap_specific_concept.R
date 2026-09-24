@@ -310,11 +310,11 @@ testthat::test_that("save_in_parquet FALSE with or without partition_var", {
       partition_var = NULL
     )
 
+
     mo_concept_table <- DBI::dbReadTable(concept_db_conn, "concept_table")
     testthat::expect_equal(nrow(mo_concept_table), 39)
   })
 })
-
 
 testthat::test_that("save_in_parquet TRUE with partitioning", {
   source_db_path <- tempfile(fileext = ".duckdb")

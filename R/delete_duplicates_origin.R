@@ -90,7 +90,9 @@ delete_duplicates_origin <- function(
       # Check if the table exists in the database
       # Adjusting name of table to the Scheme where this is located in the db
       table_from_name <- paste0(schema_name, ".", case_name)
-      message(paste0("[delete_duplicates_origin] Deleting records from: ", case_name))
+      message(
+        paste0("[delete_duplicates_origin] Deleting records from: ", case_name)
+      )
       if (case_name %in% DBI::dbListTables(db_connection)) {
         # Determine columns to select based on the scheme
         if (all(scheme[[case_name]] %in% "*")) {
@@ -103,7 +105,6 @@ delete_duplicates_origin <- function(
         }
         cols_to_select <- paste(cols_to_select, collapse = ", ")
 
-
         if (to_view == TRUE) {
           pipeline_name <- paste0(case_name, pipeline_extension)
           query <- paste0(
@@ -111,7 +112,7 @@ delete_duplicates_origin <- function(
              FROM %s ;
             "
           )
-          T2.DMM:::add_view(
+          add_view(
             con = db_connection,
             pipeline = pipeline_name,
             base_table = table_from_name,
