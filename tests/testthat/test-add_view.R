@@ -45,10 +45,12 @@ testthat::test_that("Adding multiple steps creates versioned views and updates f
   add_view(con, "test_pipeline", "SELECT *, LENGTH(name) AS name_len FROM %s")
 
   # Check registry points to latest version
-  registry <- dbGetQuery(con, 
-      "SELECT current_view 
-      FROM _pipeline_registry 
-      WHERE data/pipeline_name='test_pipeline'")
+  registry <- dbGetQuery(
+    con,
+    "SELECT current_view
+      FROM _pipeline_registry
+      WHERE pipeline_name='test_pipeline'"
+  )
   testthat::expect_equal(registry$current_view, "test_pipeline_view_3")
 })
 
