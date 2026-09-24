@@ -1,4 +1,4 @@
-test_that("VIEW clean_missing_values creates views correctly", {
+testthat::test_that("VIEW clean_missing_values creates views correctly", {
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = ":memory:")
 
   # Sample table
