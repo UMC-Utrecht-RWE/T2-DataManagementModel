@@ -139,7 +139,7 @@ testthat::test_that("Checking if the function saves the results with a postfix",
   )))
 })
 
-test_that("VIEW: Checking if the function delete the duplicates cases using *", {
+testthat::test_that("VIEW: Checking if the function delete the duplicates cases using *", {
   # Load the database
   db_con <- create_loaded_test_db()
   withr::defer(DBI::dbDisconnect(db_con))
@@ -164,7 +164,7 @@ test_that("VIEW: Checking if the function delete the duplicates cases using *", 
   expect_equal(nrow(vx_db), nrow(vx1))
 })
 
-test_that("VIEW: Checking if the function delete the duplicates cases", {
+testthat::test_that("VIEW: Checking if the function delete the duplicates cases", {
   # Load the database
   db_con <- create_loaded_test_db()
   withr::defer(DBI::dbDisconnect(db_con))

@@ -1,7 +1,7 @@
 # setup
 db_connection_origin <- duckdb::dbConnect(duckdb::duckdb())
 
-test_that("database gets loaded in auto", {
+testthat::test_that("database gets loaded in auto", {
   T2.DMM:::load_db(
     db_connection = db_connection_origin,
     data_instance_path = "dbtest",
@@ -19,7 +19,7 @@ test_that("database gets loaded in auto", {
   )
 })
 
-test_that("database gets loaded in auto", {
+testthat::test_that("database gets loaded in auto", {
   T2.DMM:::load_db(
     db_connection = db_connection_origin,
     data_instance_path = "dbtest",
@@ -38,7 +38,7 @@ test_that("database gets loaded in auto", {
   )
 })
 
-test_that("load foreign characters", {
+testthat::test_that("load foreign characters", {
   # latin1 character to test error message
   expect_error(
     load_db(
@@ -61,7 +61,7 @@ test_that("load foreign characters", {
   expect_equal(dim(utf8_db), c(5, 12))
 })
 
-test_that("database gets loaded and mandatory columns are created", {
+testthat::test_that("database gets loaded and mandatory columns are created", {
   # Create minimal test metadata with two mandatory columns
   test_metadata <- data.table::data.table(
     TABLE = c("PERSONS", "PERSONS"),
