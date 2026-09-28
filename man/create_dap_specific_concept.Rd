@@ -9,6 +9,7 @@ create_dap_specific_concept(
   name_attachment,
   save_db,
   date_col_filter = NULL,
+  date_col_notnull = FALSE,
   dir_save = NULL,
   add_meaning = FALSE,
   save_in_parquet = FALSE,
@@ -33,6 +34,9 @@ and concepts will be saved.}
 
 \item{date_col_filter}{An optional filter to subset data based on
 a specified date column.}
+
+\item{date_col_notnull}{Logical; if TRUE and a date column is available,
+keeps only rows where the selected date column is not NULL.}
 
 \item{dir_save}{Directory path for parquet output (required if save_in_parquet = TRUE)}
 
