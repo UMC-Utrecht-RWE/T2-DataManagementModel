@@ -261,7 +261,7 @@ create_dap_specific_concept <- function(
       )
     }
 
-    if (!is.null(date_col_filter) && date_col != "NULL") {
+    if (!is.null(date_col_filter) && date_col_notnull == TRUE) {
       where_statement <- base::paste0(
         where_statement, " AND ",
         date_col, " IS NOT NULL"
