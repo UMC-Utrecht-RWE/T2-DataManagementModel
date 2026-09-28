@@ -53,29 +53,4 @@ The function can:
 - Optionally save deleted records as CSV files for tracking.
 - Optionally create a view instead of deleting, keeping only distinct rows.
 }
-\examples{
-\dontrun{
-# Example 1: Delete duplicates based on specific columns
-db_connection <- DBI::dbConnect(duckdb::duckdb(), ":memory:")
-scheme <- list("EVENTS" = c("*"), "PERSONS" = c("person_id", "age"))
-delete_duplicates_origin(db_connection, scheme)
-
-# Example 2: Delete duplicates across all columns in multiple tables and
-save deleted rows
-scheme <- setNames(rep("*", length(CDM_tables_names)), CDM_tables_names)
-delete_duplicates_origin(
-  db_connection, scheme,
-  save_deleted = TRUE,
-  save_path = "/path/to/save"
-)
-
-# Example 3: Create views with distinct rows instead of deleting
-delete_duplicates_origin(
-  db_connection, scheme,
-  to_view = TRUE,
-  view_prefix = "distinct_"
-)
-}
-
-}
 \keyword{internal}

@@ -65,40 +65,42 @@ create_unique_id <- function(
 
   # Loop through each existing CDM table
   for (table in cdm_tables_names_existing) {
-    #Adjusting the name of the table to the Scheme where this is located
+    # Adjusting the name of the table to the Scheme where this is located
     #  in the database
     table_from_name <- paste0(schema_name, ".", table)
 
     if (to_view == TRUE) {
       pipeline_name <- paste0(table, pipeline_extension)
-      T2.DMM:::add_view(
+      add_view(
         db_connection,
         pipeline = pipeline_name,
         base_table = table_from_name,
         transform_sql = paste0(
-          "SELECT 
-          '", table, "' AS ori_table, 
-          rn AS unique_id, 
+          "SELECT
+          '", table, "' AS ori_table,
+          rn AS unique_id,
           * EXCLUDE(rn)
           FROM (SELECT *, uuid() AS rn
                 FROM %s)"
         )
       )
-    }else{
+    } else {
       DBI::dbExecute(
         db_connection,
         paste0(
           "CREATE OR REPLACE TEMP TABLE temporal_table AS
             SELECT
-            '", table, "' AS ori_table, 
-            rn AS unique_id, 
+            '", table, "' AS ori_table,
+            rn AS unique_id,
             * EXCLUDE(rn)
             FROM (SELECT *, uuid() AS rn
-                  FROM ",table_from_name,")"
+                  FROM ", table_from_name, ")"
         )
       )
-      DBI::dbExecute(db_connection, paste0("DROP TABLE ",
-                                           table_from_name), n = -1)
+      DBI::dbExecute(db_connection, paste0(
+        "DROP TABLE ",
+        table_from_name
+      ), n = -1)
       DBI::dbExecute(
         db_connection,
         paste0(

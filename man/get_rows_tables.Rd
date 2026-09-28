@@ -4,13 +4,10 @@
 \alias{get_rows_tables}
 \title{Get Row Counts for Tables in a Database}
 \usage{
-get_rows_tables(db_connection, verbose = TRUE)
+get_rows_tables(db_connection)
 }
 \arguments{
 \item{db_connection}{Database connection object (SQLiteConnection).}
-
-\item{verbose}{Logical. If `TRUE`, prints intermediate queries
-and table names. Default is `FALSE`.}
 }
 \value{
 A data frame with two columns: 'name' (table name) and 'row_count'

@@ -77,14 +77,13 @@ clean_missing_values <- function(con,
           transform_sql <- sprintf("SELECT * FROM %%s WHERE %s", filter_sql)
           pipeline_name <- paste0(table_to_clean, pipeline_extension)
 
-          T2.DMM::add_view(
+          add_view(
             con = con,
             pipeline = pipeline_name,
             # only used if pipeline not initialized
             base_table = paste0(schema_name, ".", table_to_clean),
             transform_sql = transform_sql
           )
-
         } else if (to_view == FALSE) {
           # ---- Overwrite original table with cleaned version ----
           tmp_table <- paste0(table_to_clean, "_tmp_clean")
@@ -100,7 +99,8 @@ clean_missing_values <- function(con,
           DBI::dbExecute(
             con, paste0(
               "DROP TABLE ", paste0(schema_name, ".", table_to_clean)
-            ), n = -1
+            ),
+            n = -1
           )
           DBI::dbExecute(
             con,

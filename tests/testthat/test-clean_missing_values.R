@@ -24,18 +24,24 @@ test_that("VIEW clean_missing_values creates views correctly", {
   clean_missing_values(con, list_cols, to_view = TRUE)
 
   # Check that PERSONS_view exists
-  views <- DBI::dbGetQuery(con, "SELECT table_name FROM information_schema.tables WHERE table_type='VIEW'")
+  views <- DBI::dbGetQuery(
+    con,
+    "SELECT table_name FROM information_schema.tables WHERE table_type='VIEW'"
+  )
   expect_true(all(c("PERSONS_T2DMM_view_1") %in% views$table_name))
 
   # Check data from the view
-  res <- DBI::dbGetQuery(con, "SELECT * FROM PERSONS_T2DMM_view_1 ORDER BY person_id")
+  res <- DBI::dbGetQuery(
+    con,
+    "SELECT * FROM PERSONS_T2DMM_view_1 ORDER BY person_id"
+  )
   expect_equal(res$person_id, c(1, 5)) # Only valid rows remain
 
   DBI::dbDisconnect(con, shutdown = TRUE)
 })
 
 
-test_that("clean_missing_values overwrites tables in materialized mode", {
+testthat::test_that("clean_missing_values overwrites tables in materialized mode", {
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = ":memory:")
 
   # Sample table
@@ -72,14 +78,13 @@ test_that("clean_missing_values overwrites tables in materialized mode", {
 })
 
 
-test_that("clean_missing_values skips non-existing tables", {
+testthat::test_that("clean_missing_values skips non-existing tables", {
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = ":memory:")
 
   # Provide a table that does not exist
   list_cols <- list(NON_EXISTENT = "id")
 
-
-  expect_message(
+  testthat::expect_message(
     clean_missing_values(con, list_cols, to_view = TRUE),
     fixed = TRUE,
     "Table NON_EXISTENT does not exist"

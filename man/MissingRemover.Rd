@@ -38,63 +38,65 @@ missing_remover$run(loader)
 }
 \keyword{internal}
 \section{Super class}{
-\code{\link[T2.DMM:DatabaseOperation]{T2.DMM::DatabaseOperation}} -> \code{MissingRemover}
+\code{\link[T2.DMM:DatabaseOperation]{DatabaseOperation}} -> \code{MissingRemover}
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{classname}}{A string representing the name of the class.
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{classname}}{A string representing the name of the class.
 Default is `"MissingRemover"`.}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-MissingRemover-run}{\code{MissingRemover$run()}}
-\item \href{#method-MissingRemover-clone}{\code{MissingRemover$clone()}}
+  \itemize{
+    \item \href{#method-MissingRemover-run}{\code{MissingRemover$run()}}
+    \item \href{#method-MissingRemover-clone}{\code{MissingRemover$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="T2.DMM" data-topic="DatabaseOperation" data-id="is_enabled"><a href='../../T2.DMM/html/DatabaseOperation.html#method-DatabaseOperation-is_enabled'><code>T2.DMM::DatabaseOperation$is_enabled()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="T2.DMM" data-topic="DatabaseOperation" data-id="is_enabled"><a href='../../T2.DMM/html/DatabaseOperation.html#method-DatabaseOperation-is_enabled'><code>DatabaseOperation$is_enabled()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-MissingRemover-run"></a>}}
 \if{latex}{\out{\hypertarget{method-MissingRemover-run}{}}}
-\subsection{Method \code{run()}}{
-Executes the missing value removal process.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{MissingRemover$run(db_loader)}\if{html}{\out{</div>}}
+\subsection{\code{MissingRemover$run()}}{
+  Executes the missing value removal process.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{MissingRemover$run(db_loader)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{db_loader}}{A `DatabaseLoader` object provides database connection,
+the list of tables and columns to clean, and other configuration details.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{db_loader}}{A `DatabaseLoader` object provides database connection,
-the list of tables and columns to clean, and other configuration details.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-MissingRemover-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-MissingRemover-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{MissingRemover$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{MissingRemover$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{MissingRemover$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

@@ -2,19 +2,19 @@ import_file <- function(path, cols = NULL, cols_new = NULL, exprs = NULL,
                         date_cols = NULL) {
   if (!file.exists(path)) {
     warning("csv file is not found")
-    return(NULL)
+    NULL
   } else {
     # Import csv all in character. This is because estimation of the format by
     # fread may give unexpected behavior.
     # Now you have a good fixed starting point.
     if (!is.null(cols)) {
-      loaded_file <- fread(path,
+      loaded_file <- data.table::fread(path,
         stringsAsFactors = FALSE, select = cols,
         na.strings = c("", NA), colClasses = c("character"),
         encoding = "UTF-8"
       )
     } else {
-      loaded_file <- fread(path,
+      loaded_file <- data.table::fread(path,
         stringsAsFactors = FALSE, na.strings = c("", NA),
         colClasses = c("character"),
         encoding = "UTF-8"
@@ -58,6 +58,6 @@ import_file <- function(path, cols = NULL, cols_new = NULL, exprs = NULL,
         " rows after evaluation of exprs"
       ))
     }
-    return(data.table::as.data.table(loaded_file))
+    data.table::as.data.table(loaded_file)
   }
 }

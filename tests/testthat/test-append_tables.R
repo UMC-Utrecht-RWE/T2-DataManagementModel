@@ -1,4 +1,3 @@
-
 testthat::test_that("append_tables handles missing tables correctly", {
   # Create a temporary SQLite database
   db <- DBI::dbConnect(duckdb::duckdb(), tempfile(fileext = ".duckdb"))
@@ -27,7 +26,8 @@ testthat::test_that("append_tables appends tables correctly", {
 
   # Append tables
   result <- append_tables(
-    db, c("table1", "table2"), "result_table", return = TRUE
+    db, c("table1", "table2"), "result_table",
+    return = TRUE
   )
 
   # Check the result
@@ -54,7 +54,8 @@ testthat::test_that("append_tables raise message if appends empthy tables", {
   # Append tables
   testthat::expect_message(
     append_tables(
-      db, "table1", "result_table", return = TRUE
+      db, "table1", "result_table",
+      return = TRUE
     ),
     "0 cases in table1 for the Appended TABLE result_table"
   )

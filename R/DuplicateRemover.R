@@ -41,7 +41,7 @@ DuplicateRemover <- R6::R6Class("DuplicateRemover", # nolint
       distinct_config <- db_loader$config$duplicate_remover$cdm_tables_columns
       # Access cdm_tables_columns inside duplicate_remover
       table_columns <- db_loader$config$duplicate_remover$cdm_tables_columns
-      
+
       scheme <- setNames(
         lapply(names(table_columns), function(tbl) {
           if (!is.null(table_columns[[tbl]])) {
@@ -53,7 +53,7 @@ DuplicateRemover <- R6::R6Class("DuplicateRemover", # nolint
         }),
         names(table_columns)
       )
-      
+
 
       T2.DMM:::delete_duplicates_origin(
         db_connection = db_loader$db,
