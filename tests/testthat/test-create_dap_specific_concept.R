@@ -615,3 +615,134 @@ testthat::test_that("add_tag works and generates expected output", {
     testthat::expect_true(!"tag" %in% colnames(parquet_df))
   })
 })
+
+testthat::test_that("date_col_notnull adds IS NOT NULL filter when date_col_filter is set", {
+  source_db_path <- tempfile(fileext = ".duckdb")
+  source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
+
+  concept_db_conn <- DBI::dbConnect(
+    duckdb::duckdb(),
+    tempfile(fileext = ".duckdb")
+  )
+
+  attach_name <- "d2_db_conn"
+
+  create_test_db(source_db_path, source_db_conn, concept_db_conn, attach_name)
+  withr::defer(DBI::dbDisconnect(concept_db_conn), envir = parent.frame())
+  withr::defer(cleanup_concept_tables(concept_db_conn), envir = parent.frame())
+
+  testthat::expect_output(
+    create_dap_specific_concept(
+      codelist = create_codelist_example(),
+      name_attachment = attach_name,
+      save_db = concept_db_conn,
+      date_col_filter = "1900-01-01",
+      date_col_notnull = TRUE,
+      add_meaning = TRUE
+    ),
+    "IS NOT NULL"
+  )
+
+  mo_concept_table <- DBI::dbReadTable(concept_db_conn, "concept_table")
+  testthat::expect_equal(nrow(mo_concept_table), 39)
+})
+
+testthat::test_that("date_col_notnull = FALSE does not add IS NOT NULL filter", {
+  source_db_path <- tempfile(fileext = ".duckdb")
+  source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
+
+  concept_db_conn <- DBI::dbConnect(
+    duckdb::duckdb(),
+    tempfile(fileext = ".duckdb")
+  )
+
+  attach_name <- "d2_db_conn"
+
+  create_test_db(source_db_path, source_db_conn, concept_db_conn, attach_name)
+  withr::defer(DBI::dbDisconnect(concept_db_conn), envir = parent.frame())
+  withr::defer(cleanup_concept_tables(concept_db_conn), envir = parent.frame())
+
+  output <- testthat::capture_output(
+    create_dap_specific_concept(
+      codelist = create_codelist_example(),
+      name_attachment = attach_name,
+      save_db = concept_db_conn,
+      date_col_filter = "1900-01-01",
+      date_col_notnull = FALSE,
+      add_meaning = TRUE
+    )
+  )
+
+  testthat::expect_false(grepl("IS NOT NULL", output, fixed = TRUE))
+
+  mo_concept_table <- DBI::dbReadTable(concept_db_conn, "concept_table")
+  testthat::expect_equal(nrow(mo_concept_table), 39)
+})
+
+testthat::test_that("date_col_notnull has no effect without date_col_filter", {
+  source_db_path <- tempfile(fileext = ".duckdb")
+  source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
+
+  concept_db_conn <- DBI::dbConnect(
+    duckdb::duckdb(),
+    tempfile(fileext = ".duckdb")
+  )
+
+  attach_name <- "d2_db_conn"
+
+  create_test_db(source_db_path, source_db_conn, concept_db_conn, attach_name)
+  withr::defer(DBI::dbDisconnect(concept_db_conn), envir = parent.frame())
+  withr::defer(cleanup_concept_tables(concept_db_conn), envir = parent.frame())
+
+  output <- testthat::capture_output(
+    create_dap_specific_concept(
+      codelist = create_codelist_example(),
+      name_attachment = attach_name,
+      save_db = concept_db_conn,
+      date_col_notnull = TRUE,
+      add_meaning = TRUE
+    )
+  )
+
+  testthat::expect_false(grepl("IS NOT NULL", output, fixed = TRUE))
+
+  mo_concept_table <- DBI::dbReadTable(concept_db_conn, "concept_table")
+  testthat::expect_equal(nrow(mo_concept_table), 39)
+})
+
+testthat::test_that("date_col_notnull excludes rows with a NULL date value", {
+  source_db_path <- tempfile(fileext = ".duckdb")
+  source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
+
+  concept_db_conn <- DBI::dbConnect(
+    duckdb::duckdb(),
+    tempfile(fileext = ".duckdb")
+  )
+
+  attach_name <- "d2_db_conn"
+
+  create_test_db(source_db_path, source_db_conn, concept_db_conn, attach_name)
+  withr::defer(DBI::dbDisconnect(concept_db_conn), envir = parent.frame())
+  withr::defer(cleanup_concept_tables(concept_db_conn), envir = parent.frame())
+
+  # Nulls out the date for a known subset (6 of the 39 "weight" rows)
+  DBI::dbExecute(
+    concept_db_conn,
+    paste0(
+      "UPDATE ", attach_name, ".MEDICAL_OBSERVATIONS
+      SET mo_date = NULL WHERE mo_date < DATE '2021-06-01'"
+    )
+  )
+
+  create_dap_specific_concept(
+    codelist = create_codelist_example(),
+    name_attachment = attach_name,
+    save_db = concept_db_conn,
+    date_col_filter = "1900-01-01",
+    date_col_notnull = TRUE,
+    add_meaning = TRUE
+  )
+
+  mo_concept_table <- DBI::dbReadTable(concept_db_conn, "concept_table")
+  testthat::expect_equal(nrow(mo_concept_table), 33)
+})
