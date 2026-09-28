@@ -53,7 +53,7 @@ library(duckdb)
 
 The T2-DataManagementModel workflow consists of **3 main processes**:
 
-1.  **Set Database**: Load and clean raw CDM data
+1.  **Set Database**: Load and clean raw electronic health records (EHR) data
 2.  **Process Codelist**: Extract and standardize codes from the data
 3.  **Apply Codelist**: Harmonize codes and create standardized concepts
 
@@ -66,18 +66,18 @@ Raw Data (CSV/Parquet)
     ├─ Remove duplicates (optional)
     └─ Add unique identifiers  
     ↓
-Cleaned CDM Database
+Cleaned Database
     ↓
 [PROCESS 2: PROCESS CODELIST]
-    ├─ Extract unique codes from database
+    ├─ Extract list of unique codes from database
     ├─ Create DAP-specific codelist
-    ├─ Prepare concept map (wrangling)
+    ├─ Wrangle RWE_BRIDGE dap_specific_concept_mape
     └─ Merge DAP-specific codelist and concept map
     ↓
 Harmonized Codelist
     ↓
 [PROCESS 3: APPLY CODELIST]
-    ├─ Load DAP-specific codelist + concept map
+    ├─ Load harmonized codelist
     ├─ Initialize concept table
     └─ Apply codelist to create concepts
     ↓
