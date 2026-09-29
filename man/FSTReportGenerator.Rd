@@ -32,77 +32,80 @@ method, which declares the supported file extension(s) for dynamic dispatch.
 
 \keyword{internal}
 \section{Super classes}{
-\code{\link[T2.DMM:DatabaseOperation]{T2.DMM::DatabaseOperation}} -> \code{\link[T2.DMM:ReportGenerator]{T2.DMM::ReportGenerator}} -> \code{FSTReportGenerator}
+\code{\link[T2.DMM:DatabaseOperation]{DatabaseOperation}} -> \code{\link[T2.DMM:ReportGenerator]{ReportGenerator}} -> \code{FSTReportGenerator}
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{classname}}{A string identifying the class name.
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{classname}}{A string identifying the class name.
 Default is `"FSTReportGenerator"`.}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-FSTReportGenerator-write_report}{\code{FSTReportGenerator$write_report()}}
-\item \href{#method-FSTReportGenerator-supported_ext}{\code{FSTReportGenerator$supported_ext()}}
-\item \href{#method-FSTReportGenerator-clone}{\code{FSTReportGenerator$clone()}}
+  \itemize{
+    \item \href{#method-FSTReportGenerator-write_report}{\code{FSTReportGenerator$write_report()}}
+    \item \href{#method-FSTReportGenerator-supported_ext}{\code{FSTReportGenerator$supported_ext()}}
+    \item \href{#method-FSTReportGenerator-clone}{\code{FSTReportGenerator$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="T2.DMM" data-topic="DatabaseOperation" data-id="is_enabled"><a href='../../T2.DMM/html/DatabaseOperation.html#method-DatabaseOperation-is_enabled'><code>T2.DMM::DatabaseOperation$is_enabled()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="T2.DMM" data-topic="ReportGenerator" data-id="run"><a href='../../T2.DMM/html/ReportGenerator.html#method-ReportGenerator-run'><code>T2.DMM::ReportGenerator$run()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="T2.DMM" data-topic="DatabaseOperation" data-id="is_enabled"><a href='../../T2.DMM/html/DatabaseOperation.html#method-DatabaseOperation-is_enabled'><code>DatabaseOperation$is_enabled()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="T2.DMM" data-topic="ReportGenerator" data-id="run"><a href='../../T2.DMM/html/ReportGenerator.html#method-ReportGenerator-run'><code>ReportGenerator$run()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FSTReportGenerator-write_report"></a>}}
 \if{latex}{\out{\hypertarget{method-FSTReportGenerator-write_report}{}}}
-\subsection{Method \code{write_report()}}{
-Writes the provided data to a `fst` file.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FSTReportGenerator$write_report(data, db_loader)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{data}}{A data frame containing the data to be saved.}
-
-\item{\code{db_loader}}{A `DatabaseLoader` object that provides the
+\subsection{\code{FSTReportGenerator$write_report()}}{
+  Writes the provided data to a `fst` file.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{FSTReportGenerator$write_report(data, db_loader)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{data}}{A data frame containing the data to be saved.}
+      \item{\code{db_loader}}{A `DatabaseLoader` object that provides the
 configuration details for saving the report.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FSTReportGenerator-supported_ext"></a>}}
 \if{latex}{\out{\hypertarget{method-FSTReportGenerator-supported_ext}{}}}
-\subsection{Method \code{supported_ext()}}{
-Returns a character vector indicating file extensions (here, `"fst"`).
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FSTReportGenerator$supported_ext()}\if{html}{\out{</div>}}
+\subsection{\code{FSTReportGenerator$supported_ext()}}{
+  Returns a character vector indicating file extensions (here, `"fst"`).
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{FSTReportGenerator$supported_ext()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FSTReportGenerator-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-FSTReportGenerator-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FSTReportGenerator$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{FSTReportGenerator$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{FSTReportGenerator$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

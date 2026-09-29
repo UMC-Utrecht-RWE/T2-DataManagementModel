@@ -54,104 +54,109 @@ loader$run_db_ops()
 
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{db_path}}{A string representing the path to the database file.}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{db_path}}{A string representing the path to the database file.}
 
-\item{\code{data_instance}}{A string representing the path to the data instance.}
+    \item{\code{data_instance}}{A string representing the path to the data instance.}
 
-\item{\code{config_path}}{A string representing the path to the configuration file.}
+    \item{\code{config_path}}{A string representing the path to the configuration file.}
 
-\item{\code{cdm_metadata}}{A string representing the path to the metadata file.}
+    \item{\code{cdm_metadata}}{A string representing the path to the metadata file.}
 
-\item{\code{config}}{A list containing the configuration from `config_path` file.}
+    \item{\code{config}}{A list containing the configuration from `config_path` file.}
 
-\item{\code{metadata}}{A `data.table` object containing the metadata loaded.}
+    \item{\code{metadata}}{A `data.table` object containing the metadata loaded.}
 
-\item{\code{db}}{A database connection object created using the `duckdb` package.}
-}
-\if{html}{\out{</div>}}
+    \item{\code{db}}{A database connection object created using the `duckdb` package.}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-DatabaseLoader-new}{\code{DatabaseLoader$new()}}
-\item \href{#method-DatabaseLoader-set_database}{\code{DatabaseLoader$set_database()}}
-\item \href{#method-DatabaseLoader-run_db_ops}{\code{DatabaseLoader$run_db_ops()}}
-\item \href{#method-DatabaseLoader-clone}{\code{DatabaseLoader$clone()}}
-}
+  \itemize{
+    \item \href{#method-DatabaseLoader-initialize}{\code{DatabaseLoader$new()}}
+    \item \href{#method-DatabaseLoader-set_database}{\code{DatabaseLoader$set_database()}}
+    \item \href{#method-DatabaseLoader-run_db_ops}{\code{DatabaseLoader$run_db_ops()}}
+    \item \href{#method-DatabaseLoader-clone}{\code{DatabaseLoader$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DatabaseLoader-new"></a>}}
-\if{latex}{\out{\hypertarget{method-DatabaseLoader-new}{}}}
-\subsection{Method \code{new()}}{
-Initializes the class with the provided parameters.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DatabaseLoader$new(
+\if{html}{\out{<a id="method-DatabaseLoader-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-DatabaseLoader-initialize}{}}}
+\subsection{\code{DatabaseLoader$new()}}{
+  Initializes the class with the provided parameters.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DatabaseLoader$new(
   db_path = NULL,
   data_instance = NULL,
   config_path = NULL,
   cdm_metadata = NULL
-)}\if{html}{\out{</div>}}
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{db_path}}{A string representing the path to the database file.}
+      \item{\code{data_instance}}{A string representing the path to the data instance.}
+      \item{\code{config_path}}{A string representing the path to configuration file.}
+      \item{\code{cdm_metadata}}{A string representing the path to the metadata file.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{db_path}}{A string representing the path to the database file.}
-
-\item{\code{data_instance}}{A string representing the path to the data instance.}
-
-\item{\code{config_path}}{A string representing the path to configuration file.}
-
-\item{\code{cdm_metadata}}{A string representing the path to the metadata file.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DatabaseLoader-set_database"></a>}}
 \if{latex}{\out{\hypertarget{method-DatabaseLoader-set_database}{}}}
-\subsection{Method \code{set_database()}}{
-Loads the database with the required data using config and metadata.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DatabaseLoader$set_database()}\if{html}{\out{</div>}}
+\subsection{\code{DatabaseLoader$set_database()}}{
+  Loads the database with the required data using config and metadata.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DatabaseLoader$set_database()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DatabaseLoader-run_db_ops"></a>}}
 \if{latex}{\out{\hypertarget{method-DatabaseLoader-run_db_ops}{}}}
-\subsection{Method \code{run_db_ops()}}{
-Executes a series of database operations in order specified in config.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DatabaseLoader$run_db_ops(ops = NULL)}\if{html}{\out{</div>}}
+\subsection{\code{DatabaseLoader$run_db_ops()}}{
+  Executes a series of database operations in order specified in config.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DatabaseLoader$run_db_ops(ops = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{ops}}{A list of operation objects to execute. If `NULL`, operations
+are retrieved using the `get_all_operations` method.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{ops}}{A list of operation objects to execute. If `NULL`, operations
-are retrieved using the `get_all_operations` method.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DatabaseLoader-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-DatabaseLoader-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DatabaseLoader$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{DatabaseLoader$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DatabaseLoader$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

@@ -18,18 +18,22 @@ import(DBI)
 import(R6)
 import(data.table)
 import(glue)
-importFrom(DBI,dbDisconnect)
-importFrom(DBI,dbExecute)
-importFrom(DBI,dbExistsTable)
-importFrom(DBI,dbListTables)
-importFrom(DBI,dbRemoveTable)
-importFrom(DBI,dbSendStatement)
+importFrom(DBI,
+  dbDisconnect,
+  dbExecute,
+  dbExistsTable,
+  dbListTables,
+  dbRemoveTable,
+  dbSendStatement
+)
 importFrom(R6,R6Class)
 importFrom(data.table,as.data.table)
-importFrom(duckdb,dbClearResult)
-importFrom(duckdb,dbConnect)
-importFrom(duckdb,dbDisconnect)
-importFrom(duckdb,dbGetRowsAffected)
+importFrom(duckdb,
+  dbClearResult,
+  dbConnect,
+  dbDisconnect,
+  dbGetRowsAffected
+)
 importFrom(fst,write_fst)
 importFrom(glue,glue)
 importFrom(here,here)

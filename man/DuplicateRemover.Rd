@@ -30,63 +30,65 @@ can be saved to an intermediate file for auditing or debugging purposes.
 
 \keyword{internal}
 \section{Super class}{
-\code{\link[T2.DMM:DatabaseOperation]{T2.DMM::DatabaseOperation}} -> \code{DuplicateRemover}
+\code{\link[T2.DMM:DatabaseOperation]{DatabaseOperation}} -> \code{DuplicateRemover}
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{classname}}{A string representing the name of the class.
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{classname}}{A string representing the name of the class.
 Default is `"DuplicateRemover"`.}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-DuplicateRemover-run}{\code{DuplicateRemover$run()}}
-\item \href{#method-DuplicateRemover-clone}{\code{DuplicateRemover$clone()}}
+  \itemize{
+    \item \href{#method-DuplicateRemover-run}{\code{DuplicateRemover$run()}}
+    \item \href{#method-DuplicateRemover-clone}{\code{DuplicateRemover$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="T2.DMM" data-topic="DatabaseOperation" data-id="is_enabled"><a href='../../T2.DMM/html/DatabaseOperation.html#method-DatabaseOperation-is_enabled'><code>T2.DMM::DatabaseOperation$is_enabled()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="T2.DMM" data-topic="DatabaseOperation" data-id="is_enabled"><a href='../../T2.DMM/html/DatabaseOperation.html#method-DatabaseOperation-is_enabled'><code>DatabaseOperation$is_enabled()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DuplicateRemover-run"></a>}}
 \if{latex}{\out{\hypertarget{method-DuplicateRemover-run}{}}}
-\subsection{Method \code{run()}}{
-Executes the duplicate removal process.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DuplicateRemover$run(db_loader)}\if{html}{\out{</div>}}
+\subsection{\code{DuplicateRemover$run()}}{
+  Executes the duplicate removal process.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DuplicateRemover$run(db_loader)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{db_loader}}{A `DatabaseLoader` object provides database connection,
+table names, and other configuration details required for the operation.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{db_loader}}{A `DatabaseLoader` object provides database connection,
-table names, and other configuration details required for the operation.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DuplicateRemover-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-DuplicateRemover-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DuplicateRemover$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{DuplicateRemover$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DuplicateRemover$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

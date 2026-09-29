@@ -157,24 +157,23 @@ apply_codelist <- function(
       add_id_set = keep_id_set
     )
   }
-  
-  
+
   if (any(unique(codelist[, cdm_table_name]) %in% DBI::dbListTables(db_con))) {
     #Checking searching table:
     available_tables <- dbListTables(db_con)
     searching_tables <- unique(codelist[, cdm_table_name])
     match_tables <- searching_tables[searching_tables %in% available_tables]
-    
+
     codelist <- codelist[cdm_table_name %in% match_tables]
   }
-  
+
   #If keep_value_column_name is empty then asign "TRUE" to the column value
   codelist[is.na(keep_value_column_name), keep_value_column_name := "'TRUE'"]
 
   #If keep_value_column_name is the literal string "NA" quote it so it is
   # treated as a SQL string literal instead of an unquoted (invalid) column
   codelist[keep_value_column_name == "NA", keep_value_column_name := "'NA'"]
-  
+
   # Proceed with logic
   # Group ignoring cdm_column to capture parent-child relationships
   codelist[, family_group := .GRP, by = .(

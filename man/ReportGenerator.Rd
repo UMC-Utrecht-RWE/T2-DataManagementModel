@@ -46,83 +46,86 @@ report_generator$run(loader) # Delegates to the correct subclass
 }
 \keyword{internal}
 \section{Super class}{
-\code{\link[T2.DMM:DatabaseOperation]{T2.DMM::DatabaseOperation}} -> \code{ReportGenerator}
+\code{\link[T2.DMM:DatabaseOperation]{DatabaseOperation}} -> \code{ReportGenerator}
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{classname}}{A string representing the name of the class.
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{classname}}{A string representing the name of the class.
 Default is `"ReportGenerator"`.}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-ReportGenerator-run}{\code{ReportGenerator$run()}}
-\item \href{#method-ReportGenerator-write_report}{\code{ReportGenerator$write_report()}}
-\item \href{#method-ReportGenerator-clone}{\code{ReportGenerator$clone()}}
+  \itemize{
+    \item \href{#method-ReportGenerator-run}{\code{ReportGenerator$run()}}
+    \item \href{#method-ReportGenerator-write_report}{\code{ReportGenerator$write_report()}}
+    \item \href{#method-ReportGenerator-clone}{\code{ReportGenerator$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="T2.DMM" data-topic="DatabaseOperation" data-id="is_enabled"><a href='../../T2.DMM/html/DatabaseOperation.html#method-DatabaseOperation-is_enabled'><code>T2.DMM::DatabaseOperation$is_enabled()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="T2.DMM" data-topic="DatabaseOperation" data-id="is_enabled"><a href='../../T2.DMM/html/DatabaseOperation.html#method-DatabaseOperation-is_enabled'><code>DatabaseOperation$is_enabled()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ReportGenerator-run"></a>}}
 \if{latex}{\out{\hypertarget{method-ReportGenerator-run}{}}}
-\subsection{Method \code{run()}}{
-Executes the report generation process.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ReportGenerator$run(db_loader)}\if{html}{\out{</div>}}
+\subsection{\code{ReportGenerator$run()}}{
+  Executes the report generation process.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ReportGenerator$run(db_loader)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{db_loader}}{A `DatabaseLoader` object provides database connection,
+the instance name, and the configuration details for saving the report.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{db_loader}}{A `DatabaseLoader` object provides database connection,
-the instance name, and the configuration details for saving the report.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ReportGenerator-write_report"></a>}}
 \if{latex}{\out{\hypertarget{method-ReportGenerator-write_report}{}}}
-\subsection{Method \code{write_report()}}{
-Dispatches to the subclass to write the report based on extension.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ReportGenerator$write_report(data, db_loader)}\if{html}{\out{</div>}}
+\subsection{\code{ReportGenerator$write_report()}}{
+  Dispatches to the subclass to write the report based on extension.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ReportGenerator$write_report(data, db_loader)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{data}}{A data frame containing the data to be saved.}
+      \item{\code{db_loader}}{A `DatabaseLoader` object.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{data}}{A data frame containing the data to be saved.}
-
-\item{\code{db_loader}}{A `DatabaseLoader` object.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ReportGenerator-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-ReportGenerator-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ReportGenerator$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{ReportGenerator$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ReportGenerator$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }
