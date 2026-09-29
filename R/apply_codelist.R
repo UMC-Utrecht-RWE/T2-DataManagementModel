@@ -169,7 +169,7 @@ apply_codelist <- function(
   }
   
   #If keep_value_column_name is empty then asign "TRUE" to the column value
-  codelist[is.na(keep_value_column_name), keep_value_column_name:= "'TRUE'"]
+  codelist[is.na(keep_value_column_name), keep_value_column_name := "'TRUE'"]
 
   #If keep_value_column_name is the literal string "NA" quote it so it is
   # treated as a SQL string literal instead of an unquoted (invalid) column
@@ -198,7 +198,6 @@ apply_codelist <- function(
   #Checkinbg if any required table exists in the database
   if (!any(unique(codelist[, cdm_table_name]) %in% DBI::dbListTables(db_con))) {
     warning("[apply_codelist] requiered tables do not exist")
-    return()
   } else {
     for (fam_idx in seq_len(nrow(family_groups))) {
       fam_info <- family_groups[fam_idx]
@@ -235,8 +234,10 @@ apply_codelist <- function(
               db_con, name = "codelist", value = current_codelist,
               TEMPORARY = TRUE, overwrite = TRUE,
               field.types = stats::setNames(
-                  ifelse(names(current_codelist) == "order_index", "INTEGER", "VARCHAR"),
-                  names(current_codelist)
+                ifelse(
+                  names(current_codelist) == "order_index", "INTEGER", "VARCHAR"
+                ),
+                names(current_codelist)
               )
             )
 
@@ -277,8 +278,10 @@ apply_codelist <- function(
                     db_con, name = "codelist", value = current_codelist,
                     TEMPORARY = TRUE, overwrite = TRUE,
                     field.types = stats::setNames(
-                        ifelse(names(current_codelist) == "order_index", "INTEGER", "VARCHAR"),
-                        names(current_codelist)
+                      ifelse(
+                        names(current_codelist) == "order_index", "INTEGER", "VARCHAR"
+                      ),
+                      names(current_codelist)
                     )
                   )
                   current_order_index <- order_idx
