@@ -13,29 +13,33 @@ create_dap_specific_codelist(
 )
 }
 \arguments{
-\item{dap_codes}{A data.table containing unique codes extracted from the database/data source.
-Must include columns:
-- `coding_system` (character): The coding system identifier (e.g., "ICD10", "ATC", "PRODCODEID")
-- `code` (character): The code value to match
-- `COUNT` (numeric, optional): Frequency/count of the code in the source data
-- `source_column` (character, optional): Origin column name in the source data}
+\item{dap_codes}{A data.table containing unique codes extracted from the
+database/data source.  Must include columns:
+  - `coding_system` (character): The coding system identifier
+(e.g., "ICD10", "ATC", "PRODCODEID")
+  - `code` (character): The code value to match
+  - `COUNT` (numeric, optional): Frequency/count of code in the source data
+  - `source_column` (character, optional): Origin column name in source data}
 
-\item{codelist}{A data.table containing the study-specific reference codelist.
+\item{codelist}{A data.table containing study-specific reference codelist.
 Must include columns:
 - `coding_system` (character): The coding system identifier
 - `code` (character): The code value to match
 - `concept_id` (character): Unique concept identifier for this code
 - `cdm_name` (character): Name or identifier of the CDM / data source
-- `cdm_table_name` (character): Name of the CDM table associated with the code
-Additional columns (e.g., `tags`, descriptions) are optional and are preserved in output}
+- `cdm_table_name` (character): Name of CDM table associated with the code
+Additional columns (`tags`, descriptions) optional and preserved in output}
 
-\item{start_with_codingsystems}{Character vector of coding systems that support hierarchical
-prefix matching (e.g., ATC codes "N02BE01" matches parent codes like "N02BE" and "N02").
-Default: c("ICD10CM", "ICD10", "ICD10DA", "ICD9CM", "MTHICD9", "ICPC", "ICPC2P", "ICPC2EENG", "ATC").
-Coding systems not in this list use exact matching only.}
+\item{start_with_codingsystems}{Character vector of coding systems that
+support hierarchical prefix matching (e.g., ATC codes "N02BE01" matches
+parent codes like "N02BE" and "N02").
+Default: c("ICD10CM", "ICD10", "ICD10DA", "ICD9CM", "MTHICD9", "ICPC",
+"ICPC2P", "ICPC2EENG", "ATC").
+ Coding systems not in this list use exact matching only.}
 
-\item{priority_col}{Character; Name of the column in `codelist` to use for prioritizing 
-matches when a single DAP code matches multiple study codes (e.g., tie-breaking).
+\item{priority_col}{Character; Name of the column in `codelist` to use
+for prioritizing matches when a single DAP code matches multiple study
+codes (e.g., tie-breaking).
 Lower values indicate higher priority. Default: "priority".}
 }
 \value{
@@ -46,17 +50,18 @@ A data.table with the following columns:
   - `code.dap_codes`: The original database code
   - `concept_id`: The matched concept identifier from the study codelist
   - `code.codelist`: The matched study codelist code
-  - `code`: Final mapped code (preferred over `code.dap_codes` when available)
+  - `code`: Final mapped code .Preferred over `code.dap_codes` when available
   - `match_status`: One of:
     - `"MATCHED"`: Successfully matched between DAP and codelist
     - `"ONLY_IN_DATA"`: Present in DAP but not in codelist (unmatched)
-    - `"ONLY_IN_CODELIST"`: Present in codelist but not in DAP (unused study codes)
+    - `"ONLY_IN_CODELIST"`: Present in codelist but not in DAP (unused codes)
   - All additional columns from the study codelist are preserved
 }
 \description{
-Intelligently matches database-sourced codes (DAP codes) against study-specific codelists
-using a two-pronged approach: exact matching for non-hierarchical coding systems (e.g., PRODCODEID)
-and hierarchical prefix-based matching for taxonomic systems (e.g., ICD10, ATC).
+Intelligently matches database-sourced codes (DAP codes) against
+study-specific codelists using a two-pronged approach: exact matching for
+non-hierarchical coding systems (e.g., PRODCODEID) and hierarchical
+prefix-based matching for taxonomic systems (e.g., ICD10, ATC).
 Returns a consolidated codelist with match status and prioritized results.
 }
 \details{
@@ -71,7 +76,7 @@ Handles tie-breaking using the `priority_col` to select the best match when
 a single DAP code matches multiple study codes at the same length.
 
 **Stage 3: Consolidation**
-Combines matched and unmatched records, assigning appropriate `match_status` labels.
+Combines matched and unmatched records, assigning `match_status` labels.
 }
 \examples{
 \dontrun{

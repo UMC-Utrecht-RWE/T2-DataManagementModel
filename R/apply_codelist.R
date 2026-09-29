@@ -157,24 +157,24 @@ apply_codelist <- function(
       add_id_set = keep_id_set
     )
   }
-  
-  
+
+
   if (any(unique(codelist[, cdm_table_name]) %in% DBI::dbListTables(db_con))) {
     #Checking searching table:
     available_tables <- dbListTables(db_con)
     searching_tables <- unique(codelist[, cdm_table_name])
     match_tables <- searching_tables[searching_tables %in% available_tables]
-    
+
     codelist <- codelist[cdm_table_name %in% match_tables]
   }
-  
+
   #If keep_value_column_name is empty then asign "TRUE" to the column value
   codelist[is.na(keep_value_column_name), keep_value_column_name:= "'TRUE'"]
 
   #If keep_value_column_name is the literal string "NA" quote it so it is
   # treated as a SQL string literal instead of an unquoted (invalid) column
   codelist[keep_value_column_name == "NA", keep_value_column_name := "'NA'"]
-  
+
   # Proceed with logic
   # Group ignoring cdm_column to capture parent-child relationships
   codelist[, family_group := .GRP, by = .(
@@ -198,7 +198,6 @@ apply_codelist <- function(
   #Checkinbg if any required table exists in the database
   if (!any(unique(codelist[, cdm_table_name]) %in% DBI::dbListTables(db_con))) {
     warning("[apply_codelist] requiered tables do not exist")
-    return()
   } else {
     for (fam_idx in seq_len(nrow(family_groups))) {
       fam_info <- family_groups[fam_idx]
@@ -235,8 +234,10 @@ apply_codelist <- function(
               db_con, name = "codelist", value = current_codelist,
               TEMPORARY = TRUE, overwrite = TRUE,
               field.types = stats::setNames(
-                  ifelse(names(current_codelist) == "order_index", "INTEGER", "VARCHAR"),
-                  names(current_codelist)
+                ifelse(
+                  names(current_codelist) == "order_index", "INTEGER", "VARCHAR"
+                ),
+                names(current_codelist)
               )
             )
 
@@ -277,8 +278,10 @@ apply_codelist <- function(
                     db_con, name = "codelist", value = current_codelist,
                     TEMPORARY = TRUE, overwrite = TRUE,
                     field.types = stats::setNames(
-                        ifelse(names(current_codelist) == "order_index", "INTEGER", "VARCHAR"),
-                        names(current_codelist)
+                      ifelse(
+                        names(current_codelist) == "order_index", "INTEGER", "VARCHAR"
+                      ),
+                      names(current_codelist)
                     )
                   )
                   current_order_index <- order_idx

@@ -12,25 +12,27 @@ wrangling_codelist(
 )
 }
 \arguments{
-\item{codelist}{A data.table containing the study codelist with the following structure:
+\item{codelist}{A data.table containing the study codelist with structure:
 **Required columns:**
 - `concept_id` (character): Harmonized concept identifier
 - `cdm_name` (character): CDM (Common Data Model) name/version
-- `cdm_table_name` (character): Name of the CDM table where the mapping applies
+- `cdm_table_name` (character): CDM table where the mapping applies
 - `code` (character): Expected code value for matching
-- `coding_system` (character): Coding system identifier (e.g., "ICD10", "ATC")
-- `keep_value_column_name` (character or NA): Column to retain as the value (can be NA)
-- `keep_date_column_name` (character): Column to retain as the date (cannot be NA)}
+- `coding_system` (character): Coding system identifier (e.g., "ICD10")
+- `keep_value_column_name` (character or NA): Column as value (can be NA)
+- `keep_date_column_name` (character): Column  as the date (cannot be NA)}
 
-\item{code_column_name}{Character; The CDM column name to use instead of "code" 
+\item{code_column_name}{Character; The CDM column to use instead of "code"
 when melting the `code` column. Default: "code"}
 
-\item{codingsystem_column_name}{Character; The CDM column name to use instead of "coding_system"
-when melting the `coding_system` column. Default: "coding_system"}
+\item{codingsystem_column_name}{Character;
+CDM column to use instead of "coding_system" when melting the `coding_system`
+ column. Default: "coding_system"}
 
-\item{id_set_col}{Character; Name of the column to use as the unique identifier for each
-mapping set. If provided, the column must be integer type. If NULL, a `id_set` column 
-will be auto-generated as integers (1, 2, 3, ...). Default: NULL (auto-generate)}
+\item{id_set_col}{Character; Name of the column to use as the unique
+identifier for each mapping set. If provided, the column must be integer
+type. If NULL, a `id_set` column will be auto-generated as integers
+(1, 2, 3, ...). Default: NULL (auto-generate)}
 }
 \value{
 A data.table in long format with the following columns:
@@ -40,16 +42,23 @@ A data.table in long format with the following columns:
     \item{cdm_table_name}{CDM table name (original) (character).}
     \item{cdm_column}{Name of the CDM column being mapped (character).}
     \item{code}{Expected code value or coding system identifier (character).}
-    \item{keep_value_column_name}{Column to retain as the value (character, may be NA).}
+    \item{coding_system}{Coding system identifier (character).}
+    \item{keep_value_column_name}{
+       Column to retain as the value (character, may be NA).
+     }
     \item{keep_date_column_name}{Column to retain as the date (character).}
-    \item{order_index}{Order index for hierarchical application of mappings (integer, sequential within id_set).}
+    \item{order_index}{Order index for hierarchical application of mappings
+     (integer, sequential within id_set).
+     }
   }
 
   All character columns are returned as character type (not factor).
   `id_set` and `order_index` are returned as integer type.
-  Each input row produces two output rows: one for the code column and one for the coding_system column.
-  The `order_index` is generated sequentially within each `id_set` (1, 2, 1, 2, ... for multiple id_sets).
-  Rows are ordered by `id_set`, `concept_id`, and `cdm_column` for consistent output.
+  Each input row produces two output rows: one for the code column and one
+  for the coding_system column. The `order_index` is generated sequentially
+  within each `id_set` (1, 2, 1, 2, ... for multiple id_sets).
+  Rows are ordered by `id_set`, `concept_id`, and `cdm_column`
+  for consistent output.
 }
 \description{
 Transforms a study codelist by melting the `code` and `coding_system` columns
@@ -62,27 +71,39 @@ enabling seamless integration with existing concept mapping pipelines.
 \details{
 **Processing Steps:**
 
-1. **Input Validation**: Checks for required columns and data types
-2. **Convert to Character**: Converts all character columns from factor to character type
-3. **ID Set Validation**: Validates that id_set_col (if provided) is integer type
-4. **NA Validation**: Ensures `keep_date_column_name` is not NA; allows `keep_value_column_name` to be NA
-5. **ID Set Creation**: Generates unique identifiers for each mapping set if not provided
-6. **Melting**: Transforms `code` and `coding_system` columns into separate rows
-7. **Column Name Customization**: Uses provided custom column names in `cdm_column` output
-8. **Filtering**: Removes entries where `code` is NA or empty string
-9. **Order Index Generation**: Generates sequential order_index within each id_set (resets at each new id_set)
-10. **Sorting & Ordering**: Orders by id_set, concept_id for consistent output
+1. **Input Validation**:
+Checks for required columns and data types
+2. **Convert to Character**:
+Converts all character columns from factor to character type
+3. **ID Set Validation**:
+Validates that id_set_col (if provided) is integer type
+4. **NA Validation**:
+Ensures `keep_date_column_name` is not NA;
+But it allows `keep_value_column_name` to be NA
+5. **ID Set Creation**:
+Generates unique identifiers for each mapping set if not provided
+6. **Melting**:
+Transforms `code` and `coding_system` columns into separate rows
+7. **Column Name Customization**:
+Uses provided custom column names in `cdm_column` output
+8. **Filtering**:
+Removes entries where `code` is NA or empty string
+9. **Order Index Generation**:
+Generates sequential order_index within each id_set but it
+resets at each new id_set)
+10. **Sorting & Ordering**:
+Orders by id_set, concept_id for consistent output
 
 **Example Transformation:**
 
 **Input (Two Rows with custom column names):**
 ```
-id_set  concept_id    code     coding_system  keep_value_column_name  keep_date_column_name
+id_set  concept_id    code     coding_system  keep_value_column_name  keep_date_column_name #nolint
 1       WEIGHT_BIRTH  E66      ICD10          mo_source_value         mo_date
 2       HEIGHT_BIRTH  E67      ICD10          NA                      mo_date
 ```
 
-**Output with code_column_name="actual_code", codingsystem_column_name="system":**
+**Output with code_column_name="actual_code", codingsystem_column_name="system":** #nolint
 ```
 id_set  concept_id    cdm_column       code   order_index
 1       WEIGHT_BIRTH  actual_code      E66    1
