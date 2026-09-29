@@ -1,10 +1,93 @@
-#' Create DAP-Specific Codelist
+#' Match and Merge DAP Codes with Study Codelists
 #'
-#' @param dap_codes Data.table containing unique code list output.
-#' @param codelist Data.table containing the study code list.
-#' @param start_with_codingsystems Columns to start with.
-#' @param priority_col Name of the priority column to use for sorting. Defaults
-#' to "priority".
+#' @description
+#' Intelligently matches database-sourced codes (DAP codes) against
+#' study-specific codelists using a two-pronged approach: exact matching for
+#' non-hierarchical coding systems (e.g., PRODCODEID) and hierarchical
+#' prefix-based matching for taxonomic systems (e.g., ICD10, ATC).
+#' Returns a consolidated codelist with match status and prioritized results.
+#'
+#' @param dap_codes A data.table containing unique codes extracted from the
+#' database/data source.  Must include columns:
+#'   - `coding_system` (character): The coding system identifier
+#' (e.g., "ICD10", "ATC", "PRODCODEID")
+#'   - `code` (character): The code value to match
+#'   - `COUNT` (numeric, optional): Frequency/count of code in the source data
+#'   - `source_column` (character, optional): Origin column name in source data
+#'
+#' @param codelist A data.table containing study-specific reference codelist.
+#'   Must include columns:
+#'   - `coding_system` (character): The coding system identifier
+#'   - `code` (character): The code value to match
+#'   - `concept_id` (character): Unique concept identifier for this code
+#'   - `cdm_name` (character): Name or identifier of the CDM / data source
+#'   - `cdm_table_name` (character): Name of CDM table associated with the code
+#'   Additional columns (`tags`, descriptions) optional and preserved in output
+#'
+#' @param start_with_codingsystems Character vector of coding systems that
+#' support hierarchical prefix matching (e.g., ATC codes "N02BE01" matches
+#' parent codes like "N02BE" and "N02").
+#' Default: c("ICD10CM", "ICD10", "ICD10DA", "ICD9CM", "MTHICD9", "ICPC",
+#' "ICPC2P", "ICPC2EENG", "ATC").
+#'  Coding systems not in this list use exact matching only.
+#'
+#' @param priority_col Character; Name of the column in `codelist` to use
+#' for prioritizing matches when a single DAP code matches multiple study
+#' codes (e.g., tie-breaking).
+#' Lower values indicate higher priority. Default: "priority".
+#'
+#' @return
+#' A data.table with the following columns:
+#'   - `coding_system`: The coding system identifier
+#'   - `COUNT`: Frequency of the DAP code
+#'   - `source_column`: Origin column from source data
+#'   - `code.dap_codes`: The original database code
+#'   - `concept_id`: The matched concept identifier from the study codelist
+#'   - `code.codelist`: The matched study codelist code
+#'   - `code`: Final mapped code .Preferred over `code.dap_codes` when available
+#'   - `match_status`: One of:
+#'     - `"MATCHED"`: Successfully matched between DAP and codelist
+#'     - `"ONLY_IN_DATA"`: Present in DAP but not in codelist (unmatched)
+#'     - `"ONLY_IN_CODELIST"`: Present in codelist but not in DAP (unused codes)
+#'   - All additional columns from the study codelist are preserved
+#'
+#' @details
+#' The function implements a multi-stage matching strategy:
+#'
+#' **Stage 1: Exact Matching** (for non-hierarchical systems)
+#' Performs direct one-to-one matching on `coding_system` and `code`.
+#'
+#' **Stage 2: Prefix Matching** (for hierarchical systems)
+#' Generates all possible prefixes of DAP codes and matches against study codes.
+#' Handles tie-breaking using the `priority_col` to select the best match when
+#' a single DAP code matches multiple study codes at the same length.
+#'
+#' **Stage 3: Consolidation**
+#' Combines matched and unmatched records, assigning `match_status` labels.
+#'
+#' @examples
+#' \dontrun{
+#' # Example: Match drug codes from database against study codelist
+#' dap_drugs <- data.table(
+#'   coding_system = c("ATC", "PRODCODEID", "ATC"),
+#'   code = c("N02BE01", "PROD123", "N02BE"),
+#'   COUNT = c(100, 50, 25),
+#'   source_column = "drug_id"
+#' )
+#'
+#' study_drugs <- data.table(
+#'   coding_system = c("ATC", "ATC", "PRODCODEID"),
+#'   code = c("N02BE", "N02", "PROD123"),
+#'   concept_id = c("PAIN_RELIEF_MED", "PAIN_RELIEF", "PROD_X"),
+#'   priority = c(1, 2, 1)
+#' )
+#'
+#' result <- create_dap_specific_codelist(
+#'   dap_codes = dap_drugs,
+#'   codelist = study_drugs,
+#'   priority_col = "priority"
+#' )
+#' }
 #'
 #' @export
 create_dap_specific_codelist <- function(
@@ -121,7 +204,9 @@ create_dap_specific_codelist <- function(
 
         # Keep only the single best match per unique DAP code
         results_startwith <- results_startwith[, .SD[1], by = cols_by]
-        data.table::setnames(results_startwith, "code_substring", "code.codelist") # nolint
+        data.table::setnames(
+          results_startwith, "code_substring", "code.codelist"
+        )
       }
     }
   }
@@ -141,10 +226,9 @@ create_dap_specific_codelist <- function(
   setnames(all_matches, match_cols)
 
   # Combine results (rbindlist handles the types if results exist)
-  found_matches <- data.table::rbindlist(
+  found_matches <- rbindlist(
     list(exact_match, results_startwith),
-    use.names = TRUE,
-    fill = TRUE
+    use.names = TRUE, fill = TRUE
   )
 
   if (nrow(found_matches) > 0) {
@@ -156,16 +240,19 @@ create_dap_specific_codelist <- function(
 
   # Identify records that failed to match using anti-joins
   # These will now work even if all_matches is empty because the columns exist
-  missing_from_cdm <- dap_codes[!all_matches,
+  missing_from_cdm <- dap_codes[
+    !all_matches,
     on = .(coding_system, code.dap_codes)
   ]
-  missing_from_codelist <- codelist[!all_matches,
+  missing_from_codelist <- codelist[
+    !all_matches,
     on = .(coding_system, code.codelist)
   ]
 
-  # Final vertical stack: Matches, Codes only in DAP,
-  # and Codes only in Study Codelist
-  dap_specific_codelist <- data.table::rbindlist(
+  # Final vertical stack:
+  # Matches, Codes only in DAP,
+  # Codes only in Study Codelist
+  dap_specific_codelist <- rbindlist(
     list(all_matches, missing_from_cdm, missing_from_codelist),
     fill = TRUE
   )
@@ -185,6 +272,7 @@ create_dap_specific_codelist <- function(
   )]
   # Final column cleanup and selection for output
   output_cols <- c(
+    "cdm_name", "cdm_table_name",
     "coding_system", "COUNT", "source_column",
     "code.dap_codes", "concept_id", "code.codelist",
     "tags", priority_col, "length_str", "code", "match_status"
@@ -220,18 +308,21 @@ validate_codelists <- function(dap_codes, codelist, priority_col) {
 
   # Required columns validation
   required_unique_cols <- c("coding_system", "code")
-  required_study_cols <- c("coding_system", "code", "concept_id", priority_col)
+  required_study_cols <- c(
+    "cdm_name", "cdm_table_name", "coding_system",
+    "code", "concept_id", priority_col
+  )
 
   # PRIORITY HANDLING
   # Check if the user-defined priority column exists in the study data.
-  # If missing, assign a default value of 1 to all rows so
-  # the sort logic still runs.
+  # If missing, assign a default value of 1 to all
+  # rows so the sort logic still runs.
   if (!priority_col %in% names(codelist)) {
     message(
       paste0(
         "Column '", priority_col, "' not found. Assigning default value 1."
       )
-    ) # nolint
+    )
     codelist[, (priority_col) := 1]
   }
 

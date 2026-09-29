@@ -6,12 +6,12 @@
 #' @keywords internal
 utils::globalVariables(c(
   # data.table's non-standard evaluation
-  ".",      # data.table's .() syntax
-  ".SD",    # Subset of Data
-  ".N",     # Number of rows
-  ".I",     # Row indices
-  ".GRP",   # Group counter
-  ".BY",     # List of by values
+  ".", # data.table's .() syntax
+  ".SD", # Subset of Data
+  ".N", # Number of rows
+  ".I", # Row indices
+  ".GRP", # Group counter
+  ".BY", # List of by values
   ":=",
   # Variables from apply_codelist and basic wrangling
   "code_no_dot", "family_group", "order_index", "con", "variable", "id_set",
@@ -28,7 +28,11 @@ utils::globalVariables(c(
   "TABLE", "Variable", "Mandatory", "Format", "ori_table", "unique_id",
 
   # Specific joined/aliased columns
-  "code.CDM_CODELIST", "code.DAP_UNIQUE_CODELIST"
+  "code.CDM_CODELIST", "code.DAP_UNIQUE_CODELIST",
+
+  # Variables for the create_dap_specific_codelist
+  "code.codelist", "code", "code.dap_codes", "code_substring", "source_column",
+  "match_status", "..output_cols", "concept_id"
 
   # Add unquoted column names here if needed:
   # "column_name",

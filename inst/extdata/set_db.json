@@ -1,6 +1,9 @@
 {
     "data_model": "ConcePTION",
     "file_format" : "parquet",
+    "excel_path_to_cdm_schema" : "/data/ConcePTION_CDM tables v2.2.xlsx",
+    "load_db_through_parquet" : "yes",
+    "create_db_as": "views",
     "operations_path": "R",
     "operations": {
       "DuplicateRemover": true,
