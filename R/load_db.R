@@ -49,7 +49,6 @@
 #'   cdm_schema = "./ConcePTION_CDM tables v2.2.json",
 #'   format_source_files = "csv",
 #'   folder_path_to_source_files = "data/source/",
-#'   through_parquet = "no",
 #'   create_db_as = "tables",
 #'   tables_in_cdm = c("EVENTS", "MEDICINES", "PROCEDURES")
 #' )
@@ -62,14 +61,10 @@ load_db <- function(
   cdm_schema = NULL,
   format_source_files = "parquet",
   folder_path_to_source_files = "",
-  through_parquet = "yes",
   create_db_as = "views",
   tables_in_cdm = c()
 ) {
-  # Sanitize input parameters
-  if (is.null(through_parquet) || length(through_parquet) == 0) {
-    through_parquet <- "yes"
-  }
+
   if (is.null(create_db_as) || length(create_db_as) == 0 ||
     !(create_db_as %in% c("views", "tables"))) {
     create_db_as <- "views"
@@ -81,13 +76,16 @@ load_db <- function(
     folder_path_to_source_files,
     "intermediate_parquet"
   )
+
+  if(format_source_files %in% "csv"){
+    through_parquet <- "yes"
+  }else{
+    through_parquet <- "no"
+  }
   if (through_parquet == "yes") {
     if (!dir.exists(parquet_path)) {
       dir.create(parquet_path)
-    } else {
-      # If it exists make sure it's empty
-      unlink(parquet_path)
-    }
+    } 
   }
 
   # What schema are we going to put the individual views to input files into?

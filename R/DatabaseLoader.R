@@ -114,7 +114,6 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
             cdm_schema = self$config$cdm_schema,
             format_source_files = self$config$file_format,
             folder_path_to_source_files = self$data_instance,
-            through_parquet = self$config$load_db_through_parquet,
             create_db_as = self$config$create_db_as,
             tables_in_cdm = self$config$cdm_tables_names
           )
