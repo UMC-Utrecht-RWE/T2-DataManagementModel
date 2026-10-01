@@ -82,13 +82,6 @@ check_params <- function(
     ))
   }
 
-  # 4. Is the data model name valid?
-  if (!grepl("^conception$", data_model, ignore.case = TRUE)) {
-    stop(paste(
-      "Invalid data model name. 
-      Currently, the only supported data model is 'conception'."))
-  }
-
   # 5. create_db_as is either 'views' or 'tables'
   if (!(create_db_as %in% c("views", "tables"))) {
     cat(paste("WARNING: create_db_as must be either 'views' or 'tables'.
@@ -889,8 +882,10 @@ add_missing_tables_as_empty <- function(
       query <- sprintf(
         "CREATE %s %s.view_%s AS SELECT * FROM %s.%s WHERE 1=0;",
         view_or_table,
-        x, table,
-        data_model, table
+        data_model, 
+        table,
+        data_model, 
+        table
       )
       DBI::dbExecute(con, query)
     }
