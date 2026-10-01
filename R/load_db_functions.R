@@ -9,8 +9,8 @@
 #'
 #' @param data_model Character.
 #'  The name of the data model to use (e.g., `"conception"`).
-#' @param excel_path_to_cdm_schema Character.
-#'  Full path to the Excel file containing the CDM schema definition.
+#' @param json_path_to_cdm_schema Character.
+#'  Full path to the JSON file containing the CDM schema definition.
 #' @param format_source_files Character.
 #'  Format of the source files. Must be either `"csv"` or `"parquet"`.
 #' @param folder_path_to_source_files Character.
@@ -30,7 +30,7 @@
 #' \dontrun{
 #' check_params(
 #'   data_model = "conception",
-#'   excel_path_to_cdm_schema = "schema/cdm_schema.xlsx",
+#'   json_path_to_cdm_schema = "schema/cdm_schema.json",
 #'   format_source_files = "csv",
 #'   folder_path_to_source_files = "data/source/",
 #'   through_parquet = "no",
@@ -42,7 +42,7 @@
 #'
 check_params <- function(
   data_model,
-  excel_path_to_cdm_schema,
+  json_path_to_cdm_schema,
   format_source_files,
   folder_path_to_source_files,
   through_parquet,
@@ -96,8 +96,8 @@ check_params <- function(
   }
 
   # 6. schema file exists
-  if (!file.exists(excel_path_to_cdm_schema)) {
-    stop(paste("Please provide a valid path to the CDM file in excel format.
+  if (!file.exists(json_path_to_cdm_schema)) {
+    stop(paste("Please provide a valid path to the CDM file in JSON format.
     This is required to create the target database schema."))
   }
 
@@ -350,14 +350,17 @@ generate_ddl <- function(
 
 #' Create Empty CDM Tables in DuckDB
 #'
-#' This function reads table definitions from an Excel-based CDM schema and
+#' This function reads table definitions from a JSON-based CDM schema and
 #'  generates SQL DDL statements to create empty tables in a specified schema.
 #'
 #' @param db_connection A DuckDB database connection object (`DBIConnection`).
 #' @param data_model Character.
 #'  The name of the data model (e.g., `"conception"`).
-#' @param excel_path_to_cdm_schema Character.
-#'  Full path to the Excel file containing the CDM schema.
+#' @param schema_individual_views
+#' @param json_path_to_cdm_schema Character.
+#'  Full path to the JSON file containing the CDM schema. The JSON must be an
+#'  object keyed by table name, each value an array of column objects with at
+#'  least `Variable` and `Format` fields.
 #' @param tables_in_cdm Character vector.
 #'  List of CDM table names to be created.
 #' @param schema_conception Character.
@@ -370,9 +373,8 @@ generate_ddl <- function(
 #' @details
 #' For each table in `tables_in_cdm`, the function:
 #' \itemize{
-#'   \item Reads the corresponding sheet from the Excel schema file.
-#'   \item Extracts column names and formats starting from row 4.
-#'   \item Stops reading at the first occurrence of the word `"Conventions"`.
+#'   \item Looks up the corresponding entry in the JSON schema file.
+#'   \item Extracts the `Variable` and `Format` columns.
 #'   \item Generates SQL DDL using a helper function `generate_ddl()`.
 #'   \item Executes the combined DDL to create all tables in the schema.
 #' }
@@ -382,9 +384,9 @@ generate_ddl <- function(
 #' create_empty_cdm_tables(
 #'   db_connection = con,
 #'   data_model = "conception",
-#'   excel_path_to_cdm_schema = "schema/cdm_schema.xlsx",
-#'   tables_in_cdm = c("person", "observation", "visit_occurrence"),
-#'   schema_conception = "cdm_conception"
+#'   schema_individual_views = ""
+#'   json_path_to_cdm_schema = "schema/cdm_schema.json",
+#'   tables_in_cdm = c("person", "observation", "visit_occurrence")
 #' )
 #' }
 #'
