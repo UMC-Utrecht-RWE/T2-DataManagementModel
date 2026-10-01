@@ -5,7 +5,8 @@ testthat::test_that("create_unique_id: columns are added correctly in overwrite 
   # Test basic overwrite (to_view = FALSE is default/explicit)
   create_unique_id(db_connection, cdm_tables_names = "PERSONS", to_view = FALSE)
 
-  persons_db <- DBI::dbReadTable(db_connection, "PERSONS")
+  persons_db <- DBI::dbGetQuery(db_connection, "SELECT * 
+                                                FROM Empty_Conception_tables.PERSONS")
 
   # Check columns exist
   testthat::expect_contains(names(persons_db), c("unique_id", "ori_table"))
@@ -48,7 +49,9 @@ testthat::test_that("create_unique_id: handles extension_name correctly", {
   withr::defer(DBI::dbDisconnect(db_connection))
 
   # Create a table with a suffix manually to simulate multi-instance
-  DBI::dbExecute(db_connection, "CREATE TABLE PERSONS_CDM1 AS SELECT * FROM PERSONS")
+  DBI::dbExecute(db_connection, "CREATE TABLE PERSONS_CDM1 AS 
+                                SELECT * 
+                                FROM Empty_Conception_tables.PERSONS")
 
   create_unique_id(db_connection, cdm_tables_names = "PERSONS", extension_name = "_CDM1")
 

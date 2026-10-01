@@ -1,7 +1,7 @@
 testthat::test_that(
   "MissingRemover calls delete_missing_origin with expected arguments",
   {
-    loader <- create_database_loader(config_path = "CONFIG_PATH")
+    loader <- create_database_loader(config_path = "CONFIG_SET_DB")
     loader$set_database()
 
     testthat::expect_true(
@@ -16,11 +16,11 @@ testthat::test_that(
       NA # means expect no error
     )
 
-    person_db <- DBI::dbReadTable(loader$db, "PERSONS")
+    person_db <- DBI::dbGetQuery(loader$db, "SELECT * FROM CDM.PERSONS")
     testthat::expect_true(
       nrow(person_db) == 13,
     )
-    vaccines_db <- DBI::dbReadTable(loader$db, "VACCINES")
+    vaccines_db <- DBI::dbGetQuery(loader$db, "SELECT * FROM CDM.VACCINES")
     testthat::expect_true(
       nrow(vaccines_db) == 0,
     )

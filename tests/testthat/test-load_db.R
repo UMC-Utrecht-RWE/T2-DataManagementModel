@@ -1,10 +1,10 @@
-testthat::test_that("load_db runs end-to-end with 
+testthat::test_that("load_db runs end-to-end with
                     all possible combinations of inputs", {
   for (tp in c("yes", "no")) {
     for (cdb in c("views", "tables")) {
       dbname <- tempfile("ConcePTION.duckdb")
       con <- DBI::dbConnect(duckdb::duckdb(), dbname)
-      cat(paste("Testing load_db pipeline with through_parquet = ", tp, " 
+      cat(paste("Testing load_db pipeline with through_parquet = ", tp, "
                 and create_db_as = ", cdb, "\n"))
 
       if (tp == "no" && cdb == "views") {

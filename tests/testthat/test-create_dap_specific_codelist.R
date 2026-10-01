@@ -197,7 +197,7 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
     get_unique_codelist(
       db_connection = db_con,
       column_info_list = column_info_list,
-      tb_name = "MEDICINES"
+      tb_name = "CDM.MEDICINES"
     )[[1]]
   )
   unique_codelist[, coding_system := "PRODCODEID"]
@@ -246,7 +246,7 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
     get_unique_codelist(
       db_connection = db_con,
       column_info_list = column_info_list,
-      tb_name = "MEDICINES"
+      tb_name = "CDM.MEDICINES"
     )[[1]]
   )
   unique_codelist[, coding_system := "PRODCODEID"]

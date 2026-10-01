@@ -83,7 +83,7 @@ test_that("apply_codelist performs input validation", {
 
 test_that("apply_codelist executes hierarchical SQL flow", {
 
-  db_path <- tempfile(fileext = ".duckdb")
+  db_path <- tempfile(fileext = "testDB.duckdb")
   # 1. SETUP: Create temporary DB and mock CDM table
   con <- DBI::dbConnect(duckdb::duckdb(), db_path)
   load_db(
@@ -110,7 +110,6 @@ test_that("apply_codelist executes hierarchical SQL flow", {
     order_index = c(1, 2)             # L suffix ensures Integer type
   )
 
-  con <- dbConnect(duckdb(), db_path)
   list_tables <- dbListTables(con)
   expect_contains(list_tables, "PERSONS")
   # 3. EXECUTE: We wrap in capture_messages to check the flow

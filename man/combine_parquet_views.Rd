@@ -7,7 +7,7 @@
 combine_parquet_views(
   db_connection,
   data_model,
-  schema_conception,
+  schema_name,
   schema_combined_views,
   files_in_input,
   create_db_as,
@@ -20,7 +20,7 @@ combine_parquet_views(
 \item{data_model}{Character.
 The name of the data model (e.g., `"conception"`).}
 
-\item{schema_conception}{Character.
+\item{schema_name}{Character.
 Schema where the CDM tables are defined.}
 
 \item{schema_combined_views}{Character.
@@ -49,7 +49,7 @@ This function creates combined views or tables in DuckDB by unifying
 combine_parquet_views(
   db_connection = con,
   data_model = "conception",
-  schema_conception = "cdm_conception",
+  schema_name = "cdm_conception",
   schema_combined_views = "combined_views",
   files_in_input = c(person1 = "person", person2 = "person"),
   create_db_as = "views",

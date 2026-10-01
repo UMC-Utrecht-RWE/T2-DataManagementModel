@@ -6,13 +6,14 @@
 \usage{
 load_db(
   con = NULL,
-  data_model = "ConcePTION",
-  cdm_schema = "data/ConcePTION_CDM tables v2.2.xlsx",
+  data_model = "CDM",
+  cdm_schema = NULL,
   format_source_files = "parquet",
   folder_path_to_source_files = "",
   through_parquet = "yes",
   create_db_as = "views",
-  tables_in_cdm = c()
+  tables_in_cdm = c(),
+  schema_name = "CDM"
 )
 }
 \arguments{

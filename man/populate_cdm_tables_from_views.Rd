@@ -8,7 +8,7 @@ populate_cdm_tables_from_views(
   db_connection,
   data_model,
   schema_individual_views,
-  schema_conception,
+  schema_name,
   files_in_input,
   through_parquet,
   parquet_path
@@ -23,7 +23,7 @@ The name of the data model (e.g., `"conception"`).}
 \item{schema_individual_views}{Character.
 Schema containing the source views.}
 
-\item{schema_conception}{Character.
+\item{schema_name}{Character.
 Schema where the CDM tables are located.}
 
 \item{files_in_input}{Named character vector.
@@ -49,7 +49,7 @@ populate_cdm_tables_from_views(
   db_connection = con,
   data_model = "conception",
   schema_individual_views = "individual_views",
-  schema_conception = "cdm_conception",
+  schema_name = "cdm_conception",
   files_in_input = c(person1 = "person", person2 = "person"),
   through_parquet = "no",
   parquet_path = "dataset/intermediate_parquet"

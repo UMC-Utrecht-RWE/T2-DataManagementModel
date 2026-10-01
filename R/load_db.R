@@ -58,8 +58,8 @@
 #' @export
 load_db <- function(
   con = NULL,
-  data_model = "ConcePTION",
-  cdm_schema = "data/ConcePTION_CDM tables v2.2.xlsx",
+  data_model = "CDM",
+  cdm_schema = NULL,
   format_source_files = "parquet",
   folder_path_to_source_files = "",
   through_parquet = "yes",
@@ -67,14 +67,20 @@ load_db <- function(
   tables_in_cdm = c()
 ) {
   # Sanitize input parameters
-  if (!(create_db_as %in% c("views", "tables"))) {
-    create_db_as <<- "views"
+  if (is.null(through_parquet) || length(through_parquet) == 0) {
+    through_parquet <- "yes"
+  }
+  if (is.null(create_db_as) || length(create_db_as) == 0 ||
+    !(create_db_as %in% c("views", "tables"))) {
+    create_db_as <- "views"
   }
   # # Create file paths to target db and parquet files
   # file_path_to_target_db <- paste0(folder_path_to_source_files,
   #                                  "/", data_model, ".duckdb")
-  parquet_path <- file.path(folder_path_to_source_files,
-                            "intermediate_parquet")
+  parquet_path <- file.path(
+    folder_path_to_source_files,
+    "intermediate_parquet"
+  )
   if (through_parquet == "yes") {
     if (!dir.exists(parquet_path)) {
       dir.create(parquet_path)
@@ -86,32 +92,6 @@ load_db <- function(
 
   # What schema are we going to put the individual views to input files into?
   schema_individual_views <- "Individual_views"
-  # What schema will we put the combined views of created parquet files into?
-  schema_combined_views <- "Combined_views"
-  # What schema will be the target CDM with the actual tables?
-  schema_conception <- "Empty_Conception_tables"
-
-  # # List of expected tables in the CDM
-  # if (data_model == "conception") {
-  #   tables_in_cdm <- c(
-  #     "CDM_SOURCE",
-  #     "EVENTS",
-  #     "EUROCAT",
-  #     "INSTANCE",
-  #     "MEDICAL_OBSERVATIONS",
-  #     "MEDICINES",
-  #     "METADATA",
-  #     "OBSERVATION_PERIODS",
-  #     "PERSON_RELATIONSHIPS",
-  #     "PERSONS",
-  #     "PRODUCTS",
-  #     "PROCEDURES",
-  #     "SURVEY_ID",
-  #     "SURVEY_OBSERVATIONS",
-  #     "VACCINES",
-  #     "VISIT_OCCURRENCE"
-  #   )
-  # }
 
   tictoc::tic()
 
@@ -131,8 +111,7 @@ load_db <- function(
   cat("\033[1mStep 2: Creating required schemas in the database ...\033[0m\n")
   create_schemas(
     schema_individual_views,
-    schema_conception,
-    schema_combined_views,
+    data_model,
     con
   )
 
@@ -154,8 +133,7 @@ load_db <- function(
     con,
     data_model,
     cdm_schema,
-    tables_in_cdm,
-    schema_conception
+    tables_in_cdm
   )
 
   # 5. Populate empty CDM tables with data from source views
@@ -165,7 +143,6 @@ load_db <- function(
     con,
     data_model,
     schema_individual_views,
-    schema_conception,
     files_in_input,
     through_parquet,
     parquet_path
@@ -177,25 +154,21 @@ load_db <- function(
     combine_parquet_views(
       con,
       data_model,
-      schema_conception,
-      schema_combined_views,
       files_in_input,
       create_db_as,
       parquet_path
     )
     # 7. Add missing tables as empty tables
     # Choose schema based on through_parquet
-    # if 'no', then then empty table already exists in schema_conception,
+    # if 'no', then then empty table already exists in schema_name,
     # because we created all tables in create_empty_cdm_tables()
-    # if 'yes', then we need to create the empty tables in schema_combined_views
+    # if 'yes', then we need to create the empty tables in the data_model schema
     cat("\033[1mStep 7: Adding missing tables as empty tables...\033[0m\n")
     add_missing_tables_as_empty(
       con,
       data_model,
       tables_in_cdm,
       files_in_input,
-      schema_conception,
-      schema_combined_views,
       create_db_as
     )
   }
@@ -209,10 +182,7 @@ load_db <- function(
   cat("\033[1mHooray! Script finished running!\033[0m\n")
 
   # Final message: where to find the final tables
-  schema_with_final_tables <- ifelse(through_parquet == "yes",
-    schema_combined_views,
-    schema_conception
-  )
+  schema_with_final_tables <- data_model
   view_or_table <- ifelse(create_db_as == "views", "Views", "Tables")
   cat(paste0(
     "The final tables can be accessed in the database through: \n",

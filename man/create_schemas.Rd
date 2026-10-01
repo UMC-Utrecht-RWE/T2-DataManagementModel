@@ -6,7 +6,7 @@
 \usage{
 create_schemas(
   schema_individual_views,
-  schema_conception,
+  schema_name,
   schema_combined_views,
   con
 )
@@ -15,7 +15,7 @@ create_schemas(
 \item{schema_individual_views}{Character.
 Name of the schema to store individual views.}
 
-\item{schema_conception}{Character.
+\item{schema_name}{Character.
 Name of the schema to store CDM tables.}
 
 \item{schema_combined_views}{Character.
@@ -33,7 +33,7 @@ This function initializes a DuckDB connection and creates the specified
 \dontrun{
 con <- setup_db_connection(
   schema_individual_views = "individual_views",
-  schema_conception = "cdm_conception",
+  schema_name = "cdm_conception",
   schema_combined_views = "combined_views",
   file_path_to_target_db = "data/target/my_database.duckdb"
 )

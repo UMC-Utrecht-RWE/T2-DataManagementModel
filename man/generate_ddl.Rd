@@ -7,7 +7,8 @@
 generate_ddl(df, data_model, table_name, schema_name)
 }
 \arguments{
-\item{df}{Data Frame.}
+\item{df}{Data Frame.
+Must contain `Variable` and `Format` columns.}
 
 \item{data_model}{String.}
 

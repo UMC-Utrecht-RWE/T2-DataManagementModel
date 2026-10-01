@@ -9,7 +9,7 @@ create_empty_cdm_tables(
   data_model,
   json_path_to_cdm_schema,
   tables_in_cdm,
-  schema_conception
+  schema_name
 )
 }
 \arguments{
@@ -26,7 +26,7 @@ least `Variable` and `Format` fields.}
 \item{tables_in_cdm}{Character vector.
 List of CDM table names to be created.}
 
-\item{schema_conception}{Character.
+\item{schema_name}{Character.
 Name of the schema where the CDM tables will be created.}
 }
 \value{
@@ -54,7 +54,7 @@ create_empty_cdm_tables(
   data_model = "conception",
   json_path_to_cdm_schema = "schema/cdm_schema.json",
   tables_in_cdm = c("person", "observation", "visit_occurrence"),
-  schema_conception = "cdm_conception"
+  schema_name = "cdm_conception"
 )
 }
 
