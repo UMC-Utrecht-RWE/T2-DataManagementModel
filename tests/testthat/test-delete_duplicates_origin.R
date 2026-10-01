@@ -1,6 +1,6 @@
 testthat::test_that("Checking if the function delete the duplicates cases using *", {
   # Load the database
-  db_con <- suppressMessages(create_loaded_test_db())
+  db_con <- suppressMessages(create_loaded_test_db_materialized())
   withr::defer(DBI::dbDisconnect(db_con))
 
   vx_db <- DBI::dbGetQuery(db_con, "SELECT * FROM CDM.VACCINES")
@@ -8,10 +8,13 @@ testthat::test_that("Checking if the function delete the duplicates cases using 
   vx2 <- import_file("dbtest/VACCINES2.csv")
   expect_equal(nrow(vx_db), nrow(vx1) + nrow(vx2))
 
-  cdm_tables_names <- c("CDM.PERSONS", "CDM.VACCINES")
+  cdm_tables_names <- c("PERSONS", "VACCINES")
   scheme <- setNames(rep("*", length(cdm_tables_names)), cdm_tables_names)
   delete_duplicates_origin(
-    db_connection = db_con, scheme, save_deleted = FALSE
+    db_connection = db_con, 
+    scheme, 
+    save_deleted = FALSE, 
+    schema_name = "CDM"
   )
 
   vx_db <- DBI::dbGetQuery(db_con, "SELECT * FROM CDM.VACCINES")
@@ -21,7 +24,7 @@ testthat::test_that("Checking if the function delete the duplicates cases using 
 
 testthat::test_that("Checking if the function delete the duplicates cases", {
   # Load the database
-  db_con <- suppressMessages(create_loaded_test_db())
+  db_con <- suppressMessages(create_loaded_test_db_materialized())
   withr::defer(DBI::dbDisconnect(db_con))
 
   cdm_tables_names <- c("PERSONS", "VACCINES")
@@ -41,7 +44,7 @@ testthat::test_that("Checking if the function delete the duplicates cases", {
 
 testthat::test_that("Checking if all columns exist in the scheme", {
   # Load the database
-  db_con <- suppressMessages(create_loaded_test_db())
+  db_con <- suppressMessages(create_loaded_test_db_materialized())
   withr::defer(DBI::dbDisconnect(db_con))
 
   cdm_tables_names <- c("PERSONS")
@@ -61,7 +64,7 @@ testthat::test_that("Checking if all columns exist in the scheme", {
 
 testthat::test_that("Checking if the function reports 0 deleted cases", {
   # Load the database
-  db_con <- suppressMessages(create_loaded_test_db())
+  db_con <- suppressMessages(create_loaded_test_db_materialized())
   withr::defer(DBI::dbDisconnect(db_con))
   cdm_tables_names <- c("PERSONS")
   scheme <- setNames(rep("*", length(cdm_tables_names)), cdm_tables_names)
@@ -79,7 +82,7 @@ testthat::test_that("Checking if the function reports 0 deleted cases", {
 
 testthat::test_that("Checking if the function saves the results", {
   # Load the database
-  db_con <- suppressMessages(create_loaded_test_db())
+  db_con <- suppressMessages(create_loaded_test_db_materialized())
   withr::defer(DBI::dbDisconnect(db_con))
   # Check the saved result is the same as the one in the database
   vx_pre <- DBI::dbGetQuery(db_con, "SELECT * FROM CDM.VACCINES")
@@ -109,7 +112,7 @@ testthat::test_that("Checking if the function saves the results", {
 
 testthat::test_that("Checking if the function saves the results with a postfix", {
   # Load the database
-  db_con <- suppressMessages(create_loaded_test_db())
+  db_con <- suppressMessages(create_loaded_test_db_materialized())
   withr::defer(DBI::dbDisconnect(db_con))
   cdm_tables_names <- c("VACCINES")
   scheme <- setNames(rep("*", length(cdm_tables_names)), cdm_tables_names)
@@ -141,7 +144,7 @@ testthat::test_that("Checking if the function saves the results with a postfix",
 
 test_that("VIEW: if the function delete the duplicates cases using *", {
   # Load the database
-  db_con <- create_loaded_test_db()
+  db_con <- create_loaded_test_db_materialized()
   withr::defer(DBI::dbDisconnect(db_con))
 
   vx_db <- DBI::dbGetQuery(db_con, "SELECT * FROM CDM.VACCINES")
@@ -166,7 +169,7 @@ test_that("VIEW: if the function delete the duplicates cases using *", {
 
 test_that("VIEW: Checking if the function delete the duplicates cases", {
   # Load the database
-  db_con <- create_loaded_test_db()
+  db_con <- create_loaded_test_db_materialized()
   withr::defer(DBI::dbDisconnect(db_con))
 
   cdm_tables_names <- c("PERSONS", "VACCINES")
@@ -188,7 +191,7 @@ test_that("VIEW: Checking if the function delete the duplicates cases", {
 
 testthat::test_that("VIEW: Checking if all columns exist in the scheme", {
   # Load the database
-  db_con <- create_loaded_test_db()
+  db_con <- create_loaded_test_db_materialized()
   withr::defer(DBI::dbDisconnect(db_con))
 
   cdm_tables_names <- c("PERSONS")
