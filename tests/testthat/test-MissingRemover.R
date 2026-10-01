@@ -16,11 +16,11 @@ testthat::test_that(
       NA # means expect no error
     )
 
-    person_db <- DBI::dbGetQuery(loader$db, "SELECT * FROM CDM.PERSONS")
+    person_db <- DBI::dbGetQuery(loader$db, "SELECT * FROM ConcePTION.PERSONS")
     testthat::expect_true(
       nrow(person_db) == 13,
     )
-    vaccines_db <- DBI::dbGetQuery(loader$db, "SELECT * FROM CDM.VACCINES")
+    vaccines_db <- DBI::dbGetQuery(loader$db, "SELECT * FROM ConcePTION.VACCINES")
     testthat::expect_true(
       nrow(vaccines_db) == 0,
     )

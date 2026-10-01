@@ -49,7 +49,7 @@ MissingRemover <- R6::R6Class("MissingRemover", # nolint
       message(glue::glue("Removing missing values from tables."))
       cols_to_remove_miss <- db_loader$config$missing_remover$columns
       to_view_bool <- db_loader$config$missing_remover$to_view
-      schema_name <- db_loader$config$schema_name
+      schema_name <- db_loader$config$data_model
       pipeline_extension_name <-
         db_loader$config$missing_remover$pipeline_extension
       clean_missing_values(

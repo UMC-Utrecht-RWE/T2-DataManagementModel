@@ -1,7 +1,7 @@
 create_loaded_test_db <- function(csv_dir = "dbtest/",
                                   tables = c("PERSONS", "VACCINES"),
                                   metadata = concePTION_metadata_v2) {
-  dbname <- tempfile("ConcePTION.duckdb")
+  dbname <- tempfile("test.duckdb")
   con <- DBI::dbConnect(duckdb::duckdb(), dbname)
 
   # suppressMessages(
@@ -19,7 +19,7 @@ create_loaded_test_db <- function(csv_dir = "dbtest/",
 
 create_database_loader <- function(config_path) {
   DatabaseLoader$new(
-    db_path = tempfile("ConcePTION.duckdb"),
+    db_path = tempfile("test.duckdb"),
     data_instance = "dbtest",
     cdm_metadata = concePTION_metadata_v2,
     config_path = Sys.getenv(config_path)
@@ -28,7 +28,7 @@ create_database_loader <- function(config_path) {
 
 create_loader_from_file <- function(config_path) {
   DatabaseLoader$new(
-    db_path = tempfile("ConcePTION.duckdb"),
+    db_path = tempfile("test.duckdb"),
     data_instance = "dbtest",
     cdm_metadata = file.path(
       getwd(), "dbtest", "CDM_metadata.rds"
@@ -49,7 +49,7 @@ create_loader_from_wrong_file <- function(config_path) {
 
 create_loader_bad_path <- function(config_path) {
   DatabaseLoader$new(
-    db_path = tempfile("ConcePTION.duckdb"),
+    db_path = tempfile("test.duckdb"),
     data_instance = "dbtest",
     cdm_metadata = file.path(
       getwd(), "dbtest", "CDM_metadata.rds"
