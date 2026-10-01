@@ -12,7 +12,7 @@ create_loaded_test_db <- function(csv_dir = "dbtest/",
     folder_path_to_source_files = csv_dir,
     tables_in_cdm = tables,
     create_db_as = "view"
-  ) # )
+  )
 
   return(con)
 }
