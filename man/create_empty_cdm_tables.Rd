@@ -7,7 +7,7 @@
 create_empty_cdm_tables(
   db_connection,
   data_model,
-  excel_path_to_cdm_schema,
+  json_path_to_cdm_schema,
   tables_in_cdm,
   schema_conception
 )
