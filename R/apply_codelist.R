@@ -8,6 +8,8 @@
 #'
 #' @param db_con A database connection object (e.g., a DuckDB connection)
 #' where the CDM tables and concept tables are stored.
+#' @param scheme Optional schema containing the CDM table. If `NULL`, table
+#' names are resolved without a schema prefix.
 #' @param codelist A `data.table` containing the harmonized codelist.
 #' The codelist must include the following columns:
 #'   \describe{
@@ -67,6 +69,7 @@
 apply_codelist <- function(
   db_con,
   codelist,
+  scheme = NULL,
   materialize = "in_parquet", #in_database
   path_parquets = NULL,
   keep_id_set = TRUE
@@ -214,6 +217,15 @@ apply_codelist <- function(
       cdm_table_name <- unique(
         family_subset[family_group == fam_idx, cdm_table_name]
       )
+      cdm_table_name <- if (is.null(scheme)) {
+        as.character(DBI::dbQuoteIdentifier(db_con, cdm_table_name))
+      } else {
+        paste(
+          as.character(DBI::dbQuoteIdentifier(db_con, scheme)),
+          as.character(DBI::dbQuoteIdentifier(db_con, cdm_table_name)),
+          sep = "."
+        )
+      }
       keep_value_column_name <- unique(
         family_subset[family_group == fam_idx, keep_value_column_name]
       )
@@ -287,7 +299,6 @@ apply_codelist <- function(
                   sql_path <- system.file(
                     "sql", "create_concepts_2.sql", package = "T2.DMM"
                   )
-                  print(current_order_index)
                   create_concepts_2 <- getSQL(sql_path)
                   query_child <- glue(create_concepts_2)
                   DBI::dbExecute(db_con, query_child)
@@ -311,7 +322,6 @@ apply_codelist <- function(
       } else {
         id_set_query <- ""
       }
-      print(id_set_query)
       create_concepts_3 <- glue(create_concepts_3)
 
       if (materialize == "in_database") {

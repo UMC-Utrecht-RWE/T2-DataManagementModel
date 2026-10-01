@@ -92,17 +92,25 @@ test_that("apply_codelist executes hierarchical SQL flow", {
             cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
             format_source_files = "csv",
             folder_path_to_source_files = "dbtest/",
-            through_parquet = "no",
-            create_db_as = "yes",
-            tables_in_cdm = c("EVENTS", "MEDICINES", "MEDICAL_OBSERVATIONS")
+            create_db_as = "tables",
+            tables_in_cdm = c("PERSONS","EVENTS", "MEDICINES", "MEDICAL_OBSERVATIONS")
           )
+
+  DBI::dbExecute(
+    con,
+      "CREATE TABLE TEST_EVENTS AS
+      SELECT *
+        ,UUID() AS unique_id
+        ,'EVENTS' AS ori_table 
+      FROM ConcePTION.EVENTS"
+    )
 
   # 2. SETUP: Create a hierarchical codelist
   # We have one family with a parent (order 1) and a child (order 2)
   test_codelist <- data.table(
     id_set = c(1, 1), # Added: Wrangling function always adds this
     concept_id = c("covid_test", "covid_test"),
-    cdm_table_name = "EVENTS",
+    cdm_table_name = "TEST_EVENTS",
     cdm_column = c("event_code", "event_record_vocabulary"),
     code = c("U07.1", "ICD10CM"),
     keep_value_column_name = c("event_code", "event_code"),
@@ -113,9 +121,12 @@ test_that("apply_codelist executes hierarchical SQL flow", {
   list_tables <- dbListTables(con)
   expect_contains(list_tables, "PERSONS")
   # 3. EXECUTE: We wrap in capture_messages to check the flow
-  msgs <- capture_messages(apply_codelist(db_con = con,
-                                          test_codelist,
-                                          materialize = "in_database"))
+  msgs <- capture_messages(apply_codelist(
+    db_con = con,
+    scheme = NULL,
+    codelist = test_codelist,
+    materialize = "in_database"
+  ))
 
   # 4. VERIFY: Check if the logic branched correctly
   expect_match(msgs[2], "Applying parent scheme")
@@ -143,10 +154,13 @@ test_that("apply_codelist executes hierarchical SQL flow", {
   temp_parquet_path <- tempdir()
 
   # 3. EXECUTE: We wrap in capture_messages to check the flow
-  msgs <- capture_messages(apply_codelist(db_con = con,
-                                          test_codelist,
-                                          materialize = "in_parquet",
-                                          path_parquets = temp_parquet_path))
+  msgs <- capture_messages(apply_codelist(
+    db_con = con,
+    scheme = NULL,
+    codelist = test_codelist,
+    materialize = "in_parquet",
+    path_parquets = temp_parquet_path
+  ))
 
   # 4. VERIFY: Check if the logic branched correctly
   expect_match(msgs[2], "Applying parent scheme")
