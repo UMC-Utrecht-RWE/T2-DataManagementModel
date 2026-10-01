@@ -46,7 +46,7 @@
 #' load_db(
 #'   con = NULL,
 #'   data_model = "conception",
-#'   cdm_schema = "./ConcePTION_CDM tables v2.2.xlsx",
+#'   cdm_schema = "./ConcePTION_CDM tables v2.2.json",
 #'   format_source_files = "csv",
 #'   folder_path_to_source_files = "data/source/",
 #'   through_parquet = "no",
