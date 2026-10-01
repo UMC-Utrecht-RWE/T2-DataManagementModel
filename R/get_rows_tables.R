@@ -1,8 +1,8 @@
 #' Get Row Counts for Tables in a Database
 #'
-#' This function retrieves the row counts for all tables in a SQLite database.
+#' This function retrieves row counts for tables in a DuckDB database.
 #'
-#' @param db_connection Database connection object (SQLiteConnection).
+#' @param db_connection Database connection object (DBIConnection).
 #'
 #' @return A data frame with two columns: 'name' (table name) and 'row_count'
 #' (number of rows in each table).
@@ -16,14 +16,22 @@
 #'
 #' @export
 get_rows_tables <- function(db_connection) {
-  # Retrieve the names of all tables in the database
   message(
-    "Retrieving dbListTables from connection of class: ", class(db_connection)
+    "Retrieving table names from DuckDB for connection of class: ",
+    class(db_connection)
   )
 
   tryCatch(
     {
-      tables <- DBI::dbListTables(db_connection)
+      tables <- DBI::dbGetQuery(
+        db_connection,
+        paste(
+          "SELECT table_catalog, table_schema, table_name",
+          "FROM information_schema.tables",
+          "WHERE table_schema NOT IN ('information_schema', 'pg_catalog')",
+          "ORDER BY table_catalog, table_schema, table_name"
+        )
+      )
     },
     error = function(e) {
       stop(
@@ -38,42 +46,37 @@ get_rows_tables <- function(db_connection) {
   # input validation
   #################
   # Check for empty or invalid table names
-  if (length(tables) == 0) {
+  if (nrow(tables) == 0) {
     stop("No tables found in the database.")
   }
 
-  ###############
-  # Query formation
-  ###############
-  # Construct the SQLite query to get the row counts for all tables
-  query <- paste0(
-    "SELECT '", tables[1], "' AS name, (SELECT COUNT(1) FROM ",
-    tables[1], ") AS row_count"
-  )
-  if (length(tables) > 1) {
-    for (i in 2:length(tables)) {
-      query <- paste0(
-        query, " UNION ALL SELECT '", tables[i],
-        "' AS name, (SELECT COUNT(1) FROM ", tables[i],
-        ") AS row_count"
-      )
-    }
-  }
+  row_counts <- lapply(seq_len(nrow(tables)), function(i) {
+    quoted_name <- DBI::dbQuoteIdentifier(
+      db_connection,
+      unlist(tables[i, c("table_catalog", "table_schema", "table_name")])
+    )
+    qualified_name <- paste(as.character(quoted_name), collapse = ".")
+    query <- paste0("SELECT COUNT(1) AS row_count FROM ", qualified_name)
 
-  ###############
-  # Execute the query and retrieve the result
-  ###############
-  tryCatch(
-    {
-      return(DBI::dbGetQuery(db_connection, query))
-    },
-    error = function(e) {
-      stop(
-        "Error executing query. Problematic query: ",
-        query,
-        "\nError message: ",
-        e$message
-      )
-    }
-  )
+    tryCatch(
+      {
+        data.frame(
+          name = tables$table_name[i],
+          row_count = DBI::dbGetQuery(db_connection, query)$row_count[1]
+        )
+      },
+      error = function(e) {
+        stop(
+          "Error executing query. Problematic query: ",
+          query,
+          "\nError message: ",
+          e$message
+        )
+      }
+    )
+  })
+
+  result <- do.call(rbind, row_counts)
+  rownames(result) <- NULL
+  result
 }
