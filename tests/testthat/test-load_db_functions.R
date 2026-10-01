@@ -2,7 +2,6 @@ testthat::test_that("check_params fails on invalid inputs", {
 
   testthat::expect_error(
     check_params(
-      data_model = "conception",
       json_path_to_cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
       format_source_files = "csv",
       folder_path_to_source_files = "nonexistent_folder/",
@@ -16,7 +15,6 @@ testthat::test_that("check_params fails on invalid inputs", {
   dir.create(empty_dir)
   testthat::expect_error(
     check_params(
-      data_model = "conception",
       json_path_to_cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
       format_source_files = "csv",
       folder_path_to_source_files = empty_dir,
@@ -29,19 +27,6 @@ testthat::test_that("check_params fails on invalid inputs", {
 
   testthat::expect_error(
     check_params(
-      data_model = "invalid_model",
-      json_path_to_cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
-      format_source_files = "csv",
-      folder_path_to_source_files = "dbtest/",
-      through_parquet = "no",
-      create_db_as = "tables"
-    ),
-    "Invalid data model name"
-  )
-
-  testthat::expect_error(
-    check_params(
-      data_model = "conception",
       json_path_to_cdm_schema = "nonexistent_schema.json",
       format_source_files = "csv",
       folder_path_to_source_files = "dbtest/",
@@ -55,7 +40,6 @@ testthat::test_that("check_params fails on invalid inputs", {
 testthat::test_that("check_params passes with all valid parameters", {
   expect_output(
     check_params(
-      data_model = "conception",
       json_path_to_cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
       format_source_files = "csv",
       folder_path_to_source_files = "dbtest/",

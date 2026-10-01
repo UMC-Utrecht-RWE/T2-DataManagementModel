@@ -97,7 +97,6 @@ load_db <- function(
   # TODO: add check for tables_in_cdm?
   cat("\033[1mStep 1: Checking if input parameters are correct...\033[0m\n")
   check_params(
-    data_model = data_model,
     json_path_to_cdm_schema = cdm_schema,
     format_source_files = format_source_files,
     folder_path_to_source_files = folder_path_to_source_files,

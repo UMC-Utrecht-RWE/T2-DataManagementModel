@@ -29,7 +29,6 @@
 #' @examples
 #' \dontrun{
 #' check_params(
-#'   data_model = "conception",
 #'   json_path_to_cdm_schema = "schema/cdm_schema.json",
 #'   format_source_files = "csv",
 #'   folder_path_to_source_files = "data/source/",
@@ -41,7 +40,6 @@
 #' @keywords internal
 #'
 check_params <- function(
-  data_model,
   json_path_to_cdm_schema,
   format_source_files,
   folder_path_to_source_files,
