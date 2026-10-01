@@ -182,10 +182,9 @@ load_db <- function(
   cat("\033[1mHooray! Script finished running!\033[0m\n")
 
   # Final message: where to find the final tables
-  schema_with_final_tables <- data_model
   view_or_table <- ifelse(create_db_as == "views", "Views", "Tables")
   cat(paste0(
     "The final tables can be accessed in the database through: \n",
-    data_model, " > ", schema_with_final_tables, " > ", view_or_table
+    data_model, " > ", view_or_table
   ))
 }
