@@ -13,7 +13,7 @@
 #' @param data_model Character.
 #'  The data model to use (e.g., `"conception"`).
 #' @param cdm_schema Character.
-#'  Path to the Excel file containing the CDM schema.
+#'  Path to the JSON file containing the CDM schema.
 #' @param format_source_files Character.
 #'  Format of the source files, either `"csv"` or `"parquet"`.
 #' @param folder_path_to_source_files Character.

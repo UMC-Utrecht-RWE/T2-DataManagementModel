@@ -12,7 +12,7 @@ testthat::test_that("load_db runs end-to-end with
           load_db(
             con = con,
             data_model = "ConcePTION",
-            excel_path_to_cdm_schema = "dbtest/ConcePTION_CDM tables v2.2.xlsx",
+            cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
             format_source_files = "csv",
             folder_path_to_source_files = "dbtest/",
             through_parquet = tp,
@@ -26,7 +26,7 @@ testthat::test_that("load_db runs end-to-end with
           load_db(
             con = con,
             data_model = "ConcePTION",
-            excel_path_to_cdm_schema = "dbtest/ConcePTION_CDM tables v2.2.xlsx",
+            cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
             format_source_files = "csv",
             folder_path_to_source_files = "dbtest/",
             through_parquet = tp,

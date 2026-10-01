@@ -6,7 +6,7 @@
 \usage{
 check_params(
   data_model,
-  excel_path_to_cdm_schema,
+  json_path_to_cdm_schema,
   format_source_files,
   folder_path_to_source_files,
   through_parquet,
@@ -17,8 +17,8 @@ check_params(
 \item{data_model}{Character.
 The name of the data model to use (e.g., `"conception"`).}
 
-\item{excel_path_to_cdm_schema}{Character.
-Full path to the Excel file containing the CDM schema definition.}
+\item{json_path_to_cdm_schema}{Character.
+Full path to the JSON file containing the CDM schema definition.}
 
 \item{format_source_files}{Character.
 Format of the source files. Must be either `"csv"` or `"parquet"`.}
@@ -47,7 +47,7 @@ required for processing source data into DuckDB.
 \dontrun{
 check_params(
   data_model = "conception",
-  excel_path_to_cdm_schema = "schema/cdm_schema.xlsx",
+  json_path_to_cdm_schema = "schema/cdm_schema.json",
   format_source_files = "csv",
   folder_path_to_source_files = "data/source/",
   through_parquet = "no",

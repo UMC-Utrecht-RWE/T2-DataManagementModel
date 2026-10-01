@@ -1,6 +1,9 @@
 {
     "data_model": "ConcePTION",
-    "file_format" : "csv",
+    "file_format": "csv",
+    "cdm_schema": "../inst/extdata/ConcePTION_CDM_tables_v2.2.json",
+    "load_db_through_parquet": "yes",
+    "create_db_as": "views",
     "operations_path": "R",
     "operations": {
       "DuplicateRemover": true,

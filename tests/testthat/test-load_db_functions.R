@@ -3,7 +3,7 @@ testthat::test_that("check_params fails on invalid inputs", {
   testthat::expect_error(
     check_params(
       data_model = "conception",
-      excel_path_to_cdm_schema = "dbtest/ConcePTION_CDM tables v2.2.xlsx",
+      json_path_to_cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
       format_source_files = "csv",
       folder_path_to_source_files = "nonexistent_folder/",
       through_parquet = "no",
@@ -17,7 +17,7 @@ testthat::test_that("check_params fails on invalid inputs", {
   testthat::expect_error(
     check_params(
       data_model = "conception",
-      excel_path_to_cdm_schema = "dbtest/ConcePTION_CDM tables v2.2.xlsx",
+      json_path_to_cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
       format_source_files = "csv",
       folder_path_to_source_files = empty_dir,
       through_parquet = "no",
@@ -30,7 +30,7 @@ testthat::test_that("check_params fails on invalid inputs", {
   testthat::expect_error(
     check_params(
       data_model = "invalid_model",
-      excel_path_to_cdm_schema = "dbtest/ConcePTION_CDM tables v2.2.xlsx",
+      json_path_to_cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
       format_source_files = "csv",
       folder_path_to_source_files = "dbtest/",
       through_parquet = "no",
@@ -42,7 +42,7 @@ testthat::test_that("check_params fails on invalid inputs", {
   testthat::expect_error(
     check_params(
       data_model = "conception",
-      excel_path_to_cdm_schema = "nonexistent_schema.xlsx",
+      json_path_to_cdm_schema = "nonexistent_schema.json",
       format_source_files = "csv",
       folder_path_to_source_files = "dbtest/",
       through_parquet = "no",
@@ -56,7 +56,7 @@ testthat::test_that("check_params passes with all valid parameters", {
   expect_output(
     check_params(
       data_model = "conception",
-      excel_path_to_cdm_schema = "dbtest/ConcePTION_CDM tables v2.2.xlsx",
+      json_path_to_cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
       format_source_files = "csv",
       folder_path_to_source_files = "dbtest/",
       through_parquet = "no",

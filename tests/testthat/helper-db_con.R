@@ -6,7 +6,7 @@ create_loaded_test_db <- function(csv_dir = "dbtest/",
 
   suppressMessages(T2.DMM:::load_db(
     con = con,
-    excel_path_to_cdm_schema = "dbtest/ConcePTION_CDM tables v2.2.xlsx",
+    cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
     format_source_files = "csv",
     folder_path_to_source_files = csv_dir,
     tables_in_cdm = tables

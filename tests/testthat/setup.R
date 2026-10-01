@@ -28,6 +28,10 @@ Sys.setenv(SHARED_METADATA_PATH = shared_metadata_path)
 set_database <- '{
   "data_model": "ConcePTION",
   "file_format": "csv",
+  "schema_name": "CDM",
+  "cdm_schema": "dbtest/ConcePTION_CDM_tables_v2.2.json",
+  "load_db_through_parquet": "no",
+  "create_db_as": "tables",
   "operations": {
     "DuplicateRemover": false,
     "MissingRemover": true,
@@ -64,6 +68,8 @@ Sys.setenv(CONFIG_SET_DB = config_set_database)
 config_json <- '{
   "data_model": "ConcePTION",
   "file_format": "csv",
+  "schema_name": "CDM",
+  "cdm_schema": "dbtest/ConcePTION_CDM_tables_v2.2.json",
   "operations": {
     "DuplicateRemover": true,
     "MissingRemover": true,
@@ -119,6 +125,8 @@ Sys.setenv(CONFIG_PATH = config_path)
 set_absent <- '{
   "data_model": "ConcePTION",
   "file_format": "csv",
+  "schema_name": "CDM",
+  "cdm_schema": "dbtest/ConcePTION_CDM_tables_v2.2.json",
   "operations": {
     "AbsentOperation": true
   },
@@ -145,6 +153,7 @@ Sys.setenv(CONFIG_ABSENT = config_set_absent)
 config_json <- '{
   "data_model": "ConcePTION",
   "file_format": "csv",
+  "schema_name": "CDM",
   "operations": {
     "DuplicateRemover": false,
     "MissingRemover": false,

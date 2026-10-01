@@ -18,8 +18,10 @@ create_empty_cdm_tables(
 \item{data_model}{Character.
 The name of the data model (e.g., `"conception"`).}
 
-\item{excel_path_to_cdm_schema}{Character.
-Full path to the Excel file containing the CDM schema.}
+\item{json_path_to_cdm_schema}{Character.
+Full path to the JSON file containing the CDM schema. The JSON must be an
+object keyed by table name, each value an array of column objects with at
+least `Variable` and `Format` fields.}
 
 \item{tables_in_cdm}{Character vector.
 List of CDM table names to be created.}
@@ -33,15 +35,14 @@ No return value.
   in the database. A message is printed upon successful creation.
 }
 \description{
-This function reads table definitions from an Excel-based CDM schema and
+This function reads table definitions from a JSON-based CDM schema and
  generates SQL DDL statements to create empty tables in a specified schema.
 }
 \details{
 For each table in `tables_in_cdm`, the function:
 \itemize{
-  \item Reads the corresponding sheet from the Excel schema file.
-  \item Extracts column names and formats starting from row 4.
-  \item Stops reading at the first occurrence of the word `"Conventions"`.
+  \item Looks up the corresponding entry in the JSON schema file.
+  \item Extracts the `Variable` and `Format` columns.
   \item Generates SQL DDL using a helper function `generate_ddl()`.
   \item Executes the combined DDL to create all tables in the schema.
 }
@@ -51,7 +52,7 @@ For each table in `tables_in_cdm`, the function:
 create_empty_cdm_tables(
   db_connection = con,
   data_model = "conception",
-  excel_path_to_cdm_schema = "schema/cdm_schema.xlsx",
+  json_path_to_cdm_schema = "schema/cdm_schema.json",
   tables_in_cdm = c("person", "observation", "visit_occurrence"),
   schema_conception = "cdm_conception"
 )

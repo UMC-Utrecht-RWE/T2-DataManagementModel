@@ -84,8 +84,11 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
                           data_instance = NULL,
                           config_path = NULL,
                           cdm_metadata = NULL) {
-      # self$db_path <- db_path
-      self$db_path <- file.path(data_instance, "ConcePTION.duckdb")
+      self$db_path <- if (is.null(db_path)) {
+        file.path(data_instance, "db.duckdb")
+      } else {
+        db_path
+      }
       self$data_instance <- data_instance
       self$config <- jsonlite::fromJSON(config_path)
       # Load cdm_metadata
@@ -106,9 +109,9 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
       tryCatch(
         {
           T2.DMM:::load_db(
-            db_con = self$db,
+            con = self$db,
             data_model = self$config$data_model,
-            excel_path_to_cdm_schema = self$config$excel_path_to_cdm_schema,
+            cdm_schema = self$config$cdm_schema,
             format_source_files = self$config$file_format,
             folder_path_to_source_files = self$data_instance,
             through_parquet = self$config$load_db_through_parquet,

@@ -23,7 +23,7 @@ A DuckDB connection object.}
 The data model to use (e.g., `"conception"`).}
 
 \item{cdm_schema}{Character.
-Path to the Excel file containing the CDM schema.}
+Path to the JSON file containing the CDM schema.}
 
 \item{format_source_files}{Character.
 Format of the source files, either `"csv"` or `"parquet"`.}

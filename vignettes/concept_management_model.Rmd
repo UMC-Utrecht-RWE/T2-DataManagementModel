@@ -105,10 +105,10 @@ In this case our database will be structured following the [ConcePTION CDM](http
 ```{r}
 # Initialize the DatabaseLoader
 loader <- DatabaseLoader$new(
-  db_path = db_path,
-  data_instance = file.path(getwd(),"data/"),
-  config_path = file.path(getwd(),"data/set_db.json"),
-  cdm_metadata = file.path(getwd(),"data/CDM_metadata.rds")
+    db_path = db_path,
+    data_instance = file.path(getwd(), "data/"),
+    config_path = file.path(getwd(), "data/set_db.json"),
+    cdm_metadata = file.path(getwd(), "data/CDM_metadata.rds")
 )
 ```
 

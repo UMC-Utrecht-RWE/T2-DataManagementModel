@@ -85,18 +85,17 @@ test_that("apply_codelist executes hierarchical SQL flow", {
 
   db_path <- tempfile(fileext = ".duckdb")
   # 1. SETUP: Create temporary DB and mock CDM table
-  loader <- suppressMessages(
-    DatabaseLoader$new(
-      db_path = db_path,
-      data_instance = "dbtest",
-      cdm_metadata = file.path(
-        getwd(), "dbtest", "CDM_metadata.rds"
-      ),
-      config_path = Sys.getenv("APPLYCODELIST_CONFIG_PATH")
-    )
-  )
-  suppressMessages(loader$set_database())
-  suppressMessages(loader$run_db_ops())
+  con <- DBI::dbConnect(duckdb::duckdb(), db_path)
+  load_db(
+            con = con,
+            data_model = "ConcePTION",
+            cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
+            format_source_files = "csv",
+            folder_path_to_source_files = "dbtest/",
+            through_parquet = "no",
+            create_db_as = "yes",
+            tables_in_cdm = c("EVENTS", "MEDICINES", "MEDICAL_OBSERVATIONS")
+          )
 
   # 2. SETUP: Create a hierarchical codelist
   # We have one family with a parent (order 1) and a child (order 2)
