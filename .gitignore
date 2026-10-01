@@ -47,3 +47,5 @@ rsconnect/
 
 # Mac-specfic files
 .DS_Store
+/tests/testthat/dbtest
+/tests/testthat/dbtest/intermediate_parquet
