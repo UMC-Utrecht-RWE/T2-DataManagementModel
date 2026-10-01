@@ -99,41 +99,41 @@ load_db <- function(
   # TODO: add check for tables_in_cdm?
   cat("\033[1mStep 1: Checking if input parameters are correct...\033[0m\n")
   check_params(
-    data_model,
-    cdm_schema,
-    format_source_files,
-    folder_path_to_source_files,
-    through_parquet,
-    create_db_as
+    data_model = data_model,
+    json_path_to_cdm_schema = cdm_schema,
+    format_source_files = format_source_files,
+    folder_path_to_source_files = folder_path_to_source_files,
+    through_parquet = through_parquet,
+    create_db_as = create_db_as
   )
 
   # 2. Setup the database connection and create the required schemas
   cat("\033[1mStep 2: Creating required schemas in the database ...\033[0m\n")
   create_schemas(
-    schema_individual_views,
-    data_model,
-    con
+    schema_individual_views = schema_individual_views,
+    data_model = data_model,
+    con = con
   )
 
   # 3. Read the source files as views in DuckDB
   cat("\033[1mStep 3: Reading source files as views in DuckDB...\033[0m\n")
   files_in_input <- read_source_files_as_views(
-    con,
-    data_model,
-    tables_in_cdm,
-    format_source_files,
-    folder_path_to_source_files,
-    schema_individual_views
+    db_connection = con,
+    data_model = data_model,
+    tables_in_cdm = tables_in_cdm,
+    format_source_files = format_source_files,
+    folder_path_to_source_files = folder_path_to_source_files,
+    schema_individual_views = schema_individual_views
   )
 
   # 4. Create empty CDM tables with correct schema
   cat("\033[1mStep 4: Creating empty CDM tables with correct
    schema...\033[0m\n")
   create_empty_cdm_tables(
-    con,
-    data_model,
-    cdm_schema,
-    tables_in_cdm
+    db_connection = con,
+    data_model = data_model,
+    json_path_to_cdm_schema = cdm_schema,
+    tables_in_cdm = tables_in_cdm
   )
 
   # 5. Populate empty CDM tables with data from source views
