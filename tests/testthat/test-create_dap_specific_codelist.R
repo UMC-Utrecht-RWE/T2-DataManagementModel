@@ -12,6 +12,7 @@ testthat::test_that("Checking the result is a data.table", {
   unique_codelist <- get_unique_codelist(
     db_connection = db_con,
     column_info_list = column_info_list,
+    scheme = "CDM",
     tb_name = "MEDICINES"
   )[[1]]
   unique_codelist <- unique_codelist[!is.na(unique_codelist$code), ]
@@ -62,6 +63,7 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
   unique_codelist <- as.data.table(
     get_unique_codelist(
       db_connection = db_con,
+      scheme = "CDM",
       column_info_list = column_info_list,
       tb_name = "MEDICINES"
     )[[1]]
