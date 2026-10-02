@@ -1,8 +1,6 @@
 testthat::test_that(
   "UniqueIdGenerator calls create_unique_id with expected arguments",
   {
-    temp_dir <- withr::local_tempdir()
-    setwd(temp_dir)
     testthat::expect_true(
       UniqueIdGenerator$inherit == "T2.DMM:::DatabaseOperation"
     )

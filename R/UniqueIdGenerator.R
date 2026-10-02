@@ -54,7 +54,7 @@ UniqueIdGenerator <- R6::R6Class("UniqueIdGenerator", # nolint
         cdm_tables_names = db_loader$config$cdm_tables_names,
         # UniqueIdGenerator unique properties
         extension_name = db_loader$config$unique_id_generator$instance_name,
-        schema_name = db_loader$config$unique_id_generator$schema_name,
+        scheme = db_loader$config$data_model,
         to_view = db_loader$config$unique_id_generator$to_view,
         pipeline_extension =
           db_loader$config$unique_id_generator$pipeline_extension
