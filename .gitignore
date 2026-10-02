@@ -49,3 +49,4 @@ rsconnect/
 .DS_Store
 /tests/testthat/dbtest
 /tests/testthat/dbtest/intermediate_parquet
+/tests/testthat/intermediate_data_file
