@@ -12,6 +12,7 @@ testthat::test_that("Checking the result is a data.table", {
   unique_codelist <- get_unique_codelist(
     db_connection = db_con,
     column_info_list = column_info_list,
+    scheme = "CDM",
     tb_name = "MEDICINES"
   )[[1]]
   unique_codelist <- unique_codelist[!is.na(unique_codelist$code), ]
@@ -35,7 +36,7 @@ testthat::test_that("Checking the result is a data.table", {
   )
 
   # set priority
-  study_codelist <- unique(study_codelist)[, priority := ifelse(tags == "narrow", 1, 2)]
+  study_codelist <- unique(study_codelist)[, priority := ifelse(tags == "narrow", 1, 2)][,cdm_name := "CDM1"][, cdm_table_name := "MEDICINES"]
 
   # Create DAP-specific codelist by merging unique and study codelists
   dap_specific_codeslist <- create_dap_specific_codelist(
@@ -62,6 +63,7 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
   unique_codelist <- as.data.table(
     get_unique_codelist(
       db_connection = db_con,
+      scheme = "CDM",
       column_info_list = column_info_list,
       tb_name = "MEDICINES"
     )[[1]]
@@ -80,7 +82,7 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
   study_codelist <- data.table::as.data.table(
     import_file("dbtest/codelist_example_medicines.csv")
   )
-  study_codelist <- study_codelist[, priority := ifelse(tags == "narrow", 1, 2)]
+  study_codelist <- study_codelist[, priority := ifelse(tags == "narrow", 1, 2)][,cdm_name := "CDM1"][, cdm_table_name := "MEDICINES"]
   # Test 2: Verify error when unique_codelist is missing
   # required "coding_system" column
   testthat::expect_error(
@@ -139,7 +141,7 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
       dap_codes = unique_codelist,
       codelist = study_codelist
     ),
-    "dap_codes$coding_system must be character or factor",
+    "coding_system must be character",
     fixed = TRUE
   )
 
@@ -176,7 +178,7 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
       dap_codes = unique_codelist,
       codelist = study_codelist
     ),
-    "codelist$coding_system must be character or factor",
+    "coding_system must be character",
     fixed = TRUE
   )
 })
@@ -197,7 +199,7 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
     get_unique_codelist(
       db_connection = db_con,
       column_info_list = column_info_list,
-      tb_name = "MEDICINES"
+      tb_name = "CDM.MEDICINES"
     )[[1]]
   )
   unique_codelist[, coding_system := "PRODCODEID"]
@@ -206,7 +208,7 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
   study_codelist <- data.table::as.data.table(
     import_file("dbtest/codelist_example_medicines.csv")
   )
-  study_codelist <- study_codelist[, priority := ifelse(tags == "narrow", 1, 2)]
+  study_codelist <- study_codelist[, priority := ifelse(tags == "narrow", 1, 2)][,cdm_name := "CDM1"][, cdm_table_name := "MEDICINES"]
   data.table::setnames(
     x = study_codelist, old = "drug_abbreviation", "concept_id"
   )
@@ -225,7 +227,7 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
       dap_codes = unique_codelist,
       codelist = study_codelist
     ),
-    "codelist$code must be character or factor",
+    "code must be character",
     fixed = TRUE
   )
 })
@@ -246,7 +248,7 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
     get_unique_codelist(
       db_connection = db_con,
       column_info_list = column_info_list,
-      tb_name = "MEDICINES"
+      tb_name = "CDM.MEDICINES"
     )[[1]]
   )
   unique_codelist[, coding_system := "PRODCODEID"]
@@ -264,7 +266,7 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
     x = study_codelist,
     old = "product_identifier", "coding_system"
   )
-  study_codelist <- unique(study_codelist)[, priority := ifelse(tags == "narrow", 1, 2)]
+  study_codelist <- unique(study_codelist)[, priority := ifelse(tags == "narrow", 1, 2)][,cdm_name := "CDM1"][, cdm_table_name := "MEDICINES"]
   unique_codelist[, code := NULL]
   unique_codelist[, code := as.numeric(1)]
 
@@ -274,7 +276,7 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
       dap_codes = unique_codelist,
       codelist = study_codelist
     ),
-    "dap_codes$code must be character or factor",
+    "code must be character",
     fixed = TRUE
   )
 })
@@ -294,7 +296,7 @@ testthat::test_that("Start-with matching logic works for ATC codes", {
     concept_id = "Paracetamol",
     tags = "narrow"
   )
-  study_codelist <- unique(study_codelist)[, priority := ifelse(tags == "narrow", 1, 2)]
+  study_codelist <- unique(study_codelist)[, priority := ifelse(tags == "narrow", 1, 2)][,cdm_name := "CDM1"][, cdm_table_name := "MEDICINES"]
 
   result <- create_dap_specific_codelist(
     dap_codes = unique_codelist,
@@ -320,12 +322,13 @@ testthat::test_that("Priority column correctly breaks ties in matches", {
   )
 
   # Two study codes could match the same DAP code
-  study_codelist <- data.table(
-    coding_system = "ATC",
-    code = c("N02B", "N02B"),
-    concept_id = c("Paracetamol", "Paracetamol"),
-    tags = c("narrow", "broad"),
-    priority_val = c(1, 2) # Assume 1 is higher priority
+  study_codelist <- data.table(cdm_name = "CDM1",
+                              cdm_table_name = "MEDICINES",
+                              coding_system = "ATC",
+                              code = c("N02B", "N02B"),
+                              concept_id = c("Paracetamol", "Paracetamol"),
+                              tags = c("narrow","broad"),
+                              priority_val = c(1, 2) # Assume 1 is higher priority
   )
 
   # Test with priority column
@@ -348,6 +351,8 @@ testthat::test_that("match_status column correctly identifies ONLY_IN_DATA, ONLY
   )
 
   study_codelist <- data.table(
+    cdm_name = "CDM1",
+    cdm_table_name = "TABLE1",
     coding_system = "SYSTEM1",
     code = c("MATCH", "CODE_ONLY_IN_CODELIST"),
     concept_id = "test_id"

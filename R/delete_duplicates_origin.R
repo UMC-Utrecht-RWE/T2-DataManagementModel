@@ -90,7 +90,9 @@ delete_duplicates_origin <- function(
       # Check if the table exists in the database
       # Adjusting name of table to the Scheme where this is located in the db
       table_from_name <- paste0(schema_name, ".", case_name)
-      message(paste0("[delete_duplicates_origin] Deleting records from: ", case_name))
+      message(
+        paste0("[delete_duplicates_origin] Deleting records from: ", case_name)
+      )
       if (case_name %in% DBI::dbListTables(db_connection)) {
         # Determine columns to select based on the scheme
         if (all(scheme[[case_name]] %in% "*")) {
@@ -103,7 +105,6 @@ delete_duplicates_origin <- function(
         }
         cols_to_select <- paste(cols_to_select, collapse = ", ")
 
-
         if (to_view == TRUE) {
           pipeline_name <- paste0(case_name, pipeline_extension)
           query <- paste0(
@@ -111,7 +112,7 @@ delete_duplicates_origin <- function(
              FROM %s ;
             "
           )
-          T2.DMM:::add_view(
+          add_view(
             con = db_connection,
             pipeline = pipeline_name,
             base_table = table_from_name,
@@ -124,12 +125,12 @@ delete_duplicates_origin <- function(
             db_connection, paste0("SELECT COUNT(*) AS n FROM ", table_from_name)
           )
           # Build the SQL query to delete duplicate rows
-          query <- paste0("CREATE OR REPLACE TABLE ", case_name, " AS
+          query <- paste0("CREATE OR REPLACE TABLE ", table_from_name, " AS
                        SELECT DISTINCT *
                        FROM ", table_from_name)
           DBI::dbExecute(db_connection, query)
           row_count_1 <- DBI::dbGetQuery(
-            db_connection, paste0("SELECT COUNT(*) AS n FROM ", case_name)
+            db_connection, paste0("SELECT COUNT(*) AS n FROM ", table_from_name)
           )
           message(paste0(
             "[delete_duplicates_origin] Number of record deleted: ",
@@ -138,7 +139,7 @@ delete_duplicates_origin <- function(
         } else if (
           save_deleted == TRUE && !is.null(save_path) && to_view == FALSE
         ) {
-          query <- paste0("DELETE FROM ", case_name, "
+          query <- paste0("DELETE FROM ", table_from_name, "
                       WHERE rowid NOT IN
                        (
                        SELECT  MIN(rowid)
@@ -160,13 +161,13 @@ delete_duplicates_origin <- function(
             # Save deleted records with optional postfix
             if (!is.na(add_postfix) && is.character(add_postfix)) {
               save_file_name <- paste0(
-                save_path, "/", case_name, "_",
+                save_path, "/", table_from_name, "_",
                 format(Sys.Date(), "%Y%m%d"), "_",
                 add_postfix, ".csv"
               )
             } else {
               save_file_name <- paste0(
-                save_path, "/", case_name, "_",
+                save_path, "/", table_from_name, "_",
                 format(Sys.Date(), "%Y%m%d"), ".csv"
               )
             }

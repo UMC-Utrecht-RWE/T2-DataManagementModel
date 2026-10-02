@@ -10,7 +10,7 @@
 #' @param cdm_tables_names List of CDM tables names to be imported into the db.
 #' @param extension_name String to be added to the name of the tables,
 #' useful when loading different CDM instances in the same database.
-#' @param schema_name Optional schema name to prepend to table and view names.
+#' @param scheme Optional scheme name to prepend to table and view names.
 #' Default is `NULL`.
 #' @param to_view Logical. If `TRUE` (default),
 #' creates a view with the unique ID column.
@@ -34,12 +34,12 @@ create_unique_id <- function(
   db_connection,
   cdm_tables_names,
   extension_name = "",
-  schema_name = NULL,
+  scheme = NULL,
   to_view = FALSE,
   pipeline_extension = "_T2DMM"
 ) {
-  if (is.null(schema_name)) {
-    schema_name <- "main"
+  if (is.null(scheme)) {
+    scheme <- "main"
   }
   # Append the extension to CDM table names
   cdm_tables_names <- paste0(cdm_tables_names, extension_name)
@@ -67,11 +67,11 @@ create_unique_id <- function(
   for (table in cdm_tables_names_existing) {
     # Adjusting the name of the table to the Scheme where this is located
     #  in the database
-    table_from_name <- paste0(schema_name, ".", table)
+    table_from_name <- paste0(scheme, ".", table)
 
     if (to_view == TRUE) {
       pipeline_name <- paste0(table, pipeline_extension)
-      T2.DMM:::add_view(
+      add_view(
         db_connection,
         pipeline = pipeline_name,
         base_table = table_from_name,
@@ -97,10 +97,29 @@ create_unique_id <- function(
                   FROM ", table_from_name, ")"
         )
       )
-      DBI::dbExecute(db_connection, paste0(
+      table_type <- DBI::dbGetQuery(
+                        db_connection,paste0(
+                        "
+                        SELECT table_type
+                        FROM information_schema.tables
+                        WHERE table_schema = '",scheme,"'
+                          AND table_name = '",table,"'
+                        ")
+                      )$table_type
+      
+      if (identical(table_type, "VIEW")) {
+        DBI::dbExecute(db_connection, paste0(
+          "DROP VIEW ",
+          table_from_name
+        ), n = -1)
+        } else if (identical(table_type, "BASE TABLE")) {
+        DBI::dbExecute(db_connection, paste0(
         "DROP TABLE ",
         table_from_name
       ), n = -1)
+      }
+      
+      
       DBI::dbExecute(
         db_connection,
         paste0(

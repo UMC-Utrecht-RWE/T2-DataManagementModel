@@ -7,14 +7,14 @@
 get_rows_tables(db_connection)
 }
 \arguments{
-\item{db_connection}{Database connection object (SQLiteConnection).}
+\item{db_connection}{Database connection object (DBIConnection).}
 }
 \value{
 A data frame with two columns: 'name' (table name) and 'row_count'
 (number of rows in each table).
 }
 \description{
-This function retrieves the row counts for all tables in a SQLite database.
+This function retrieves row counts for tables in a DuckDB database.
 }
 \examples{
 \dontrun{

@@ -4,6 +4,7 @@
 #' specified columns.
 #'
 #' @param db_connection A database connection object.
+#' @param scheme String defining the scheme where the table is hosted within the database. Default is NULL.
 #' @param column_info_list A list of lists specifying the columns to be used for
 #'   distinct, along with their new names. Each inner list should contain two
 #'   elements: "source_column" and "alias_name".
@@ -12,12 +13,17 @@
 #' @return A list of data.tables with distinct values based
 #' on the specified columns.
 #' @export
-get_unique_codelist <- function(db_connection, column_info_list, tb_name) {
+get_unique_codelist <- function(db_connection,
+                                scheme = NULL,
+                                column_info_list, 
+                                tb_name) {
   # 1. Structure Validation
   if (!is.list(column_info_list) || length(column_info_list) == 0) {
     stop("Input 'column_info_list' must be a non-empty list.")
   }
-
+  if(!is.null(scheme)){
+    tb_name <- paste0(scheme,'.',tb_name)
+  }
   for (i in seq_along(column_info_list)) {
     item <- column_info_list[[i]]
 

@@ -1,0 +1,11 @@
+person_id,vx_record_date,vx_dose,vx_manufacturer,vx_atc,vx_type,vx_text,origin_of_vx_record,meaning_of_vx_record,vx_lot_num,vx_admin_date
+#ID-000001089#,2021-09-15,1,,,covid19,,Vacunes,primary_care_medical_record,,2022-07-21
+#ID-000001094#,2021-02-02,1,,J07BX03,covid19,,,primary_care_medical_record,,2021-06-25
+#ID-000000187#,2022-02-26,1,,,opv,,,,,2021-12-31
+#ID-000001127#,2014-08-23,1,pfizer,,covid19,,Vacunes,,,2021-07-03
+#ID-000001967#,1991-08-29,B,pfizer,,covid19,,Vacunes,primary_care_medical_record,,2013-07-16
+#ID-000001155#,2022-04-13,2,moderna,,pcv,,Vacunes,primary_care_medical_record,,2021-08-23
+#ID-000002952#,2021-06-12,2,pfizer,,iv,,,,,2021-03-12
+#ID-000000183#,2015-12-14,1,moderna,J07BX03,pcv,,Vacunes,primary_care_medical_record,,2000-03-30
+#ID-000000416#,2007-08-31,1,,J07BX03,iv,,Vacunes,primary_care_medical_record,,1997-08-18
+#ID-000002144#,1980-08-13,B,,,covid19,,Vacunes,primary_care_medical_record,,2018-06-10
