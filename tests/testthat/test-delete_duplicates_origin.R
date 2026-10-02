@@ -33,7 +33,10 @@ testthat::test_that("Checking if the function delete the duplicates cases", {
     cdm_tables_names
   )
   delete_duplicates_origin(
-    db_connection = db_con, scheme, save_deleted = FALSE
+    db_connection = db_con, 
+    scheme,
+    schema_name = "CDM",
+    save_deleted = FALSE
   )
 
   vx1 <- import_file("dbtest/VACCINES.csv")
@@ -51,7 +54,10 @@ testthat::test_that("Checking if all columns exist in the scheme", {
   scheme <- setNames(rep("test1", length(cdm_tables_names)), cdm_tables_names)
   testthat::expect_message(
     delete_duplicates_origin(
-      db_connection = db_con, scheme, save_deleted = FALSE
+      db_connection = db_con, 
+      scheme,
+      schema_name = "CDM",
+      save_deleted = FALSE
     ),
     fixed = TRUE,
     paste0(
@@ -73,6 +79,7 @@ testthat::test_that("Checking if the function reports 0 deleted cases", {
   testthat::expect_message(
     delete_duplicates_origin(
       db_connection = db_con,
+      schema_name = "CDM",
       scheme
     ),
     fixed = TRUE,
@@ -89,12 +96,13 @@ testthat::test_that("Checking if the function saves the results", {
   cdm_tables_names <- c("VACCINES")
   scheme <- setNames(rep("*", length(cdm_tables_names)), cdm_tables_names)
 
-  save_path_csv <- tempdir()
+  save_path_csv <- "intermediate_data_file"
 
   # Delete duplicates and save result
   suppressWarnings(
     delete_duplicates_origin(
       db_connection = db_con, scheme,
+      schema_name = "CDM",
       save_deleted = TRUE,
       save_path = save_path_csv
     )
@@ -104,7 +112,7 @@ testthat::test_that("Checking if the function saves the results", {
   vx_post <- DBI::dbGetQuery(db_con, "SELECT * FROM CDM.VACCINES")
   file_path <- list.files(save_path_csv)
   vx_deleted <- read.csv(paste0(
-    save_path_csv, "/VACCINES_",
+    save_path_csv, "/CDM.VACCINES_",
     format(Sys.Date(), "%Y%m%d"), ".csv"
   ))
   testthat::expect_equal(nrow(vx_pre) - nrow(vx_post), nrow(vx_deleted))
@@ -117,7 +125,7 @@ testthat::test_that("Checking if the function saves the results with a postfix",
   cdm_tables_names <- c("VACCINES")
   scheme <- setNames(rep("*", length(cdm_tables_names)), cdm_tables_names)
 
-  save_path_csv <- tempdir()
+  save_path_csv <- "intermediate_data_file"
 
   post_fix <- "test_post_fix"
   # Delete duplicates and save result
@@ -125,6 +133,7 @@ testthat::test_that("Checking if the function saves the results with a postfix",
     delete_duplicates_origin( ## warn here
       db_connection = db_con,
       scheme = scheme,
+      schema_name = "CDM",
       save_deleted = TRUE,
       save_path = save_path_csv,
       add_postfix = post_fix
@@ -136,7 +145,7 @@ testthat::test_that("Checking if the function saves the results with a postfix",
   file_path <- list.files(save_path_csv)
 
   expect_true(file.exists(paste0(
-    save_path_csv, "/VACCINES_",
+    save_path_csv, "/CDM.VACCINES_",
     format(Sys.Date(), "%Y%m%d"), "_",
     post_fix, ".csv"
   )))
@@ -158,11 +167,12 @@ test_that("VIEW: if the function delete the duplicates cases using *", {
   delete_duplicates_origin(
     db_connection = db_con,
     scheme,
+    schema_name = "CDM",
     save_deleted = FALSE,
     to_view = TRUE
   )
 
-  vx_db <- DBI::dbGetQuery(db_con, "SELECT * FROM CDM.VACCINES")
+  vx_db <- DBI::dbGetQuery(db_con, "SELECT * FROM VACCINES_T2DMM_view_1")
   # The first 10 rows of vx1 are duplicates of vx2
   expect_equal(nrow(vx_db), nrow(vx1))
 })
@@ -179,12 +189,13 @@ test_that("VIEW: Checking if the function delete the duplicates cases", {
   )
   delete_duplicates_origin(
     db_connection = db_con, scheme,
+    schema_name = "CDM",
     save_deleted = FALSE,
     to_view = TRUE
   )
 
   vx1 <- import_file("dbtest/VACCINES.csv")
-  vx_db <- DBI::dbGetQuery(db_con, "SELECT * FROM CDM.VACCINES")
+  vx_db <- DBI::dbGetQuery(db_con, "SELECT * FROM VACCINES_T2DMM_view_1")
   # The first 10 rows of vx1 are duplicates of vx2
   expect_equal(nrow(vx_db), nrow(vx1))
 })
@@ -198,7 +209,9 @@ testthat::test_that("VIEW: Checking if all columns exist in the scheme", {
   scheme <- setNames(rep("test1", length(cdm_tables_names)), cdm_tables_names)
   testthat::expect_message(
     delete_duplicates_origin(
-      db_connection = db_con, scheme, save_deleted = FALSE, to_view = TRUE
+      db_connection = db_con, 
+      schema_name = "CDM",
+      scheme, save_deleted = FALSE, to_view = TRUE
     ),
     fixed = TRUE,
     paste0(
