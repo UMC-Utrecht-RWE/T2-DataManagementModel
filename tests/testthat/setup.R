@@ -54,7 +54,11 @@ set_database <- '{
       "VACCINES": ["vx_lot_num"]
     },
     "to_view": false
-  }
+  },
+    "report_generator": {
+      "report_path": ".",
+      "report_name": "count_rows_origin.fst"
+    }
 }'
 
 config_set_database <- file.path(tempdir(), "set_database.json")
