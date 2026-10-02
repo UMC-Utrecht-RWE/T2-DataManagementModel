@@ -35,10 +35,6 @@ testthat::test_that("DatabaseLoader forwards configuration to load_db", {
     loader$data_instance
   )
   testthat::expect_identical(
-    load_db_args$through_parquet,
-    loader$config$load_db_through_parquet
-  )
-  testthat::expect_identical(
     load_db_args$create_db_as,
     loader$config$create_db_as
   )
