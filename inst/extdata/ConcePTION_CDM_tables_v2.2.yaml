@@ -1,0 +1,1959 @@
+VISIT_OCCURRENCE:
+- Variable: person_id
+  Mandatory: 'Yes'
+  Description: A foreign key to the person in PERSONS table
+  Format: Character
+- Variable: visit_occurrence_id
+  Mandatory: 'Yes'
+  Description: Visit identifier
+  Format: Character
+- Variable: visit_start_date
+  Mandatory: 'Yes'
+  Description: Date when the visit starts, or, if it is just a one-day visit, date
+    of the visit
+  Format: Character yyyymmdd
+- Variable: visit_end_date
+  Mandatory: 'No'
+  Description: Date when the visit ends (only for visits that may last more than one
+    day, such as a hospital admission)
+  Format: Character yyyymmdd
+- Variable: specialty_of_visit
+  Mandatory: 'No'
+  Description: Specialty of the visit, or if this is a hospital admission, specialty
+    of the discharge ward
+  Format: Character
+  Comments: the vocabulary of this field is the table whose name is included in the
+    specialty_of_visit_vocabulary column. Such tables may be record-specific (e.g.
+    records from hospitalisations may have one vocabulary, records from specialistic
+    visits may have another). Such tables will be available in the Catalogue
+- Variable: specialty_of_visit_vocabulary
+  Mandatory: 'No'
+  Description: Coding system of the specialty
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+- Variable: status_at_discharge
+  Mandatory: 'No'
+  Description: outcome of the visit
+  Format: Character
+  Comments: This captures for instance if the patient died
+- Variable: status_at_discharge_vocabulary
+  Mandatory: 'No'
+  Description: vocabulary of outcome of the visit
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+  Comments: Contains the coding system used for status_at_discharge.
+- Variable: meaning_of_visit
+  Mandatory: 'Yes'
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+  Comments: This field captures and classifies relevant infomation with respect to
+    the interpretation of this record. It may capture the prompt, or specificities
+    of the content, from the source of this record. A recommended vocabulary is available,
+    but ultimately it is open and new values can be freely added if deemed relevant
+- Variable: origin_of_visit
+  Mandatory: 'Yes'
+  Description: name of the source table that originated the record
+  Format: Character
+  Comments: This column contains the name of the source table for each record.
+EVENTS:
+- Variable: person_id
+  Mandatory: 'Yes'
+  Description: A foreign key to the person in PERSONS table who experienced the event
+  Format: Character
+- Variable: start_date_record
+  Mandatory: 'Yes'
+  Description: Start date of the visit that lead to the recording of the event code
+    or free text
+  Format: Character yyyymmdd
+- Variable: end_date_record
+  Mandatory: 'No'
+  Description: End date of the visit that lead to the recording of the event code
+    or free text
+  Format: Character yyyymmdd
+- Variable: event_code
+  Mandatory: Yes, unless 'event_free_text' is filled in
+  Description: Code characterizing the event according to the vocabulary defined in
+    "event_record_vocabulary"
+  Format: Character
+- Variable: event_record_vocabulary
+  Mandatory: 'Yes'
+  Description: Vocabulary to which the 'event_code' belongs to; or, if ths record
+    contains 'event_free_text' , this column contains the indication 'free_text'
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+- Variable: text_linked_to_event_code
+  Mandatory: 'No'
+  Description: If in the original record the code is modified by a text, include this
+    text here
+  Format: Character
+  Comments: Free text
+- Variable: event_free_text
+  Mandatory: 'No'
+  Description: Use this cell if in the record there is no code, just a text
+  Format: Character
+  Comments: Free text
+- Variable: present_on_admission
+  Mandatory: 'No'
+  Description: Indicates the presence of the event at the start of the visit or hospital
+    admission
+  Format: Character
+  Vocabulary: yes/no
+  Comments: if the information is not pertinent or not available, leave empty
+- Variable: laterality_of_event
+  Mandatory: 'No'
+  Description: Laterality of the event
+  Format: Character
+  Vocabulary: right/left/both
+  Comments: If the event is concerning a part of the body, such a leg or an eye, which
+    comes with both a right and left version, this can be specified here. If the information
+    is not pertinent or not available, leave empty
+- Variable: meaning_of_event
+  Mandatory: 'Yes'
+  Description: This is a ConcePTION classification of the nature of the original record
+    associated with this event
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+  Comments: This field captures and classifies relevant infomation with respect to
+    the interpretation of this record. It may capture the prompt, or specificities
+    of the content, from the source of this record. A recommended vocabulary is available,
+    but ultimately it is open and new values can be freely added if deemed relevant
+- Variable: origin_of_event
+  Mandatory: 'Yes'
+  Description: name of the source table that originated the record
+  Format: Character
+  Comments: This column contains the name of the source table for each record.
+- Variable: visit_occurrence_id
+  Mandatory: 'No'
+  Description: A foreign key linking this record to the VISIT_OCCURRENCE table
+  Format: Character
+MEDICINES:
+- Variable: person_id
+  Mandatory: 'Yes'
+  Description: A foreign key to the person in PERSONS table
+  Format: Character
+- Variable: medicinal_product_id
+  Mandatory: 'No'
+  Description: Foreign key to the PRODUCTS table. The medicinal_product_id should
+    be a unique identifier of a specific medicinal product.
+  Format: Character
+- Variable: medicinal_product_atc_code
+  Mandatory: 'Yes'
+  Description: ATC classification system code attributed to the medicinal product.
+  Format: Character
+- Variable: date_dispensing
+  Mandatory: Yes, unless 'date_prescription' is populated
+  Description: Date when the medicinal product that lead to the recording was dispensed
+    or administrated to the patient
+  Format: Character yyyymmdd
+- Variable: date_prescription
+  Mandatory: Yes, unless 'date_dispensing' is populated
+  Description: Date when the medicinal product that lead to the recording was prescribed
+  Format: Character yyyymmdd
+- Variable: disp_number_medicinal_product
+  Mandatory: 'No'
+  Description: Number of dispensed units of medicinal_product_id.
+  Format: Numeric
+- Variable: presc_quantity_per_day
+  Mandatory: 'No'
+  Description: Prescribed quantity of medicinal product to be taken daily.
+  Format: Numeric
+- Variable: presc_quantity_unit
+  Mandatory: 'No'
+  Description: Unit of measure of the prescribed daily quantity.
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+- Variable: presc_duration_days
+  Mandatory: 'No'
+  Description: Number of days of medication as prescribed.
+  Format: Numeric
+- Variable: product_lot_number
+  Mandatory: 'No'
+  Description: An identifier assigned to a particular quantity or lot of medicinal
+    product from the manufacturer.
+  Format: Character
+- Variable: indication_code
+  Mandatory: 'No'
+  Description: Single identifier of a condition/indication for which the medicinal
+    product was prescribed/dispensed.
+  Format: Character
+- Variable: indication_code_vocabulary
+  Mandatory: 'No'
+  Description: Coding system referring to indication code
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+- Variable: meaning_of_drug_record
+  Mandatory: 'Yes'
+  Description: nature of the original record having originated the drug record
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+  Comments: This field captures and classifies relevant infomation with respect to
+    the interpretation of this record. It may capture the prompt, or specificities
+    of the content, from the source of this record. A recommended vocabulary is available,
+    but ultimately it is open and new values can be freely added if deemed relevant.
+- Variable: origin_of_drug_record
+  Mandatory: 'Yes'
+  Description: name of the source table that originated the record
+  Format: Character
+  Comments: This column contains the name of the source table for each record.
+- Variable: prescriber_speciality
+  Mandatory: 'No'
+  Description: Profile of the healthcare professional who has prescribed the medicinal
+    product.
+  Format: Character
+- Variable: prescriber_speciality_vocabulary
+  Mandatory: 'No'
+  Description: Coding system of the specialty
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+- Variable: visit_occurrence_id
+  Mandatory: 'No'
+  Description: Identifier of the prescription. A foreign key linking this record to
+    the VISIT_OCCURRENCE table, indicating the visit where the drug was prescribed
+    or dispensed.
+  Format: Character
+PROCEDURES:
+- Variable: person_id
+  Mandatory: 'Yes'
+  Description: A foreign key to the person in PERSONS table
+  Format: Character
+- Variable: procedure_date
+  Mandatory: 'Yes'
+  Format: Character yyyymmdd
+- Variable: procedure_code
+  Mandatory: 'Yes'
+  Format: Character
+- Variable: procedure_code_vocabulary
+  Mandatory: 'Yes'
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+  Comments: Contains the coding system related to procedure_code
+- Variable: meaning_of_procedure
+  Mandatory: 'Yes'
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+  Comments: This field captures and classifies relevant infomation with respect to
+    the interpretation of this record. It may capture the prompt, or specificities
+    of the content, from the source of this record. A recommended vocabulary is available,
+    but ultimately it is open and new values can be freely added if deemed relevant
+- Variable: origin_of_procedure
+  Mandatory: 'Yes'
+  Description: name of the source table that originated the record
+  Format: Character
+  Comments: This column contains the name of the source table for each record.
+- Variable: visit_occurrence_id
+  Mandatory: 'No'
+  Description: A foreign key linking this record to the VISIT_OCCURRENCE table
+  Format: Character
+VACCINES:
+- Variable: person_id
+  Mandatory: 'Yes'
+  Description: A foreign key to the person in PERSONS table
+  Format: Character
+- Variable: vx_record_date
+  Mandatory: Yes, if vx_admin_date is missing
+  Format: Character yyyymmdd
+- Variable: vx_admin_date
+  Mandatory: Yes, if vs_record_date is missing
+  Format: Character yyyymmdd
+- Variable: vx_atc
+  Mandatory: Yes, if vx_type is missing
+  Format: Character
+  Comments: this is ATC coding system
+- Variable: vx_type
+  Mandatory: Yes, if vx_atc is missing
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+- Variable: vx_text
+  Mandatory: 'No'
+  Format: Character
+  Comments: can capture immunization-related free text, which may be formal description
+    or not
+- Variable: medicinal_product_id
+  Mandatory: 'No'
+  Description: Foreign key to the PRODUCTS table.
+  Format: Character
+- Variable: vx_dose
+  Mandatory: 'No'
+  Description: Dose, particularly for childhood vaccines (1, 2, 3, Booster, etc)
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+- Variable: vx_manufacturer
+  Mandatory: 'No'
+  Description: Name of vaccine manufacturer
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+- Variable: vx_lot_num
+  Mandatory: 'No'
+  Format: Character
+- Variable: meaning_of_vx_record
+  Mandatory: 'Yes'
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+  Comments: This field captures and classifies relevant infomation with respect to
+    the interpretation of this record. It may capture the prompt, or specificities
+    of the content, from the source of this record. A recommended vocabulary is available,
+    but ultimately it is open and new values can be freely added if deemed relevant
+- Variable: origin_of_vx_record
+  Mandatory: 'Yes'
+  Description: name of the source table that originated the record
+  Format: Character
+  Comments: This column contains the name of the source table for each record.
+- Variable: visit_occurrence_id
+  Mandatory: 'No'
+  Description: external key to VISIT_OCCURRENCE
+  Format: Character
+MEDICAL_OBSERVATIONS:
+- Variable: person_id
+  Mandatory: 'Yes'
+  Description: A foreign key to the person in PERSONS table
+  Format: Character
+- Variable: mo_date
+  Mandatory: 'Yes'
+  Format: Character yyyymmdd
+- Variable: mo_code
+  Mandatory: 'No'
+  Format: Character
+- Variable: mo_record_vocabulary
+  Mandatory: 'No'
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+- Variable: mo_source_table
+  Mandatory: 'No'
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+- Variable: mo_source_column
+  Mandatory: 'No'
+  Format: Character
+  Comments: here we just refer to the name of the column ( and table, in the previous
+    column) where the value is stored in the original source, and we refer to the
+    data dictionary if the datasource to interpret what it means
+- Variable: mo_source_value
+  Mandatory: 'Yes'
+  Format: Character
+  Comments: Always recorded as string, if it is a date YYYYMMDD, if it is positive/negative/undetermined
+    use those words. Can be a box of free text
+- Variable: mo_unit
+  Mandatory: 'No'
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+  Comments: if the information is not pertinent, leave empty
+- Variable: mo_meaning
+  Mandatory: 'Yes'
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+  Comments: This field captures and classifies relevant infomation with respect to
+    the interpretation of this record. It may capture the prompt, or specificities
+    of the content, from the source of this record. A recommended vocabulary is available,
+    but ultimately it is open and new values can be freely added if deemed relevant
+- Variable: mo_origin
+  Mandatory: 'Yes'
+  Description: name of the source table that originated the record
+  Format: Character
+  Comments: This column contains the name of the source table for each record.
+- Variable: visit_occurrence_id
+  Mandatory: 'No'
+  Format: Character
+EUROCAT:
+- Variable: centre
+  Mandatory: 'Yes'
+  Description: CENTRE NUMBER
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                               Code
+    allocated by Central Registry'
+- Variable: numloc
+  Mandatory: 'Yes'
+  Description: "LOCAL ID \nEach case has a unique identification. This number is a
+    maximum of 11 characters long, consisting of either numbers, letters or both.\nID
+    numbers should not repeat themselves in different years."
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                      Up
+    to 11 digits'
+- Variable: birthdate
+  Mandatory: 'Yes'
+  Description: "DATE OF BIRTH \nPlease enter dates as a numeric string, not in date
+    format (eg. do not use 28/02/89 or 28-02-89, instead use 280289)."
+  Format: Character
+  Comments: "Table reference: EUROCAT/EUROmediCAT.                                                                                  Day,
+    month, year 99 = Not known for day and month \nDO NOT TRANSMIT RECORDS IF YEAR
+    OF BIRTH IS NOT KNOWN"
+- Variable: sex
+  Mandatory: 'Yes'
+  Description: |-
+    SEX
+    Indicate chromosomal sex, if known, in case of ambiguous genitalia and code malformations in variables 29-44.
+    Indicate indeterminate sex in case of ambiguous genitalia with unknown or abnormal sex chromosome complement.
+    If sex could not be determined at autopsy due to maceration or other problems, indicate as “not known”.
+  Format: Character
+  Vocabulary: "1 = Male\n2 = Female\n3 = Indeterminate \n9 = Not known"
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.'
+- Variable: nbrbaby
+  Mandatory: 'Yes'
+  Description: |-
+    NUMBER OF BABIES/FETUSES DELIVERED
+    Fill out a separate form for each malformed baby/fetus in a multiple set.
+    Only one form to be completed for conjoined twins (Siamese).  The code is “2” for a conjoined twin, unless another baby was delivered at the same time (code “3”).
+    Conjoined twins have a specific ICD/BPA code, to be coded under “syndrome” (variable 27).  Give full description of type of conjoined twinning in syndrome text field (variables 28).
+    Any other malformations are coded in variables 29-44.
+    Notes. If code 8 is used, please specify in variable sp_twin the gestational age at which last known to be a multiple pregnancy and/or first known to be a singleton. The purpose of this coding system is to allow us to distinguish malformed cases which would have civil registration as singleton births from malformed cases which would have civil registration as multiple births. Please specify the sex and outcome (live, still) of the malformed/non-malformed co-twin and zygosity.
+  Format: Character
+  Vocabulary: "1 = Singleton \n2 = Twins\n3 = Triplets \n4 = Quadruplets \n5 = Quintuplets
+    \n6 = Sextuplets or more \n7 = Multiple birth, number of babies not known\n8 =
+    Singleton at time of delivery/termination, but known to have been a multiple pregnancy
+    at an earlier stage in pregnancy \n9 = Not known"
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.'
+- Variable: sp_twin
+  Mandatory: 'No'
+  Description: |-
+    SPECIFY TWIN TYPE OF BIRTH (malformed and non-malformed),
+    like or unlike sex, zygosity
+  Format: Character
+  Comments: 'Table reference: EUROCAT                                                                       Free
+    text'
+- Variable: nbrmalf
+  Mandatory: 'Yes'
+  Description: "NUMBER OF MALFORMED IN MULTIPLE SET\nTo be completed for multiple
+    delivery only.\nComplete one form for each malformed baby in a multiple set.  \nRemember
+    to give local ID of co-twin in SIB1 field (variable 69) if more than one malformed."
+  Format: Character
+  Vocabulary: |-
+    1 = One
+    2 = Two
+    3 = Three
+    4 = Four
+    5 = Five
+    6 = Six or more
+    9 = Not known
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.'
+- Variable: type
+  Mandatory: 'Yes'
+  Description: |-
+    TYPE OF BIRTH
+    Birth with type of birth not known should be transmitted to EUROCAT, but will be excluded from routine EUROCAT analysis.
+    EUROCAT includes all livebirths, fetal deaths with gestational age (GA) ≥20 weeks and terminations of pregnancy (at any gestational age) after prenatal diagnosis of malformation.  Fetal deaths with GA < 20 weeks (code =
+    3) may be reported to EUROCAT but will not be included in prevalence data.
+    The distinction between stillbirth and spontaneous abortion should follow the definitions in use in your country (to be specified in your Registry Description).  There is usually a lower gestational age limit or birthweight limit for stillbirths.  This varies from country to country.  Below this limit fetal deaths are called spontaneous abortions.
+    Terminations of pregnancy refer to cases where prenatal diagnosis was made of malformation in a live fetus and the pregnancy was then terminated.  If the fetus died spontaneously in utero either before or after prenatal diagnosis of malformation then it should be coded as spontaneous abortion or stillbirth, not as termination of pregnancy.  If a termination was performed for other reasons than malformation, the case should not be transmitted to Central Registry.  This means that early terminations where there was no suspicion of malformation before termination should be excluded from the case files.
+    Stillbirths or perinatal deaths resulting from termination of pregnancy following prenatal diagnosis must be coded as terminations (value = 4), irrespective of civil registration status.
+    For a non-natural fetal reduction in a multiple pregnancy where one fetus is malformed, code 4 (in that case gestlength = gestational age at reduction; date of birth = date of reduction; and code carefully all multiple birth
+    variables).
+  Format: Character
+  Vocabulary: "1 = Live birth \n2 = Stillbirth\n3 = Spontaneous abortion\n4 = Termination
+    of Pregnancy\n5 = Not known"
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.'
+- Variable: civreg
+  Mandatory: 'Yes'
+  Description: |-
+    CIVIL REGISTRATION STATUS
+    Livebirths and stillbirths are civilly registered leading to either a birth or stillbirth certificate and appear in official birth statistics for your region.
+    Code here whether this case fulfilled the conditions for live or stillbirth registration in your country.
+  Format: Character
+  Vocabulary: "1 = Livebirth\n2 = Stillbirth \n3 = No civil registration\n9 = Not
+    known"
+  Comments: 'Table reference: EUROCAT'
+- Variable: weight
+  Mandatory: 'Yes'
+  Description: |-
+    BIRTH WEIGHT
+    Give weight in grams.
+  Format: Numeric
+  Comments: |-
+    Table reference: EUROCAT/EUROmediCAT.                                         9999 = Not known
+    (Do not use 99 or 999 for “Not
+    Known” as this will be considered the
+    birth weight).
+- Variable: gestlength
+  Mandatory: 'Yes'
+  Description: |-
+    LENGTH OF GESTATION IN COMPLETED WEEKS
+    Give best estimate based on last menstrual period (LMP) and/or ultrasound determination.  If the case is the result of fetal reduction give GA at fetocide.
+  Format: Numeric
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                         99
+    = Not known'
+- Variable: survival
+  Mandatory: 'Yes'
+  Description: |-
+    SURVIVAL BEYOND ONE WEEK OF AGE
+    Yes = Child known to be alive after one week.
+    No = Child known to have died before or during first week (including stillbirths and abortions).
+    Alive at discharge <1 week refers to cases that are alive at discharge from maternity units before one week of age. Please specify in your Registry Description the day when discharge from maternity units usually takes place.
+    If survival at one week is unknown, but survival at discharge from maternity unit less than one week is known, use the latter.
+    The definition of first week of life varies between countries. Follow your country’s perinatal mortality definition and specify this in your Registry Description.
+    Not known = Not known if child has died during first week.
+  Format: Character
+  Vocabulary: "1 = Yes\n2 = No\n3 = Alive at discharge <1 week \n9 = Not known"
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.'
+- Variable: death_date
+  Mandatory: 'No'
+  Description: |-
+    DATE OF DEATH
+    For livebirths only.
+    Please enter dates as a numeric string, not in date format (eg. do not use 28/02/89 or 28-02-89, instead use 280289).
+  Format: Character
+  Comments: |-
+    Table reference: EUROCAT                                                                         Day, month, year 99= Died, not known day or month
+    44 =Died, not known year
+    Do not use 99 for “not known” year of death, as this will be read as died in 1999, day and month not known.
+    222222= Known to be alive at 1 year 333333= Not
+    known if alive or dead at 1 year
+- Variable: datemo
+  Mandatory: 'No'
+  Description: |-
+    DATE OF BIRTH OF MOTHER
+    Give as much information as is known eg. Feb 1963 = 990263, 1963 = 999963.
+    Please enter dates as a numeric string, not in date format (eg. do not use 28/02/89 or 28-02-89, instead use 280289).
+    This variable can be used to calculate maternal age at Expected Date of Delivery for preterm deliveries and terminations.
+  Format: Character
+  Comments: |-
+    Table reference: EUROCAT                                                                          Day, month, year 99 = Not known day or month
+    44 = Not known year
+- Variable: agemo
+  Mandatory: 'Yes'
+  Description: |-
+    AGE OF THE MOTHER AT DELIVERY
+    In completed years at the time of delivery.  If only the year of birth is available, assume that the mother was born on
+    30 June.
+  Format: Numeric
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                          99
+    = Not known'
+- Variable: bmi
+  Mandatory: 'No'
+  Description: |-
+    MATERNAL BODY MASS INDEX
+    Enter BMI (2 digits). The EDMP will also allow entry of maternal height (in centimetres) and weight (in kilograms) and calculate BMI automatically. Values measured at first antenatal visit are preferred, but pre-pregnancy self-reported values may be given. If mother known to be obese, enter code for obesity E660 in maternal illness before pregnancy (variable 60)
+    Whilst BMI is a new variable in Guide 1.4 (for cases born from 2013 onwards) if any registry has this information for previous cases, EUROCAT is interested in collecting this information from 2005 onwards
+  Format: Numeric
+  Comments: |-
+    Table reference: EUROCAT/EUROmediCAT.                                            2 digits
+    Expected range 15 – 50
+    97 = exact BMI NK but <30
+    98 = exact BMI NK but >=30
+    99 = Not known
+- Variable: residmo
+  Mandatory: 'No'
+  Description: |-
+    MOTHER’S RESIDENCE CODE
+    Use local code for locality of residence at time of delivery.
+  Format: Character
+  Comments: 'Table reference: EUROCAT                                                                          Local
+    code (up to 10 digits)'
+- Variable: totpreg
+  Mandatory: 'No'
+  Description: |-
+    TOTAL NUMBER OF PREVIOUS PREGNANCIES
+    NOTE – The current reported pregnancy is NOT included.
+    Include all previous abortions whether spontaneous or induced.  Multiple pregnancies count as 1 in the total
+  Format: Character
+  Vocabulary: "00 = None\n01 = One\n02 = Two\n03 = Three etc \n20 = Twenty or more\n99
+    = Not known"
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.'
+- Variable: whendisc
+  Mandatory: 'Yes'
+  Description: |-
+    WHEN DISCOVERED
+    When the baby was first suspected to be malformed.
+    For prenatal diagnosis: when a major malformation was first suspected (EXCLUDING soft markers).  If prenatal diagnosis is made when fetus is dead code 1 (for stillbirths) or 7 (for spontaneous abortions).
+    For livebirths: when first suspicion malformation was at death OR at postmortem, when discovered is age at death (eg. At birth, < 1 week, 1-4 weeks etc).
+    For stillbirths: when first suspicion of a malformation was at birth OR at postmortem, when discovered is at birth (eg.
+    Code = 1).
+    All cases MUST have been confirmed as having a congenital anomaly
+    Please also complete variables 12 “SURVIVAL”, 13 “DEATH- DATE”, 19 “CONDISC” and 25 “PM”.
+  Format: Character
+  Vocabulary: "1 = At birth\n2 = Less than 1 week\n3 = 1-4 weeks\n4 = 1-12 months\n5
+    = Over 12 months\n6 = Prenatal diagnosis in live fetus\n7 = At abortion (spontaneous)
+    \n9 = Not known \n10 = Postnatal\ndiagnosis, age not\nknown"
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.'
+- Variable: condisc
+  Mandatory: 'No'
+  Description: |-
+    CONDITION AT DISCOVERY
+    Condition of fetus or baby when malformation was first
+    suspected.
+  Format: Character
+  Vocabulary: |-
+    1 = Alive
+    2 = Dead
+    9 = Not known
+  Comments: 'Table reference: EUROCAT'
+- Variable: agedisc
+  Mandatory: 'Yes'
+  Description: |-
+    IF PRENATALLY DIAGNOSED, GESTATIONAL AGE AT DISCOVERY IN COMPLETED WEEKS
+    GA as defined in variable gestlength.
+    Gestational age at which the fetus was first suspected to be malformed (EXCLUDING soft markers).  Indicate time of examination rather than time when result known.
+    If no prenatal diagnosis please leave blank.
+  Format: Numeric
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                           99
+    = Not known'
+- Variable: firstpre
+  Mandatory: 'No'
+  Description: |-
+    FIRST POSITIVE PRENATAL TEST
+    This refers to the first prenatal test whether screening procedure or diagnostic test which indicated a possible congenital anomaly or need for further tests.
+    For code 7 = other specified test, give information in text field (variable 22).
+    If test performed and result negative, then the “When discovered” variable cannot be coded 6 (prenatal diagnosis).
+    This field is to record what DID happen, not any possible plans or intentions. Ultrasound < 14 weeks means only ultrasound performed which may include a nuchal measurement. The serum/combined screening must involve a biochemical test
+  Format: Character
+  Vocabulary: "1 = Ultrasound at GA < 14 weeks\n2 = Ultrasound at GA 14-21 weeks \n3
+    = Ultrasound at GA ≥ 22 weeks\n4 = Ultrasound GA not known\n5 = Serum/ combined
+    screening \n6 = CVS or\namniocentesis \n7 = Other test positive\n8 = Test(s) performed,
+    result negative\n9 = Not known \n10 = No test\nperformed"
+  Comments: 'Table reference: EUROCAT'
+- Variable: sp_firstpre
+  Mandatory: 'No'
+  Description: |-
+    SPECIFY “OTHER” FIRST PRENATAL TEST
+    If FIRSTPRE = 7, specify which positive prenatal test
+  Format: Character
+  Comments: 'Table reference: EUROCAT                                                                          Free
+    text'
+- Variable: karyo
+  Mandatory: 'No'
+  Description: |-
+    KARYOTYPE OF INFANT/FETUS
+    Specify result in variable 25. Array results count as a karyotype test
+    Report only clearly pathogenic variants and if uncertain, include only copy number variants (CNVs) (duplications or deletions) larger than 1 MB. Only report cases with de novo CNVs unless the parent in familial cases also has clinical manifestations of the condition (dysmorphic features or congenital anomalies). (Coding Committee 2015)
+    If performed and results known, please specify (according to the latest ISCN edition.
+    “Probe test performed” refers to FISH, PCR, or other analyses restricted to specific chromosomal regions .
+    “Failed” refers to a technical failure where a repeat examination could not be done and the karyotype is therefore unknown.
+  Format: Character
+  Vocabulary: "1 = Performed, result known\n2 = Performed, results not known \n3 =
+    Not performed \n4 = Probe test performed\n8 = Failed\n9 = Not known"
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.'
+- Variable: sp_karyo
+  Mandatory: 'No'
+  Description: |-
+    SPECIFY KARYOTYPE OR CHROMOSOMAL MICROARRAY
+    EXAMPLES:
+    47,XY,+21
+    46,XX,del(2)(p13p23)mat Description: An interstitial deletion resulting from mal-segregation of a maternal insertion
+    46,XY,der(5)ins(5;2)(q31;p23p13)mat Description : A derivative chromosome 5 resulting from mal-segregation of a maternal insertion from chromosome 2
+    arr(1–22)×3,(X)×2,(Y)×1 Description: Microarray analysis shows triploidy 69,XXY
+    arr(8)×3,(21)×3 Description: Microarray analysis shows a single copy gain of chromosomes 8 and 21.
+    46,XY.rsa(13,18,21)×2,(X,Y)×1 Descritption: normal chromosomes, only chromosome 13,18,21, X and Y investigated
+    rsa 22q11.2(‘kit name’)×1 Description: microdeletion 22q.11.2 diagnosed by multiple ligation probe amplification method (MLPA)
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                            Free
+    text'
+- Variable: gentest
+  Mandatory: 'No'
+  Description: |-
+    GENETIC TEST
+    For syndromes and single gene disorders, a genetic test may have confirmed the clinical diagnosis either prenatally or postnatally. Please complete for these cases. Karyotype should still be completed as per variables 24 & 25
+    Whilst GENETIC TEST is a new variable in Guide 1.4 (for cases born from 2013 onwards) if any registry has this information for previous cases, EUROCAT is interested in collecting this information from 2005 onwards
+    If the test is performed but the result not yet known, please wait for the result before reporting
+  Format: Character
+  Vocabulary: "1 = specific genetic test positive \n2 = specific genetic test negative
+    \n3 = Specific genetic test not Performed\n9 = Not Known if genetic test is performed
+    or result not known"
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.'
+- Variable: sp_gentest
+  Mandatory: 'No'
+  Description: |-
+    SPECIFY TYPE OF GENETIC TEST
+    Give method used and the result of the test (type of mutation and which gene)
+    Examples: Single gene analysis, exome sequencing, whole genome sequencing
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                            Free
+    text'
+- Variable: pm
+  Mandatory: 'No'
+  Description: |-
+    POST MORTEM EXAMINATION
+    If performed record the malformation(s) discovered in the “malformation” section in the form.  If other findings record in the “comments” space (variable 80).
+    “Results known” means that the autopsy record has been reviewed by the registry.
+    “Results not known” means that the autopsy record was not available to the registry.
+    “Macerated fetus” means that although a post mortem was performed, maceration of the fetus prevented a full protocol from being followed.
+  Format: Character
+  Vocabulary: "1 = Performed, results known \n2 = Performed,\nresults not known \n3
+    = Not performed\n4 = Macerated fetus\n9 = Not known\""
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.'
+- Variable: surgery
+  Mandatory: 'Yes'
+  Description: |-
+    FIRST SURGICAL PROCEDURE FOR MALFORMATION (PERFORMED OREXPECTED)
+    If your registry does not have the resources to complete this variable for all cases, concentrate on malformations where a) performed or expected surgery indicates level of severity, for example hydrocephalus and hypospadias or b) where active decisions to withhold surgery may impact survival for example hypoplastic left heart
+    The variable surgery does not include insertions of catheters.  Performed (or expected) means that this case has already, or will at the appropriate age, have surgery for one or more of the listed malformations.
+    “No surgery required” means that this case does not have a severe enough malformation, or that the malformation is not correctable by surgery.
+    “Too severe for surgery” means that there has been an
+    active decision to withhold surgery due to low chances of survival or very poor prognosis.
+  Format: Character
+  Vocabulary: |-
+    1 = Performed (or expected) in the first year of life
+    2 = Performed (or expected) after the first year of life
+    3 = Prenatal surgery
+    4 = No surgery required
+    5= Too severe for surgery
+    9 = Not known
+  Comments: 'Table reference: EUROCAT'
+- Variable: syndrome
+  Mandatory: 'Yes'
+  Description: "SYNDROME OR ASSOCIATION\nRefer to EUROCAT Guide on syndromes.  Give
+    name of syndrome or association in text variable 28.  All the anomalies observed
+    by the local clinician should be coded in the remaining boxes for malformations.\nIf
+    not a recognised syndrome or association, leave blank.\nWhen 2 syndromes are present
+    in the same subject, code the more important one in the syndrome variables 27
+    and 28, and include the other one in variables 29 and 30 MALF01.\nEnsure karyotype
+    information is given in variables 23 and 24, and that autopsy and medical genetics
+    reports have been reviewed, where appropriate.\nIn case of conjoined twins, give
+    full description in syndrome text variable 28.\nLocal registries are advised to
+    keep photographs and x-ray images of all syndrome cases, as the diagnosis is predominantly
+    established on the basis of specific facial\r\ndysmorphism."
+  Format: Character
+  Comments: "Table reference: EUROCAT/EUROmediCAT.        \nICD 10\nFirst 4 digits
+    are ICD10\n5th digit = BPA supplement or leave blank"
+- Variable: sp-syndrome
+  Mandatory: 'Yes'
+  Description: "SPECIFY SYNDROME \nWritten text description of the ICD10 code in variable
+    30"
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.'
+- Variable: malfo1
+  Mandatory: 'Yes'
+  Description: "MALFORMATION \nA baby/fetus with ONLY minor anomalies (see exclusion
+    list, chapter 7) should not be transmitted to Central Registry. \nWhen a major
+    anomaly is present, code both major and minor anomalies. \nIn case of conjoined
+    twins, give full description in text in variable 33 \nUp to 8 malformations can
+    be coded – if more than 8 are present, specify additional anomalies in the text
+    variable for the 8th anomaly (text variable 47 SP_MALFO8). \nInclude in the 8
+    specified codes the most important ones, or those tabulated in EUROCAT Reports.
+    \nGive written description of the malformations available in malformation text
+    variables 33, 35, 37, 39, 41, 43, 45 and 47."
+  Format: Character
+  Comments: |-
+    Table reference: EUROCAT/EUROmediCAT.                                            ICD 10
+    First 4 digits are ICD
+    5th digit = BPA classification OR
+    leave blank
+- Variable: sp_malfo1
+  Mandatory: 'Yes'
+  Description: "SPECIFY MALFORMATION\t"
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                             Free
+    text        '
+- Variable: malfo2
+  Mandatory: 'Yes'
+  Description: "AS MALFO1\t"
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                           As
+    MALF01        '
+- Variable: sp_malfo2
+  Mandatory: 'Yes'
+  Description: "SPECIFY MALFORMATION\t"
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                             Free
+    text        '
+- Variable: malfo3
+  Mandatory: 'Yes'
+  Description: "AS MALFO1\t"
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                           As
+    MALF01        '
+- Variable: sp_malfo3
+  Mandatory: 'Yes'
+  Description: "SPECIFY MALFORMATION\t"
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                             Free
+    text        '
+- Variable: malfo4
+  Mandatory: 'Yes'
+  Description: "AS MALFO1\t"
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                           As
+    MALF01        '
+- Variable: sp_malfo4
+  Mandatory: 'Yes'
+  Description: "SPECIFY MALFORMATION\t"
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                             Free
+    text        '
+- Variable: malfo5
+  Mandatory: 'Yes'
+  Description: "AS MALFO1\t"
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                           As
+    MALF01        '
+- Variable: sp_malfo5
+  Mandatory: 'Yes'
+  Description: "SPECIFY MALFORMATION\t"
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                             Free
+    text        '
+- Variable: malfo6
+  Mandatory: 'Yes'
+  Description: "AS MALFO1\t"
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                           As
+    MALF01        '
+- Variable: sp_malfo6
+  Mandatory: 'Yes'
+  Description: "SPECIFY MALFORMATION\t"
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                             Free
+    text        '
+- Variable: malfo7
+  Mandatory: 'Yes'
+  Description: "AS MALFO1\t"
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                           As
+    MALF01        '
+- Variable: sp_malfo7
+  Mandatory: 'Yes'
+  Description: "SPECIFY MALFORMATION\t"
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                             Free
+    text        '
+- Variable: malfo8
+  Mandatory: 'Yes'
+  Description: "AS MALFO1\t"
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                           As
+    MALF01        '
+- Variable: sp_malfo8
+  Mandatory: 'Yes'
+  Description: "SPECIFY MALFORMATION\t"
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                             Free
+    text        '
+- Variable: presyn
+  Mandatory: 'No'
+  Description: |-
+    PRENATAL DIAGNOSIS FOR SYNDROME
+    When each anomaly was first diagnosed.
+    The basis for this variable is to record whether the prenatal findings strongly suggest the postnatal diagnosis. This variable is not designed for fetal medicine specialists to assess the accuracy of their prenatal diagnosis. Thus the finding of a significant heart anomaly prenatally is considered to be prenatally detected, even if the exact anomaly was not correctly diagnosed. ‘Yes, prenatally diagnosed’, should be used when the prenatal finding is nearly 100% predictive of the congenital anomaly. ‘Partially’ means that the prenatal finding is consistent with the postnatal anomaly but has a lesser predictive value, being suggestive of more than one type of anomaly, an example here would be increased nuchal translucency. The examples below are to illustrate this principle and ensure consistency of coding. Queries about individual cases can be send to Central registry
+  Format: Character
+  Vocabulary: |-
+    1 = Yes, this anomaly was diagnosed prenatally
+    2 = No, this anomaly was diagnosed postnatally
+    3 = This anomaly partially prenatally diagnosed
+    9 =Not known
+  Comments: 'Table reference: EUROCAT'
+- Variable: premal1
+  Mandatory: 'No'
+  Description: |-
+    PRENATAL DIAGNOSIS FOR MALFORMATION
+    AS PRESYN
+  Format: Character
+  Vocabulary: |-
+    1 = Yes, this anomaly was diagnosed prenatally
+    2 = No, this anomaly was diagnosed postnatally
+    3 = This anomaly partially prenatally diagnosed
+    9 =Not known
+  Comments: 'Table reference: EUROCAT                                                                        AS
+    PRESYN'
+- Variable: premal2
+  Mandatory: 'No'
+  Description: |-
+    PRENATAL DIAGNOSIS FOR MALFORMATION
+    AS PRESYN
+  Format: Character
+  Vocabulary: |-
+    1 = Yes, this anomaly was diagnosed prenatally
+    2 = No, this anomaly was diagnosed postnatally
+    3 = This anomaly partially prenatally diagnosed
+    9 =Not known
+  Comments: 'Table reference: EUROCAT                                                                        AS
+    PRESYN'
+- Variable: premal3
+  Mandatory: 'No'
+  Description: |-
+    PRENATAL DIAGNOSIS FOR MALFORMATION
+    AS PRESYN
+  Format: Character
+  Vocabulary: |-
+    1 = Yes, this anomaly was diagnosed prenatally
+    2 = No, this anomaly was diagnosed postnatally
+    3 = This anomaly partially prenatally diagnosed
+    9 =Not known
+  Comments: 'Table reference: EUROCAT                                                                        AS
+    PRESYN'
+- Variable: premal4
+  Mandatory: 'No'
+  Description: |-
+    PRENATAL DIAGNOSIS FOR MALFORMATION
+    AS PRESYN
+  Format: Character
+  Vocabulary: |-
+    1 = Yes, this anomaly was diagnosed prenatally
+    2 = No, this anomaly was diagnosed postnatally
+    3 = This anomaly partially prenatally diagnosed
+    9 =Not known
+  Comments: 'Table reference: EUROCAT                                                                        AS
+    PRESYN'
+- Variable: premal5
+  Mandatory: 'No'
+  Description: |-
+    PRENATAL DIAGNOSIS FOR MALFORMATION
+    AS PRESYN
+  Format: Character
+  Vocabulary: |-
+    1 = Yes, this anomaly was diagnosed prenatally
+    2 = No, this anomaly was diagnosed postnatally
+    3 = This anomaly partially prenatally diagnosed
+    9 =Not known
+  Comments: 'Table reference: EUROCAT                                                                        AS
+    PRESYN'
+- Variable: premal6
+  Mandatory: 'No'
+  Description: |-
+    PRENATAL DIAGNOSIS FOR MALFORMATION
+    AS PRESYN
+  Format: Character
+  Vocabulary: |-
+    1 = Yes, this anomaly was diagnosed prenatally
+    2 = No, this anomaly was diagnosed postnatally
+    3 = This anomaly partially prenatally diagnosed
+    9 =Not known
+  Comments: 'Table reference: EUROCAT                                                                        AS
+    PRESYN'
+- Variable: premal7
+  Mandatory: 'No'
+  Description: |-
+    PRENATAL DIAGNOSIS FOR MALFORMATION
+    AS PRESYN
+  Format: Character
+  Vocabulary: |-
+    1 = Yes, this anomaly was diagnosed prenatally
+    2 = No, this anomaly was diagnosed postnatally
+    3 = This anomaly partially prenatally diagnosed
+    9 =Not known
+  Comments: 'Table reference: EUROCAT                                                                        AS
+    PRESYN'
+- Variable: premal8
+  Mandatory: 'No'
+  Description: |-
+    PRENATAL DIAGNOSIS FOR MALFORMATION
+    AS PRESYN
+  Format: Character
+  Vocabulary: |-
+    1 = Yes, this anomaly was diagnosed prenatally
+    2 = No, this anomaly was diagnosed postnatally
+    3 = This anomaly partially prenatally diagnosed
+    9 =Not known
+  Comments: 'Table reference: EUROCAT                                                                        AS
+    PRESYN'
+- Variable: omim
+  Mandatory: 'No'
+  Description: |-
+    OMIM / TYPE OF MENDELIAN INHERITANCE
+    To be coded by medical geneticist or after advice from medical geneticist.
+    This code is to be used for cases with single gene origin only – Refer to EUROCAT Syndrome Guide.
+    The first digit may be filled in without the rest of the code if the full OMIM code is not known.
+    Full codes can be found on the OMIM website
+    http://www.ncbi.nlm.nih.gov/omim/
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                                  '
+- Variable: orpha
+  Mandatory: 'No'
+  Description: |-
+    This code is to be used for rare diseases including congenital anomalies, chromosomal, teratogenic and genetic syndromes.
+    Use the link and enter the name of the condition. if more than one code/disease appears, select the most specific orpha code. If you do not have specific information about genetic background or phenotype, select the most general orpha code.
+    https://www.orpha.net/consor/cgi-bin/Disease.php?lng=EN
+  Format: Character
+  Comments: 'Table reference: EUROCAT                                                                        '
+- Variable: assconcept
+  Mandatory: 'No'
+  Description: |-
+    ASSISTED CONCEPTION
+    IVF = In vitro fertilization
+    GIFT = Gamete intra fallopian transfer
+    ICSI = Intracytoplasmic sperm injection
+  Format: Character
+  Vocabulary: |-
+    0 = No
+    1 = Induced ovulation only
+    2 = Artificial insemination
+    3 = IVF
+    4 = GIFT
+    5 = ICSI
+    6 = Egg donation
+    8 = Other
+    9 = Not known
+    10 = Assisted conception, type unknown
+  Comments: 'Table reference: EUROCAT                                                                      '
+- Variable: occupmo
+  Mandatory: 'No'
+  Description: |-
+    MOTHER’S OCCUPATION AT TIME OF CONCEPTION
+    Code main occupation at time of conception (or earliest known time in first trimester). Note that the main purpose of the variable relates to potential teratogenic occupational exposures in early pregnancy. Be as precise as possible.
+    Code according to 2008 (ISCO-08) Classification for births with birth dates from 2013.
+    Code according to the 1988 International Standard Classification of Occupations (ISCO-88) for births with birth dates up to 2012.
+    Links for ISCO classifications: http://www.ilo.org/public/english/bureau/stat/isco/isco08/index.htm
+    Available in many languages.
+    The 4 digit codes give the necessary specificity. They are grouped into the following main groups:
+    0 = Armed Forces (NB – do not preface your codes with zero UNLESS it is an armed forces occupation. All database systems must accept a leading zero and not drop it).
+    1 = Managers
+    2 = Professionals
+    3 = Technicians and Associate Professionals
+    4 = Clerical Support Workers
+    5 = Service and Sales Workers
+    6 = Skilled agricultural, forestry and fishery workers
+    7 = Craft and related trades workers
+    8 = Plant and machine operators, and assemblers
+    9 = Elementary occupations
+    EUROCAT Supplement:
+    9991 = Employed (including self-employed), but occupation unknown
+    9995 = Housewife
+    9996 = Student
+    9997 = Unemployed
+    9999 = Not known whether employed or not
+  Format: Character
+  Comments: |-
+    Table reference: EUROCAT                                                                        4 digit code
+    9999 = Not known
+    (do NOT use 9, 99 or 999 for not known)
+- Variable: illbef1
+  Mandatory: 'No'
+  Description: |-
+    ILLNESS BEFORE PREGNANCY 1
+    Record any illness whether chronic or acute with onset before pregnancy and that may affect fetal development (eg. childhood cancer, metabolic and endocrine disease, severe congenital anomaly). Code according to ICD10. The codes mentioned below are only examples.
+    Historic maternal diseases may be coded using the Z-chapter in ICD10, example Z853 “Personal history of breast cancer”.
+    Any additional details may be entered in the general comments section (variable 95). Do not insert the decimal point in the code (e.g. Code E05.0 as E050)
+    Abridged list:
+    Hyperthyroidism E050 - E059
+    Hypothyroidism E000 - E039
+    Diabetes Type 1 E100 - E109
+    Diabetes Type 2 E110 - E119
+    Obesity E660 - E669
+    If maternal BMI ≥ 30 give code for obesity
+    Metabolic disorders E700 – E889
+    Anorexia /eating disorders F500-F509
+    Depression F320 – F339
+    Epilepsy G400 - G409
+    Hypertension I100 - I159
+    Asthma J450 - J459
+    Chronic alcoholism F102
+    Drug addict F112 - F122 - F132 - F142
+  Format: Character
+  Comments: |-
+    Table reference: EUROCAT/EUROmediCAT.                                           ICD 10
+    0 = No illness
+    1 = Yes, but no information available
+    9 = Not known
+- Variable: illbef2
+  Mandatory: 'No'
+  Description: ILLNESS BEFORE PREGNANCY 2 - AS FOR ILLBEF1
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.'
+- Variable: matdiab
+  Mandatory: 'No'
+  Description: |-
+    MATERNAL PREGESTATIONAL DIABETES
+    This variable is specifically for pregestational diabetes. Gestational diabetes is dealt with under the ‘illness during pregnancy’ variable (variable 64)
+    Type 1 diabetes: characterized by hyperglycemia due to an absolute deficiency of the insulin hormone produced by the pancreas
+    An HbA1c of 48mmol/mol is recommended as the cut-off point for diagnosing diabetes.
+    Type 2 diabetes: characterized by hyperglycemia due to a defect in insulin secretion
+    An HbA1c of 48mmol/mol is recommended as the cut-off point for diagnosing diabetes.
+    *Maturity Onset Diabetes in the Young (MODY) displays an autosomal dominant pattern of inheritance
+    An HbA1c of 48mmol/mol is recommended as the cut-off point for diagnosing diabetes.
+    Impaired Glucose Intolerance is a state of higher than normal blood (or plasma) glucose concentration, but less than the diagnostic cut-off for diabetes. Diagnosed before pregnancy. Diagnosed by fasting plasma glucose from 6.1 – 6.9 mmol/L (WHO criteria) http://www.who.int/diabetes/publications/en/
+  Format: Character
+  Vocabulary: |-
+    1= Yes, type 1 diabetes (IDDM)
+    2= Yes, type 2 diabetes (NIDDM)
+    3 = Yes, type MODY* (all types)
+    4 = Yes, type not known
+    5 = No, but impaired glucose intolerance
+    6 = No pregestational diabetes
+    9 = Not known
+  Comments: 'Table reference: EUROCAT'
+- Variable: hba1c
+  Mandatory: 'No'
+  Description: |-
+    GLYCATED HAEMOGLOBIN (HbA1c) VALUE
+    Give the first HbA1c value measured in the first trimester (in mmol/mol units)
+    Normal values for non-diabetic individuals <48mmol/mol
+  Format: Numeric
+  Comments: |-
+    Table reference: EUROCAT/EUROmediCAT.                                            999 = Not known
+    3 digits
+- Variable: illdur1
+  Mandatory: 'No'
+  Description: |-
+    ILLNESS DURING PREGNANCY
+    Record illnesses with chronic or acute onset during the first 20 weeks of pregnancy including asymptomatic maternal infections. For gestational diabetes include at any point in pregnancy
+    For early pregnancy complications use the O chapter in ICD10. For maternal infections, use chapters A and B. (4 digits). Fetal infections and associated malformations should be coded under syndrome and malformation 1-8 codes (variable 30-47). Do not insert the decimal point in the code (eg. Code B34.1 as B341)
+    Gestational Diabetes O244 – O249
+    Haemorrhage early pregnancy O200 – O209
+    Hyperemesis O210 - O219
+    Coxsackie’s B341
+    Cytomegalic Inclusion Diseases B250 - B259
+    Herpes Simplex B000 - B009
+    HIV (AIDS) B200 - B249
+    Influenza J100 - J119
+    Listeria A320 - A329
+    Mumps B260 - B269
+    Rubella B060 - B069
+    Syphillis A530 - A539
+    Toxoplasmosis B580 - B589
+    Varicella (Chicken Pox) B010 - B019
+    Viral Hepatitis B190 - B199
+    Zika virus A928
+    Drug poisoning T360-T509
+  Format: Character
+  Comments: |-
+    Table reference: EUROCAT/EUROmediCAT.                                            ICD 10
+    0 = No
+    1 = Yes, but no information available
+    9 = Not known
+- Variable: illdur2
+  Mandatory: 'No'
+  Description: |-
+    ILLNESS DURING PREGNANCY
+    AS FOR ILLDUR1
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.'
+- Variable: folic_g14
+  Mandatory: 'No'
+  Description: |-
+    FOLIC ACID SUPPLEMENTATION
+    Recommend to your local maternity hospitals or midwives to collect these data.
+    Folic acid supplementations include folic acid only tablets, a multivitamin preparation which contains folic acid or contraceptive pills which contain folic acid.
+    If the folic acid dose is high, please add the code B03BB01 in the drugs variable
+  Format: Character
+  Vocabulary: |-
+    1 = Folic acid taken pre and post-conceptionally
+    2 = Folic acid taken only post-conceptionally
+    3 = Folic acid not taken
+    4 = Folic acid taken, timing unknown
+    9 = Not known if folic acid taken
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.'
+- Variable: firsttri
+  Mandatory: 'No'
+  Description: |-
+    FIRST TRIMESTER MEDICATION
+    “Yes” means that the data sources clearly state that medication was taken in the first trimester. “No” means that the data sources clearly state that no medication was taken in the first trimester.
+    “Undetermined” means that the usual data sources were consulted, but
+     it was not clearly stated that medication was either taken or not taken
+     the information regarding medication use was illegible
+     Type of medication is unknown.
+    “Medication taken but timing unknown” means that the usual data sources stated that medication was taken but the timing of use was not stated for some or all of the medications.
+    Use this option also for cases in which the data sources clearly state that certain medication was taken in the first trimester, but for other medication the timing was unknown. Use SP_DRUGS fields to explain for each recorded medication whether it was taken in the first trimester, or if timing was unknown.
+    “Not Known” means that the usual data sources were not found.
+    Only fill in DRUGS1-5 and EXTRADRUGS if you have coded FIRSTTRI = 1 (Yes medication taken) or = 4 (Medication taken, but timing unknown).
+    If you have coded FIRSTTRI = 2 (no medication taken), FIRSTTRI = 3 (undetermined) or FIRSTTRI = 9 (unknown), there shouldn’t be any ATC codes in any of the DRUGS variables
+     Include any medication that was taken by the mother during the first trimester of pregnancy (from the 1st day of the last menstrual period up to the 12th week of gestation). Medication with long elimination half time and taken before conception should be included (eg. Acitretin, Etretinate, etc.).
+     Use of folic acid (either as folic acid only tablets or a multivitamin preparation which contains folic acid) should be registered in the folic acid variable
+     Do not include usual vitamins and mineral supplementation, but include unusual intakes of vitamins or minerals (eg. Vitamin A mega doses).
+     Only medication taken at physiologic doses should be included.
+    Whilst FIRSTTRI is a new variable in Guide 1.4 (for cases born from 2013 onwards) if any registry has this information for previous cases, EUROCAT is interested in collecting this information from 2005 onwards
+  Format: Character
+  Vocabulary: |-
+    1 = Yes, medication taken in first trimester
+    2 = No medication taken in first trimester
+    3 = Undetermined
+    4 = Medication taken, but timing unknown
+    9 = Not Known
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.'
+- Variable: drugs1
+  Mandatory: 'No'
+  Description: |-
+    DRUGS - 7 DIGITS MAXIMUM
+    Record any drug taken by the mother during the first trimester of pregnancy (from the 1st day of last menstrual period up to the 12th week of gestation). Drugs with long elimination half time and taken before conception should also be recorded (eg. Acitretin, etretinate etc).
+    If it is not known in which trimester the drug was taken, and this information cannot be obtained, code it but write in the space for comments that it is not sure whether the drug was taken in the first trimester.
+    Use ATC-coding and use as many digits as possible (from 3 to 7). Website http://www.whocc.no/atcddd/.
+    Do not record usual vitamins and mineral supplementation, but record unusual intakes of vitamins or minerals (eg. Vitamin A mega doses). The ATC coding system does not have a code for alternative drugs or herbs. If these are used, give the main code Z.
+    ATC example:
+    N03A: antiepileptic drug
+    N03AF01: carbamazepine
+    Details on the dosage and timing should be given in text variable 55. Do not forget to mention in the appropriate section (disease during or before pregnancy) the indication for drug use.
+    Only drugs taken at physiologic doses to be recorded.
+    If a drug overdose or self-poisoning, this MUST be explained in text in Variable 55.
+  Format: Character
+  Comments: |-
+    Table reference: EUROCAT/EUROmediCAT.                                             0 = No drugs used
+    9 = Not known
+- Variable: spdrugs1
+  Mandatory: 'No'
+  Description: SPECIFY DRUG EXPOSURES
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                              Free
+    text'
+- Variable: drugs2
+  Mandatory: 'No'
+  Description: |-
+    AS FOR DRUGS1
+    Please give details in text variable 57 SP_DRUGS2.
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                            As
+    for DRUGS1'
+- Variable: spdrugs2
+  Mandatory: 'No'
+  Description: SPECIFY DRUG EXPOSURES
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                              Free
+    text'
+- Variable: drugs3
+  Mandatory: 'No'
+  Description: |-
+    AS FOR DRUGS1
+    Please give details in text variable 59 SP_DRUGS3.
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                            As
+    for DRUGS1'
+- Variable: spdrugs3
+  Mandatory: 'No'
+  Description: SPECIFY DRUG EXPOSURES
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                              Free
+    text'
+- Variable: drugs4
+  Mandatory: 'No'
+  Description: |-
+    AS FOR DRUGS1
+    Please give details in text variable 61 SP_DRUGS3.
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                            As
+    for DRUGS1'
+- Variable: spdrugs4
+  Mandatory: 'No'
+  Description: SPECIFY DRUG EXPOSURES
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                              Free
+    text'
+- Variable: drugs5
+  Mandatory: 'No'
+  Description: |-
+    AS FOR DRUGS1
+    Please give details in text variable 63 SP_DRUGS3.
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                            As
+    for DRUGS1'
+- Variable: spdrugs5
+  Mandatory: 'No'
+  Description: SPECIFY DRUG EXPOSURES
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                              Free
+    text'
+- Variable: extra-drugs
+  Mandatory: 'No'
+  Description: |-
+    EXTRA DRUGS
+    This field is only to be used if drug fields 1-5 have already been filled.
+    Record any drug taken by the mother during the first trimester of pregnancy (from the 1st day of last menstrual period up to the 12th week of gestation). Drugs with long elimination half time and taken before conception should also be recorded (eg. Acitretin, etretinate etc).
+    If it is not known in which trimester the drug was taken, and this information cannot be obtained, code it but write in the space for comments that it is not sure whether the drug was taken in the first trimester.
+    Use ATC-coding and use as many digits as possible (from 3 to 7). Website http://www.whocc.no/atcddd/.
+    Do not record usual vitamins and mineral supplementation, but record unusual intakes of vitamins or minerals (eg. Vitamin A mega doses). The ATC coding system does not have a code for alternative drugs or herbs. If these are used, give the main code Z.
+    ATC example:
+    N03A: antiepileptic drug
+    N03AF01: carbamazepine
+    Details on the dosage and timing should be given in the drug description. Do not forget to mention in the appropriate section (disease during or before pregnancy) the indication for drug use.
+    Only drugs taken at physiologic doses to be recorded.
+    If a drug overdose or self-poisoning, this MUST be explained in the drug description.
+    If importing data from a local program, enter the ATC code and text description in the following format:
+    <ATC code|text description>
+    If more than one extra drug is to be imported for a single case, then enter the ATC codes in the extra drugs field as follows:
+    <ATC code|text description><ATC code|text description>
+    For example a case with valproate and lamotrigine exposure is entered in the extra_drugs field as:
+    <N03AG01|Valproate><N03AX09|Lamotrigine>
+    (See chapter 2.4 of EDMP User Guide for further guidance)
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                            '
+- Variable: consang
+  Mandatory: 'No'
+  Description: |-
+    CONSANGUINITY
+    Restrictive definition of consanguinity: where the parents of the malformed case have one or more ancestors in common no more remote than a great-grandparent (=second cousins)
+  Format: Character
+  Vocabulary: |-
+    0 = Not related or relationship more distant than second cousin
+    1 = Relationship of second cousin or closer
+    9 = Not known
+  Comments: 'Table reference: EUROCAT                                            '
+- Variable: sp_consang
+  Mandatory: 'No'
+  Description: SPECIFY TEXT INFORMATION ON CONSANGUINITY
+  Format: Character
+  Comments: 'Table reference: EUROCAT                                                                         Free
+    text'
+- Variable: sibanom
+  Mandatory: 'No'
+  Description: |-
+    SIBS WITH ANOMALIES
+    If the sibling (including twin) was notified to EUROCAT fill in variables 68-71 below. Make sure that the local identification numbers given correspond to those in the central database; otherwise give more information in text here.
+    If previous siblings were not notified to EUROCAT specify in text SP_SIBANOM the year of birth and malformations of each sibling.
+    If one sibling has both the same anomaly and a different anomaly, code under “same”. If one sibling has the same anomaly and another sibling has a different anomaly, code under “same and other”
+    Always give details in text variable 66 SP_SIBANOM
+  Format: Character
+  Vocabulary: |-
+    1 = Same
+    2 = Other
+    3 = Same and other
+    4 = No
+    9 = Not known
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                            '
+- Variable: sp_sibanom
+  Mandatory: 'No'
+  Description: SPECIFY TYPE OF ANOMALY OF SIBLINGS
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                          Free
+    text'
+- Variable: prevsib
+  Mandatory: 'No'
+  Description: |-
+    PREVIOUS MALFORMED SIBLINGS NOTIFIED TO EUROCAT
+    If yes, give the local ID number in variables SIB1, SIB2 or SIB3 (variables 69-71).
+    Include malformed co-twins or siblings from the same pregnancy, irrespective of birth order within multiple set.
+    Exclude, conjoined twin.
+  Format: Character
+  Vocabulary: |-
+    1 = Yes
+    2 = No
+    9 = Not known
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.'
+- Variable: sib1
+  Mandatory: 'No'
+  Description: |-
+    SIB LOCAL ID NUMBER NOTIFIED TO THE CENTRAL REGISTRY
+    Enter here also the code numbers of co-twins or siblings from the same pregnancy, irrespective of birth order within multiple sets.
+    Leave blank if no previous siblings notified to EUROCAT.
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                             Local
+    ID'
+- Variable: sib2
+  Mandatory: 'No'
+  Description: AS SIB1
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                             Local
+    ID'
+- Variable: sib3
+  Mandatory: 'No'
+  Description: AS SIB1
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                             Local
+    ID'
+- Variable: moanom
+  Mandatory: 'No'
+  Description: |-
+    MOTHER’S FAMILY WITH ANOMALIES
+    Include mother herself as well as mother’s family. Specify type of anomaly in written text and relation to the infant.
+    If the aetiology is known, “same” means the same aetiology, even if the spectrum of malformations present is slightly different.
+    If the aetiology is unknown or multifactorial, “same” is a matter of judgment by a qualified coder, but full specification of the anomaly should be given, whether other or the same.
+    “Same and other” refers to two different relatives. If a relative has both the same and another anomaly, code “same”.
+    Restrict the family to first, second and third degree relatives (mother, father, siblings, grandparents, aunts, uncles, half-siblings, first cousins).
+    Always give details in text variable 73 SP_MOANOM.
+  Format: Character
+  Vocabulary: |-
+    1 = Same
+    2 = Other
+    3 = Same and other
+    4 = No
+    9 = Not known
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.'
+- Variable: sp_moanom
+  Mandatory: 'No'
+  Description: SPECIFY TYPE OF ANOMALY AND DESCRIBE THE MALFORMATION
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                              Free
+    text'
+- Variable: faanom
+  Mandatory: 'No'
+  Description: |-
+    FATHER’S FAMILY WITH ANOMALIES
+    As MOANOM
+    Please give details in text variable 90 SP_FAANOM
+  Format: Character
+  Vocabulary: |-
+    1 = Same
+    2 = Other
+    3 = Same and other
+    4 = No
+    9 = Not known
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                              As
+    MOANOM'
+- Variable: sp_faanom
+  Mandatory: 'No'
+  Description: SPECIFY TYPE OF ANOMALY AND DESCRIBE THE MALFORMATION
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                              Free
+    text'
+- Variable: matedu
+  Mandatory: 'No'
+  Description: |-
+    MATERNAL EDUCATION
+    Refer to International Standard Classification of Education 1997 for more information and Kunst et al (2001).
+    Assign according to the highest level of education completed (or for full-time students, level in progress).
+    Elementary and lower secondary refers to the period of compulsory education, usually to age 15/16. Upper secondary refers to the last two school or college years (usually to age 18) preparing students for tertiary education or the workforce. Tertiary refers to Bachelor’s degree (English), Diploma (German), License (French) or equivalent, and to higher degrees (eg. doctorates), or to other forms of higher education.
+  Format: Character
+  Vocabulary: |-
+    1 = Elementary and lower secondary
+    2 = Upper secondary
+    3 = Tertiary
+    9 = Not known
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.'
+- Variable: socm
+  Mandatory: 'No'
+  Description: |-
+    SOCIOECONOMIC STATUS OF MOTHER
+    Current or last occupation.
+    Upper non-manual – professionals, administrators and managers eg. doctor, architect, lawyer, banker, manager, teacher, nurse, performer.
+    Lower non-manual – routine non-manual eg. Book-keeper, salesman, receptionist, secretary, computer operator, clerk, waiter.
+    Skilled manual – cook, butcher, carpenter.
+    Unskilled manual – semi and unskilled manual eg. factory worker, driver, agricultural worker, porter.
+    Self employed/artisan – owner of shop, restaurant or hotel, independent artisan.
+    Farmer – eg. self-employed farmer or fisherman.
+    If code 8 (“other/student”), please specify in text in space for general comments (variable 80).
+    For further information see Kunst et al (2001)
+  Format: Character
+  Vocabulary: |-
+    1 = Upper non-manual
+    2 = Lower non-manual
+    3 = Skilled manual
+    4 = Unskilled manual
+    5 – Self employed/artisan
+    6 = Farmer
+    8 = Other/Student
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.'
+- Variable: socf
+  Mandatory: 'No'
+  Description: |-
+    SOCIOECONOMIC STATUS OF FATHER
+    As SOCM.
+  Format: Character
+  Vocabulary: |-
+    0 = Single mother, no father recorded
+    1 = Upper non-manual
+    2 = Lower non-manual
+    3 = Skilled manual
+    4 = Unskilled manual
+    5 – Self employed/artisan
+    6 = Farmer
+    8 = Other/Student
+    9 = Not known
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.'
+- Variable: migrant
+  Mandatory: 'No'
+  Description: "MIGRANT STATUS \n This variable is included to allow assessment of
+    the extent to which services such as prenatal screening are reaching migrants.
+    It does not ask for ethnicity. \n \nIf code 4, give text details in the general
+    comments section (variable 79)."
+  Format: Character
+  Vocabulary: "1 = Mother migrated from outside EU during pregnancy \n 2 = Mother
+    migrated from outside EU during adult life (from age 18) \n 3 = Mother not a migrant
+    as defined in 1 or 2 \n 4 = Other (specify in text) \n 9 = Not known"
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.'
+- Variable: genrem
+  Mandatory: 'No'
+  Description: General additional comments.
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                              Free
+    text'
+- Variable: person_id_child
+  Mandatory: 'No'
+  Description: If the datasource contains other tables beyond EUROCAT, indicate here
+    the identifier of the child that is used in the other tables
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                              If
+    the datasource contains other tables beyond EUROCAT, the proportion of rows that
+    have a valid value in this field is a quality indicator'
+- Variable: person_id_mother
+  Mandatory: 'No'
+  Description: If the datasource contains other tables beyond EUROCAT, indicate here
+    the identifier of the mother that is used in the other tables
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                               If
+    the datasource contains other tables beyond EUROCAT, the proportion of rows that
+    have a valid value in this field is a quality indicator'
+- Variable: survey_id
+  Mandatory: 'No'
+  Description: external key to a SURVEY_ID.
+  Format: Character
+  Comments: 'Table reference: EUROCAT/EUROmediCAT.                                                                              This
+    is only needed in those data sources where the congenital anomaly registry contains
+    additional variables with respect to the EUROCAT standard'
+SURVEY_ID:
+- Variable: person_id
+  Mandatory: 'Yes'
+  Description: Person whose information is collected in this survey
+  Format: Character
+- Variable: survey_id
+  Mandatory: 'Yes'
+  Description: Identifier of the survey
+  Format: Character
+- Variable: survey_date
+  Mandatory: 'Yes'
+  Description: Date when the survey is recorded
+  Format: Character yyyymmdd
+  Comments: In most cases there will be a single data for each survey_id, but a surveillance
+    table may contain longitudinal observations
+- Variable: survey_meaning
+  Mandatory: 'Yes'
+  Description: The meaning of this survey for this person
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+  Comments: This field captures and classifies relevant infomation with respect to
+    the interpretation of this record. It may capture the prompt, or specificities
+    of the content, from the source of this record. A recommended vocabulary is available,
+    but ultimately it is open and new values can be freely added if deemed relevant
+- Variable: survey_origin
+  Mandatory: 'Yes'
+  Description: name of the source table that originated the record
+  Comments: This column contains the name of the source table for each record.
+SURVEY_OBSERVATIONS:
+- Variable: person_id
+  Mandatory: 'Yes'
+  Format: Character
+- Variable: so_date
+  Mandatory: 'Yes'
+  Format: Character yyyymmdd
+- Variable: so_source_table
+  Mandatory: 'Yes'
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+- Variable: so_source_column
+  Mandatory: 'Yes'
+  Format: Character
+  Comments: here we just refer to the name of the column ( and table, in the previous
+    column) where the value is stored in the original source, and we refer to the
+    data dictionary if the datasource to interpret what it means
+- Variable: so_source_value
+  Mandatory: 'Yes'
+  Format: Character
+  Comments: always recorded as string, if it is a date YYYYMMDD
+- Variable: so_unit
+  Mandatory: 'No'
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+  Comments: same as mo_unit, except when there is a code in so_source_value, please
+    include here the coding system
+- Variable: so_meaning
+  Mandatory: 'Yes'
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+  Comments: This field captures and classifies relevant infomation with respect to
+    the interpretation of this record. It may capture the prompt, or specificities
+    of the content, from the source of this record. A recommended vocabulary is available,
+    but ultimately it is open and new values can be freely added if deemed relevant.
+- Variable: so_origin
+  Mandatory: 'Yes'
+  Description: name of the source table that originated the record
+  Format: Character
+  Comments: This column contains the name of the source table for each record.
+- Variable: survey_id
+  Mandatory: 'Yes'
+  Format: Character
+  Comments: external key to a SURVEY_ID table, where information on the survey itself
+    is contained
+PERSONS:
+- Variable: person_id
+  Mandatory: 'Yes'
+  Format: Character
+- Variable: day_of_birth
+  Mandatory: 'No'
+  Format: Character dd
+  Comments: If available, include day of birth
+- Variable: month_of_birth
+  Mandatory: 'No'
+  Format: Character mm
+  Comments: If available, include month of birth
+- Variable: year_of_birth
+  Mandatory: 'Yes'
+  Format: Character yyyy
+- Variable: day_of_death
+  Mandatory: 'No'
+  Format: Character dd
+  Comments: If available, include day of death
+- Variable: month_of_death
+  Mandatory: 'No'
+  Format: Character mm
+  Comments: If available, include month of death
+- Variable: year_of_death
+  Mandatory: 'No'
+  Format: Character yyyy
+- Variable: sex_at_instance_creation
+  Mandatory: 'Yes'
+  Description: Sex of the person in the moment when in the instance of the CDM is
+    created
+  Format: Character
+  Vocabulary: M- Male      F-Female               O- other sex (undetermined) U- Unknown
+- Variable: race
+  Mandatory: 'No'
+  Format: Character
+  Comments: coding system used can be found on the vocabulary table
+- Variable: country_of_birth
+  Mandatory: 'No'
+  Format: Character
+  Comments: coding system used can be found on the vocabulary table
+- Variable: quality
+  Mandatory: 'No'
+  Description: A judgement on the quality of the variables recorded in this table
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+OBSERVATION_PERIODS:
+- Variable: person_id
+  Mandatory: 'Yes'
+  Description: A foreign key to the person in PERSONS table
+  Format: Character
+- Variable: op_start_date
+  Mandatory: 'Yes'
+  Format: Character yyyymmdd
+- Variable: op_end_date
+  Mandatory: 'Yes'
+  Format: Character yyyymmdd
+  Comments: If this is missing, it means that at the time when the instance ws generated
+    the person was still observed
+- Variable: op_meaning
+  Mandatory: 'Yes'
+  Description: represents the semantic of the record
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+  Comments: This field captures and classifies relevant infomation with respect to
+    the interpretation of this record. It may capture the prompt, or specificities
+    of the content, from the source of this record. A recommended vocabulary is available,
+    but ultimately it is open and new values can be freely added if deemed relevant
+- Variable: op_origin
+  Mandatory: 'Yes'
+  Description: name of the source table that originated the record
+  Format: Character
+  Comments: This column contains the name of the source table for each record.
+PERSON_RELATIONSHIPS:
+- Variable: person_id
+  Mandatory: 'Yes'
+  Description: A foreign key to the person in PERSONS table
+  Format: Character
+- Variable: related_id
+  Mandatory: 'Yes'
+  Format: Character
+- Variable: meaning_of_relationship
+  Mandatory: 'Yes'
+  Description: Which type of  relationship related_it has with person_id
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+  Comments: This field captures and classifies relevant infomation with respect to
+    the interpretation of this record. It may capture the prompt, or specificities
+    of the content, from the source of this record. A recommended vocabulary is available,
+    but ultimately it is open and new values can be freely added if deemed relevant
+- Variable: origin_of_relationship
+  Mandatory: 'Yes'
+  Description: name of the source table that originated the record
+  Format: Character
+  Comments: This column contains the name of the source table for each record.
+- Variable: method_of_linkage
+  Mandatory: 'Yes'
+  Description: How the linkage was performed
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+PRODUCTS:
+- Variable: medicinal_product_id
+  Mandatory: 'No'
+  Description: Primary key. The medicinal_product_id should be a unique identifier
+    of a specific medicinal product.
+  Format: Character
+- Variable: medicinal_product_name
+  Mandatory: 'Yes'
+  Description: Any substance or combination of substances, which may be administered
+    for treating or preventing disease, with the view to making a medical diagnosis
+    or to restore, correct or modify physiological functions.
+  Format: Character
+- Variable: unit_of_presentation_type
+  Mandatory: 'No'
+  Description: Qualitative term describing the discrete countable entity in which
+    a pharmaceutical product or manufactured item is presented, in cases where strength
+    or quantity is expressed referring to one instance of this countable entity.
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+  Comments: "EXAMPLE 1: To describe strength: “Contains 100 mg per tablet” (‘tablet’
+    is the unit of presentation).\r\nEXAMPLE 2: To describe quantity: “Contains 100
+    mL per bottle” (‘bottle’ is the unit of presentation).\r\nNOTE: A unit of presentation
+    will often have the same name as a concept in another controlled\r\nvocabulary
+    list, such as a basic dose form or a container, but the two concepts are not equivalent,\r\nand
+    each has its own definition and identifier. https://www.edqm.eu/sites/default/files/standard_terms_introduction_and_guidance_for_use.pdf"
+- Variable: unit_of_presentation_num
+  Mandatory: 'No'
+  Description: Number of unit of presentation type within a medicinal product.
+  Format: Numeric
+- Variable: administration_dose_form
+  Mandatory: 'No'
+  Description: Pharmaceutical dose form for administration to the patient.
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+  Comments: 'List of basic dose form retrieved from: https://www.edqm.eu/sites/default/files/standard_terms_internal_vocabularies_for_pharmaceutical_dose_forms.pdf '
+- Variable: administration_route
+  Mandatory: 'No'
+  Description: Route of administration of the pharmaceutical product.
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+  Comments: Vocabulary from WHO.
+- Variable: medicinal_product_atc_code
+  Mandatory: 'Yes'
+  Description: Unique standardized identification code from the ATC classification
+    system from WHO associated to the medicinal product.
+  Format: Character
+- Variable: subst1_atc_code
+  Mandatory: 'No'
+  Description: Unique standardized identification code from the ATC classification
+    system from WHO associated to the active priciple.
+  Format: Character
+- Variable: subst2_atc_code
+  Mandatory: 'No'
+  Description: Unique standardized identification code from the ATC classification
+    system from WHO associated to the active priciple.
+  Format: Character
+- Variable: subst3_atc_code
+  Mandatory: 'No'
+  Description: Unique standardized identification code from the ATC classification
+    system from WHO associated to the active priciple.
+  Format: Character
+- Variable: subst1_amount_per_form
+  Mandatory: 'No'
+  Description: Quantity of the first active principle contained in the medicinal product
+  Format: Numeric
+- Variable: subst2_amount_per_form
+  Mandatory: 'No'
+  Description: Quantity of the second active principle contained in the medicinal
+    product
+  Format: Numeric
+- Variable: subst3_amount_per_form
+  Mandatory: 'No'
+  Description: Quantity of the third active principle contained in the medicinal product
+  Format: Numeric
+- Variable: subst1_amount_unit
+  Mandatory: 'No'
+  Description: Unit of measure of the quantity of the first active principle contained
+    in the medicinal product
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+- Variable: subst2_amount_unit
+  Mandatory: 'No'
+  Description: Unit of measure of the quantity of the second active principle contained
+    in the medicinal product
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+- Variable: subst3_amount_unit
+  Mandatory: 'No'
+  Description: Unit of measure of the quantity of the third active principle contained
+    in the medicinal product
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+- Variable: subst1_concentration
+  Mandatory: 'No'
+  Description: Strength or quantity contained into a single unit of presentation or
+    dose form.
+  Format: Numeric
+  Comments: "This term is not included in the EC information. Variable retrieved from
+    CDOT group discussions.  *EXAMPLE: “Contains 2 mg/g per vial '2' is the concentration).
+    \n*EXAMPLE: \"ADVILMED 20 mg/1 ml Susp buv en flacon enfant nourrisson Fl/200ml\"
+    ('20' is the concentration)"
+- Variable: subst2_concentration
+  Mandatory: 'No'
+  Description: Strength or quantity contained into a single unit of presentation or
+    dose form.
+  Format: Numeric
+  Comments: "This term is not included in the EC information. Variable retrieved from
+    CDOT group discussions. *EXAMPLE: “Contains 2 mg/g per vial '2' is the concentration).
+    \n*EXAMPLE: \"ADVILMED 20 mg/1 ml Susp buv en flacon enfant nourrisson Fl/200ml\"
+    ('20' is the concentration)\n"
+- Variable: subst3_concentration
+  Mandatory: 'No'
+  Description: Strength or quantity contained into a single unit of presentation or
+    dose form.
+  Format: Numeric
+  Comments: "This term is not included in the EC information. Variable retrieved from
+    CDOT group discussions. *EXAMPLE: “Contains 2 mg/g per vial '2' is the concentration).
+    \n*EXAMPLE: \"ADVILMED 20 mg/1 ml Susp buv en flacon enfant nourrisson Fl/200ml\"
+    ('20' is the concentration)\n"
+- Variable: subst1_concentration_unit
+  Mandatory: 'No'
+  Description: Unit of measure of the strength or quantity by which a particular type
+    of unit of presentation or dose form is described.
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+  Comments: "This term is not included in the EC information.Variable retrieved from
+    CDOT group discussions. *EXAMPLE: “Contains 100 mg/ml per bottle” (‘mg/ml’ is
+    the concentration unit). \n*EXAMPLE: \"ADVILMED 20 mg/1 ml Susp buv en flacon
+    enfant nourrisson Fl/200ml\" ('mg/ml' is the concentration unit)"
+- Variable: subst2_concentration_unit
+  Mandatory: 'No'
+  Description: Unit of measure of the strength or quantity by which a particular type
+    of unit of presentation or dose form is described.
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+  Comments: "This term is not included in the EC information.Variable retrieved from
+    CDOT group discussions. *EXAMPLE: “Contains 100 mg/ml per bottle” (‘mg/ml’ is
+    the concentration unit). \n*EXAMPLE: \"ADVILMED 20 mg/1 ml Susp buv en flacon
+    enfant nourrisson Fl/200ml\" ('mg/ml' is the concentration unit)"
+- Variable: subst3_concentration_unit
+  Mandatory: 'No'
+  Description: Unit of measure of the strength or quantity by which a particular type
+    of unit of presentation or dose form is described.
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+  Comments: "This term is not included in the EC information.Variable retrieved from
+    CDOT group discussions. *EXAMPLE: “Contains 100 mg/ml per bottle” (‘mg/ml’ is
+    the concentration unit). \n*EXAMPLE: \"ADVILMED 20 mg/1 ml Susp buv en flacon
+    enfant nourrisson Fl/200ml\" ('mg/ml' is the concentration unit)"
+- Variable: concentration_total_content
+  Mandatory: 'No'
+  Description: Total content of a single unit such as particular type of pharmaceutical
+    unit of presentation or dose form.
+  Format: Numeric
+  Comments: '*EXAMPLE: "ADVILMED 20 mg/1 ml Susp buv en flacon enfant nourrisson Fl/200ml"
+    (''200'' is the unit applying to the total content)'
+- Variable: concentration_total_content_unit
+  Mandatory: 'No'
+  Description: Unit of measure of the concentration total content.
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+  Comments: '*EXAMPLE: "ADVILMED 20 mg/1 ml Susp buv en flacon enfant nourrisson Fl/200ml"
+    (''ml'' is the unit total content where the concentration applies)'
+- Variable: medicinal_product_manufacturer
+  Mandatory: 'No'
+  Description: Name of the manufactured of the pharmaceutical product.
+  Format: Character
+METADATA:
+- Variable: type_of_metadata
+  Mandatory: 'Yes'
+  Description: There are different types of metadata that are recorded, they may be
+    associated with a table or a tble/column, or other
+  Format: Character
+  Vocabulary: |-
+    presence_of_table
+    presence_of_column
+    list_of_values
+    subpopulations
+    op_meaning_sets
+    op_meanings_list_per_set
+    exclude_meaning
+- Variable: tablename
+  Mandatory: 'Yes'
+  Description: Name of the table whose metadata is recorded
+  Format: Character
+  Vocabulary: names of the tables of the ConcePTION CDM
+- Variable: columnname
+  Mandatory: 'Yes'
+  Description: Name of the column whose metadata is recorded
+  Format: Character
+  Vocabulary: names of the columns of the ConcePTION CDM
+- Variable: other
+  Mandatory: 'Yes'
+  Description: Other characteristic of the metadata
+  Format: Character
+- Variable: values
+  Mandatory: 'Yes'
+  Description: Value of the metadata
+  Format: Character
+CDM_SOURCE:
+- Variable: data_access_provider_code
+  Mandatory: 'Yes'
+  Description: Code of this DAP organization in the ConcePTION coding system
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+  Comments: This coding system was first created during the ConcePTION proposal and
+    is maintained by WP7
+- Variable: data_access_provider_name
+  Mandatory: 'Yes'
+  Description: Name of the DAP organization
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+  Comments: This name is standard for ConcePTION partners, serves as reference for
+    others
+- Variable: data_source_name
+  Mandatory: 'Yes'
+  Description: Name of the DAP datasource whose subset populates this instance of
+    the CDM (if any)
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+  Comments: 'Some datasources are named after their DAP, others have other names,
+    some DAPs access more than one datasources: in all those cases indicate the name
+    if deemed useful'
+- Variable: data_dictionary_link
+  Mandatory: 'No'
+  Description: link to a source where the data dictionary of the original data source
+    can be found
+  Format: Character
+  Comments: When the data source description is in the catalogue, this can be populated
+    with the link
+- Variable: etl_link
+  Mandatory: 'No'
+  Description: link to a source where the current version of the ETL document of this
+    datasurce can be found
+  Format: Character
+  Comments: When the data dictionary is in the catalogue, this can be populated with
+    the link
+- Variable: cdm_vocabulary_version
+  Mandatory: 'Yes'
+  Description: 'version of the ConcePTION CDM this instance conforms to. '
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+- Variable: cdm_version
+  Mandatory: 'Yes'
+  Description: 'version of the ConcePTION CDM  vocabularythis instance conforms to. '
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+- Variable: instance_number
+  Mandatory: 'Yes'
+  Description: Sequential number of the instances of the CDM that the DAP data_access_provider_code
+    has created on date_creation date from the datasource data_source_name it has
+    access to
+  Format: Integer
+  Comments: This is expected to be always 1, but in the rare event when there are
+    repeated extractions in one day (with the same date_creation) this may be >1
+- Variable: date_creation
+  Mandatory: 'Yes'
+  Description: date when this CDM instance is populated
+  Format: Character yyyymmdd
+  Comments: data_access_provider_code, data_source_name, intance_number and date_creation
+    uniquely identify an instance of the CDM
+- Variable: recommended_end_date
+  Mandatory: 'Yes'
+  Description: recommended end date for studies using this instance
+  Format: Character yyyymmdd
+  Comments: Even if data is available to a later date, the DAP's judgement may be
+    that data after this date are not complete and should not be analysed
+INSTANCE:
+- Variable: source_table_name
+  Mandatory: 'Yes'
+  Description: Table of the local dictionary that is used in ETL
+  Format: Character
+  Vocabulary: see corresponding vocabulary table
+  Comments: names of tables of local data dictionary that are included in the ETL
+    procedure
+- Variable: source_column_name
+  Mandatory: 'Yes'
+  Description: Column of the local dictionary that is used in ETL
+  Format: Character
+  Comments: 'names of columns of the table that are included in the ETL '
+- Variable: included_in_instance
+  Mandatory: 'Yes'
+  Description: Specify whether this column of this table was used to populate this
+    specific instance of the CDM
+  Format: Character
+  Vocabulary: yes/no
+- Variable: date_when_data_last_updated
+  Mandatory: Yes, if included_in_instance='yes'
+  Description: Date when the DAP last received this column
+  Format: Character yyyymmdd
+  Comments: It is expected to be the same for all the columns of a same table. If
+    included_in_instance='no' leave empty.
+- Variable: since_when_data_complete
+  Mandatory: Yes, if included_in_instance='yes'
+  Description: Date since when the DAP considers this column to contain complete data
+  Format: Character yyyymmdd
+  Comments: It is expected to be the same for all the columns of a same table.  If
+    included_in_instance='no' leave empty.
+- Variable: up_to_when_data_complete
+  Mandatory: Yes, if included_in_instance='yes'
+  Description: Date up to when the DAP considers this column to contain complete data
+  Format: Character yyyymmdd
+  Comments: It is expected to be the same for all the columns of a same table.  If
+    included_in_instance='no' leave empty.
+- Variable: restriction_in_values
+  Mandatory: Yes, if included_in_instance='yes'
+  Description: Whether the data uploaded in the CDM were selected based on values
+    of this column
+  Format: Character
+  Vocabulary: yes/no
+  Comments: This is mandatory if included_in_instance='yes'.  If included_in_instance='no'
+    leave empty.
+- Variable: list_of_values
+  Mandatory: 'No'
+  Description: List of values of this column that are included in this instance of
+    the CDM
+  Format: Character
+  Comments: if restriction_in_values=no, then this must be empty. list of values in
+    the vocabulary of this column (possibly with wildcards)
+- Variable: restriction_condition
+  Mandatory: 'No'
+  Description: Condition involving this column that restricted the data uploaded to
+    the instance of the CDM
+  Format: Character
+  Comments: if restriction_in_values=no, then this must be empty

@@ -45,7 +45,7 @@ and retrieving all operations from a specified folder.
 \dontrun{
 loader <- DatabaseLoader$new(
   db_path = "path/to/database.db",
-  config_path = "path/to/set_db.json",
+  config_path = "path/to/set_db.yaml",
   cdm_metadata = "path/to/CDM_metadata.rds"
 )
 loader$set_database()

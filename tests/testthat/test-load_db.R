@@ -1,15 +1,15 @@
 testthat::test_that("load_db runs end-to-end with
                     all possible combinations of inputs", {
-  for (cdb in c("views", "tables")) {#nolint
+  for (cdb in c("views", "tables")) { # nolint
     dbname <- tempfile("test.duckdb")
     con <- DBI::dbConnect(duckdb::duckdb(), dbname)
     cat(paste("Testing load_db pipeline with
                 create_db_as = ", cdb, "\n"))
-    testthat::expect_output(#nolint
+    testthat::expect_output( # nolint
       load_db(
         con = con,
         data_model = "ConcePTION",
-        cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
+        cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.yaml",
         format_source_files = "csv",
         folder_path_to_source_files = "dbtest/",
         create_db_as = cdb,

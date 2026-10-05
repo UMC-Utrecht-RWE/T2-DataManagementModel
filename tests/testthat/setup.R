@@ -25,179 +25,152 @@ Sys.setenv(SHARED_METADATA_PATH = shared_metadata_path)
 # ====================
 # 2. TEST CONFIGURATION FILE FOR set_database
 # ====================
-set_database <- '{
-  "data_model": "ConcePTION",
-  "file_format": "csv",
-  "cdm_schema": "dbtest/ConcePTION_CDM_tables_v2.2.json",
-  "load_db_through_parquet": "no",
-  "create_db_as": "tables",
-  "operations": {
-    "DuplicateRemover": false,
-    "MissingRemover": true,
-    "UniqueIdGenerator": false,
-    "ReportGenerator":false
-  },
-  "cdm_tables_names": [
-    "PERSONS",
-    "VACCINES",
-    "OBSERVATION_PERIODS",
-    "MEDICAL_OBSERVATIONS",
-    "MEDICINES",
-    "EVENTS",
-    "SURVEY_OBSERVATIONS",
-    "SURVEY_ID",
-    "VISIT_OCCURRENCE"
-  ],
-  "missing_remover": {
-    "columns": {
-      "PERSONS": ["country_of_birth"],
-      "VACCINES": ["vx_lot_num"]
-    },
-    "to_view": false
-  },
-    "report_generator": {
-      "report_path": ".",
-      "report_name": "count_rows_origin.fst"
-    }
-}'
+set_database <- 'data_model: ConcePTION
+file_format: csv
+cdm_schema: dbtest/ConcePTION_CDM_tables_v2.2.yaml
+load_db_through_parquet: "no"
+create_db_as: tables
+operations:
+  DuplicateRemover: false
+  MissingRemover: true
+  UniqueIdGenerator: false
+  ReportGenerator: false
+cdm_tables_names:
+  - PERSONS
+  - VACCINES
+  - OBSERVATION_PERIODS
+  - MEDICAL_OBSERVATIONS
+  - MEDICINES
+  - EVENTS
+  - SURVEY_OBSERVATIONS
+  - SURVEY_ID
+  - VISIT_OCCURRENCE
+missing_remover:
+  columns:
+    PERSONS: [country_of_birth]
+    VACCINES: [vx_lot_num]
+  to_view: false
+report_generator:
+  report_path: "."
+  report_name: count_rows_origin.fst
+'
 
-config_set_database <- file.path(tempdir(), "set_database.json")
+config_set_database <- file.path(tempdir(), "set_database.yaml")
 writeLines(set_database, config_set_database)
 Sys.setenv(CONFIG_SET_DB = config_set_database)
 
 # ====================
 # 3. TEST CONFIGURATION FILE
 # ====================
-config_json <- '{
-  "data_model": "ConcePTION",
-  "file_format": "csv",
-  "cdm_schema": "dbtest/ConcePTION_CDM_tables_v2.2.json",
-  "operations": {
-    "DuplicateRemover": true,
-    "MissingRemover": true,
-    "UniqueIdGenerator": true,
-    "ReportGenerator": true
-  },
-  "cdm_tables_names": [
-    "PERSONS",
-    "VACCINES",
-    "OBSERVATION_PERIODS",
-    "MEDICAL_OBSERVATIONS",
-    "MEDICINES",
-    "EVENTS",
-    "SURVEY_OBSERVATIONS",
-    "SURVEY_ID",
-    "VISIT_OCCURRENCE"
-  ],
-  "duplicate_remover": {
-    "save_path": "intermediate_data_file",
-    "add_postfix": null,
-    "save_deleted": true,
-    "cdm_tables_columns": {
-      "PERSONS": ["person_id", "country_of_birth"],
-      "VACCINES": ["person_id", "vx_manufacturer"]
-    },
-    "to_view": false
-  },
-  "missing_remover": {
-    "columns": {
-      "PERSONS": ["country_of_birth"],
-      "VACCINES": ["vx_lot_num"]
-    },
-    "to_view": false
-  },
-    "unique_id_generator":{
-      "instance_name": "",
-      "to_view": false
-    },
-    "report_generator": {
-      "report_path": ".",
-      "report_name": "count_rows_origin.fst"
-    }
-}'
+config_yaml <- 'data_model: ConcePTION
+file_format: csv
+cdm_schema: dbtest/ConcePTION_CDM_tables_v2.2.yaml
+operations:
+  DuplicateRemover: true
+  MissingRemover: true
+  UniqueIdGenerator: true
+  ReportGenerator: true
+cdm_tables_names:
+  - PERSONS
+  - VACCINES
+  - OBSERVATION_PERIODS
+  - MEDICAL_OBSERVATIONS
+  - MEDICINES
+  - EVENTS
+  - SURVEY_OBSERVATIONS
+  - SURVEY_ID
+  - VISIT_OCCURRENCE
+duplicate_remover:
+  save_path: intermediate_data_file
+  add_postfix: ~
+  save_deleted: true
+  cdm_tables_columns:
+    PERSONS: [person_id, country_of_birth]
+    VACCINES: [person_id, vx_manufacturer]
+  to_view: false
+missing_remover:
+  columns:
+    PERSONS: [country_of_birth]
+    VACCINES: [vx_lot_num]
+  to_view: false
+unique_id_generator:
+  instance_name: ""
+  to_view: false
+report_generator:
+  report_path: "."
+  report_name: count_rows_origin.fst
+'
 
-config_path <- file.path(tempdir(), "config_path.json")
-writeLines(config_json, config_path)
+config_path <- file.path(tempdir(), "config_path.yaml")
+writeLines(config_yaml, config_path)
 Sys.setenv(CONFIG_PATH = config_path)
 
 
 # ====================
 # 4. TEST CONFIGURATION FILE FOR set_database
 # ====================
-set_absent <- '{
-  "data_model": "ConcePTION",
-  "file_format": "csv",
-  "cdm_schema": "dbtest/ConcePTION_CDM_tables_v2.2.json",
-  "operations": {
-    "AbsentOperation": true
-  },
-  "cdm_tables_names": [
-    "PERSONS",
-    "VACCINES",
-    "OBSERVATION_PERIODS",
-    "MEDICAL_OBSERVATIONS",
-    "MEDICINES",
-    "EVENTS",
-    "SURVEY_OBSERVATIONS",
-    "SURVEY_ID",
-    "VISIT_OCCURRENCE"
-  ]
-}'
+set_absent <- "data_model: ConcePTION
+file_format: csv
+cdm_schema: dbtest/ConcePTION_CDM_tables_v2.2.yaml
+operations:
+  AbsentOperation: true
+cdm_tables_names:
+  - PERSONS
+  - VACCINES
+  - OBSERVATION_PERIODS
+  - MEDICAL_OBSERVATIONS
+  - MEDICINES
+  - EVENTS
+  - SURVEY_OBSERVATIONS
+  - SURVEY_ID
+  - VISIT_OCCURRENCE
+"
 
-config_set_absent <- file.path(tempdir(), "set_absent.json")
+config_set_absent <- file.path(tempdir(), "set_absent.yaml")
 writeLines(set_absent, config_set_absent)
 Sys.setenv(CONFIG_ABSENT = config_set_absent)
 
 # ====================
 # 5. APPLY_CODELIST TEST CONFIGURATION FILE
 # ====================
-config_json <- '{
-  "data_model": "ConcePTION",
-  "file_format": "csv",
-  "operations": {
-    "DuplicateRemover": false,
-    "MissingRemover": false,
-    "UniqueIdGenerator": true,
-    "ReportGenerator": false
-  },
-  "cdm_tables_names": [
-    "PERSONS",
-    "VACCINES",
-    "OBSERVATION_PERIODS",
-    "MEDICAL_OBSERVATIONS",
-    "MEDICINES",
-    "EVENTS",
-    "SURVEY_OBSERVATIONS",
-    "SURVEY_ID",
-    "VISIT_OCCURRENCE"
-  ],
-  "duplicate_remover": {
-    "save_path": "intermediate_data_file",
-    "add_postfix": null,
-    "save_deleted": true,
-    "cdm_tables_columns": {
-      "PERSONS": ["person_id", "country_of_birth"],
-      "VACCINES": ["person_id", "vx_manufacturer"]
-    },
-    "to_view": false
-  },
-  "missing_remover": {
-    "columns": {
-      "PERSONS": ["country_of_birth"],
-      "VACCINES": ["vx_lot_num"]
-    },
-    "to_view": false
-  },
-    "unique_id_generator":{
-      "instance_name": "",
-      "to_view": false
-    },
-    "report_generator": {
-      "report_path": ".",
-      "report_name": "count_rows_origin.fst"
-    }
-}'
+config_yaml <- 'data_model: ConcePTION
+file_format: csv
+operations:
+  DuplicateRemover: false
+  MissingRemover: false
+  UniqueIdGenerator: true
+  ReportGenerator: false
+cdm_tables_names:
+  - PERSONS
+  - VACCINES
+  - OBSERVATION_PERIODS
+  - MEDICAL_OBSERVATIONS
+  - MEDICINES
+  - EVENTS
+  - SURVEY_OBSERVATIONS
+  - SURVEY_ID
+  - VISIT_OCCURRENCE
+duplicate_remover:
+  save_path: intermediate_data_file
+  add_postfix: ~
+  save_deleted: true
+  cdm_tables_columns:
+    PERSONS: [person_id, country_of_birth]
+    VACCINES: [person_id, vx_manufacturer]
+  to_view: false
+missing_remover:
+  columns:
+    PERSONS: [country_of_birth]
+    VACCINES: [vx_lot_num]
+  to_view: false
+unique_id_generator:
+  instance_name: ""
+  to_view: false
+report_generator:
+  report_path: "."
+  report_name: count_rows_origin.fst
+'
 
-config_path <- file.path(tempdir(), "config_path.json")
-writeLines(config_json, config_path)
+config_path <- file.path(tempdir(), "config_path.yaml")
+writeLines(config_yaml, config_path)
 Sys.setenv(APPLYCODELIST_CONFIG_PATH = config_path)

@@ -89,7 +89,7 @@ test_that("apply_codelist executes hierarchical SQL flow", {
   load_db(
     con = con,
     data_model = "ConcePTION",
-    cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
+    cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.yaml",
     format_source_files = "csv",
     folder_path_to_source_files = "dbtest/",
     create_db_as = "tables",
