@@ -1,6 +1,6 @@
 testthat::test_that("CSVReportGenerator creates a valid .csv file", {
   temp_dir <- withr::local_tempdir()
-  setwd(temp_dir)
+  withr::local_dir(temp_dir)
 
   # Create the generator
   csv_report_generator <- CSVReportGenerator$new()
