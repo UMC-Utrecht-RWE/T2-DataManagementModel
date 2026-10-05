@@ -91,7 +91,7 @@ test_that("apply_codelist executes hierarchical SQL flow", {
     data_model = "ConcePTION",
     cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
     format_source_files = "csv",
-    folder_path_to_source_files = "dbtest/",
+    folder_path_to_source_files = local_dbtest_copy(),
     create_db_as = "tables",
     tables_in_cdm = c("PERSONS", "EVENTS", "MEDICINES", "MEDICAL_OBSERVATIONS")
   )
@@ -151,7 +151,7 @@ test_that("apply_codelist executes hierarchical SQL flow", {
   list_tables <- dbListTables(con)
   expect_contains(list_tables, "PERSONS")
 
-  temp_parquet_path <- tempdir()
+  temp_parquet_path <- withr::local_tempdir()
 
   # 3. EXECUTE: We wrap in capture_messages to check the flow
   msgs <- capture_messages(apply_codelist(
