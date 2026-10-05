@@ -23,8 +23,8 @@ h2 {text-align: center; color: #76b82a}
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
-    collapse = TRUE,
-    comment = "#>"
+  collapse = TRUE,
+  comment = "#>"
 )
 ```
 
@@ -105,10 +105,10 @@ db_path <- tempfile(pattern = "cdm", fileext = ".duckdb")
 ```{r}
 # Initialize the DatabaseLoader
 loader <- DatabaseLoader$new(
-    db_path = db_path,
-    data_instance = file.path(getwd(), "data/"),
-    config_path = file.path(getwd(), "data/set_db.yaml"),
-    cdm_metadata = file.path(getwd(), "data/CDM_metadata.rds")
+  db_path = db_path,
+  data_instance = file.path(getwd(), "data/"),
+  config_path = file.path(getwd(), "data/set_db.yaml"),
+  cdm_metadata = file.path(getwd(), "data/CDM_metadata.rds")
 )
 ```
 
@@ -304,18 +304,18 @@ db_connection <- DBI::dbConnect(duckdb::duckdb(), db_path)
 
 # Define which columns to extract as codelists
 column_info_list <- list(
-    list(
-        source_column = c("event_code", "event_record_vocabulary"),
-        alias_name = c("code", "coding_system")
-    )
+  list(
+    source_column = c("event_code", "event_record_vocabulary"),
+    alias_name = c("code", "coding_system")
+  )
 )
 
 # Extract unique codelists
 dap_codes <- get_unique_codelist(
-    db_connection = db_connection,
-    column_info_list = column_info_list,
-    tb_name = "EVENTS",
-    scheme = "ConcePTION"
+  db_connection = db_connection,
+  column_info_list = column_info_list,
+  tb_name = "EVENTS",
+  scheme = "ConcePTION"
 )
 
 dap_codes <- as.data.table(dap_codes[[1]])
@@ -341,12 +341,12 @@ reference_codelist <- data.table::fread("data/code_list.csv")
 
 # Create a standardized codelist with intelligent matching
 dap_specific_codelist <- create_dap_specific_codelist(
-    dap_codes = dap_codes,
-    codelist = reference_codelist,
-    start_with_codingsystems = c(
-        "ICD10CM", "ICD10", "ICD10DA", "ICD9CM", "MTHICD9",
-        "ICPC", "ICPC2P", "ICPC2EENG", "ATC"
-    )
+  dap_codes = dap_codes,
+  codelist = reference_codelist,
+  start_with_codingsystems = c(
+    "ICD10CM", "ICD10", "ICD10DA", "ICD9CM", "MTHICD9",
+    "ICPC", "ICPC2P", "ICPC2EENG", "ATC"
+  )
 )
 
 # View results
@@ -380,9 +380,9 @@ dap_specific_codelist[, keep_value_column_name := "NA"]
 dap_specific_codelist[, keep_date_column_name := "start_date_record"]
 
 long_format_codelist <- wrangling_codelist(
-    codelist = dap_specific_codelist,
-    code_column_name = "event_code",
-    codingsystem_column_name = "event_record_vocabulary"
+  codelist = dap_specific_codelist,
+  code_column_name = "event_code",
+  codingsystem_column_name = "event_record_vocabulary"
 )
 
 # View results
@@ -447,19 +447,19 @@ Create the target `concept_table` that will store harmonized concepts:
 ```{r eval=FALSE}
 # Initialize the concept table as a database table
 initialize_concept_table(
-    con = db_connection,
-    type_table = "table", # or "view" for Parquet-backed table
-    partition = TRUE,
-    add_id_set = TRUE
+  con = db_connection,
+  type_table = "table", # or "view" for Parquet-backed table
+  partition = TRUE,
+  add_id_set = TRUE
 )
 
 # Alternatively, initialize as a view reading from Parquet files
 initialize_concept_table(
-    con = db_connection,
-    type_table = "view",
-    path_parquets = "/path/to/parquet/files",
-    partition = TRUE,
-    add_id_set = TRUE
+  con = db_connection,
+  type_table = "view",
+  path_parquets = "/path/to/parquet/files",
+  partition = TRUE,
+  add_id_set = TRUE
 )
 ```
 
@@ -490,16 +490,16 @@ Apply the harmonized codelist to create standardized concepts:
 long_format_concept_map <- long_format_concept_map[toupper(cdm_name) %in% "CONCEPTION"]
 long_format_concept_map[, id_set := paste0("conceptmap-", id_set)]
 codelist <- rbindlist(list(long_format_codelist, long_format_concept_map),
-    use.names = TRUE, fill = TRUE
+  use.names = TRUE, fill = TRUE
 )
 # Apply the prepared codelist to the database
 apply_codelist(
-    db_con = db_connection,
-    codelist = codelist,
-    materialize = "in_database", # or "in_parquet"
-    path_parquets = NULL, # "/path/to/save" if materialize = "in_parquet"
-    keep_id_set = TRUE,
-    scheme = "ConcePTION"
+  db_con = db_connection,
+  codelist = codelist,
+  materialize = "in_database", # or "in_parquet"
+  path_parquets = NULL, # "/path/to/save" if materialize = "in_parquet"
+  keep_id_set = TRUE,
+  scheme = "ConcePTION"
 )
 ```
 
