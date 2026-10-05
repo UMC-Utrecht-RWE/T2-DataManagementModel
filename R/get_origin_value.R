@@ -63,8 +63,7 @@ get_origin_value <- function(
     stop("[get_origin_value] 'search_scheme' must be a non-empty list")
   }
 
-  if (!all(sapply(search_scheme, is.character)) ||
-        !all(sapply(search_scheme, length) == 1)) {
+  if (!all(sapply(search_scheme, is.character)) || !all(sapply(search_scheme, length) == 1)) {
     stop(paste0(
       "[get_origin_value] Each element in 'search_scheme'",
       " must be a single character string"

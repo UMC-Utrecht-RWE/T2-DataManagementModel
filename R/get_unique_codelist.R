@@ -15,14 +15,14 @@
 #' @export
 get_unique_codelist <- function(db_connection,
                                 scheme = NULL,
-                                column_info_list, 
+                                column_info_list,
                                 tb_name) {
   # 1. Structure Validation
   if (!is.list(column_info_list) || length(column_info_list) == 0) {
     stop("Input 'column_info_list' must be a non-empty list.")
   }
-  if(!is.null(scheme)){
-    tb_name <- paste0(scheme,'.',tb_name)
+  if (!is.null(scheme)) {
+    tb_name <- paste0(scheme, ".", tb_name)
   }
   for (i in seq_along(column_info_list)) {
     item <- column_info_list[[i]]

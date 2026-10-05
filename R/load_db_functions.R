@@ -98,7 +98,7 @@ check_params <- function(
 
   # 8. Invalid parameter combination.
   if (through_parquet == "no" && create_db_as == "views") {
-    cat(paste("WARNING: 
+    cat(paste("WARNING:
               Invalid parameter combination. through_parquet = 'no' means
               that input files will be converted to views after which views
               will directly be loaded into target tables.
@@ -135,9 +135,10 @@ check_params <- function(
 #' @keywords internal
 #'
 create_schemas <- function(
-    schema_individual_views,
-    data_model,
-    con) {
+  schema_individual_views,
+  data_model,
+  con
+) {
   # Create the schemas
   DBI::dbExecute(con, paste0(
     "CREATE SCHEMA IF NOT EXISTS ",
@@ -196,12 +197,13 @@ sanitize_view_name <- function(name) {
 #' @keywords internal
 #'
 read_source_files_as_views <- function(
-    db_connection,
-    data_model,
-    tables_in_cdm,
-    format_source_files,
-    folder_path_to_source_files,
-    schema_individual_views) {
+  db_connection,
+  data_model,
+  tables_in_cdm,
+  format_source_files,
+  folder_path_to_source_files,
+  schema_individual_views
+) {
   # Store list of tables for which we found files
   files_in_input <- c()
 
@@ -248,7 +250,8 @@ read_source_files_as_views <- function(
           schema_individual_views, ".", view_name,
           " AS SELECT * FROM read_csv_auto('", file, "', ALL_VARCHAR = TRUE,
           nullstr = ['NA', ''])"
-      )}
+        )
+      }
       tryCatch(
         {
           DBI::dbExecute(db_connection, query)
@@ -296,9 +299,10 @@ read_source_files_as_views <- function(
 #' @keywords internal
 #'
 generate_ddl <- function(
-    df,
-    data_model,
-    table_name) {
+  df,
+  data_model,
+  table_name
+) {
   # Map column format to DuckDB datatypes
   format_mapping <- c(
     "Numeric" = "DECIMAL(18,3)",
@@ -315,7 +319,7 @@ generate_ddl <- function(
 
   # Construct the CREATE TABLE statement
   ddl <- paste0(
-    "CREATE OR REPLACE TABLE ", data_model , ".",
+    "CREATE OR REPLACE TABLE ", data_model, ".",
     table_name, " (\n  ", column_definitions, "\n);\n\n"
   )
   ddl
@@ -354,7 +358,7 @@ generate_ddl <- function(
 #' create_empty_cdm_tables(
 #'   db_connection = con,
 #'   data_model = "conception",
-#'   schema_individual_views = ""
+#'   schema_individual_views = "",
 #'   json_path_to_cdm_schema = "schema/cdm_schema.json",
 #'   tables_in_cdm = c("person", "observation", "visit_occurrence")
 #' )
@@ -363,10 +367,11 @@ generate_ddl <- function(
 #' @keywords internal
 #'
 create_empty_cdm_tables <- function(
-    db_connection,
-    data_model,
-    json_path_to_cdm_schema,
-    tables_in_cdm) {
+  db_connection,
+  data_model,
+  json_path_to_cdm_schema,
+  tables_in_cdm
+) {
   # Remove any existing full_DDL variable to avoid appending
   if (exists("full_ddl")) {
     rm(full_ddl)
@@ -385,20 +390,22 @@ create_empty_cdm_tables <- function(
 
     # Extract the columns for the current table
     sheet_data <- cdm_schema[[table_name]]
-      sheet_data$Variable <- trimws(
-        sheet_data$Variable,
-        whitespace = "[\\h\\v]"
-      )
-      sheet_data <- sheet_data[
-        !is.na(sheet_data$Variable),
-        c("Variable", "Format"),
-        drop = FALSE
-      ]
+    sheet_data$Variable <- trimws(
+      sheet_data$Variable,
+      whitespace = "[\\h\\v]"
+    )
+    sheet_data <- sheet_data[
+      !is.na(sheet_data$Variable),
+      c("Variable", "Format"),
+      drop = FALSE
+    ]
 
     # Generate the DDL for the current table
-    ddl <- generate_ddl(df = sheet_data, 
-                        data_model = data_model, 
-                        table_name = table_name)
+    ddl <- generate_ddl(
+      df = sheet_data,
+      data_model = data_model,
+      table_name = table_name
+    )
     # Append the DDL to the full DDL script
     full_ddl <- paste0(full_ddl, ddl)
   }
@@ -450,9 +457,10 @@ create_empty_cdm_tables <- function(
 #' @keywords internal
 #'
 get_table_info <- function(
-    con,
-    schema,
-    table) {
+  con,
+  schema,
+  table
+) {
   DBI::dbGetQuery(con, paste0(
     "SELECT column_name, data_type ",
     "FROM information_schema.columns ",
@@ -495,13 +503,13 @@ get_table_info <- function(
 #' @keywords internal
 #'
 populate_cdm_tables_from_views <- function(
-    db_connection,
-    data_model,
-    schema_individual_views,
-    files_in_input,
-    through_parquet,
-    parquet_path
-  ) {
+  db_connection,
+  data_model,
+  schema_individual_views,
+  files_in_input,
+  through_parquet,
+  parquet_path
+) {
   # TODO: Ensure target tables are empty (previously by truncating them)
   # TODO: Set batch_size dynamically depending on the size of the file.
   # i.e. batch_size <- if_else(file_size > 100 MB, 100, 10)
@@ -541,12 +549,16 @@ populate_cdm_tables_from_views <- function(
       tictoc::tic() # Start the timer
 
       # Get columns in source and target tables
-      cols_source <- get_table_info(con = db_connection, 
-                                    schema = schema_individual_views,
-                                    table = source_view)
-      cols_target <- get_table_info(con = db_connection, 
-                                    schema = data_model, 
-                                    table = target)
+      cols_source <- get_table_info(
+        con = db_connection,
+        schema = schema_individual_views,
+        table = source_view
+      )
+      cols_target <- get_table_info(
+        con = db_connection,
+        schema = data_model,
+        table = target
+      )
 
       # Determine common and ignored columns
       common_columns <- intersect(
@@ -697,11 +709,12 @@ populate_cdm_tables_from_views <- function(
 #'
 #' @keywords internal
 combine_parquet_views <- function(
-    db_connection,
-    data_model,
-    files_in_input,
-    create_db_as,
-    parquet_path) {
+  db_connection,
+  data_model,
+  files_in_input,
+  create_db_as,
+  parquet_path
+) {
   # Get the list of targets (tables)
   targets <- unique(names(files_in_input))
 
@@ -729,8 +742,10 @@ combine_parquet_views <- function(
     # For each parquet file, create an individual view
     individual_view_names <- character(length(parquet_files))
     for (i in seq_along(parquet_files)) {
-      file_path <- file.path(parquet_path,
-                             paste0(parquet_files[i], ".parquet"))
+      file_path <- file.path(
+        parquet_path,
+        paste0(parquet_files[i], ".parquet")
+      )
       view_name <- paste0("view_", parquet_files[i])
       individual_view_names[i] <- view_name
 
@@ -851,11 +866,12 @@ combine_parquet_views <- function(
 #'
 #' @keywords internal
 add_missing_tables_as_empty <- function(
-    con,
-    data_model,
-    tables_in_cdm,
-    files_in_input,
-    create_db_as) {
+  con,
+  data_model,
+  tables_in_cdm,
+  files_in_input,
+  create_db_as
+) {
   view_or_table <- ifelse(create_db_as == "views", "VIEW", "TABLE")
 
   # Identify missing tables
@@ -863,7 +879,7 @@ add_missing_tables_as_empty <- function(
   missing_tables <- setdiff(tables_in_cdm, existing_tables)
   if (length(missing_tables) == 0) {
     cat("No missing tables to add.\n")
-    return()
+    return() # nolint
   } else {
     cat(paste0(
       "Adding missing tables as empty ", tolower(view_or_table), "s: ",
@@ -874,9 +890,9 @@ add_missing_tables_as_empty <- function(
       query <- sprintf(
         "CREATE %s %s.view_%s AS SELECT * FROM %s.%s WHERE 1=0;",
         view_or_table,
-        data_model, 
+        data_model,
         table,
-        data_model, 
+        data_model,
         table
       )
       DBI::dbExecute(con, query)

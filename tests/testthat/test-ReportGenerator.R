@@ -47,7 +47,7 @@ testthat::test_that(
   {
     reporter <- T2.DMM:::ReportGenerator$new()
 
-      loader <- create_database_loader(config_path = "CONFIG_SET_DB")
+    loader <- create_database_loader(config_path = "CONFIG_SET_DB")
     loader$config$report_generator$report_name <- ""
     loader$set_database()
     testthat::expect_error(
@@ -62,7 +62,7 @@ testthat::test_that(
   {
     reporter <- T2.DMM:::ReportGenerator$new()
 
-      loader <- create_database_loader(config_path = "CONFIG_SET_DB")
+    loader <- create_database_loader(config_path = "CONFIG_SET_DB")
     loader$config$report_generator$report_name <- "count_rows_origin.txt"
     loader$set_database()
     testthat::expect_error(

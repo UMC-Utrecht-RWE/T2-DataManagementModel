@@ -187,7 +187,8 @@ testthat::test_that("reference non-existent column errors", {
   withr::defer(DBI::dbDisconnect(concept_db_conn), envir = parent.frame())
   withr::defer(cleanup_concept_tables(concept_db_conn), envir = parent.frame())
 
-  codelist <- create_codelist_example()[,
+  codelist <- create_codelist_example()[
+    ,
     `:=`(column_name_1 = "something", expected_value_1 = "anything")
   ]
 
@@ -217,7 +218,8 @@ testthat::test_that("NA or missing keep_value_column_name yields TRUE", {
   withr::defer(DBI::dbDisconnect(concept_db_conn), envir = parent.frame())
   withr::defer(cleanup_concept_tables(concept_db_conn), envir = parent.frame())
 
-  codelist_na_keep_value <- create_codelist_example()[,
+  codelist_na_keep_value <- create_codelist_example()[
+    ,
     keep_value_column_name := NA_character_
   ]
 
@@ -238,7 +240,8 @@ testthat::test_that("NA or missing keep_value_column_name yields TRUE", {
     "DROP TABLE MEDICAL_OBSERVATIONS_EDITED_dapspec"
   )
 
-  codelist_no_keep_value <- create_codelist_example()[,
+  codelist_no_keep_value <- create_codelist_example()[
+    ,
     keep_value_column_name := NULL
   ]
 
@@ -438,7 +441,7 @@ testthat::test_that("prints 'Meaning not identified'", {
 })
 
 testthat::test_that("add_tag works and generates expected output", {
-  #save in parquet TRUE with partitioning and check that tag column is
+  # save in parquet TRUE with partitioning and check that tag column is
   # present when add_tag = TRUE
   local({
     source_db_path <- tempfile(fileext = ".duckdb")
@@ -484,7 +487,7 @@ testthat::test_that("add_tag works and generates expected output", {
     testthat::expect_equal(unique(partitioned_df$tag), 1)
   })
 
-  #save_in_parquet partition TRUE with add_tag FALSE does not generate tag column
+  # save_in_parquet partition TRUE with add_tag FALSE does not generate tag column
   local({
     source_db_path <- tempfile(fileext = ".duckdb")
     source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
@@ -528,7 +531,7 @@ testthat::test_that("add_tag works and generates expected output", {
     testthat::expect_true(!"tag" %in% colnames(partitioned_df))
   })
 
-  #save_in_parquet TRUE with add_tag TRUE does generate tag column
+  # save_in_parquet TRUE with add_tag TRUE does generate tag column
   local({
     source_db_path <- tempfile(fileext = ".duckdb")
     source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)
@@ -572,7 +575,7 @@ testthat::test_that("add_tag works and generates expected output", {
     testthat::expect_equal(unique(parquet_df$tag), 1)
   })
 
-  #save in parquet TRUE with add_tag FALSE does not generate tag column
+  # save in parquet TRUE with add_tag FALSE does not generate tag column
   local({
     source_db_path <- tempfile(fileext = ".duckdb")
     source_db_conn <- DBI::dbConnect(duckdb::duckdb(), source_db_path)

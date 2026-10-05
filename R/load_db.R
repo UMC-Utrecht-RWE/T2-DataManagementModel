@@ -167,12 +167,6 @@ load_db <- function(
     )
   }
 
-  # # Close the connection
-  # cat("\033[1mClosing the database connection...\033[0m\n")
-  # DBI::dbDisconnect(con, shutdown = TRUE)
-  # rm(con)
-  # invisible(gc())
-  # tictoc::toc()
   cat("\033[1mHooray! Script finished running!\033[0m\n")
 
   # Final message: where to find the final tables

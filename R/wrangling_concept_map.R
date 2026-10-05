@@ -72,7 +72,7 @@ wrangling_concept_map <- function(dap_specific_concept_map) {
   }
 
   required_cols <- c(
-    "concept_id", "cdm_name","cdm_table_name",
+    "concept_id", "cdm_name", "cdm_table_name",
     "keep_value_column_name", "keep_date_column_name"
   )
   missing_cols <- setdiff(required_cols, colnames(dap_specific_concept_map))
@@ -85,10 +85,12 @@ wrangling_concept_map <- function(dap_specific_concept_map) {
 
   # Check for at least one column_name_* and expected_value_*
   column_names <- grep(
-    "^column_name_", names(dap_specific_concept_map), value = TRUE
+    "^column_name_", names(dap_specific_concept_map),
+    value = TRUE
   )
   expected_values <- grep(
-    "^expected_value_", names(dap_specific_concept_map), value = TRUE
+    "^expected_value_", names(dap_specific_concept_map),
+    value = TRUE
   )
 
   if (length(column_names) == 0) {
@@ -118,16 +120,17 @@ wrangling_concept_map <- function(dap_specific_concept_map) {
     melted <- melt(
       dap_specific_concept_map,
       id.vars = c(
-        "id_set", "concept_id", "cdm_name","cdm_table_name", "keep_value_column_name",
+        "id_set", "concept_id", "cdm_name", "cdm_table_name", "keep_value_column_name",
         "keep_date_column_name", column_names[index]
-      ),  # Use the current column_name
+      ), # Use the current column_name
       measure.vars = expected_values[index],
       value.name = "code" # Use all expected_value columns
     )
     setnames(melted, column_names[index], "cdm_column")
     melted[, variable := NULL][, order_index := index]
     results_list <- rbindlist(
-      list(results_list, melted), use.names = TRUE, fill = TRUE
+      list(results_list, melted),
+      use.names = TRUE, fill = TRUE
     )
   }
   results_list[!is.na(cdm_column)]

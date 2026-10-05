@@ -15,7 +15,8 @@ test_that("initialize_concept_table handles overwriting and schema", {
 
   expect_message(
     initialize_concept_table(
-      con, type_table = "table", overwrite = TRUE, add_id_set = FALSE
+      con,
+      type_table = "table", overwrite = TRUE, add_id_set = FALSE
     ),
     "Dropping table"
   )
@@ -48,7 +49,8 @@ test_that("initialize_concept_table handles view creation and invalid inputs", {
 
   expect_no_error(
     initialize_concept_table(
-      con, type_table = "view", path_parquets = tmp_dir, partition = FALSE
+      con,
+      type_table = "view", path_parquets = tmp_dir, partition = FALSE
     )
   )
 

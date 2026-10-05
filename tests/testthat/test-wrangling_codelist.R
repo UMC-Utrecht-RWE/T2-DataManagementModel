@@ -1,4 +1,3 @@
-
 testthat::test_that("Basic wrangling transforms one row into two rows", {
   codelist <- data.table(
     concept_id = "WEIGHT_BIRTH",
@@ -9,20 +8,22 @@ testthat::test_that("Basic wrangling transforms one row into two rows", {
     keep_value_column_name = "mo_source_value",
     keep_date_column_name = "mo_date"
   )
-  
+
   result <- wrangling_codelist(codelist)
-  
+
   # Should have 2 rows (one for code, one for coding_system)
   testthat::expect_equal(nrow(result), 2)
-  
+
   # Verify columns
-  expected_cols <- c("id_set", "concept_id", "cdm_name","cdm_table_name", "cdm_column", 
-                     "code", "keep_value_column_name", "keep_date_column_name", "order_index")
+  expected_cols <- c(
+    "id_set", "concept_id", "cdm_name", "cdm_table_name", "cdm_column",
+    "code", "keep_value_column_name", "keep_date_column_name", "order_index"
+  )
   testthat::expect_setequal(names(result), expected_cols)
-  
+
   # Verify id_set is integer
   testthat::expect_true(is.integer(result$id_set))
-  
+
   # Verify content with default column names
   testthat::expect_equal(result$concept_id, c("WEIGHT_BIRTH", "WEIGHT_BIRTH"))
   testthat::expect_equal(result$cdm_column, c("code", "coding_system"))
@@ -40,9 +41,9 @@ testthat::test_that("Auto-generated id_set is integer", {
     keep_value_column_name = c("col1", "col2"),
     keep_date_column_name = c("date1", "date2")
   )
-  
+
   result <- wrangling_codelist(codelist)
-  
+
   # Should have auto-generated id_set values 1, 1, 2, 2 as integers
   testthat::expect_equal(result$id_set, c(1L, 1L, 2L, 2L))
   testthat::expect_true(is.integer(result$id_set))
@@ -59,9 +60,9 @@ testthat::test_that("Custom integer id_set_col parameter", {
     keep_value_column_name = c("col1", "col2"),
     keep_date_column_name = c("date1", "date2")
   )
-  
+
   result <- wrangling_codelist(codelist, id_set_col = "custom_id")
-  
+
   # Should use custom integer id_set values
   testthat::expect_equal(result$id_set, c(10L, 10L, 20L, 20L))
   testthat::expect_true(is.integer(result$id_set))
@@ -78,7 +79,7 @@ testthat::test_that("Rejects non-integer id_set_col", {
     keep_value_column_name = c("col1", "col2"),
     keep_date_column_name = c("date1", "date2")
   )
-  
+
   testthat::expect_error(
     wrangling_codelist(codelist, id_set_col = "custom_id"),
     "must be integer type"
@@ -96,7 +97,7 @@ testthat::test_that("Rejects numeric (double) id_set_col", {
     keep_value_column_name = c("col1", "col2"),
     keep_date_column_name = c("date1", "date2")
   )
-  
+
   testthat::expect_error(
     wrangling_codelist(codelist, id_set_col = "custom_id"),
     "must be integer type"
@@ -113,7 +114,7 @@ testthat::test_that("Rejects non-existent id_set_col", {
     keep_value_column_name = "col1",
     keep_date_column_name = "date1"
   )
-  
+
   testthat::expect_error(
     wrangling_codelist(codelist, id_set_col = "nonexistent_col"),
     "not found in codelist"
@@ -130,12 +131,12 @@ testthat::test_that("Custom code_column_name parameter", {
     keep_value_column_name = "mo_source_value",
     keep_date_column_name = "mo_date"
   )
-  
+
   result <- wrangling_codelist(
     codelist = codelist,
     code_column_name = "actual_code"
   )
-  
+
   testthat::expect_equal(nrow(result), 2)
   # First row should use custom code_column_name
   testthat::expect_equal(result$cdm_column[1], "actual_code")
@@ -153,12 +154,12 @@ testthat::test_that("Custom codingsystem_column_name parameter", {
     keep_value_column_name = "mo_source_value",
     keep_date_column_name = "mo_date"
   )
-  
+
   result <- wrangling_codelist(
     codelist = codelist,
     codingsystem_column_name = "system_type"
   )
-  
+
   testthat::expect_equal(nrow(result), 2)
   # First row should use default code
   testthat::expect_equal(result$cdm_column[1], "code")
@@ -176,13 +177,13 @@ testthat::test_that("Both custom column names", {
     keep_value_column_name = "mo_source_value",
     keep_date_column_name = "mo_date"
   )
-  
+
   result <- wrangling_codelist(
     codelist = codelist,
     code_column_name = "actual_code",
     codingsystem_column_name = "system_type"
   )
-  
+
   testthat::expect_equal(nrow(result), 2)
   testthat::expect_equal(result$cdm_column, c("actual_code", "system_type"))
   testthat::expect_equal(result$code, c("E66", "ICD10"))
@@ -198,9 +199,9 @@ testthat::test_that("Handles NA values in keep_value_column_name", {
     keep_value_column_name = NA_character_,
     keep_date_column_name = "mo_date"
   )
-  
+
   result <- wrangling_codelist(codelist)
-  
+
   testthat::expect_equal(nrow(result), 2)
   testthat::expect_true(all(is.na(result$keep_value_column_name)))
   testthat::expect_equal(result$keep_date_column_name, c("mo_date", "mo_date"))
@@ -216,7 +217,7 @@ testthat::test_that("Rejects NA in keep_date_column_name", {
     keep_value_column_name = "mo_source_value",
     keep_date_column_name = NA_character_
   )
-  
+
   testthat::expect_error(
     wrangling_codelist(codelist),
     "keep_date_column_name cannot contain NA values"
@@ -233,12 +234,14 @@ testthat::test_that("Multiple rows with mixed NA in keep_value but not keep_date
     keep_value_column_name = c("mo_source_value", NA_character_),
     keep_date_column_name = c("mo_date", "mo_date")
   )
-  
+
   result <- wrangling_codelist(codelist)
-  
+
   testthat::expect_equal(nrow(result), 4)
-  testthat::expect_equal(result[id_set == 1L, keep_value_column_name], 
-                         c("mo_source_value", "mo_source_value"))
+  testthat::expect_equal(
+    result[id_set == 1L, keep_value_column_name],
+    c("mo_source_value", "mo_source_value")
+  )
   testthat::expect_true(all(is.na(result[id_set == 2L, keep_value_column_name])))
 })
 
@@ -252,7 +255,7 @@ testthat::test_that("Input validation still works with NA keep columns", {
     coding_system = "ICD10",
     keep_date_column_name = "mo_date"
   )
-  
+
   testthat::expect_error(
     wrangling_codelist(codelist_missing_col),
     "codelist is missing required columns"
@@ -269,12 +272,12 @@ testthat::test_that("Multiple rows transformation", {
     keep_value_column_name = c("col_val_1", NA_character_),
     keep_date_column_name = c("col_date_1", "col_date_2")
   )
-  
+
   result <- wrangling_codelist(codelist)
-  
+
   # Should have 4 rows (2 per input row)
   testthat::expect_equal(nrow(result), 4)
-  
+
   # Verify grouping by id_set
   testthat::expect_equal(length(unique(result$id_set)), 2)
   testthat::expect_equal(result[id_set == 1L, order_index], c(1L, 2L))
@@ -291,13 +294,13 @@ testthat::test_that("Order index generation is correct with custom column names"
     keep_value_column_name = NA_character_,
     keep_date_column_name = "mo_date"
   )
-  
+
   result <- wrangling_codelist(
     codelist = codelist,
     code_column_name = "my_code",
     codingsystem_column_name = "my_system"
   )
-  
+
   testthat::expect_equal(result$order_index, c(1L, 2L))
   testthat::expect_equal(result$cdm_column, c("my_code", "my_system"))
 })
@@ -312,9 +315,9 @@ testthat::test_that("Output sorting is consistent", {
     keep_value_column_name = c("col_b", "col_a"),
     keep_date_column_name = c("date_b", "date_a")
   )
-  
+
   result <- wrangling_codelist(codelist)
-  
+
   # Verify sorting by id_set, concept_id, cdm_column
   testthat::expect_equal(
     result$cdm_column,
@@ -328,7 +331,7 @@ testthat::test_that("Null and missing input validation", {
     wrangling_codelist(NULL),
     "codelist is required and cannot be NULL or missing"
   )
-  
+
   # Empty codelist
   testthat::expect_error(
     wrangling_codelist(data.table()),
@@ -345,7 +348,7 @@ testthat::test_that("Missing required columns validation", {
     keep_value_column_name = "col",
     keep_date_column_name = "date"
   )
-  
+
   testthat::expect_error(
     wrangling_codelist(codelist_missing_code),
     "codelist is missing required columns"
@@ -354,7 +357,7 @@ testthat::test_that("Missing required columns validation", {
 
 testthat::test_that("Data type validation for required columns", {
   codelist_wrong_type <- data.table(
-    concept_id = 123,  # Should be character
+    concept_id = 123, # Should be character
     cdm_name = "CDM",
     cdm_table_name = "TABLE",
     code = "CODE",
@@ -362,7 +365,7 @@ testthat::test_that("Data type validation for required columns", {
     keep_value_column_name = "col",
     keep_date_column_name = "date"
   )
-  
+
   testthat::expect_error(
     wrangling_codelist(codelist_wrong_type),
     "must be character"
@@ -376,10 +379,10 @@ testthat::test_that("Rejects non-character keep_value_column_name column", {
     cdm_table_name = "TABLE",
     code = "CODE",
     coding_system = "ICD10",
-    keep_value_column_name = 123,  # Should be character or NA_character_
+    keep_value_column_name = 123, # Should be character or NA_character_
     keep_date_column_name = "date"
   )
-  
+
   testthat::expect_error(
     wrangling_codelist(codelist_numeric_kvcn),
     "must be character"
@@ -396,7 +399,7 @@ testthat::test_that("Invalid code_column_name parameter type", {
     keep_value_column_name = "col",
     keep_date_column_name = "date"
   )
-  
+
   testthat::expect_error(
     wrangling_codelist(codelist, code_column_name = 123),
     "code_column_name must be a single character value"
@@ -413,7 +416,7 @@ testthat::test_that("Invalid codingsystem_column_name parameter type", {
     keep_value_column_name = "col",
     keep_date_column_name = "date"
   )
-  
+
   testthat::expect_error(
     wrangling_codelist(codelist, codingsystem_column_name = c("system1", "system2")),
     "codingsystem_column_name must be a single character value"
@@ -430,9 +433,9 @@ testthat::test_that("Conversion from data.frame to data.table", {
     keep_value_column_name = "mo_source_value",
     keep_date_column_name = "mo_date"
   )
-  
+
   result <- wrangling_codelist(codelist_df)
-  
+
   testthat::expect_equal(nrow(result), 2)
   testthat::expect_true(is.data.table(result))
 })
@@ -447,13 +450,13 @@ testthat::test_that("Special characters in code values with custom column names"
     keep_value_column_name = "col-with-dash",
     keep_date_column_name = "date_col"
   )
-  
+
   result <- wrangling_codelist(
     codelist = codelist,
     code_column_name = "code-value",
     codingsystem_column_name = "coding-system"
   )
-  
+
   testthat::expect_equal(nrow(result), 2)
   testthat::expect_equal(result$cdm_column, c("code-value", "coding-system"))
   testthat::expect_equal(result$code, c("E66.00-1", "ICD-10-CM"))
@@ -469,12 +472,12 @@ testthat::test_that("Filtering of NA code values with custom names", {
     keep_value_column_name = "col",
     keep_date_column_name = "date"
   )
-  
+
   result <- wrangling_codelist(
     codelist = codelist,
     code_column_name = "actual_code"
   )
-  
+
   # Should only have one row (coding_system), code row should be filtered
   testthat::expect_equal(nrow(result), 1)
   testthat::expect_equal(result$cdm_column, "coding_system")
@@ -490,12 +493,12 @@ testthat::test_that("Filtering of empty string values with custom names", {
     keep_value_column_name = "col",
     keep_date_column_name = "date"
   )
-  
+
   result <- wrangling_codelist(
     codelist = codelist,
     codingsystem_column_name = "system_type"
   )
-  
+
   # Should only have one row (coding_system), code row should be filtered
   testthat::expect_equal(nrow(result), 1)
   testthat::expect_equal(result$cdm_column, "system_type")
@@ -512,26 +515,26 @@ testthat::test_that("Complex scenario with multiple rows and all parameters", {
     keep_value_column_name = c("val_col", NA_character_, "val_col"),
     keep_date_column_name = c("date_col", "date_col", "date_col")
   )
-  
+
   result <- wrangling_codelist(
     codelist = codelist,
     code_column_name = "code_value",
     codingsystem_column_name = "system",
     id_set_col = "custom_identifier"
   )
-  
+
   # First id_set: 2 rows (code + coding_system)
   # Second id_set: 2 rows (code + coding_system)
   # First id_set again: 1 row (only coding_system, code is NA)
   testthat::expect_equal(nrow(result), 5)
-  
+
   # Verify id_set values are integer
   testthat::expect_true(is.integer(result$id_set))
   testthat::expect_equal(result$id_set, c(100L, 100L, 100L, 200L, 200L))
-  
+
   # Verify custom column names
   testthat::expect_true(all(result$cdm_column %in% c("code_value", "system")))
-  
+
   # Verify order_index resets per id_set
   testthat::expect_equal(result[id_set == 100L, order_index], c(1L, 2L, 1L))
   testthat::expect_equal(result[id_set == 200L, order_index], c(1L, 2L))
@@ -547,12 +550,11 @@ testthat::test_that("Factor columns in input are converted to character", {
     keep_value_column_name = as.factor("mo_source_value"),
     keep_date_column_name = as.factor("mo_date")
   )
-  
+
   testthat::expect_error(
     wrangling_codelist(codelist, id_set_col = "custom_id"),
     "concept_id must be character"
   )
-  
 })
 
 testthat::test_that("Result is always data.table", {
@@ -565,9 +567,9 @@ testthat::test_that("Result is always data.table", {
     keep_value_column_name = "mo_source_value",
     keep_date_column_name = "mo_date"
   )
-  
+
   result <- wrangling_codelist(codelist)
-  
+
   testthat::expect_true(is.data.table(result))
 })
 
@@ -581,9 +583,9 @@ testthat::test_that("order_index is always integer", {
     keep_value_column_name = c("col1", "col2"),
     keep_date_column_name = c("date1", "date2")
   )
-  
+
   result <- wrangling_codelist(codelist)
-  
+
   testthat::expect_true(is.integer(result$order_index))
   testthat::expect_equal(result$order_index, c(1L, 2L, 1L, 2L))
 })

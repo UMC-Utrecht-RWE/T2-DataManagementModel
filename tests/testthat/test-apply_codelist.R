@@ -1,4 +1,3 @@
-
 test_that("apply_codelist performs input validation", {
   con <- dbConnect(duckdb::duckdb(), ":memory:")
 
@@ -12,8 +11,10 @@ test_that("apply_codelist performs input validation", {
   )
 
   # Test empty data table
-  expect_error(apply_codelist(con, data.table(),
-                              materialize = "in_database"), "codelist is empty")
+  expect_error(
+    apply_codelist(con, data.table(), materialize = "in_database"),
+    "codelist is empty"
+  )
 
   # Test missing columns
   incomplete_dt <- data.table(concept_id = 1)
@@ -82,28 +83,27 @@ test_that("apply_codelist performs input validation", {
 })
 
 test_that("apply_codelist executes hierarchical SQL flow", {
-
   db_path <- tempfile(fileext = "testDB.duckdb")
   # 1. SETUP: Create temporary DB and mock CDM table
   con <- DBI::dbConnect(duckdb::duckdb(), db_path)
   load_db(
-            con = con,
-            data_model = "ConcePTION",
-            cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
-            format_source_files = "csv",
-            folder_path_to_source_files = "dbtest/",
-            create_db_as = "tables",
-            tables_in_cdm = c("PERSONS","EVENTS", "MEDICINES", "MEDICAL_OBSERVATIONS")
-          )
+    con = con,
+    data_model = "ConcePTION",
+    cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
+    format_source_files = "csv",
+    folder_path_to_source_files = "dbtest/",
+    create_db_as = "tables",
+    tables_in_cdm = c("PERSONS", "EVENTS", "MEDICINES", "MEDICAL_OBSERVATIONS")
+  )
 
   DBI::dbExecute(
     con,
-      "CREATE TABLE TEST_EVENTS AS
+    "CREATE TABLE TEST_EVENTS AS
       SELECT *
         ,UUID() AS unique_id
-        ,'EVENTS' AS ori_table 
+        ,'EVENTS' AS ori_table
       FROM ConcePTION.EVENTS"
-    )
+  )
 
   # 2. SETUP: Create a hierarchical codelist
   # We have one family with a parent (order 1) and a child (order 2)
@@ -115,7 +115,7 @@ test_that("apply_codelist executes hierarchical SQL flow", {
     code = c("U07.1", "ICD10CM"),
     keep_value_column_name = c("event_code", "event_code"),
     keep_date_column_name = c("start_date_record", "start_date_record"),
-    order_index = c(1, 2)             # L suffix ensures Integer type
+    order_index = c(1, 2) # L suffix ensures Integer type
   )
 
   list_tables <- dbListTables(con)
@@ -140,7 +140,7 @@ test_that("apply_codelist executes hierarchical SQL flow", {
   #  via messages)
   expect_true(any(grepl("Order index: 2", msgs)))
 
-  #Verifying that the only identificable case was identified
+  # Verifying that the only identificable case was identified
   concept_table <- dbReadTable(con, "concept_table")
   expect_equal(nrow(concept_table), 1)
   expect_equal(concept_table$person_id, "21110000001")

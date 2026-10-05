@@ -25,10 +25,10 @@ for (sheet_name in sheet_names) {
     next
   }
 
-  sheet_data <- sheet_data %>%
-    mutate(Variable = trimws(Variable, whitespace = "[\\h\\v]")) %>%
-    filter(!is.na(Variable)) %>%
-    filter(!cumany(Variable == "Conventions")) %>%
+  sheet_data <- sheet_data |>
+    mutate(Variable = trimws(Variable, whitespace = "[\\h\\v]")) |>
+    filter(!is.na(Variable)) |>
+    filter(!cumany(Variable == "Conventions")) |>
     select(any_of(c(
       "Variable", "Mandatory", "Description",
       "Format", "Vocabulary", "Comments"

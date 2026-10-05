@@ -3,12 +3,13 @@ testthat::test_that("create_unique_id: columns are added correctly in overwrite 
   withr::defer(DBI::dbDisconnect(db_connection))
 
   # Test basic overwrite (to_view = FALSE is default/explicit)
-  create_unique_id(db_connection, 
-                  scheme = "CDM",
-                  cdm_tables_names = "PERSONS", 
-                  to_view = FALSE)
+  create_unique_id(db_connection,
+    scheme = "CDM",
+    cdm_tables_names = "PERSONS",
+    to_view = FALSE
+  )
 
-  persons_db <- DBI::dbGetQuery(db_connection, "SELECT * 
+  persons_db <- DBI::dbGetQuery(db_connection, "SELECT *
                                                 FROM CDM.PERSONS")
 
   # Check columns exist
@@ -53,8 +54,8 @@ testthat::test_that("create_unique_id: handles extension_name correctly", {
   withr::defer(DBI::dbDisconnect(db_connection))
 
   # Create a table with a suffix manually to simulate multi-instance
-  DBI::dbExecute(db_connection, "CREATE TABLE PERSONS_CDM1 AS 
-                                SELECT * 
+  DBI::dbExecute(db_connection, "CREATE TABLE PERSONS_CDM1 AS
+                                SELECT *
                                 FROM CDM.PERSONS")
 
   create_unique_id(db_connection, cdm_tables_names = "PERSONS", extension_name = "_CDM1")

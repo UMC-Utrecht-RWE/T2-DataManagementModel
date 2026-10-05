@@ -8,7 +8,7 @@ test_that("wrangling_concept_map transforms wide to long correctly", {
     keep_date_column_name = c("DATE1", "DATE2"),
     column_name_1 = c("col_a", "col_b"),
     expected_value_1 = c("code_1", "code_2"),
-    column_name_2 = c("col_c", NA),           # C2 has a missing second mapping
+    column_name_2 = c("col_c", NA), # C2 has a missing second mapping
     expected_value_2 = c("code_3", NA)
   )
 

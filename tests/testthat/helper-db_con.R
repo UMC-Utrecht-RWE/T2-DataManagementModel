@@ -17,9 +17,9 @@ create_loaded_test_db <- function(csv_dir = "dbtest/",
   return(con)
 }
 
-create_loaded_test_db_materialized <- function(csv_dir = file.path(getwd(),"dbtest"),
-                                  tables = c("PERSONS", "VACCINES"),
-                                  metadata = concePTION_metadata_v2) {
+create_loaded_test_db_materialized <- function(csv_dir = file.path(getwd(), "dbtest"),
+                                               tables = c("PERSONS", "VACCINES"),
+                                               metadata = concePTION_metadata_v2) {
   dbname <- tempfile("test.duckdb")
   con <- DBI::dbConnect(duckdb::duckdb(), dbname)
 
@@ -33,7 +33,7 @@ create_loaded_test_db_materialized <- function(csv_dir = file.path(getwd(),"dbte
     create_db_as = "tables"
   )
 
-  return(con)
+  return(con) # nolint
 }
 
 

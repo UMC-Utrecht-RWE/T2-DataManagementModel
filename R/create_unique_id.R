@@ -60,7 +60,7 @@ create_unique_id <- function(
       "[CreateUniqueID] Can not create unique IDs on the following ",
       "CDM table because they do not exist in the database "
     ))
-    message(paste(cdm_tables_names[!cdm_tables_names %in% list_existing_tables],collapse = ", "))
+    message(paste(cdm_tables_names[!cdm_tables_names %in% list_existing_tables], collapse = ", "))
   }
 
   # Loop through each existing CDM table
@@ -98,28 +98,29 @@ create_unique_id <- function(
         )
       )
       table_type <- DBI::dbGetQuery(
-                        db_connection,paste0(
-                        "
+        db_connection, paste0(
+          "
                         SELECT table_type
                         FROM information_schema.tables
-                        WHERE table_schema = '",scheme,"'
-                          AND table_name = '",table,"'
-                        ")
-                      )$table_type
-      
+                        WHERE table_schema = '", scheme, "'
+                          AND table_name = '", table, "'
+                        "
+        )
+      )$table_type
+
       if (identical(table_type, "VIEW")) {
         DBI::dbExecute(db_connection, paste0(
           "DROP VIEW ",
           table_from_name
         ), n = -1)
-        } else if (identical(table_type, "BASE TABLE")) {
+      } else if (identical(table_type, "BASE TABLE")) {
         DBI::dbExecute(db_connection, paste0(
-        "DROP TABLE ",
-        table_from_name
-      ), n = -1)
+          "DROP TABLE ",
+          table_from_name
+        ), n = -1)
       }
-      
-      
+
+
       DBI::dbExecute(
         db_connection,
         paste0(

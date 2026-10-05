@@ -35,7 +35,6 @@ initialize_concept_table <- function(con,
                                      partition = TRUE,
                                      overwrite = FALSE,
                                      add_id_set = TRUE) {
-
   # 1. INPUT VALIDATION -------------------------------------------------------
   if (missing(con) || is.null(con)) {
     stop("Argument 'con' is missing or NULL.")
@@ -43,7 +42,7 @@ initialize_concept_table <- function(con,
 
   # NEW: Check if the table/view already exists
   # dbExistsTable is usually reliable across most DBI drivers
-  if (DBI::dbExistsTable(con, "concept_table") &&  overwrite == FALSE) {
+  if (DBI::dbExistsTable(con, "concept_table") && overwrite == FALSE) {
     message(
       "The 'concept_table' already exists in the database.
       Skipping initialization."
@@ -51,7 +50,7 @@ initialize_concept_table <- function(con,
     return(invisible(NULL))
   }
 
-  if (DBI::dbExistsTable(con, "concept_table") &&  overwrite == TRUE) {
+  if (DBI::dbExistsTable(con, "concept_table") && overwrite == TRUE) {
     message(
       "The 'concept_table' already exists in the database. Dropping table."
     )
@@ -86,7 +85,6 @@ initialize_concept_table <- function(con,
        FROM read_parquet('", path_parquets, file_pattern, "'", hive_setting, ")"
     )
     DBI::dbExecute(con, sql_query)
-
   } else {
     DBI::dbExecute(con, paste0("
       CREATE TABLE concept_table (

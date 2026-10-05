@@ -59,8 +59,11 @@
 #' @examples
 #' \dontrun{
 #' # Assuming `concepts_db_conn_ref` is a valid DBI connection and
-#' `codelist_long` is prepared: apply_codelist(concepts_db_conn_ref,
-#' codelist_long, materialize = "in_database")
+#' # `codelist_long` is prepared:
+#' apply_codelist(concepts_db_conn_ref,
+#'   codelist_long,
+#'   materialize = "in_database"
+#' )
 #' }
 #'
 #' @import data.table DBI glue
@@ -70,7 +73,7 @@ apply_codelist <- function(
   db_con,
   codelist,
   scheme = NULL,
-  materialize = "in_parquet", #in_database
+  materialize = "in_parquet", # in_database
   path_parquets = NULL,
   keep_id_set = TRUE
 ) {
@@ -93,7 +96,6 @@ apply_codelist <- function(
 
   # ---- Parquet path checks ----
   if (materialize == "in_parquet") {
-
     if (is.null(path_parquets)) {
       stop(
         "[apply_codelist] 'path_parquets' needed if materialize = 'in_parquet'."
@@ -141,7 +143,8 @@ apply_codelist <- function(
   )
   missing_cols <- setdiff(required_cols, colnames(codelist))
   if (length(missing_cols) > 0) {
-    stop("[apply_codelist] Missing required columns: ",
+    stop(
+      "[apply_codelist] Missing required columns: ",
       paste(missing_cols, collapse = ", ")
     )
   }
@@ -150,8 +153,7 @@ apply_codelist <- function(
     stop("[apply_codelist] 'order_index' must be numeric/integer.")
   }
 
-  if (!DBI::dbExistsTable(db_con, "concept_table") &&
-        materialize %in% "in_database") {
+  if (!DBI::dbExistsTable(db_con, "concept_table") && materialize %in% "in_database") {
     initialize_concept_table(
       db_con,
       type_table = "table",
@@ -162,7 +164,7 @@ apply_codelist <- function(
   }
 
   if (any(unique(codelist[, cdm_table_name]) %in% DBI::dbListTables(db_con))) {
-    #Checking searching table:
+    # Checking searching table:
     available_tables <- dbListTables(db_con)
     searching_tables <- unique(codelist[, cdm_table_name])
     match_tables <- searching_tables[searching_tables %in% available_tables]
@@ -170,10 +172,10 @@ apply_codelist <- function(
     codelist <- codelist[cdm_table_name %in% match_tables]
   }
 
-  #If keep_value_column_name is empty then asign "TRUE" to the column value
+  # If keep_value_column_name is empty then asign "TRUE" to the column value
   codelist[is.na(keep_value_column_name), keep_value_column_name := "'TRUE'"]
 
-  #If keep_value_column_name is the literal string "NA" quote it so it is
+  # If keep_value_column_name is the literal string "NA" quote it so it is
   # treated as a SQL string literal instead of an unquoted (invalid) column
   codelist[keep_value_column_name == "NA", keep_value_column_name := "'NA'"]
 
@@ -197,7 +199,7 @@ apply_codelist <- function(
     stop("[apply_codelist] database empty")
   }
 
-  #Checkinbg if any required table exists in the database
+  # Checkinbg if any required table exists in the database
   if (!any(unique(codelist[, cdm_table_name]) %in% DBI::dbListTables(db_con))) {
     warning("[apply_codelist] requiered tables do not exist")
   } else {
@@ -242,7 +244,8 @@ apply_codelist <- function(
           if (order_idx == 1) {
             message("   Applying parent scheme(s)")
             DBI::dbWriteTable(
-              db_con, name = "codelist", value = current_codelist,
+              db_con,
+              name = "codelist", value = current_codelist,
               TEMPORARY = TRUE, overwrite = TRUE,
               field.types = stats::setNames(
                 ifelse(
@@ -253,9 +256,10 @@ apply_codelist <- function(
             )
 
             sql_path <- system.file(
-              "sql", "create_concepts_1.sql", package = "T2.DMM"
+              "sql", "create_concepts_1.sql",
+              package = "T2.DMM"
             )
-            create_concepts_1 <- getSQL(sql_path)
+            create_concepts_1 <- get_sql(sql_path)
 
             query_parent <- glue(create_concepts_1)
             DBI::dbExecute(db_con, query_parent)
@@ -286,7 +290,8 @@ apply_codelist <- function(
 
                   current_codelist <- current_child[order_index == child_order]
                   DBI::dbWriteTable(
-                    db_con, name = "codelist", value = current_codelist,
+                    db_con,
+                    name = "codelist", value = current_codelist,
                     TEMPORARY = TRUE, overwrite = TRUE,
                     field.types = stats::setNames(
                       ifelse(
@@ -297,9 +302,10 @@ apply_codelist <- function(
                   )
                   current_order_index <- order_idx
                   sql_path <- system.file(
-                    "sql", "create_concepts_2.sql", package = "T2.DMM"
+                    "sql", "create_concepts_2.sql",
+                    package = "T2.DMM"
                   )
-                  create_concepts_2 <- getSQL(sql_path)
+                  create_concepts_2 <- get_sql(sql_path)
                   query_child <- glue(create_concepts_2)
                   DBI::dbExecute(db_con, query_child)
                 }
@@ -312,9 +318,10 @@ apply_codelist <- function(
       # 3 Finalize Family
       # -------------------
       sql_path <- system.file(
-        "sql", "create_concepts_3.sql", package = "T2.DMM"
+        "sql", "create_concepts_3.sql",
+        package = "T2.DMM"
       )
-      create_concepts_3 <- getSQL(sql_path)
+      create_concepts_3 <- get_sql(sql_path)
 
       if (keep_id_set) {
         id_set_query <- ",
@@ -330,7 +337,6 @@ apply_codelist <- function(
                           ON CONFLICT DO UPDATE SET
                           unique_id = EXCLUDED.unique_id,
                           concept_id = EXCLUDED.concept_id;")
-
       } else if (materialize == "in_parquet") {
         query_final <- glue("COPY (
                               {create_concepts_3}
@@ -342,7 +348,6 @@ apply_codelist <- function(
       }
       DBI::dbExecute(db_con, query_final)
       DBI::dbExecute(db_con, "DROP TABLE identified_ids;")
-
     }
 
     if (

@@ -1,5 +1,4 @@
 testthat::test_that("check_params fails on invalid inputs", {
-
   testthat::expect_error(
     check_params(
       json_path_to_cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
@@ -70,8 +69,10 @@ testthat::test_that("create_schemas creates schemas and get_table_info works cor
     "CREATE OR REPLACE TABLE test_model.TEST_TABLE (id INTEGER, name VARCHAR);"
   ))
 
-  info <- get_table_info(con, schema = "test_model",
-                          table = "TEST_TABLE")
+  info <- get_table_info(con,
+    schema = "test_model",
+    table = "TEST_TABLE"
+  )
 
   testthat::expect_equal(nrow(info), 2)
   testthat::expect_true(all(c("id", "name") %in% info$column_name))

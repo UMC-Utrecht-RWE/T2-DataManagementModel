@@ -11,9 +11,9 @@ testthat::test_that("Checking if the function delete the duplicates cases using 
   cdm_tables_names <- c("PERSONS", "VACCINES")
   scheme <- setNames(rep("*", length(cdm_tables_names)), cdm_tables_names)
   delete_duplicates_origin(
-    db_connection = db_con, 
-    scheme, 
-    save_deleted = FALSE, 
+    db_connection = db_con,
+    scheme,
+    save_deleted = FALSE,
     schema_name = "CDM"
   )
 
@@ -33,7 +33,7 @@ testthat::test_that("Checking if the function delete the duplicates cases", {
     cdm_tables_names
   )
   delete_duplicates_origin(
-    db_connection = db_con, 
+    db_connection = db_con,
     scheme,
     schema_name = "CDM",
     save_deleted = FALSE
@@ -54,7 +54,7 @@ testthat::test_that("Checking if all columns exist in the scheme", {
   scheme <- setNames(rep("test1", length(cdm_tables_names)), cdm_tables_names)
   testthat::expect_message(
     delete_duplicates_origin(
-      db_connection = db_con, 
+      db_connection = db_con,
       scheme,
       schema_name = "CDM",
       save_deleted = FALSE
@@ -209,7 +209,7 @@ testthat::test_that("VIEW: Checking if all columns exist in the scheme", {
   scheme <- setNames(rep("test1", length(cdm_tables_names)), cdm_tables_names)
   testthat::expect_message(
     delete_duplicates_origin(
-      db_connection = db_con, 
+      db_connection = db_con,
       schema_name = "CDM",
       scheme, save_deleted = FALSE, to_view = TRUE
     ),

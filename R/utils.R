@@ -4,7 +4,7 @@
 #' @param filepath The path to the SQL file
 #' @return A single string containing the SQL script
 #' @export
-getSQL <- function(filepath) { #nolint
+get_sql <- function(filepath) { # nolint
   con <- file(filepath, "r")
   sql_string <- ""
 
@@ -22,7 +22,6 @@ getSQL <- function(filepath) { #nolint
     }
 
     sql_string <- paste(sql_string, line)
-
   }
 
   close(con)
