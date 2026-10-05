@@ -1,7 +1,7 @@
 testthat::test_that("check_params fails on invalid inputs", {
   testthat::expect_error(
     check_params(
-      json_path_to_cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
+      yaml_path_to_cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.yaml",
       format_source_files = "csv",
       folder_path_to_source_files = "nonexistent_folder/",
       through_parquet = "no",
@@ -14,7 +14,7 @@ testthat::test_that("check_params fails on invalid inputs", {
   dir.create(empty_dir)
   testthat::expect_error(
     check_params(
-      json_path_to_cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
+      yaml_path_to_cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.yaml",
       format_source_files = "csv",
       folder_path_to_source_files = empty_dir,
       through_parquet = "no",
@@ -26,7 +26,7 @@ testthat::test_that("check_params fails on invalid inputs", {
 
   testthat::expect_error(
     check_params(
-      json_path_to_cdm_schema = "nonexistent_schema.json",
+      yaml_path_to_cdm_schema = "nonexistent_schema.yaml",
       format_source_files = "csv",
       folder_path_to_source_files = "dbtest/",
       through_parquet = "no",
@@ -39,7 +39,7 @@ testthat::test_that("check_params fails on invalid inputs", {
 testthat::test_that("check_params passes with all valid parameters", {
   expect_output(
     check_params(
-      json_path_to_cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
+      yaml_path_to_cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.yaml",
       format_source_files = "csv",
       folder_path_to_source_files = "dbtest/",
       through_parquet = "no",
@@ -163,7 +163,7 @@ testthat::test_that("generate_ddl creates SQL with correct column formats", {
   testthat::expect_true(grepl('"unknown_col" VARCHAR', ddl))
 })
 
-testthat::test_that("create_empty_cdm_tables creates empty tables from JSON schema", {
+testthat::test_that("create_empty_cdm_tables creates empty tables from YAML schema", {
   dbname <- tempfile("ConcePTION_4.duckdb")
   con <- DBI::dbConnect(duckdb::duckdb(), dbname)
   create_schemas(
@@ -174,7 +174,7 @@ testthat::test_that("create_empty_cdm_tables creates empty tables from JSON sche
   create_empty_cdm_tables(
     db_connection = con,
     data_model = "conception",
-    json_path_to_cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
+    yaml_path_to_cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.yaml",
     tables_in_cdm = c("PERSONS", "VACCINES", "MEDICINES", "EVENTS")
   )
 
@@ -208,7 +208,7 @@ testthat::test_that("combine_parquet_views combines views from multiple parquet 
   create_empty_cdm_tables(
     db_connection = con,
     data_model = "conception",
-    json_path_to_cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
+    yaml_path_to_cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.yaml",
     tables_in_cdm = c("PERSONS", "VACCINES", "MEDICINES", "EVENTS")
   )
   ppath <- withr::local_tempdir()
@@ -268,7 +268,7 @@ testthat::test_that("populate_cdm_tables_from_views works and skips columns not 
   create_empty_cdm_tables(
     db_connection = con,
     data_model = "conception",
-    json_path_to_cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
+    yaml_path_to_cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.yaml",
     tables_in_cdm = c("PERSONS", "VACCINES", "MEDICINES", "EVENTS")
   )
   ppath <- withr::local_tempdir()

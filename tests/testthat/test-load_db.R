@@ -9,7 +9,7 @@ testthat::test_that("load_db runs end-to-end with all possible combinations of i
       load_db(
         con = con,
         data_model = "ConcePTION",
-        cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
+        cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.yaml",
         format_source_files = "csv",
         folder_path_to_source_files = source_dir,
         create_db_as = cdb,

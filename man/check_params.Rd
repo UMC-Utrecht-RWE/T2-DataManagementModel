@@ -5,7 +5,7 @@
 \title{Validate Input Parameters for CDM Data Processing}
 \usage{
 check_params(
-  json_path_to_cdm_schema,
+  yaml_path_to_cdm_schema,
   format_source_files,
   folder_path_to_source_files,
   through_parquet,
@@ -13,8 +13,8 @@ check_params(
 )
 }
 \arguments{
-\item{json_path_to_cdm_schema}{Character.
-Full path to the JSON file containing the CDM schema definition.}
+\item{yaml_path_to_cdm_schema}{Character.
+Full path to the YAML file containing the CDM schema definition.}
 
 \item{format_source_files}{Character.
 Format of the source files. Must be either `"csv"` or `"parquet"`.}
@@ -42,7 +42,7 @@ required for processing source data into DuckDB.
 \examples{
 \dontrun{
 check_params(
-  json_path_to_cdm_schema = "schema/cdm_schema.json",
+  yaml_path_to_cdm_schema = "schema/cdm_schema.yaml",
   format_source_files = "csv",
   folder_path_to_source_files = "data/source/",
   through_parquet = "no",

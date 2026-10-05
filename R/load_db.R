@@ -13,7 +13,7 @@
 #' @param data_model Character.
 #'  The data model to use (e.g., `"conception"`).
 #' @param cdm_schema Character.
-#'  Path to the JSON file containing the CDM schema.
+#'  Path to the YAML file containing the CDM schema.
 #' @param format_source_files Character.
 #'  Format of the source files, either `"csv"` or `"parquet"`.
 #' @param folder_path_to_source_files Character.
@@ -44,7 +44,7 @@
 #' load_db(
 #'   con = NULL,
 #'   data_model = "conception",
-#'   cdm_schema = "./ConcePTION_CDM_tables_v2.2.json",
+#'   cdm_schema = "./ConcePTION_CDM_tables_v2.2.yaml",
 #'   format_source_files = "csv",
 #'   folder_path_to_source_files = "data/source/",
 #'   create_db_as = "tables",
@@ -62,7 +62,7 @@ load_db <- function(
   create_db_as = "views",
   tables_in_cdm = c()
 ) {
-  if (is.null(create_db_as) || length(create_db_as) == 0 || !(create_db_as %in% c("views", "tables"))) {#nolint
+  if (is.null(create_db_as) || length(create_db_as) == 0 || !(create_db_as %in% c("views", "tables"))) { # nolint
     create_db_as <- "views"
   }
   # # Create file paths to target db and parquet files
@@ -93,7 +93,7 @@ load_db <- function(
   # TODO: add check for tables_in_cdm?
   cat("\033[1mStep 1: Checking if input parameters are correct...\033[0m\n")
   check_params(
-    json_path_to_cdm_schema = cdm_schema,
+    yaml_path_to_cdm_schema = cdm_schema,
     format_source_files = format_source_files,
     folder_path_to_source_files = folder_path_to_source_files,
     through_parquet = through_parquet,
@@ -125,7 +125,7 @@ load_db <- function(
   create_empty_cdm_tables(
     db_connection = con,
     data_model = data_model,
-    json_path_to_cdm_schema = cdm_schema,
+    yaml_path_to_cdm_schema = cdm_schema,
     tables_in_cdm = tables_in_cdm
   )
 

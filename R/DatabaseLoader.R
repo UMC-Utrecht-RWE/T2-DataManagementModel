@@ -47,14 +47,14 @@
 #' \dontrun{
 #' loader <- DatabaseLoader$new(
 #'   db_path = "path/to/database.db",
-#'   config_path = "path/to/set_db.json",
+#'   config_path = "path/to/set_db.yaml",
 #'   cdm_metadata = "path/to/CDM_metadata.rds"
 #' )
 #' loader$set_database()
 #' loader$run_db_ops()
 #' }
 #'
-#' @importFrom jsonlite fromJSON
+#' @importFrom yaml read_yaml
 #' @importFrom data.table as.data.table
 #' @importFrom duckdb dbConnect dbDisconnect
 #' @importFrom DBI dbDisconnect
@@ -90,7 +90,7 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
         db_path
       }
       self$data_instance <- data_instance
-      self$config <- jsonlite::fromJSON(config_path)
+      self$config <- yaml::read_yaml(config_path)
       # Load cdm_metadata
       if (is.character(cdm_metadata) && grepl("\\.rds$", cdm_metadata)) {
         self$metadata <- ensure_data_table(base::readRDS(cdm_metadata))
@@ -145,7 +145,7 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
       ops <- list() # Initialize an empty list to store operation objects
 
       for (operation in ordered_operations) {
-        # Check if the operation is enabled in the JSON config
+        # Check if the operation is enabled in the YAML config
         is_enabled <- isTRUE(self$config$operations[[operation]])
         if (!is_enabled) {
           next # Skip this operation if it's not enabled

@@ -22,7 +22,7 @@ A DuckDB connection object.}
 The data model to use (e.g., `"conception"`).}
 
 \item{cdm_schema}{Character.
-Path to the JSON file containing the CDM schema.}
+Path to the YAML file containing the CDM schema.}
 
 \item{format_source_files}{Character.
 Format of the source files, either `"csv"` or `"parquet"`.}
@@ -64,7 +64,7 @@ The function performs the following steps:
 load_db(
   con = NULL,
   data_model = "conception",
-  cdm_schema = "./ConcePTION_CDM_tables_v2.2.json",
+  cdm_schema = "./ConcePTION_CDM_tables_v2.2.yaml",
   format_source_files = "csv",
   folder_path_to_source_files = "data/source/",
   create_db_as = "tables",

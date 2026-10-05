@@ -17,7 +17,7 @@ create_loaded_test_db <- function(csv_dir = local_dbtest_copy(env),
   # suppressMessages(
   load_db(
     con = con,
-    cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
+    cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.yaml",
     format_source_files = "csv",
     folder_path_to_source_files = csv_dir,
     tables_in_cdm = tables,
@@ -37,7 +37,7 @@ create_test_db_materialized <- function(csv_dir = local_dbtest_copy(env),
   # suppressMessages(
   load_db(
     con = con,
-    cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.json",
+    cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.yaml",
     format_source_files = "csv",
     folder_path_to_source_files = csv_dir,
     tables_in_cdm = tables,

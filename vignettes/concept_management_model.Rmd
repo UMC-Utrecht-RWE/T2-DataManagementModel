@@ -23,8 +23,8 @@ h2 {text-align: center; color: #76b82a}
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
+    collapse = TRUE,
+    comment = "#>"
 )
 ```
 
@@ -105,16 +105,16 @@ db_path <- tempfile(pattern = "cdm", fileext = ".duckdb")
 ```{r}
 # Initialize the DatabaseLoader
 loader <- DatabaseLoader$new(
-  db_path = db_path,
-  data_instance = file.path(getwd(), "data/"),
-  config_path = file.path(getwd(), "data/set_db.json"),
-  cdm_metadata = file.path(getwd(), "data/CDM_metadata.rds")
+    db_path = db_path,
+    data_instance = file.path(getwd(), "data/"),
+    config_path = file.path(getwd(), "data/set_db.yaml"),
+    cdm_metadata = file.path(getwd(), "data/CDM_metadata.rds")
 )
 ```
 
 **Parameters:** - `db_path`: Path to the DuckDB database file (created
 if doesn't exist) - `data_instance`: Path to the directory containing
-CSV or Parquet files - `config_path`: Path to JSON configuration file
+CSV or Parquet files - `config_path`: Path to YAML configuration file
 specifying operations and settings - `cdm_metadata`: Path to RDS file
 containing CDM variable metadata - for this case, describing the ConcePTION CDM.
 
@@ -138,63 +138,53 @@ names specified in configuration
 The configuration should include the CDM schema path, source format,
 loading modes, table names, and operation settings:
 
-``` json
-{
-    "data_model": "ConcePTION",
-    "file_format" : "csv",
-    "cdm_schema": "../inst/extdata/ConcePTION_CDM_tables_v2.2.json",
-    "create_db_as": "tables",
-    "operations_path": "R",
-    "operations": {
-      "DuplicateRemover": true,
-      "MissingRemover": true,
-      "UniqueIdGenerator": true,
-      "ReportGenerator": true
-    },
-    "duplicate_remover": {
-      "save_path": "intermediate_data_file",
-      "add_postfix": null,
-      "save_deleted": true,
-      "cdm_tables_columns": {
-        "PERSONS": ["person_id", "country_of_birth"],
-        "VACCINES": ["person_id", "vx_manufacturer"]
-      },
-      "to_view": false
-    },
-    "missing_remover": {
-      "columns": {
-        "PERSONS": ["person_id"],
-        "VACCINES": ["person_id"],
-        "OBSERVATION_PERIODS": ["person_id"],
-        "MEDICAL_OBSERVATIONS": ["person_id"],
-        "MEDICINES": ["person_id"],
-        "EVENTS": ["person_id"],
-        "SURVEY_OBSERVATIONS": ["person_id"],
-        "SURVEY_ID": ["person_id"],
-        "VISIT_OCCURRENCE": ["person_id"]
-      },
-      "to_view": false
-    },
-    "cdm_tables_names": [
-      "PERSONS",
-      "VACCINES",
-      "OBSERVATION_PERIODS",
-      "MEDICAL_OBSERVATIONS",
-      "MEDICINES",
-      "EVENTS",
-      "SURVEY_OBSERVATIONS",
-      "SURVEY_ID",
-      "VISIT_OCCURRENCE"
-    ],
-    "unique_id_generator":{
-      "instance_name": "",
-      "to_view": false
-    },
-    "report_generator": {
-      "report_path": ".",
-      "report_name": "count_rows_origin.fst"
-    }
-  }
+``` yaml
+data_model: ConcePTION
+file_format: csv
+cdm_schema: ../inst/extdata/ConcePTION_CDM_tables_v2.2.yaml
+create_db_as: tables
+operations_path: R
+operations:
+  DuplicateRemover: true
+  MissingRemover: true
+  UniqueIdGenerator: true
+  ReportGenerator: true
+duplicate_remover:
+  save_path: intermediate_data_file
+  add_postfix: ~
+  save_deleted: true
+  cdm_tables_columns:
+    PERSONS: [person_id, country_of_birth]
+    VACCINES: [person_id, vx_manufacturer]
+  to_view: false
+missing_remover:
+  columns:
+    PERSONS: [person_id]
+    VACCINES: [person_id]
+    OBSERVATION_PERIODS: [person_id]
+    MEDICAL_OBSERVATIONS: [person_id]
+    MEDICINES: [person_id]
+    EVENTS: [person_id]
+    SURVEY_OBSERVATIONS: [person_id]
+    SURVEY_ID: [person_id]
+    VISIT_OCCURRENCE: [person_id]
+  to_view: false
+cdm_tables_names:
+  - PERSONS
+  - VACCINES
+  - OBSERVATION_PERIODS
+  - MEDICAL_OBSERVATIONS
+  - MEDICINES
+  - EVENTS
+  - SURVEY_OBSERVATIONS
+  - SURVEY_ID
+  - VISIT_OCCURRENCE
+unique_id_generator:
+  instance_name: ""
+  to_view: false
+report_generator:
+  report_path: '.'
+  report_name: count_rows_origin.fst
 ```
 
 ## Step 1.3: Execute Transformations via `run_db_ops()`
@@ -223,17 +213,13 @@ removed from each table
 
 **Configuration:**
 
-``` json
-{
-  "missing_remover": {
-    "columns": {
-      "EVENTS": ["person_id", "event_code"],
-      "VACCINES": ["person_id"],
-      "MEDICINES": ["person_id"]
-    },
-    "to_view": false
-  }
-}
+``` yaml
+missing_remover:
+  columns:
+    EVENTS: [person_id, event_code]
+    VACCINES: [person_id]
+    MEDICINES: [person_id]
+  to_view: false
 ```
 
 #### DuplicateRemover: Remove Duplicate Records
@@ -248,18 +234,14 @@ for auditing - Improves data quality and reduces analysis bias
 
 **Configuration:**
 
-``` json
-{
-  "duplicate_remover": {
-    "scheme": {
-      "EVENTS": "*",
-      "VACCINES": ["person_id", "vx_record_date"],
-      "MEDICINES": ["person_id", "medicine_code"]
-    },
-    "save_deleted": false,
-    "save_path": "./deleted_records"
-  }
-}
+``` yaml
+duplicate_remover:
+  scheme:
+    EVENTS: "*"
+    VACCINES: [person_id, vx_record_date]
+    MEDICINES: [person_id, medicine_code]
+  save_deleted: false
+  save_path: ./deleted_records
 ```
 
 #### UniqueIdGenerator: Add Unique Identifiers
@@ -274,12 +256,9 @@ linking back to original records
 
 **Configuration:**
 
-``` json
-{
-  "unique_id_generator": {
-    "instance_name": "_T2DMM"
-  }
-}
+``` yaml
+unique_id_generator:
+  instance_name: _T2DMM
 ```
 
 #### ReportGenerator: Count Records per Table
@@ -289,13 +268,10 @@ transformations are complete.
 
 **Configuration:**
 
-``` json
-{
-  "report_generator": {
-    "report_name": "count_rows_origin.csv",
-    "report_path": "./"
-  }
-}
+``` yaml
+report_generator:
+  report_name: count_rows_origin.csv
+  report_path: ./
 ```
 
 **Output Example:**
@@ -328,18 +304,18 @@ db_connection <- DBI::dbConnect(duckdb::duckdb(), db_path)
 
 # Define which columns to extract as codelists
 column_info_list <- list(
-  list(
-    source_column = c("event_code", "event_record_vocabulary"),
-    alias_name = c("code", "coding_system")
-  )
+    list(
+        source_column = c("event_code", "event_record_vocabulary"),
+        alias_name = c("code", "coding_system")
+    )
 )
 
 # Extract unique codelists
 dap_codes <- get_unique_codelist(
-  db_connection = db_connection,
-  column_info_list = column_info_list,
-  tb_name = "EVENTS",
-  scheme = "ConcePTION"
+    db_connection = db_connection,
+    column_info_list = column_info_list,
+    tb_name = "EVENTS",
+    scheme = "ConcePTION"
 )
 
 dap_codes <- as.data.table(dap_codes[[1]])
@@ -365,12 +341,12 @@ reference_codelist <- data.table::fread("data/code_list.csv")
 
 # Create a standardized codelist with intelligent matching
 dap_specific_codelist <- create_dap_specific_codelist(
-  dap_codes = dap_codes,
-  codelist = reference_codelist,
-  start_with_codingsystems = c(
-    "ICD10CM", "ICD10", "ICD10DA", "ICD9CM", "MTHICD9",
-    "ICPC", "ICPC2P", "ICPC2EENG", "ATC"
-  )
+    dap_codes = dap_codes,
+    codelist = reference_codelist,
+    start_with_codingsystems = c(
+        "ICD10CM", "ICD10", "ICD10DA", "ICD9CM", "MTHICD9",
+        "ICPC", "ICPC2P", "ICPC2EENG", "ATC"
+    )
 )
 
 # View results
@@ -404,9 +380,9 @@ dap_specific_codelist[, keep_value_column_name := "NA"]
 dap_specific_codelist[, keep_date_column_name := "start_date_record"]
 
 long_format_codelist <- wrangling_codelist(
-  codelist = dap_specific_codelist,
-  code_column_name = "event_code",
-  codingsystem_column_name = "event_record_vocabulary"
+    codelist = dap_specific_codelist,
+    code_column_name = "event_code",
+    codingsystem_column_name = "event_record_vocabulary"
 )
 
 # View results
@@ -471,19 +447,19 @@ Create the target `concept_table` that will store harmonized concepts:
 ```{r eval=FALSE}
 # Initialize the concept table as a database table
 initialize_concept_table(
-  con = db_connection,
-  type_table = "table", # or "view" for Parquet-backed table
-  partition = TRUE,
-  add_id_set = TRUE
+    con = db_connection,
+    type_table = "table", # or "view" for Parquet-backed table
+    partition = TRUE,
+    add_id_set = TRUE
 )
 
 # Alternatively, initialize as a view reading from Parquet files
 initialize_concept_table(
-  con = db_connection,
-  type_table = "view",
-  path_parquets = "/path/to/parquet/files",
-  partition = TRUE,
-  add_id_set = TRUE
+    con = db_connection,
+    type_table = "view",
+    path_parquets = "/path/to/parquet/files",
+    partition = TRUE,
+    add_id_set = TRUE
 )
 ```
 
@@ -514,16 +490,16 @@ Apply the harmonized codelist to create standardized concepts:
 long_format_concept_map <- long_format_concept_map[toupper(cdm_name) %in% "CONCEPTION"]
 long_format_concept_map[, id_set := paste0("conceptmap-", id_set)]
 codelist <- rbindlist(list(long_format_codelist, long_format_concept_map),
-  use.names = TRUE, fill = TRUE
+    use.names = TRUE, fill = TRUE
 )
 # Apply the prepared codelist to the database
 apply_codelist(
-  db_con = db_connection,
-  codelist = codelist,
-  materialize = "in_database", # or "in_parquet"
-  path_parquets = NULL, # "/path/to/save" if materialize = "in_parquet"
-  keep_id_set = TRUE,
-  scheme = "ConcePTION"
+    db_con = db_connection,
+    codelist = codelist,
+    materialize = "in_database", # or "in_parquet"
+    path_parquets = NULL, # "/path/to/save" if materialize = "in_parquet"
+    keep_id_set = TRUE,
+    scheme = "ConcePTION"
 )
 ```
 
@@ -611,7 +587,7 @@ DT::datatable(concept_table, options = list(scrollX = TRUE))
 -   **Files not found**: Verify `data_instance` path is correct and file
     names match table names
 -   **Operations not running**: Check operations are enabled (`true`) in
-    config.json
+    config.yaml
 -   **Connection errors**: Ensure DuckDB is installed and file paths are
     writable
 

@@ -19,7 +19,7 @@ db_path <- tempfile(pattern = "cdm", fileext = ".duckdb")
 loader <- T2.DMM::DatabaseLoader$new(
   db_path = db_path,
   data_instance = file.path(getwd(), "vignettes/data/"),
-  config_path = file.path(getwd(), "vignettes/data/set_db.json"),
+  config_path = file.path(getwd(), "vignettes/data/set_db.yaml"),
   cdm_metadata = file.path(getwd(), "vignettes/data/CDM_metadata.rds")
 )
 

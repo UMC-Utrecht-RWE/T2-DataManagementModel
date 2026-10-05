@@ -37,6 +37,6 @@ importFrom(duckdb,
 importFrom(fst,write_fst)
 importFrom(glue,glue)
 importFrom(here,here)
-importFrom(jsonlite,fromJSON)
 importFrom(readr,write_csv)
 importFrom(tools,file_ext)
+importFrom(yaml,read_yaml)

@@ -7,8 +7,8 @@
 #' This function performs a series of checks to validate the input parameters
 #' required for processing source data into DuckDB.
 #'
-#' @param json_path_to_cdm_schema Character.
-#'  Full path to the JSON file containing the CDM schema definition.
+#' @param yaml_path_to_cdm_schema Character.
+#'  Full path to the YAML file containing the CDM schema definition.
 #' @param format_source_files Character.
 #'  Format of the source files. Must be either `"csv"` or `"parquet"`.
 #' @param folder_path_to_source_files Character.
@@ -27,7 +27,7 @@
 #' @examples
 #' \dontrun{
 #' check_params(
-#'   json_path_to_cdm_schema = "schema/cdm_schema.json",
+#'   yaml_path_to_cdm_schema = "schema/cdm_schema.yaml",
 #'   format_source_files = "csv",
 #'   folder_path_to_source_files = "data/source/",
 #'   through_parquet = "no",
@@ -38,7 +38,7 @@
 #' @keywords internal
 #'
 check_params <- function(
-  json_path_to_cdm_schema,
+  yaml_path_to_cdm_schema,
   format_source_files,
   folder_path_to_source_files,
   through_parquet,
@@ -85,8 +85,8 @@ check_params <- function(
   }
 
   # 6. schema file exists
-  if (!file.exists(json_path_to_cdm_schema)) {
-    stop(paste("Please provide a valid path to the CDM file in JSON format.
+  if (!file.exists(yaml_path_to_cdm_schema)) {
+    stop(paste("Please provide a valid path to the CDM file in YAML format.
     This is required to create the target database schema."))
   }
 
@@ -327,15 +327,15 @@ generate_ddl <- function(
 
 #' Create Empty CDM Tables in DuckDB
 #'
-#' This function reads table definitions from a JSON-based CDM schema and
+#' This function reads table definitions from a YAML-based CDM schema and
 #'  generates SQL DDL statements to create empty tables in a specified schema.
 #'
 #' @param db_connection A DuckDB database connection object (`DBIConnection`).
 #' @param data_model Character.
 #'  The name of the data model (e.g., `"conception"`).
-#' @param json_path_to_cdm_schema Character.
-#'  Full path to the JSON file containing the CDM schema. The JSON must be an
-#'  object keyed by table name, each value an array of column objects with at
+#' @param yaml_path_to_cdm_schema Character.
+#'  Full path to the YAML file containing the CDM schema. The YAML must be a
+#'  mapping keyed by table name, each value a list of column mappings with at
 #'  least `Variable` and `Format` fields.
 #' @param tables_in_cdm Character vector.
 #'  List of CDM table names to be created.
@@ -347,7 +347,7 @@ generate_ddl <- function(
 #' @details
 #' For each table in `tables_in_cdm`, the function:
 #' \itemize{
-#'   \item Looks up the corresponding entry in the JSON schema file.
+#'   \item Looks up the corresponding entry in the YAML schema file.
 #'   \item Extracts the `Variable` and `Format` columns.
 #'   \item Generates SQL DDL using a helper function `generate_ddl()`.
 #'   \item Executes the combined DDL to create all tables in the schema.
@@ -359,7 +359,7 @@ generate_ddl <- function(
 #'   db_connection = con,
 #'   data_model = "conception",
 #'   schema_individual_views = "",
-#'   json_path_to_cdm_schema = "schema/cdm_schema.json",
+#'   yaml_path_to_cdm_schema = "schema/cdm_schema.yaml",
 #'   tables_in_cdm = c("person", "observation", "visit_occurrence")
 #' )
 #' }
@@ -369,7 +369,7 @@ generate_ddl <- function(
 create_empty_cdm_tables <- function(
   db_connection,
   data_model,
-  json_path_to_cdm_schema,
+  yaml_path_to_cdm_schema,
   tables_in_cdm
 ) {
   # Remove any existing full_DDL variable to avoid appending
@@ -377,19 +377,30 @@ create_empty_cdm_tables <- function(
     rm(full_ddl)
   }
   full_ddl <- ""
-  cdm_schema <- jsonlite::fromJSON(json_path_to_cdm_schema)
+  cdm_schema <- yaml::read_yaml(yaml_path_to_cdm_schema)
   # Loop through each table in the CDM
   for (table_name in tables_in_cdm) {
     cat(paste0("Now creating DDL for ", table_name, "\n"))
 
     if (!table_name %in% names(cdm_schema)) {
       stop(paste0(
-        "Table '", table_name, "' not found in the CDM JSON schema."
+        "Table '", table_name, "' not found in the CDM YAML schema."
       ))
     }
 
     # Extract the columns for the current table
-    sheet_data <- cdm_schema[[table_name]]
+    # YAML gives a list of column mappings; absent keys become NA
+    records <- cdm_schema[[table_name]]
+    get_field <- function(field) {
+      vapply(records, function(r) {
+        if (is.null(r[[field]])) NA_character_ else as.character(r[[field]])
+      }, character(1))
+    }
+    sheet_data <- data.frame(
+      Variable = get_field("Variable"),
+      Format = get_field("Format"),
+      stringsAsFactors = FALSE
+    )
     sheet_data$Variable <- trimws(
       sheet_data$Variable,
       whitespace = "[\\h\\v]"
