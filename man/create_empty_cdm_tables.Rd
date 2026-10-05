@@ -48,7 +48,7 @@ For each table in `tables_in_cdm`, the function:
 create_empty_cdm_tables(
   db_connection = con,
   data_model = "conception",
-  schema_individual_views = ""
+  schema_individual_views = "",
   json_path_to_cdm_schema = "schema/cdm_schema.json",
   tables_in_cdm = c("person", "observation", "visit_occurrence")
 )

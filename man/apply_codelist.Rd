@@ -80,8 +80,11 @@ This implementation uses external SQL scripts:
 \examples{
 \dontrun{
 # Assuming `concepts_db_conn_ref` is a valid DBI connection and
-`codelist_long` is prepared: apply_codelist(concepts_db_conn_ref,
-codelist_long, materialize = "in_database")
+# `codelist_long` is prepared:
+apply_codelist(concepts_db_conn_ref,
+  codelist_long,
+  materialize = "in_database"
+)
 }
 
 }
