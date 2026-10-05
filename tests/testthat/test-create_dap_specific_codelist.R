@@ -84,7 +84,9 @@ testthat::test_that("Check expected format of the codelist and unique codelist w
   study_codelist <- data.table::as.data.table(
     import_file("dbtest/codelist_example_medicines.csv")
   )
-  study_codelist <- study_codelist[, priority := ifelse(tags == "narrow", 1, 2)][, cdm_name := "CDM1"][, cdm_table_name := "MEDICINES"]
+  study_codelist <- study_codelist[, priority := ifelse(tags == "narrow", 1, 2)]
+  study_codelist <- study_codelist[, cdm_name := "CDM1"]
+  study_codelist <- study_codelist[, cdm_table_name := "MEDICINES"]
   # Test 2: Verify error when unique_codelist is missing
   # required "coding_system" column
   testthat::expect_error(
@@ -301,7 +303,9 @@ testthat::test_that("Start-with matching logic works for ATC codes", {
     concept_id = "Paracetamol",
     tags = "narrow"
   )
-  study_codelist <- unique(study_codelist)[, priority := ifelse(tags == "narrow", 1, 2)][, cdm_name := "CDM1"][, cdm_table_name := "MEDICINES"]
+  study_codelist <- unique(study_codelist)[, priority := ifelse(tags == "narrow", 1, 2)]
+  study_codelist <- unique(study_codelist)[, cdm_name := "CDM1"]
+  study_codelist <- unique(study_codelist)[, cdm_table_name := "MEDICINES"]
 
   result <- create_dap_specific_codelist(
     dap_codes = unique_codelist,

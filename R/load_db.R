@@ -62,8 +62,7 @@ load_db <- function(
   create_db_as = "views",
   tables_in_cdm = c()
 ) {
-  if (is.null(create_db_as) || length(create_db_as) == 0 ||
-    !(create_db_as %in% c("views", "tables"))) {
+  if (is.null(create_db_as) || length(create_db_as) == 0 || !(create_db_as %in% c("views", "tables"))) {#nolint
     create_db_as <- "views"
   }
   # # Create file paths to target db and parquet files
