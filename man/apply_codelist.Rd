@@ -7,6 +7,7 @@
 apply_codelist(
   db_con,
   codelist,
+  scheme = NULL,
   materialize = "in_parquet",
   path_parquets = NULL,
   keep_id_set = TRUE
@@ -33,6 +34,9 @@ The column to keep as value when creating concepts.}
     \item{keep_date_column_name}{
 The column to keep as date when creating concepts.}
   }}
+
+\item{scheme}{Optional schema containing the CDM table. If `NULL`, table
+names are resolved without a schema prefix.}
 
 \item{materialize}{A character string specifying how to store the results.
 Options are \code{"in_parquet"} (default) to save as partitioned parquet

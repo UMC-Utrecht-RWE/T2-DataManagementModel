@@ -302,7 +302,7 @@ generate_ddl <- function(
     data_model,
     table_name) {
   # Map column format to DuckDB datatypes
-  format_mapping <- list(
+  format_mapping <- c(
     "Numeric" = "DECIMAL(18,3)",
     "Character" = "VARCHAR",
     "Character yyyymmdd" = "DATE",
@@ -310,16 +310,10 @@ generate_ddl <- function(
   )
 
   # Create column definitions with fallback to VARCHAR for unknown formats
-  column_definitions <- df %>%
-    dplyr::mutate(column_definition = paste0(
-      '"', Variable, '" ',
-      ifelse(Format %in% names(format_mapping),
-        format_mapping[Format],
-        "VARCHAR"
-      )
-    )) %>%
-    dplyr::pull(column_definition) %>%
-    paste(collapse = ",\n  ")
+  column_types <- unname(format_mapping[as.character(df$Format)])
+  column_types[is.na(column_types)] <- "VARCHAR"
+  column_definitions <- paste0('"', df$Variable, '" ', column_types)
+  column_definitions <- paste(column_definitions, collapse = ",\n  ")
 
   # Construct the CREATE TABLE statement
   ddl <- paste0(
@@ -337,7 +331,7 @@ generate_ddl <- function(
 #' @param db_connection A DuckDB database connection object (`DBIConnection`).
 #' @param data_model Character.
 #'  The name of the data model (e.g., `"conception"`).
-#' @param schema_individual_views
+#' @param schema_individual_views String. Name of the indifivual views
 #' @param json_path_to_cdm_schema Character.
 #'  Full path to the JSON file containing the CDM schema. The JSON must be an
 #'  object keyed by table name, each value an array of column objects with at
@@ -393,13 +387,16 @@ create_empty_cdm_tables <- function(
     }
 
     # Extract the columns for the current table
-    sheet_data <- cdm_schema[[table_name]] %>%
-      # Remove leading/trailing whitespace
-      dplyr::mutate(Variable = trimws(Variable, whitespace = "[\\h\\v]")) %>%
-      # Drop rows with NA in Variable
-      dplyr::filter(!is.na(Variable)) %>%
-      # Keep only relevant rows
-      dplyr::select(Variable, Format)
+    sheet_data <- cdm_schema[[table_name]]
+      sheet_data$Variable <- trimws(
+        sheet_data$Variable,
+        whitespace = "[\\h\\v]"
+      )
+      sheet_data <- sheet_data[
+        !is.na(sheet_data$Variable),
+        c("Variable", "Format"),
+        drop = FALSE
+      ]
 
     # Generate the DDL for the current table
     ddl <- generate_ddl(df = sheet_data, 
@@ -410,8 +407,8 @@ create_empty_cdm_tables <- function(
   }
 
   # Execute the full DDL which is the final SQL query
-  DBI::dbExecute(db_connection, full_ddl) %>%
-    cat("\nEmpty conception tables created\n")
+  DBI::dbExecute(db_connection, full_ddl)
+  cat("\nEmpty conception tables created\n")
 }
 
 ################################################################################

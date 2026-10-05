@@ -10,10 +10,8 @@ load_db(
   cdm_schema = NULL,
   format_source_files = "parquet",
   folder_path_to_source_files = "",
-  through_parquet = "yes",
   create_db_as = "views",
-  tables_in_cdm = c(),
-  schema_name = "CDM"
+  tables_in_cdm = c()
 )
 }
 \arguments{
@@ -33,14 +31,14 @@ Format of the source files, either `"csv"` or `"parquet"`.}
 Path to the folder containing source files.
 Ensure the path ends with a `'/'`.}
 
-\item{through_parquet}{Character.
-Whether to process through Parquet files (`"yes"` or `"no"`).}
-
 \item{create_db_as}{Character.
 Specify whether to create the database as `"views"` or `"tables"`.}
 
 \item{tables_in_cdm}{Character vector.
 A character vector of table names that are expected in the CDM.}
+
+\item{through_parquet}{Character.
+Whether to process through Parquet files (`"yes"` or `"no"`).}
 }
 \value{
 None.
@@ -69,10 +67,9 @@ The function performs the following steps:
 load_db(
   con = NULL,
   data_model = "conception",
-  cdm_schema = "./ConcePTION_CDM tables v2.2.xlsx",
+  cdm_schema = "./ConcePTION_CDM tables v2.2.json",
   format_source_files = "csv",
   folder_path_to_source_files = "data/source/",
-  through_parquet = "no",
   create_db_as = "tables",
   tables_in_cdm = c("EVENTS", "MEDICINES", "PROCEDURES")
 )

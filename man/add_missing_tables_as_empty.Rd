@@ -9,8 +9,6 @@ add_missing_tables_as_empty(
   data_model,
   tables_in_cdm,
   files_in_input,
-  schema_name,
-  schema_combined_views,
   create_db_as
 )
 }
@@ -25,12 +23,6 @@ List of expected table names in the CDM.}
 
 \item{files_in_input}{Character.
 Named character vector of target and source files.}
-
-\item{schema_name}{Character.
-Schema where the CDM tables are defined.}
-
-\item{schema_combined_views}{Character.
-Schema where the combined views or tables will be created.}
 
 \item{create_db_as}{Character.
 Whether to create `"views"` or `"tables"` in the combined schema.}
@@ -51,8 +43,6 @@ add_missing_tables_as_empty(
   data_model = "my_model",
   tables_in_cdm = c("person", "visit_occurrence"),
   files_in_input = list(person = "person.csv"),
-  schema_name = "cdm_schema",
-  schema_combined_views = "combined_schema",
   create_db_as = "views"
 )
 }

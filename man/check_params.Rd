@@ -5,7 +5,6 @@
 \title{Validate Input Parameters for CDM Data Processing}
 \usage{
 check_params(
-  data_model,
   json_path_to_cdm_schema,
   format_source_files,
   folder_path_to_source_files,
@@ -14,9 +13,6 @@ check_params(
 )
 }
 \arguments{
-\item{data_model}{Character.
-The name of the data model to use (e.g., `"conception"`).}
-
 \item{json_path_to_cdm_schema}{Character.
 Full path to the JSON file containing the CDM schema definition.}
 
@@ -33,6 +29,9 @@ Must be either `"yes"` or `"no"`.}
 
 \item{create_db_as}{Character.
 Specifies whether to create the database using `"views"` or `"tables"`.}
+
+\item{data_model}{Character.
+The name of the data model to use (e.g., `"conception"`).}
 }
 \value{
 No return value.
@@ -46,7 +45,6 @@ required for processing source data into DuckDB.
 \examples{
 \dontrun{
 check_params(
-  data_model = "conception",
   json_path_to_cdm_schema = "schema/cdm_schema.json",
   format_source_files = "csv",
   folder_path_to_source_files = "data/source/",

@@ -8,8 +8,7 @@ create_empty_cdm_tables(
   db_connection,
   data_model,
   json_path_to_cdm_schema,
-  tables_in_cdm,
-  schema_name
+  tables_in_cdm
 )
 }
 \arguments{
@@ -26,8 +25,7 @@ least `Variable` and `Format` fields.}
 \item{tables_in_cdm}{Character vector.
 List of CDM table names to be created.}
 
-\item{schema_name}{Character.
-Name of the schema where the CDM tables will be created.}
+\item{schema_individual_views}{String. Name of the indifivual views}
 }
 \value{
 No return value.
@@ -52,9 +50,9 @@ For each table in `tables_in_cdm`, the function:
 create_empty_cdm_tables(
   db_connection = con,
   data_model = "conception",
+  schema_individual_views = ""
   json_path_to_cdm_schema = "schema/cdm_schema.json",
-  tables_in_cdm = c("person", "observation", "visit_occurrence"),
-  schema_name = "cdm_conception"
+  tables_in_cdm = c("person", "observation", "visit_occurrence")
 )
 }
 

@@ -143,8 +143,7 @@ loading modes, table names, and operation settings:
     "data_model": "ConcePTION",
     "file_format" : "csv",
     "cdm_schema": "../inst/extdata/ConcePTION_CDM_tables_v2.2.json",
-    "load_db_through_parquet": "yes",
-    "create_db_as": "views",
+    "create_db_as": "tables",
     "operations_path": "R",
     "operations": {
       "DuplicateRemover": true,
@@ -339,7 +338,8 @@ column_info_list <- list(
 dap_codes <- get_unique_codelist(
     db_connection = db_connection,
     column_info_list = column_info_list,
-    tb_name = "EVENTS"
+    tb_name = "EVENTS",
+    scheme = "ConcePTION"
 )
 
 dap_codes <- as.data.table(dap_codes[[1]])
@@ -523,7 +523,8 @@ apply_codelist(
     codelist = codelist,
     materialize = "in_database", # or "in_parquet"
     path_parquets = NULL, # "/path/to/save" if materialize = "in_parquet"
-    keep_id_set = TRUE
+    keep_id_set = TRUE,
+    scheme = "ConcePTION"
 )
 ```
 

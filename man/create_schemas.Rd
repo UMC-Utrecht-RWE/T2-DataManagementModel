@@ -4,22 +4,14 @@
 \alias{create_schemas}
 \title{Set Up DuckDB Connection and Create Schemas}
 \usage{
-create_schemas(
-  schema_individual_views,
-  schema_name,
-  schema_combined_views,
-  con
-)
+create_schemas(schema_individual_views, data_model, con)
 }
 \arguments{
 \item{schema_individual_views}{Character.
 Name of the schema to store individual views.}
 
-\item{schema_name}{Character.
-Name of the schema to store CDM tables.}
-
-\item{schema_combined_views}{Character.
-Name of the schema to store combined views.}
+\item{data_model}{Character.
+Name of the schema to store tables.}
 
 \item{con}{DBIConnection.
 The function will create schemas in this database.}
@@ -33,8 +25,7 @@ This function initializes a DuckDB connection and creates the specified
 \dontrun{
 con <- setup_db_connection(
   schema_individual_views = "individual_views",
-  schema_name = "cdm_conception",
-  schema_combined_views = "combined_views",
+  data_model = NULL,
   file_path_to_target_db = "data/target/my_database.duckdb"
 )
 }

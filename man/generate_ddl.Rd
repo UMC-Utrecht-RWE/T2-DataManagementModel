@@ -4,7 +4,7 @@
 \alias{generate_ddl}
 \title{Generate DDL (Data Definition Language) for a DuckDB Table}
 \usage{
-generate_ddl(df, data_model, table_name, schema_name)
+generate_ddl(df, data_model, table_name)
 }
 \arguments{
 \item{df}{Data Frame.
@@ -13,8 +13,6 @@ Must contain `Variable` and `Format` columns.}
 \item{data_model}{String.}
 
 \item{table_name}{String.}
-
-\item{schema_name}{String.}
 }
 \value{
 A character string containing the full DDL SQL statement.

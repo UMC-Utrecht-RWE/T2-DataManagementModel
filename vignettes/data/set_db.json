@@ -2,14 +2,13 @@
     "data_model": "ConcePTION",
     "file_format": "csv",
     "cdm_schema": "../inst/extdata/ConcePTION_CDM_tables_v2.2.json",
-    "load_db_through_parquet": "yes",
-    "create_db_as": "views",
+    "create_db_as": "tables",
     "operations_path": "R",
     "operations": {
         "DuplicateRemover": true,
         "MissingRemover": true,
         "UniqueIdGenerator": true,
-        "ReportGenerator": true
+        "ReportGenerator": false
     },
     "duplicate_remover": {
         "save_path": "intermediate_data_file",
@@ -73,9 +72,5 @@
     "unique_id_generator": {
         "instance_name": "",
         "to_view": false
-    },
-    "report_generator": {
-        "report_path": ".",
-        "report_name": "count_rows_origin.fst"
     }
 }

@@ -19,14 +19,18 @@ db_path <- tempfile(pattern = "cdm", fileext = ".duckdb")
 
 ## -----------------------------------------------------------------------------
 # Initialize the DatabaseLoader
-loader <- DatabaseLoader$new(
+loader <- T2.DMM::DatabaseLoader$new(
     db_path = db_path,
-    data_instance = file.path(getwd(), "data/"),
-    config_path = file.path(getwd(), "data/set_db.json"),
-    cdm_metadata = file.path(getwd(), "data/CDM_metadata.rds")
+    data_instance = file.path(getwd(), "vignettes/data/"),
+    config_path = file.path(getwd(), "vignettes/data/set_db.json"),
+    cdm_metadata = file.path(getwd(), "vignettes/data/CDM_metadata.rds")
 )
 
 ## -----------------------------------------------------------------------------
 # Load the data into the database
 loader$set_database()
+
+## -----------------------------------------------------------------------------
+# Execute all configured operations
+loader$run_db_ops()
 
