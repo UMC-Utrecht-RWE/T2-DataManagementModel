@@ -29,9 +29,6 @@ Must be either `"yes"` or `"no"`.}
 
 \item{create_db_as}{Character.
 Specifies whether to create the database using `"views"` or `"tables"`.}
-
-\item{data_model}{Character.
-The name of the data model to use (e.g., `"conception"`).}
 }
 \value{
 No return value.

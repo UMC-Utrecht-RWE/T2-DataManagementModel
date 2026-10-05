@@ -8,7 +8,7 @@ library(jsonlite)
 library(dplyr)
 
 args <- commandArgs(trailingOnly = TRUE)
-excel_path <- if (length(args) >= 1) args[1] else "data/ConcePTION_CDM tables v2.2.xlsx"
+excel_path <- if (length(args) >= 1) args[1] else "inst/extdata/ConcePTION_CDM_tables_v2.2.xlsx"
 json_path <- if (length(args) >= 2) args[2] else "inst/extdata/ConcePTION_CDM_tables_v2.2.json"
 
 sheet_names <- getSheetNames(excel_path)

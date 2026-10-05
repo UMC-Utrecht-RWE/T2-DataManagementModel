@@ -7,8 +7,6 @@
 #' This function performs a series of checks to validate the input parameters
 #' required for processing source data into DuckDB.
 #'
-#' @param data_model Character.
-#'  The name of the data model to use (e.g., `"conception"`).
 #' @param json_path_to_cdm_schema Character.
 #'  Full path to the JSON file containing the CDM schema definition.
 #' @param format_source_files Character.
@@ -331,7 +329,6 @@ generate_ddl <- function(
 #' @param db_connection A DuckDB database connection object (`DBIConnection`).
 #' @param data_model Character.
 #'  The name of the data model (e.g., `"conception"`).
-#' @param schema_individual_views String. Name of the indifivual views
 #' @param json_path_to_cdm_schema Character.
 #'  Full path to the JSON file containing the CDM schema. The JSON must be an
 #'  object keyed by table name, each value an array of column objects with at
@@ -631,7 +628,7 @@ populate_cdm_tables_from_views <- function(
       counter <- counter + 1
       total_files <- length(files_in_input)
       percentage_files <- paste0(round(counter / total_files * 100, 2), "%")
-      time_message <- invisible(capture.output(tictoc::toc()$callback_msg))
+      time_message <- invisible(utils::capture.output(tictoc::toc()$callback_msg))
 
       cat(paste0(
         "\rDone transforming view ", source_view, " into ", target,

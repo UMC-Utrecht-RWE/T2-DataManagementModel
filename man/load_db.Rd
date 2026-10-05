@@ -36,9 +36,6 @@ Specify whether to create the database as `"views"` or `"tables"`.}
 
 \item{tables_in_cdm}{Character vector.
 A character vector of table names that are expected in the CDM.}
-
-\item{through_parquet}{Character.
-Whether to process through Parquet files (`"yes"` or `"no"`).}
 }
 \value{
 None.
@@ -67,7 +64,7 @@ The function performs the following steps:
 load_db(
   con = NULL,
   data_model = "conception",
-  cdm_schema = "./ConcePTION_CDM tables v2.2.json",
+  cdm_schema = "./ConcePTION_CDM_tables_v2.2.json",
   format_source_files = "csv",
   folder_path_to_source_files = "data/source/",
   create_db_as = "tables",

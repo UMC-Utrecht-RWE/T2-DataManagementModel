@@ -24,8 +24,6 @@ least `Variable` and `Format` fields.}
 
 \item{tables_in_cdm}{Character vector.
 List of CDM table names to be created.}
-
-\item{schema_individual_views}{String. Name of the indifivual views}
 }
 \value{
 No return value.

@@ -19,8 +19,6 @@
 #' @param folder_path_to_source_files Character.
 #'  Path to the folder containing source files.
 #'  Ensure the path ends with a `'/'`.
-#' @param through_parquet Character.
-#'  Whether to process through Parquet files (`"yes"` or `"no"`).
 #' @param create_db_as Character.
 #'  Specify whether to create the database as `"views"` or `"tables"`.
 #' @param tables_in_cdm Character vector.
@@ -46,7 +44,7 @@
 #' load_db(
 #'   con = NULL,
 #'   data_model = "conception",
-#'   cdm_schema = "./ConcePTION_CDM tables v2.2.json",
+#'   cdm_schema = "./ConcePTION_CDM_tables_v2.2.json",
 #'   format_source_files = "csv",
 #'   folder_path_to_source_files = "data/source/",
 #'   create_db_as = "tables",
@@ -64,7 +62,6 @@ load_db <- function(
   create_db_as = "views",
   tables_in_cdm = c()
 ) {
-
   if (is.null(create_db_as) || length(create_db_as) == 0 ||
     !(create_db_as %in% c("views", "tables"))) {
     create_db_as <- "views"
@@ -77,15 +74,15 @@ load_db <- function(
     "intermediate_parquet"
   )
 
-  if(format_source_files %in% "csv"){
+  if (format_source_files %in% "csv") {
     through_parquet <- "yes"
-  }else{
+  } else {
     through_parquet <- "no"
   }
   if (through_parquet == "yes") {
     if (!dir.exists(parquet_path)) {
       dir.create(parquet_path)
-    } 
+    }
   }
 
   # What schema are we going to put the individual views to input files into?
