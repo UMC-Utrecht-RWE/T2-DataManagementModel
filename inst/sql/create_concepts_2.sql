@@ -2,7 +2,7 @@ WITH identified_n_minus_1 AS (-- 1. Get previous ids matched at order_index - 1
   SELECT ii.*
   FROM identified_ids ii
   INNER JOIN codelist cn
-  ON ii.order_index = cn.order_index - 1 AND ii.id_set = cn.id_set
+  ON ii.id_set = cn.id_set
 )
 -- 2. Collect the column needed for further selection
 ,identified_records AS (
