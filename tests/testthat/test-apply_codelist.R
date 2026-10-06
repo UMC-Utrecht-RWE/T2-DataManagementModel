@@ -181,3 +181,53 @@ test_that("apply_codelist executes hierarchical SQL flow", {
 
   dbDisconnect(con, shutdown = TRUE)
 })
+
+# p1: N02 / ATC / level A, p2: product P1, p3: N02 / ATC / level B
+create_medicines_test_db <- function(env = parent.frame()) {
+  con <- DBI::dbConnect(duckdb::duckdb())
+  withr::defer(DBI::dbDisconnect(con, shutdown = TRUE), envir = env)
+  DBI::dbExecute(con, "
+    CREATE TABLE MED (
+      unique_id UUID,
+      ori_table VARCHAR,
+      person_id VARCHAR,
+      atc VARCHAR,
+      prod VARCHAR,
+      sys VARCHAR, lvl VARCHAR, d DATE
+    )")
+  DBI::dbExecute(con, "
+    INSERT INTO MED VALUES
+      ('00000000-0000-0000-0000-000000000001', 'MED', 'p1',
+       'N02', 'X', 'ATC', 'A', '2020-01-01'),
+      ('00000000-0000-0000-0000-000000000002', 'MED', 'p2',
+       'Z99', 'P1', 'ATC', 'A', '2020-01-01'),
+      ('00000000-0000-0000-0000-000000000003', 'MED', 'p3',
+       'N02', 'X', 'ATC', 'B', '2020-01-01')")
+  con
+}
+
+test_that("apply_codelist applies conditions with order_index > 2", {
+  con <- create_medicines_test_db()
+
+  # One id_set with three possibilities: atc = N02 AND sys = ATC AND lvl = A
+  codelist <- data.table(
+    id_set = 1L,
+    concept_id = "C1",
+    cdm_table_name = "MED",
+    cdm_column = c("atc", "sys", "lvl"),
+    code = c("N02", "ATC", "A"),
+    keep_value_column_name = NA_character_,
+    keep_date_column_name = "d",
+    order_index = 1:3
+  )
+
+  suppressMessages(
+    apply_codelist(con, codelist, materialize = "in_database")
+  )
+
+  concept_table <- dbGetQuery(
+    con, "SELECT person_id FROM concept_table ORDER BY person_id"
+  )
+  # p3 has lvl = B, so the third condition must exclude it
+  expect_equal(concept_table$person_id, "p1")
+})
