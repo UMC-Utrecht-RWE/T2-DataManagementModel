@@ -136,6 +136,30 @@ testthat::test_that("Error messages", {
   )
 })
 
+testthat::test_that("keep_date_column_name is required and cannot be NA", {
+  codelist <- create_codelist_example()
+  codelist[, keep_date_column_name := NA_character_]
+
+  testthat::expect_error(
+    create_dap_specific_concept(
+      codelist = codelist,
+      name_attachment = "source_db",
+      save_db = NULL
+    ),
+    "keep_date_column_name cannot contain NA values"
+  )
+
+  codelist[, keep_date_column_name := NULL]
+  testthat::expect_error(
+    create_dap_specific_concept(
+      codelist = codelist,
+      name_attachment = "source_db",
+      save_db = NULL
+    ),
+    "Codelist must contain keep_date_column_name"
+  )
+})
+
 
 testthat::test_that("existing MEDICAL_OBSERVATIONS_EDITED is handled", {
   source_db_path <- tempfile(fileext = ".duckdb")

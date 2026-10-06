@@ -58,6 +58,12 @@ create_dap_specific_concept <- function(
   if (nrow(codelist) <= 0) {
     stop("Codelist does not contain any data.")
   }
+  if (!"keep_date_column_name" %in% base::names(codelist)) {
+    stop("Codelist must contain keep_date_column_name.")
+  }
+  if (any(base::is.na(codelist[["keep_date_column_name"]]))) {
+    stop("keep_date_column_name cannot contain NA values")
+  }
   if (any(intermediate_type == c("TABLE", "VIEW")) != TRUE) {
     stop("intermediate_type has to be either TABLE or VIEW.")
   }
