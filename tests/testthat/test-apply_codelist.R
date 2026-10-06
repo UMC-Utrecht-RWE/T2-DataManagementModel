@@ -193,7 +193,9 @@ create_medicines_test_db <- function(env = parent.frame()) {
       person_id VARCHAR,
       atc VARCHAR,
       prod VARCHAR,
-      sys VARCHAR, lvl VARCHAR, d DATE
+      sys VARCHAR, 
+      lvl VARCHAR, 
+      d DATE
     )")
   DBI::dbExecute(con, "
     INSERT INTO MED VALUES
