@@ -233,3 +233,29 @@ test_that("apply_codelist applies conditions with order_index > 2", {
   # p3 has lvl = B, so the third condition must exclude it
   expect_equal(concept_table$person_id, "p1")
 })
+
+test_that("apply_codelist applies child levels when a level is skipped", {
+  con <- create_medicines_test_db()
+
+  # Levels 1 and 3 with no level 2: atc = N02 AND lvl = A
+  codelist <- data.table(
+    id_set = 1L,
+    concept_id = "C1",
+    cdm_table_name = "MED",
+    cdm_column = c("atc", "lvl"),
+    code = c("N02", "A"),
+    keep_value_column_name = NA_character_,
+    keep_date_column_name = "d",
+    order_index = c(1L, 3L)
+  )
+
+  suppressMessages(
+    apply_codelist(con, codelist, materialize = "in_database")
+  )
+
+  concept_table <- dbGetQuery(
+    con, "SELECT person_id FROM concept_table ORDER BY person_id"
+  )
+  # p3 has lvl = B, so the level-3 condition must exclude it
+  expect_equal(concept_table$person_id, "p1")
+})

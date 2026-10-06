@@ -235,7 +235,7 @@ apply_codelist <- function(
         family_subset[family_group == fam_idx, keep_date_column_name]
       )
 
-      for (order_idx in seq(unique(family_subset$order_index))) {
+      for (order_idx in sort(unique(family_subset$order_index))) {
         # -------------------
         # 1 Process Parent(s)
         # -------------------
