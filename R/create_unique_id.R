@@ -63,6 +63,74 @@ create_unique_id <- function(
     message(paste(cdm_tables_names[!cdm_tables_names %in% list_existing_tables], collapse = ", "))
   }
 
+  replace_table <- function(table_from_name, table) {
+    staging_table <- paste0("temporal_table_", basename(tempfile()))
+    staging_identifier <- as.character(
+      DBI::dbQuoteIdentifier(db_connection, staging_table)
+    )
+    staging_created <- FALSE
+    transaction_started <- FALSE
+
+    on.exit({
+      if (transaction_started) {
+        try(DBI::dbRollback(db_connection), silent = TRUE)
+      }
+      if (staging_created) {
+        try(DBI::dbRemoveTable(db_connection, staging_table), silent = TRUE)
+      }
+    }, add = TRUE)
+
+    DBI::dbExecute(
+      db_connection,
+      paste0(
+        "CREATE TEMP TABLE ", staging_identifier, " AS
+         SELECT
+           '", table, "' AS ori_table,
+           rn AS unique_id,
+           * EXCLUDE(rn)
+         FROM (SELECT *, uuid() AS rn FROM ", table_from_name, ")"
+      )
+    )
+    staging_created <- TRUE
+
+    table_type <- DBI::dbGetQuery(
+      db_connection,
+      paste0(
+        "SELECT table_type FROM information_schema.tables ",
+        "WHERE table_schema = '", scheme,
+        "' AND table_name = '", table, "'"
+      )
+    )$table_type
+
+    DBI::dbBegin(db_connection)
+    transaction_started <- TRUE
+
+    if (identical(table_type, "VIEW")) {
+      DBI::dbExecute(
+        db_connection,
+        paste0("DROP VIEW ", table_from_name),
+        n = -1
+      )
+    } else if (!identical(table_type, "BASE TABLE")) {
+      stop("Unable to determine the source type of ", table_from_name, ".")
+    }
+
+    DBI::dbExecute(
+      db_connection,
+      paste0(
+        "CREATE OR REPLACE TABLE ", table_from_name,
+        " AS SELECT * FROM ", staging_identifier
+      )
+    )
+    DBI::dbExecute(
+      db_connection,
+      paste0("DROP TABLE ", staging_identifier)
+    )
+    DBI::dbCommit(db_connection)
+    transaction_started <- FALSE
+    staging_created <- FALSE
+  }
+
   # Loop through each existing CDM table
   for (table in cdm_tables_names_existing) {
     # Adjusting the name of the table to the Scheme where this is located
@@ -85,49 +153,7 @@ create_unique_id <- function(
         )
       )
     } else {
-      DBI::dbExecute(
-        db_connection,
-        paste0(
-          "CREATE OR REPLACE TEMP TABLE temporal_table AS
-            SELECT
-            '", table, "' AS ori_table,
-            rn AS unique_id,
-            * EXCLUDE(rn)
-            FROM (SELECT *, uuid() AS rn
-                  FROM ", table_from_name, ")"
-        )
-      )
-      table_type <- DBI::dbGetQuery(
-        db_connection, paste0(
-          "
-                        SELECT table_type
-                        FROM information_schema.tables
-                        WHERE table_schema = '", scheme, "'
-                          AND table_name = '", table, "'
-                        "
-        )
-      )$table_type
-
-      if (identical(table_type, "VIEW")) {
-        DBI::dbExecute(db_connection, paste0(
-          "DROP VIEW ",
-          table_from_name
-        ), n = -1)
-      } else if (identical(table_type, "BASE TABLE")) {
-        DBI::dbExecute(db_connection, paste0(
-          "DROP TABLE ",
-          table_from_name
-        ), n = -1)
-      }
-
-
-      DBI::dbExecute(
-        db_connection,
-        paste0(
-          "CREATE TABLE ", table_from_name, " AS SELECT * FROM temporal_table"
-        )
-      )
-      DBI::dbExecute(db_connection, "DROP TABLE temporal_table")
+      replace_table(table_from_name, table)
     }
 
     message(

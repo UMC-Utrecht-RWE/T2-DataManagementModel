@@ -94,3 +94,54 @@ testthat::test_that("create_unique_id: custom schema support", {
   res <- DBI::dbGetQuery(db_connection, "SELECT * FROM test_schema.DATA")
   testthat::expect_contains(names(res), "unique_id")
 })
+
+testthat::test_that("create_unique_id preserves a table if replacement fails", {
+  db_connection <- DBI::dbConnect(duckdb::duckdb())
+  withr::defer(DBI::dbDisconnect(db_connection, shutdown = TRUE))
+  DBI::dbExecute(db_connection, "CREATE SCHEMA test_schema")
+  DBI::dbExecute(
+    db_connection,
+    "CREATE TABLE test_schema.DATA AS SELECT 'original' AS value"
+  )
+  original_db_execute <- DBI::dbExecute
+
+  testthat::local_mocked_bindings(
+    dbExecute = function(conn, statement, ...) {
+      if (grepl(
+        "CREATE OR REPLACE TABLE test_schema.DATA AS",
+        statement,
+        fixed = TRUE
+      )) {
+        stop("injected replacement failure")
+      }
+      original_db_execute(conn, statement, ...)
+    },
+    .package = "DBI"
+  )
+
+  testthat::expect_error(
+    create_unique_id(
+      db_connection,
+      cdm_tables_names = "DATA",
+      scheme = "test_schema"
+    ),
+    "injected replacement failure"
+  )
+  testthat::expect_equal(
+    DBI::dbGetQuery(
+      db_connection,
+      "SELECT value FROM test_schema.DATA"
+    )$value,
+    "original"
+  )
+  testthat::expect_equal(
+    DBI::dbGetQuery(
+      db_connection,
+      paste(
+        "SELECT COUNT(*) AS n FROM information_schema.tables",
+        "WHERE table_name LIKE 'temporal_table_%'"
+      )
+    )$n,
+    0L
+  )
+})
