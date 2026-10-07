@@ -3,7 +3,7 @@ testthat::test_that("load_db runs end-to-end with all possible combinations of i
   for (cdb in c("views", "tables")) { # nolint
     dbname <- tempfile("test.duckdb")
     con <- DBI::dbConnect(duckdb::duckdb(), dbname)
-    cat(paste("Testing load_db pipeline with
+    message(paste("Testing load_db pipeline with
                 create_db_as = ", cdb, "\n"))
     testthat::expect_output( # nolint
       load_db(
