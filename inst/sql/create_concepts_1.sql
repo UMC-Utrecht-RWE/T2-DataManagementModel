@@ -1,5 +1,3 @@
-DROP TABLE IF EXISTS identified_ids;
-
 CREATE TABLE IF NOT EXISTS identified_ids AS
     SELECT t.unique_id, c.id_set, c.concept_id, c.order_index
     FROM {cdm_table_name} t
