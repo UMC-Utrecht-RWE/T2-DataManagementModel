@@ -243,9 +243,10 @@ apply_codelist <- function(
         for (cdm_column in unique(current_codelist[, cdm_column])) {
           if (order_idx == 1) {
             message("   Applying parent scheme(s)")
+            parent_rows <- current_codelist[["cdm_column"]] == cdm_column
             DBI::dbWriteTable(
               db_con,
-              name = "codelist", value = current_codelist,
+              name = "codelist", value = current_codelist[parent_rows],
               TEMPORARY = TRUE, overwrite = TRUE,
               field.types = stats::setNames(
                 ifelse(
