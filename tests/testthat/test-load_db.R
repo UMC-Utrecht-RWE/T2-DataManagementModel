@@ -5,7 +5,7 @@ testthat::test_that("load_db runs end-to-end with all possible combinations of i
     con <- DBI::dbConnect(duckdb::duckdb(), dbname)
     message(paste("Testing load_db pipeline with
                 create_db_as = ", cdb, "\n"))
-    testthat::expect_output( # nolint
+    testthat::expect_message( # nolint
       load_db(
         con = con,
         data_model = "ConcePTION",
