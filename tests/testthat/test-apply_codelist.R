@@ -284,3 +284,113 @@ test_that("apply_codelist keeps parents on different columns of one table", {
   expect_equal(concept_table$person_id, c("p1", "p2", "p3"))
   expect_equal(concept_table$concept_id, c("C_ATC", "C_PROD", "C_ATC"))
 })
+
+test_that("apply_codelist keep_value_column_name is working", {
+  con <- create_medicines_test_db()
+  
+  # Two id_sets on the same table and keep columns (same family), but
+  # matching on different columns: atc = N02 and prod = P1
+  codelist <- data.table(
+    id_set = c(1L, 2L),
+    concept_id = c("C_ATC", "C_PROD"),
+    cdm_table_name = "MED",
+    cdm_column = c("atc", "prod"),
+    code = c("N02", "P1"),
+    keep_value_column_name = c("lvl",""),
+    keep_date_column_name = "d",
+    order_index = 1L
+  )
+  
+  suppressMessages(
+    apply_codelist(con, codelist, materialize = "in_database")
+  )
+  
+  concept_table <- dbGetQuery(
+    con,
+    "SELECT * FROM concept_table ORDER BY person_id"
+  )
+  expect_equal(concept_table$person_id, c("p1", "p2", "p3"))
+  expect_equal(concept_table$concept_id, c("C_ATC", "C_PROD", "C_ATC"))
+  expect_equal(concept_table$value, c("A", "TRUE", "B"))
+})
+
+# p1: N02 / ATC / level A, p2: product P1, p3: N02 / ATC / level B
+create_medicines_test_db_2 <- function(env = parent.frame()) {
+  con <- DBI::dbConnect(duckdb::duckdb())
+  withr::defer(DBI::dbDisconnect(con, shutdown = TRUE), envir = env)
+  DBI::dbExecute(con, "
+    CREATE TABLE MED (
+      unique_id UUID,
+      ori_table VARCHAR,
+      person_id VARCHAR,
+      atc VARCHAR,
+      prod VARCHAR,
+      sys VARCHAR,
+      lvl VARCHAR,
+      d DATE
+    )")
+  DBI::dbExecute(con, "
+    INSERT INTO MED VALUES
+      ('00000000-0000-0000-0000-000000000001', 'MED', 'p1', 'N02', 'X', 'ATC', 'A', '2020-01-01'),
+      ('00000000-0000-0000-0000-000000000002', 'MED', 'p2', 'Z99', 'P1', 'ATC', 'A', '2020-01-01'),
+      ('00000000-0000-0000-0000-000000000003', 'MED', 'p3', 'N02', 'X', 'NON-ATC', 'B', '2020-01-01')")
+  con
+}
+
+test_that("apply_codelist identify recordsa with 2 search index", {
+  con <- create_medicines_test_db_2()
+  
+  # Two id_sets on the same table and keep columns (same family), but
+  # matching on different columns: atc = N02 and prod = P1
+  codelist <- data.table(
+    id_set = c(1L, 1L, 2L),
+    concept_id = c("C_ATC", "C_ATC","C_PROD"),
+    cdm_table_name = "MED",
+    cdm_column = c("atc", "sys","prod"),
+    code = c("N02","ATC","P1"),
+    keep_value_column_name = "lvl",
+    keep_date_column_name = "d",
+    order_index = c(1L,2L,1L)
+  )
+  
+  suppressMessages(
+    apply_codelist(con, codelist, materialize = "in_database")
+  )
+  
+  concept_table <- dbGetQuery(
+    con,
+    "SELECT * FROM concept_table ORDER BY person_id"
+  )
+  expect_equal(concept_table$person_id, c("p1", "p2"))
+  expect_equal(concept_table$concept_id, c("C_ATC", "C_PROD"))
+  expect_equal(concept_table$value, c("A", "A"))
+})
+
+test_that("apply_codelist identify recordsa with 2 search index where records are not identified", {
+  con <- create_medicines_test_db_2()
+  
+  # Two id_sets on the same table and keep columns (same family), but
+  # matching on different columns: atc = N02 and prod = P1
+  codelist <- data.table(
+    id_set = c(1L, 1L, 2L),
+    concept_id = c("C_ATC", "C_ATC","C_PROD"),
+    cdm_table_name = "MED",
+    cdm_column = c("atc", "sys","prod"),
+    code = c("N02","A","P1"), #code = A does not exist and p1 is not identified, opposed to previous case
+    keep_value_column_name = "lvl",
+    keep_date_column_name = "d",
+    order_index = c(1L,2L,1L)
+  )
+  
+  suppressMessages(
+    apply_codelist(con, codelist, materialize = "in_database")
+  )
+  
+  concept_table <- dbGetQuery(
+    con,
+    "SELECT * FROM concept_table ORDER BY person_id"
+  )
+  expect_equal(concept_table$person_id, c("p2"))
+  expect_equal(concept_table$concept_id, c("C_PROD"))
+  expect_equal(concept_table$value, c("A"))
+})
