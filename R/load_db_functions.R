@@ -71,7 +71,7 @@ check_params <- function(
   # 3.2. Some files are invalid
   if (!all(file_extensions %in% valid_extensions)) {
     invalid_files <- files_in_folder[!file_extensions %in% valid_extensions]
-    cat(paste(
+    message(paste(
       "WARNING: Some files in the folder do not have valid extensions
             (.csv/ .parquet):", paste(invalid_files, collapse = ", "),
       ". These files will be ignored. \n"
@@ -80,7 +80,7 @@ check_params <- function(
 
   # 5. create_db_as is either 'views' or 'tables'
   if (!(create_db_as %in% c("views", "tables"))) {
-    cat(paste("WARNING: create_db_as must be either 'views' or 'tables'.
+    message(paste("WARNING: create_db_as must be either 'views' or 'tables'.
                   Setting to default 'views'. \n"))
   }
 
@@ -92,19 +92,19 @@ check_params <- function(
 
   # 7. through_parquet is either 'yes' or 'no'
   if (!(through_parquet %in% c("yes", "no"))) {
-    cat(paste("WARNING: through_parquet must be either 'yes' or 'no'.
+    message(paste("WARNING: through_parquet must be either 'yes' or 'no'.
                   Setting to default 'yes'. \n"))
   }
 
   # 8. Invalid parameter combination.
   if (through_parquet == "no" && create_db_as == "views") {
-    cat(paste("WARNING:
+    message(paste("WARNING:
               Invalid parameter combination. through_parquet = 'no' means
               that input files will be converted to views after which views
               will directly be loaded into target tables.
               So, the code will proceed as though create_db_as ='tables'. \n"))
   }
-  cat("All parameter checks passed!\n")
+  message("All parameter checks passed!")
 }
 
 ################################################################################
@@ -148,7 +148,7 @@ create_schemas <- function(
     "CREATE SCHEMA IF NOT EXISTS ",
     data_model
   ))
-  cat("Schemas created in DuckDB. \n")
+  message("Schemas created in DuckDB.")
 }
 
 ################################################################################
@@ -220,15 +220,15 @@ read_source_files_as_views <- function(
     )
     # Skip this loop if there are no matching files
     if (length(matching_files) == 0) {
-      cat(paste0("Skipping ", table, ": No matching files found.\n"))
+      message("Skipping ", table, ": No matching files found.")
       next
     } else {
-      cat(paste0("Creating view for table: ", table, "\n"))
+      message("Creating view for table: ", table)
     }
 
     # Create a view for each matching file
     for (file in matching_files) {
-      cat(paste0("\tProcessing file: \033[3m", file, "\033[0m\n"))
+      message("\tProcessing file: ", file)
 
       # Generate a sanitized view name
       sanitized_name <-
@@ -255,7 +255,7 @@ read_source_files_as_views <- function(
       tryCatch(
         {
           DBI::dbExecute(db_connection, query)
-          cat(paste0("\tView created: ", view_name, "\n"))
+          message("\tView created: ", view_name)
         },
         warning = function(e) {
           warning(paste0(
@@ -266,7 +266,7 @@ read_source_files_as_views <- function(
       )
     }
 
-    cat(paste0("\nCreated views for table: ", table, ".\n"))
+    message("Created views for table: ", table, ".")
   }
   files_in_input
 }
@@ -380,7 +380,7 @@ create_empty_cdm_tables <- function(
   cdm_schema <- yaml::read_yaml(yaml_path_to_cdm_schema)
   # Loop through each table in the CDM
   for (table_name in tables_in_cdm) {
-    cat(paste0("Now creating DDL for ", table_name, "\n"))
+    message("Now creating DDL for ", table_name)
 
     if (!table_name %in% names(cdm_schema)) {
       stop(paste0(
@@ -423,7 +423,7 @@ create_empty_cdm_tables <- function(
 
   # Execute the full DDL which is the final SQL query
   DBI::dbExecute(db_connection, full_ddl)
-  cat("\nEmpty conception tables created\n")
+  message("Empty conception tables created")
 }
 
 ################################################################################
@@ -550,13 +550,13 @@ populate_cdm_tables_from_views <- function(
   targets <- unique(names(files_in_input))
 
   for (target in targets) {
-    cat(paste0("\033[1m\nNow starting with the ", target, " tables.\n\033[0m"))
+    message("Now starting with the ", target, " tables.")
     # Get all source views for this target
     source_views <- files_in_input[names(files_in_input) == target]
 
     for (view in source_views) {
       source_view <- paste0("view_", view)
-      cat(paste0("Materializing view ", source_view, " into ", target, ".\n"))
+      message("Materializing view ", source_view, " into ", target, ".")
       tictoc::tic() # Start the timer
 
       # Get columns in source and target tables
@@ -583,19 +583,15 @@ populate_cdm_tables_from_views <- function(
 
       # If there are no common_columns then skip to the next loop
       if (length(common_columns) == 0) {
-        cat(paste0(
-          "\r\033[31mSkipping \033[1m", source_view,
-          "\033[22m\033[31m, no common columns\033[0m\n"
-        ))
+        message("Skipping ", source_view, ", no common columns.")
         next
       }
       # Report ignored columns
       if (length(ignored_columns) > 0) {
-        cat(paste0(
-          "\033[31mThe following non-matching column(s)
-                    was / were ignored: \033[1m",
+        message(paste0(
+          "The following non-matching column(s) were ignored:",
           paste("\n\t\t", ignored_columns, collapse = " "),
-          "\033[0m \n"
+          ""
         ))
       }
 
@@ -644,7 +640,7 @@ populate_cdm_tables_from_views <- function(
           ") TO '", parquet_path, "/", view, ".parquet' (FORMAT 'parquet');"
         )
         DBI::dbExecute(db_connection, query_copy_into_parquet)
-        cat(paste0("\rDone copying view ", source_view, " into parquet file."))
+        message("Done copying view ", source_view, " into parquet file.")
       }
 
       # Bookkeeping
@@ -653,8 +649,8 @@ populate_cdm_tables_from_views <- function(
       percentage_files <- paste0(round(counter / total_files * 100, 2), "%")
       time_message <- invisible(utils::capture.output(tictoc::toc()$callback_msg))
 
-      cat(paste0(
-        "\rDone transforming view ", source_view, " into ", target,
+      message(paste0(
+        "Done transforming view ", source_view, " into ", target,
         ". Source view is file number ",
         counter, " / ", total_files, " (", percentage_files,
         "), ", time_message[1], "."
@@ -665,10 +661,7 @@ populate_cdm_tables_from_views <- function(
         DBI::dbCommit(db_connection)
         DBI::dbExecute(db_connection, "CHECKPOINT;")
         DBI::dbBegin(db_connection)
-        cat(
-          "\033[32m- Batch ", counter,
-          " committed and checkpointed -\033[0m\n"
-        )
+        message("Batch ", counter, " committed and checkpointed.")
       }
     }
   }
@@ -730,10 +723,7 @@ combine_parquet_views <- function(
   targets <- unique(names(files_in_input))
 
   for (target in targets) {
-    cat(paste0(
-      "\033[1m\nCreating combined view(s) for table ",
-      target, "....\n\033[0m"
-    ))
+    message("Creating combined view(s) for table ", target, "...")
 
     # Get all parquet files for this target
     parquet_files <- files_in_input[names(files_in_input) == target]
@@ -795,7 +785,7 @@ combine_parquet_views <- function(
         gsub("\\\\", "/", file_path)
       )
       DBI::dbExecute(db_connection, query)
-      cat(paste0("\033[32mView ", view_name, " created\033[0m\n"))
+      message("View ", view_name, " created.")
     }
 
     # Now combine all individual views for this target
@@ -820,10 +810,7 @@ combine_parquet_views <- function(
         union_selects
       )
       DBI::dbExecute(db_connection, combined_query)
-      cat(paste0(
-        "\033[32mCombined view ",
-        target, " created\033[0m\n\n"
-      ))
+      message("Combined view ", target, " created.")
     } else if (create_db_as == "tables") {
       # Create a physical table instead of a view
       combined_query <- sprintf(
@@ -833,10 +820,7 @@ combine_parquet_views <- function(
         union_selects
       )
       DBI::dbExecute(db_connection, combined_query)
-      cat(paste0(
-        "\033[32mCombined table ",
-        target, " created\033[0m\n\n"
-      ))
+      message("Combined table ", target, " created.")
     }
   }
 }
@@ -889,10 +873,10 @@ add_missing_tables_as_empty <- function(
   existing_tables <- unique(names(files_in_input))
   missing_tables <- setdiff(tables_in_cdm, existing_tables)
   if (length(missing_tables) == 0) {
-    cat("No missing tables to add.\n")
+    message("No missing tables to add.")
     return() # nolint
   } else {
-    cat(paste0(
+    message(paste0(
       "Adding missing tables as empty ", tolower(view_or_table), "s: ",
       paste(missing_tables, collapse = ", "), "\n"
     ))
