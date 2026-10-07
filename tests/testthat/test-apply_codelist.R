@@ -1,6 +1,13 @@
 test_that("apply_codelist performs input validation", {
   con <- dbConnect(duckdb::duckdb(), ":memory:")
 
+  closed_con <- dbConnect(duckdb::duckdb(), ":memory:")
+  dbDisconnect(closed_con, shutdown = TRUE)
+  expect_error(
+    apply_codelist(closed_con, data.table(), materialize = "in_database"),
+    "database connection is not valid"
+  )
+
   # Test invalid data table
   expect_error(
     apply_codelist(
@@ -61,6 +68,24 @@ test_that("apply_codelist performs input validation", {
       path_parquets = NULL
     ),
     regexp = "'path_parquets' needed if materialize = 'in_parquet'"
+  )
+  expect_error(
+    apply_codelist(
+      con,
+      get_valid_dt(),
+      materialize = "in_parquet",
+      path_parquets = 1L
+    ),
+    "'path_parquets' must be a single character string"
+  )
+  expect_error(
+    apply_codelist(
+      con,
+      get_valid_dt(),
+      materialize = "in_parquet",
+      path_parquets = c("first", "second")
+    ),
+    "'path_parquets' must be a single character string"
   )
 
   # --- 5. Warnings ---
@@ -255,6 +280,64 @@ test_that("apply_codelist applies child levels when a level is skipped", {
   )
   # p3 has lvl = B, so the level-3 condition must exclude it
   expect_equal(concept_table$person_id, "p1")
+})
+
+test_that("apply_codelist resolves a source table in the supplied schema", {
+  con <- create_medicines_test_db()
+  DBI::dbExecute(con, "CREATE SCHEMA cdm")
+  DBI::dbExecute(con, "CREATE TABLE cdm.MED AS SELECT * FROM MED")
+
+  codelist <- data.table(
+    id_set = 1L,
+    concept_id = "C1",
+    cdm_table_name = "MED",
+    cdm_column = "atc",
+    code = "N02",
+    keep_value_column_name = NA_character_,
+    keep_date_column_name = "d",
+    order_index = 1L
+  )
+
+  suppressMessages(
+    apply_codelist(
+      con,
+      codelist,
+      scheme = "cdm",
+      materialize = "in_database"
+    )
+  )
+
+  result <- dbGetQuery(con, "SELECT person_id FROM concept_table")
+  expect_setequal(result$person_id, c("p1", "p3"))
+})
+
+test_that("apply_codelist omits id_set when keep_id_set is FALSE", {
+  con <- create_medicines_test_db()
+  codelist <- data.table(
+    id_set = 1L,
+    concept_id = "C1",
+    cdm_table_name = "MED",
+    cdm_column = "atc",
+    code = "N02",
+    keep_value_column_name = NA_character_,
+    keep_date_column_name = "d",
+    order_index = 1L
+  )
+
+  suppressMessages(
+    apply_codelist(
+      con,
+      codelist,
+      materialize = "in_database",
+      keep_id_set = FALSE
+    )
+  )
+
+  expect_false("id_set" %in% dbListFields(con, "concept_table"))
+  expect_setequal(
+    dbGetQuery(con, "SELECT person_id FROM concept_table")$person_id,
+    c("p1", "p3")
+  )
 })
 
 test_that("apply_codelist keeps parents on different columns of one table", {
