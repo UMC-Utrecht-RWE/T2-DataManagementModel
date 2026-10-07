@@ -193,18 +193,15 @@ create_medicines_test_db <- function(env = parent.frame()) {
       person_id VARCHAR,
       atc VARCHAR,
       prod VARCHAR,
-      sys VARCHAR, 
-      lvl VARCHAR, 
+      sys VARCHAR,
+      lvl VARCHAR,
       d DATE
     )")
   DBI::dbExecute(con, "
     INSERT INTO MED VALUES
-      ('00000000-0000-0000-0000-000000000001', 'MED', 'p1',
-       'N02', 'X', 'ATC', 'A', '2020-01-01'),
-      ('00000000-0000-0000-0000-000000000002', 'MED', 'p2',
-       'Z99', 'P1', 'ATC', 'A', '2020-01-01'),
-      ('00000000-0000-0000-0000-000000000003', 'MED', 'p3',
-       'N02', 'X', 'ATC', 'B', '2020-01-01')")
+      ('01', 'MED', 'p1', 'N02', 'X', 'ATC', 'A', '2020-01-01'),
+      ('02', 'MED', 'p2', 'Z99', 'P1', 'ATC', 'A', '2020-01-01'),
+      ('03', 'MED', 'p3', 'N02', 'X', 'ATC', 'B', '2020-01-01')")
   con
 }
 
@@ -258,4 +255,32 @@ test_that("apply_codelist applies child levels when a level is skipped", {
   )
   # p3 has lvl = B, so the level-3 condition must exclude it
   expect_equal(concept_table$person_id, "p1")
+})
+
+test_that("apply_codelist keeps parents on different columns of one table", {
+  con <- create_medicines_test_db()
+
+  # Two id_sets on the same table and keep columns (same family), but
+  # matching on different columns: atc = N02 and prod = P1
+  codelist <- data.table(
+    id_set = c(1L, 2L),
+    concept_id = c("C_ATC", "C_PROD"),
+    cdm_table_name = "MED",
+    cdm_column = c("atc", "prod"),
+    code = c("N02", "P1"),
+    keep_value_column_name = NA_character_,
+    keep_date_column_name = "d",
+    order_index = 1L
+  )
+
+  suppressMessages(
+    apply_codelist(con, codelist, materialize = "in_database")
+  )
+
+  concept_table <- dbGetQuery(
+    con,
+    "SELECT person_id, concept_id FROM concept_table ORDER BY person_id"
+  )
+  expect_equal(concept_table$person_id, c("p1", "p2", "p3"))
+  expect_equal(concept_table$concept_id, c("C_ATC", "C_PROD", "C_ATC"))
 })
