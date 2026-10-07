@@ -174,6 +174,7 @@ apply_codelist <- function(
 
   # If keep_value_column_name is empty then asign "TRUE" to the column value
   codelist[is.na(keep_value_column_name), keep_value_column_name := "'TRUE'"]
+  codelist[keep_value_column_name == "", keep_value_column_name := "'TRUE'"]
 
   # If keep_value_column_name is the literal string "NA" quote it so it is
   # treated as a SQL string literal instead of an unquoted (invalid) column
