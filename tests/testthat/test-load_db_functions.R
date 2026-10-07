@@ -37,7 +37,7 @@ testthat::test_that("check_params fails on invalid inputs", {
 })
 
 testthat::test_that("check_params passes with all valid parameters", {
-  expect_output(
+  expect_message(
     check_params(
       yaml_path_to_cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.yaml",
       format_source_files = "csv",
@@ -53,7 +53,7 @@ testthat::test_that("create_schemas creates schemas and get_table_info works cor
   dbname <- tempfile("ConcePTION_1.duckdb")
   con <- DBI::dbConnect(duckdb::duckdb(), dbname)
 
-  testthat::expect_output(
+  testthat::expect_message(
     create_schemas(
       schema_individual_views = "individual_views",
       data_model = "test_model",
@@ -284,7 +284,7 @@ testthat::test_that("populate_cdm_tables_from_views works and skips columns not 
   }
 
   # 1. skips columns that are not in the CDM
-  testthat::expect_output(
+  testthat::expect_message(
     populate_cdm_tables_from_views(
       db_connection = con,
       data_model = "conception",
@@ -313,7 +313,7 @@ testthat::test_that("populate_cdm_tables_from_views works and skips columns not 
   DBI::dbExecute(con, paste0(
     "CREATE OR REPLACE TABLE ", "conception", ".RANDOM (id INTEGER);"
   ))
-  testthat::expect_output(
+  testthat::expect_message(
     populate_cdm_tables_from_views(
       db_connection = con,
       data_model = "conception",
@@ -326,7 +326,7 @@ testthat::test_that("populate_cdm_tables_from_views works and skips columns not 
   )
 
   # 4. Creates parquet if through_parquet is 'yes'"
-  testthat::expect_output(
+  testthat::expect_message(
     populate_cdm_tables_from_views(
       db_connection = con,
       data_model = "conception",
