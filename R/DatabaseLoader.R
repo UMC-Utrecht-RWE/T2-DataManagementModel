@@ -47,14 +47,14 @@
 #' \dontrun{
 #' loader <- DatabaseLoader$new(
 #'   db_path = "path/to/database.db",
-#'   config_path = "path/to/set_db.json",
+#'   config_path = "path/to/set_db.yaml",
 #'   cdm_metadata = "path/to/CDM_metadata.rds"
 #' )
 #' loader$set_database()
 #' loader$run_db_ops()
 #' }
 #'
-#' @importFrom jsonlite fromJSON
+#' @importFrom yaml read_yaml
 #' @importFrom data.table as.data.table
 #' @importFrom duckdb dbConnect dbDisconnect
 #' @importFrom DBI dbDisconnect
@@ -84,12 +84,16 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
                           data_instance = NULL,
                           config_path = NULL,
                           cdm_metadata = NULL) {
-      self$db_path <- db_path
+      self$db_path <- if (is.null(db_path)) {
+        file.path(data_instance, "db.duckdb")
+      } else {
+        db_path
+      }
       self$data_instance <- data_instance
-      self$config <- jsonlite::fromJSON(config_path)
+      self$config <- yaml::read_yaml(config_path)
       # Load cdm_metadata
       if (is.character(cdm_metadata) && grepl("\\.rds$", cdm_metadata)) {
-        self$metadata <- T2.DMM:::ensure_data_table(base::readRDS(cdm_metadata))
+        self$metadata <- ensure_data_table(base::readRDS(cdm_metadata))
       } else if (is.data.table(cdm_metadata)) {
         self$metadata <- cdm_metadata
       } else {
@@ -105,12 +109,13 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
       tryCatch(
         {
           T2.DMM:::load_db(
-            db_connection = self$db,
-            data_instance_path = self$data_instance,
-            cdm_metadata = self$metadata,
-            cdm_tables_names = self$config$cdm_tables_names,
-            extension_name = self$config$extension_name,
-            file_format = self$config$file_format
+            con = self$db,
+            data_model = self$config$data_model,
+            cdm_schema = self$config$cdm_schema,
+            format_source_files = self$config$file_format,
+            folder_path_to_source_files = self$data_instance,
+            create_db_as = self$config$create_db_as,
+            tables_in_cdm = self$config$cdm_tables_names
           )
         },
         error = function(e) {
@@ -140,7 +145,7 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
       ops <- list() # Initialize an empty list to store operation objects
 
       for (operation in ordered_operations) {
-        # Check if the operation is enabled in the JSON config
+        # Check if the operation is enabled in the YAML config
         is_enabled <- isTRUE(self$config$operations[[operation]])
         if (!is_enabled) {
           next # Skip this operation if it's not enabled

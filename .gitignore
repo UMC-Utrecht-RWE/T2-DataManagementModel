@@ -39,9 +39,6 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
-# pkgdown site
-docs/
-
 # translation temp files
 po/*~
 
@@ -50,3 +47,5 @@ rsconnect/
 
 # Mac-specfic files
 .DS_Store
+/tests/testthat/dbtest/intermediate_parquet
+/tests/testthat/intermediate_data_file

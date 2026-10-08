@@ -8,7 +8,7 @@ create_unique_id(
   db_connection,
   cdm_tables_names,
   extension_name = "",
-  schema_name = NULL,
+  scheme = NULL,
   to_view = FALSE,
   pipeline_extension = "_T2DMM"
 )
@@ -21,7 +21,7 @@ create_unique_id(
 \item{extension_name}{String to be added to the name of the tables,
 useful when loading different CDM instances in the same database.}
 
-\item{schema_name}{Optional schema name to prepend to table and view names.
+\item{scheme}{Optional scheme name to prepend to table and view names.
 Default is `NULL`.}
 
 \item{to_view}{Logical. If `TRUE` (default),

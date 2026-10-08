@@ -10,7 +10,7 @@
 #' @param cdm_tables_names List of CDM tables names to be imported into the db.
 #' @param extension_name String to be added to the name of the tables,
 #' useful when loading different CDM instances in the same database.
-#' @param schema_name Optional schema name to prepend to table and view names.
+#' @param scheme Optional scheme name to prepend to table and view names.
 #' Default is `NULL`.
 #' @param to_view Logical. If `TRUE` (default),
 #' creates a view with the unique ID column.
@@ -34,12 +34,12 @@ create_unique_id <- function(
   db_connection,
   cdm_tables_names,
   extension_name = "",
-  schema_name = NULL,
+  scheme = NULL,
   to_view = FALSE,
   pipeline_extension = "_T2DMM"
 ) {
-  if (is.null(schema_name)) {
-    schema_name <- "main"
+  if (is.null(scheme)) {
+    scheme <- "main"
   }
   # Append the extension to CDM table names
   cdm_tables_names <- paste0(cdm_tables_names, extension_name)
@@ -57,21 +57,89 @@ create_unique_id <- function(
     length(cdm_tables_names[!cdm_tables_names %in% list_existing_tables]) > 0
   ) {
     message(paste0(
-      "[CreateUniqueIDCDM] Can not create unique IDs on the following ",
+      "[CreateUniqueID] Can not create unique IDs on the following ",
       "CDM table because they do not exist in the database "
     ))
-    message(cdm_tables_names[!cdm_tables_names %in% list_existing_tables])
+    message(paste(cdm_tables_names[!cdm_tables_names %in% list_existing_tables], collapse = ", "))
+  }
+
+  replace_table <- function(table_from_name, table) {
+    staging_table <- paste0("temporal_table_", basename(tempfile()))
+    staging_identifier <- as.character(
+      DBI::dbQuoteIdentifier(db_connection, staging_table)
+    )
+    staging_created <- FALSE
+    transaction_started <- FALSE
+
+    on.exit({
+      if (transaction_started) {
+        try(DBI::dbRollback(db_connection), silent = TRUE)
+      }
+      if (staging_created) {
+        try(DBI::dbRemoveTable(db_connection, staging_table), silent = TRUE)
+      }
+    }, add = TRUE)
+
+    DBI::dbExecute(
+      db_connection,
+      paste0(
+        "CREATE TEMP TABLE ", staging_identifier, " AS
+         SELECT
+           '", table, "' AS ori_table,
+           rn AS unique_id,
+           * EXCLUDE(rn)
+         FROM (SELECT *, uuid() AS rn FROM ", table_from_name, ")"
+      )
+    )
+    staging_created <- TRUE
+
+    table_type <- DBI::dbGetQuery(
+      db_connection,
+      paste0(
+        "SELECT table_type FROM information_schema.tables ",
+        "WHERE table_schema = '", scheme,
+        "' AND table_name = '", table, "'"
+      )
+    )$table_type
+
+    DBI::dbBegin(db_connection)
+    transaction_started <- TRUE
+
+    if (identical(table_type, "VIEW")) {
+      DBI::dbExecute(
+        db_connection,
+        paste0("DROP VIEW ", table_from_name),
+        n = -1
+      )
+    } else if (!identical(table_type, "BASE TABLE")) {
+      stop("Unable to determine the source type of ", table_from_name, ".")
+    }
+
+    DBI::dbExecute(
+      db_connection,
+      paste0(
+        "CREATE OR REPLACE TABLE ", table_from_name,
+        " AS SELECT * FROM ", staging_identifier
+      )
+    )
+    DBI::dbExecute(
+      db_connection,
+      paste0("DROP TABLE ", staging_identifier)
+    )
+    DBI::dbCommit(db_connection)
+    transaction_started <- FALSE
+    staging_created <- FALSE
   }
 
   # Loop through each existing CDM table
   for (table in cdm_tables_names_existing) {
     # Adjusting the name of the table to the Scheme where this is located
     #  in the database
-    table_from_name <- paste0(schema_name, ".", table)
+    table_from_name <- paste0(scheme, ".", table)
 
     if (to_view == TRUE) {
       pipeline_name <- paste0(table, pipeline_extension)
-      T2.DMM:::add_view(
+      add_view(
         db_connection,
         pipeline = pipeline_name,
         base_table = table_from_name,
@@ -85,29 +153,7 @@ create_unique_id <- function(
         )
       )
     } else {
-      DBI::dbExecute(
-        db_connection,
-        paste0(
-          "CREATE OR REPLACE TEMP TABLE temporal_table AS
-            SELECT
-            '", table, "' AS ori_table,
-            rn AS unique_id,
-            * EXCLUDE(rn)
-            FROM (SELECT *, uuid() AS rn
-                  FROM ", table_from_name, ")"
-        )
-      )
-      DBI::dbExecute(db_connection, paste0(
-        "DROP TABLE ",
-        table_from_name
-      ), n = -1)
-      DBI::dbExecute(
-        db_connection,
-        paste0(
-          "CREATE TABLE ", table_from_name, " AS SELECT * FROM temporal_table"
-        )
-      )
-      DBI::dbExecute(db_connection, "DROP TABLE temporal_table")
+      replace_table(table_from_name, table)
     }
 
     message(

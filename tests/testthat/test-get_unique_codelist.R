@@ -23,7 +23,11 @@ testthat::test_that("get_unique_codelist: success cases and structure", {
   )
 
   # 3. Run Function
-  result_list <- get_unique_codelist(db, column_info_list, "events")
+  result_list <- get_unique_codelist(
+    db_connection = db,
+    column_info_list = column_info_list,
+    tb_name = "events"
+  )
 
   # --- Assertions ---
   testthat::expect_length(result_list, 2)
@@ -59,7 +63,11 @@ testthat::test_that("get_unique_codelist: validation checks", {
   # Error 1: Wrong key names (using the old 'column_name')
   bad_keys <- list(list(column_name = "id", alias_name = "id"))
   testthat::expect_error(
-    get_unique_codelist(db, bad_keys, "table"),
+    get_unique_codelist(
+      db_connection = db,
+      column_info_list = bad_keys,
+      tb_name = "table"
+    ),
     regexp = "is missing columns: 'source_column' and/or 'alias_name'."
   )
 
@@ -69,13 +77,13 @@ testthat::test_that("get_unique_codelist: validation checks", {
     alias_name = "alias1"
   ))
   testthat::expect_error(
-    get_unique_codelist(db, mismatched, "table"),
+    get_unique_codelist(db_connection = db, column_info_list = mismatched, tb_name = "table"),
     "must have the same length"
   )
 
   # Error 3: Empty list
   testthat::expect_error(
-    get_unique_codelist(db, list(), "table"),
+    get_unique_codelist(db_connection = db, column_info_list = list(), tb_name = "table"),
     "must be a non-empty list"
   )
 

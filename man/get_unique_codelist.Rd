@@ -4,10 +4,12 @@
 \alias{get_unique_codelist}
 \title{Get Unique Code List from Database}
 \usage{
-get_unique_codelist(db_connection, column_info_list, tb_name)
+get_unique_codelist(db_connection, scheme = NULL, column_info_list, tb_name)
 }
 \arguments{
 \item{db_connection}{A database connection object.}
+
+\item{scheme}{String defining the scheme where the table is hosted within the database. Default is NULL.}
 
 \item{column_info_list}{A list of lists specifying the columns to be used for
 distinct, along with their new names. Each inner list should contain two

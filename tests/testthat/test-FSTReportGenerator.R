@@ -1,6 +1,6 @@
 testthat::test_that("FSTReportGenerator creates a valid .fst file", {
   temp_dir <- withr::local_tempdir()
-  setwd(temp_dir)
+  withr::local_dir(temp_dir)
 
   # Create the generator
   fst_report_generator <- FSTReportGenerator$new()

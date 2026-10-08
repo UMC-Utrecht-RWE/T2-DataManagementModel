@@ -3,9 +3,14 @@ testthat::test_that("create_unique_id: columns are added correctly in overwrite 
   withr::defer(DBI::dbDisconnect(db_connection))
 
   # Test basic overwrite (to_view = FALSE is default/explicit)
-  create_unique_id(db_connection, cdm_tables_names = "PERSONS", to_view = FALSE)
+  create_unique_id(db_connection,
+    scheme = "CDM",
+    cdm_tables_names = "PERSONS",
+    to_view = FALSE
+  )
 
-  persons_db <- DBI::dbReadTable(db_connection, "PERSONS")
+  persons_db <- DBI::dbGetQuery(db_connection, "SELECT *
+                                                FROM CDM.PERSONS")
 
   # Check columns exist
   testthat::expect_contains(names(persons_db), c("unique_id", "ori_table"))
@@ -27,6 +32,7 @@ testthat::test_that("create_unique_id: creates views when to_view is TRUE", {
 
   create_unique_id(
     db_connection,
+    scheme = "CDM",
     cdm_tables_names = table_name,
     to_view = TRUE,
     pipeline_extension = pipe_ext
@@ -48,7 +54,9 @@ testthat::test_that("create_unique_id: handles extension_name correctly", {
   withr::defer(DBI::dbDisconnect(db_connection))
 
   # Create a table with a suffix manually to simulate multi-instance
-  DBI::dbExecute(db_connection, "CREATE TABLE PERSONS_CDM1 AS SELECT * FROM PERSONS")
+  DBI::dbExecute(db_connection, "CREATE TABLE PERSONS_CDM1 AS
+                                SELECT *
+                                FROM CDM.PERSONS")
 
   create_unique_id(db_connection, cdm_tables_names = "PERSONS", extension_name = "_CDM1")
 
@@ -79,10 +87,61 @@ testthat::test_that("create_unique_id: custom schema support", {
   create_unique_id(
     db_connection,
     cdm_tables_names = "DATA",
-    schema_name = "test_schema"
+    scheme = "test_schema"
   )
 
   # Check if the table in the schema was updated
   res <- DBI::dbGetQuery(db_connection, "SELECT * FROM test_schema.DATA")
   testthat::expect_contains(names(res), "unique_id")
+})
+
+testthat::test_that("create_unique_id preserves a table if replacement fails", {
+  db_connection <- DBI::dbConnect(duckdb::duckdb())
+  withr::defer(DBI::dbDisconnect(db_connection, shutdown = TRUE))
+  DBI::dbExecute(db_connection, "CREATE SCHEMA test_schema")
+  DBI::dbExecute(
+    db_connection,
+    "CREATE TABLE test_schema.DATA AS SELECT 'original' AS value"
+  )
+  original_db_execute <- DBI::dbExecute
+
+  testthat::local_mocked_bindings(
+    dbExecute = function(conn, statement, ...) {
+      if (grepl(
+        "CREATE OR REPLACE TABLE test_schema.DATA AS",
+        statement,
+        fixed = TRUE
+      )) {
+        stop("injected replacement failure")
+      }
+      original_db_execute(conn, statement, ...)
+    },
+    .package = "DBI"
+  )
+
+  testthat::expect_error(
+    create_unique_id(
+      db_connection,
+      cdm_tables_names = "DATA",
+      scheme = "test_schema"
+    ),
+    "injected replacement failure"
+  )
+  testthat::expect_equal(
+    DBI::dbGetQuery(
+      db_connection,
+      "SELECT value FROM test_schema.DATA"
+    )$value,
+    "original"
+  )
+  testthat::expect_equal(
+    DBI::dbGetQuery(
+      db_connection,
+      paste(
+        "SELECT COUNT(*) AS n FROM information_schema.tables",
+        "WHERE table_name LIKE 'temporal_table_%'"
+      )
+    )$n,
+    0L
+  )
 })

@@ -9,82 +9,39 @@ testthat::test_that("DatabaseLoader initializes with environment variables", {
   DBI::dbDisconnect(loader$db)
 })
 
-testthat::test_that("DatabaseLoader runs set_database() without error", {
+testthat::test_that("DatabaseLoader forwards configuration to load_db", {
   loader <- create_database_loader(config_path = "CONFIG_SET_DB")
+  withr::defer(DBI::dbDisconnect(loader$db))
+  load_db_args <- NULL
 
-  # We'll just check that it doesn't throw
-  testthat::expect_error(
-    loader$set_database(),
-    NA # means expect no error
-  )
-
-  # Check if the tables correspond to the ones in the folder:
-  # "EVENTS", "MEDICINES", "PERSONS", "VACCINES" are created in loader$db
-  testthat::expect_true(
-    all(
-      c("EVENTS", "MEDICINES", "PERSONS", "VACCINES")
-      %in% DBI::dbListTables(loader$db)
-    )
+  testthat::local_mocked_bindings(
+    load_db = function(...) {
+      load_db_args <<- list(...)
+    },
+    .package = "T2.DMM"
   )
 
-  # Check if the table have the expected number of row
-  testthat::expect_equal(
-    DBI::dbGetQuery(loader$db, "SELECT COUNT(*) FROM EVENTS")$count,
-    5
-  )
-  testthat::expect_equal(
-    DBI::dbGetQuery(loader$db, "SELECT COUNT(*) FROM MEDICINES")$count,
-    32002.0
-  )
-  testthat::expect_equal(
-    DBI::dbGetQuery(loader$db, "SELECT COUNT(*) FROM PERSONS")$count,
-    20
-  )
-  testthat::expect_equal(
-    DBI::dbGetQuery(loader$db, "SELECT COUNT(*) FROM VACCINES")$count,
-    30
-  )
+  loader$set_database()
 
-  # Check if the table have the expected column names
-  testthat::expect_equal(
-    DBI::dbListFields(loader$db, "EVENTS"),
-    c(
-      "person_id", "start_date_record", "end_date_record", "event_code",
-      "event_record_vocabulary", "text_linked_to_event_code", "event_free_text",
-      "present_on_admission", "laterality_of_event", "meaning_of_event",
-      "origin_of_event", "visit_occurrence_id"
-    )
+  testthat::expect_identical(load_db_args$con, loader$db)
+  testthat::expect_identical(load_db_args$data_model, loader$config$data_model)
+  testthat::expect_identical(load_db_args$cdm_schema, loader$config$cdm_schema)
+  testthat::expect_identical(
+    load_db_args$format_source_files,
+    loader$config$file_format
   )
-  testthat::expect_equal(
-    DBI::dbListFields(loader$db, "MEDICINES"),
-    c(
-      "medicinal_product_id", "meaning_of_drug_record", "origin_of_drug_record",
-      "date_dispensing", "date_prescription",
-      "person_id", "medicinal_product_atc_code",
-      "disp_number_medicinal_product",
-      "presc_quantity_per_day", "presc_quantity_unit", "presc_duration_days",
-      "product_lot_number", "inidication_code", "indication_code_vocabulary",
-      "prescriber_speciality", "prescriber_speciality_vocabulary",
-      "visit_occurrence_id"
-    )
+  testthat::expect_identical(
+    load_db_args$folder_path_to_source_files,
+    loader$data_instance
   )
-  testthat::expect_equal(
-    DBI::dbListFields(loader$db, "PERSONS"),
-    c(
-      "person_id", "day_of_birth", "month_of_birth", "year_of_birth",
-      "day_of_death", "month_of_death", "year_of_death",
-      "sex_at_instance_creation", "race", "country_of_birth", "quality"
-    )
+  testthat::expect_identical(
+    load_db_args$create_db_as,
+    loader$config$create_db_as
   )
-  testthat::expect_equal(
-    DBI::dbListFields(loader$db, "VACCINES"),
-    c(
-      "person_id", "vx_record_date", "vx_dose", "vx_manufacturer",
-      "vx_atc", "vx_type", "vx_text", "origin_of_vx_record",
-      "meaning_of_vx_record", "vx_lot_num", "vx_admin_date"
-    )
+  testthat::expect_identical(
+    load_db_args$tables_in_cdm,
+    loader$config$cdm_tables_names
   )
-  DBI::dbDisconnect(loader$db)
 })
 
 testthat::test_that("With imported cdm_metadata", {
@@ -101,10 +58,21 @@ testthat::test_that("With imported cdm_metadata", {
   )
 })
 
-testthat::test_that("With error in the loading function", {
+testthat::test_that("set_database reports errors from load_db", {
   loader <- create_loader_from_file("CONFIG_SET_DB")
-  loader$data_instance <- NULL # Simulate no database connection
-  testthat::expect_error(loader$set_database(), NA)
+  withr::defer(DBI::dbDisconnect(loader$db))
+
+  testthat::local_mocked_bindings(
+    load_db = function(...) {
+      stop("load failure")
+    },
+    .package = "T2.DMM"
+  )
+
+  testthat::expect_message(
+    loader$set_database(),
+    "Error loading database:"
+  )
 })
 
 testthat::test_that("Running run_db_ops", {
