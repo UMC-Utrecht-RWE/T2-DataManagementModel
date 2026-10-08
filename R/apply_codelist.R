@@ -153,7 +153,40 @@ apply_codelist <- function(
     stop("[apply_codelist] 'order_index' must be numeric/integer.")
   }
 
-  if (!DBI::dbExistsTable(db_con, "concept_table") && materialize %in% "in_database") {
+  requested_tables <- unique(as.character(codelist$cdm_table_name))
+  if (anyNA(requested_tables) || any(!nzchar(requested_tables))) {
+    stop("[apply_codelist] 'cdm_table_name' cannot contain missing names.")
+  }
+
+  if (is.null(scheme)) {
+    source_schema <- DBI::dbGetQuery(
+      db_con,
+      "SELECT current_schema() AS schema_name"
+    )$schema_name[[1]]
+  } else {
+    if (!is.character(scheme) || length(scheme) != 1L || is.na(scheme) || !nzchar(scheme)) {
+      stop("[apply_codelist] 'scheme' must be NULL or one non-empty string.")
+    }
+    source_schema <- scheme
+  }
+
+  quoted_schema <- as.character(DBI::dbQuoteString(db_con, source_schema))
+  available_tables <- DBI::dbGetQuery(
+    db_con,
+    paste0(
+      "SELECT table_name FROM information_schema.tables ",
+      "WHERE table_schema = ", quoted_schema
+    )
+  )$table_name
+  missing_tables <- setdiff(requested_tables, available_tables)
+  if (length(missing_tables) > 0) {
+    stop(
+      "[apply_codelist] Tables not found in schema '", source_schema, "': ",
+      paste(missing_tables, collapse = ", ")
+    )
+  }
+
+  if (!DBI::dbExistsTable(db_con, "concept_table") && materialize == "in_database") {
     initialize_concept_table(
       db_con,
       type_table = "table",
@@ -161,15 +194,6 @@ apply_codelist <- function(
       partition = TRUE,
       add_id_set = keep_id_set
     )
-  }
-
-  if (any(unique(codelist[, cdm_table_name]) %in% DBI::dbListTables(db_con))) {
-    # Checking searching table:
-    available_tables <- dbListTables(db_con)
-    searching_tables <- unique(codelist[, cdm_table_name])
-    match_tables <- searching_tables[searching_tables %in% available_tables]
-
-    codelist <- codelist[cdm_table_name %in% match_tables]
   }
 
   # If keep_value_column_name is empty then asign "TRUE" to the column value
@@ -196,15 +220,7 @@ apply_codelist <- function(
   )])
 
 
-  if (length(DBI::dbListTables(db_con)) == 0) {
-    stop("[apply_codelist] database empty")
-  }
-
-  # Checkinbg if any required table exists in the database
-  if (!any(unique(codelist[, cdm_table_name]) %in% DBI::dbListTables(db_con))) {
-    warning("[apply_codelist] requiered tables do not exist")
-  } else {
-    for (fam_idx in seq_len(nrow(family_groups))) {
+  for (fam_idx in seq_len(nrow(family_groups))) {
       fam_info <- family_groups[fam_idx]
       message(
         paste0(
@@ -334,11 +350,21 @@ apply_codelist <- function(
       create_concepts_3 <- glue(create_concepts_3)
 
       if (materialize == "in_database") {
+        update_columns <- c("ori_table", "person_id", "value", "date")
+        if (keep_id_set) {
+          update_columns <- c(update_columns, "id_set")
+        }
+        quoted_columns <- as.character(
+          DBI::dbQuoteIdentifier(db_con, update_columns)
+        )
+        update_assignments <- paste(
+          paste0(quoted_columns, " = EXCLUDED.", quoted_columns),
+          collapse = ", "
+        )
         query_final <- glue("INSERT INTO concept_table
                           {create_concepts_3}
-                          ON CONFLICT DO UPDATE SET
-                          unique_id = EXCLUDED.unique_id,
-                          concept_id = EXCLUDED.concept_id;")
+                          ON CONFLICT (unique_id, concept_id)
+                          DO UPDATE SET {update_assignments};")
       } else if (materialize == "in_parquet") {
         query_final <- glue("COPY (
                               {create_concepts_3}
@@ -365,5 +391,4 @@ apply_codelist <- function(
         add_id_set = keep_id_set
       )
     }
-  }
 }
