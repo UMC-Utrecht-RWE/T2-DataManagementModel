@@ -88,20 +88,22 @@ test_that("apply_codelist performs input validation", {
     "'path_parquets' must be a single character string"
   )
 
-  # --- 5. Warnings ---
+  # --- 5. Warnings and missing source table validation ---
   warnings <- capture_warnings(
-    apply_codelist(
-      con,
-      get_valid_dt(),
-      materialize = "in_database",
-      path_parquets = "ignored/path"
+    expect_error(
+      apply_codelist(
+        con,
+        get_valid_dt(),
+        materialize = "in_database",
+        path_parquets = "ignored/path"
+      ),
+      "cdm_table_name.*missing names"
     )
   )
 
-  expect_length(warnings, 2)
+  expect_length(warnings, 1)
 
   expect_true(any(grepl(" 'path_parquets' ignored if ", warnings)))
-  expect_true(any(grepl("requiered tables do not exist", warnings)))
 
 
   dbDisconnect(con, shutdown = TRUE)
@@ -280,6 +282,64 @@ test_that("apply_codelist applies child levels when a level is skipped", {
   )
   # p3 has lvl = B, so the level-3 condition must exclude it
   expect_equal(concept_table$person_id, "p1")
+})
+
+test_that("apply_codelist rejects a mixed set of present and missing tables", {
+  con <- create_medicines_test_db()
+  codelist <- data.table(
+    id_set = c(1L, 2L),
+    concept_id = c("C1", "C2"),
+    cdm_table_name = c("MED", "MISSING"),
+    cdm_column = c("atc", "atc"),
+    code = c("N02", "N02"),
+    keep_value_column_name = NA_character_,
+    keep_date_column_name = "d",
+    order_index = 1L
+  )
+
+  expect_error(
+    apply_codelist(con, codelist, materialize = "in_database"),
+    "Tables not found in schema 'main': MISSING"
+  )
+  expect_false(DBI::dbExistsTable(con, "concept_table"))
+})
+
+test_that("apply_codelist refreshes payload fields on conflict", {
+  con <- create_medicines_test_db()
+  codelist <- data.table(
+    id_set = 1L,
+    concept_id = "C1",
+    cdm_table_name = "MED",
+    cdm_column = "atc",
+    code = "N02",
+    keep_value_column_name = "lvl",
+    keep_date_column_name = "d",
+    order_index = 1L
+  )
+
+  suppressMessages(
+    apply_codelist(con, codelist, materialize = "in_database")
+  )
+  DBI::dbExecute(
+    con,
+    "UPDATE MED SET d = DATE '2021-02-03' WHERE atc = 'N02'"
+  )
+  codelist[, `:=`(id_set = 2L, keep_value_column_name = "sys")]
+
+  suppressMessages(
+    apply_codelist(con, codelist, materialize = "in_database")
+  )
+
+  result <- DBI::dbGetQuery(
+    con,
+    paste(
+      "SELECT value, date, id_set FROM concept_table",
+      "ORDER BY person_id"
+    )
+  )
+  expect_equal(result$value, c("ATC", "ATC"))
+  expect_equal(result$date, as.Date(rep("2021-02-03", 2)))
+  expect_equal(result$id_set, c("2", "2"))
 })
 
 test_that("apply_codelist resolves a source table in the supplied schema", {
