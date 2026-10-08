@@ -211,18 +211,13 @@ testthat::test_that("combine_parquet_views combines views from multiple parquet 
     yaml_path_to_cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.yaml",
     tables_in_cdm = c("PERSONS", "VACCINES", "MEDICINES", "EVENTS")
   )
-  ppath <- "dbtest/intermediate_parquet"
-  if (!dir.exists(ppath)) {
-    dir.create(ppath)
-  } else {
-    unlink(ppath)
-  }
+  ppath <- withr::local_tempdir()
   populate_cdm_tables_from_views(
     db_connection = con,
     data_model = "conception",
     schema_individual_views = "individual_views",
     files_in_input = fininput,
-    through_parquet = "no",
+    through_parquet = "yes",
     parquet_path = ppath
   )
 
@@ -276,12 +271,7 @@ testthat::test_that("populate_cdm_tables_from_views works and skips columns not 
     yaml_path_to_cdm_schema = "dbtest/ConcePTION_CDM_tables_v2.2.yaml",
     tables_in_cdm = c("PERSONS", "VACCINES", "MEDICINES", "EVENTS")
   )
-  ppath <- "dbtest/intermediate_parquet"
-  if (!dir.exists(ppath)) {
-    dir.create(ppath)
-  } else {
-    unlink(ppath)
-  }
+  ppath <- withr::local_tempdir()
 
   # 1. skips columns that are not in the CDM
   testthat::expect_message(

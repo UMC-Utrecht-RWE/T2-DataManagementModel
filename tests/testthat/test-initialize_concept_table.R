@@ -40,7 +40,7 @@ test_that("initialize_concept_table handles view creation and invalid inputs", {
   # 2. Test View Creation (Mocking a Parquet environment)
   # We create a temporary directory and a dummy parquet
   #  file so DuckDB doesn't error on scan
-  tmp_dir <- tempdir()
+  tmp_dir <- withr::local_tempdir()
   tmp_path <- file.path(tmp_dir, "test.parquet")
   arrow::write_parquet(data.frame(
     unique_id = "a", ori_table = "b", person_id = "c",

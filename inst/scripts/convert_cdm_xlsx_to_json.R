@@ -43,4 +43,4 @@ for (sheet_name in sheet_names) {
 
 write_yaml(cdm_schema, yaml_path, handlers = list(logical = verbatim_logical))
 
-cat("CDM schema written to:", yaml_path, "\n")
+message("CDM schema written to:", yaml_path, "\n")

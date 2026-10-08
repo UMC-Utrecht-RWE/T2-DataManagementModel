@@ -91,7 +91,7 @@ load_db <- function(
 
   # 1. Check if the input parameters are correct
   # TODO: add check for tables_in_cdm?
-  cat("\033[1mStep 1: Checking if input parameters are correct...\033[0m\n")
+  message("\033[1mStep 1: Checking if input parameters are correct...\033[0m\n")
   check_params(
     yaml_path_to_cdm_schema = cdm_schema,
     format_source_files = format_source_files,
@@ -101,7 +101,7 @@ load_db <- function(
   )
 
   # 2. Setup the database connection and create the required schemas
-  cat("\033[1mStep 2: Creating required schemas in the database ...\033[0m\n")
+  message("\033[1mStep 2: Creating required schemas in the database ...\033[0m\n")
   create_schemas(
     schema_individual_views = schema_individual_views,
     data_model = data_model,
@@ -109,7 +109,7 @@ load_db <- function(
   )
 
   # 3. Read the source files as views in DuckDB
-  cat("\033[1mStep 3: Reading source files as views in DuckDB...\033[0m\n")
+  message("\033[1mStep 3: Reading source files as views in DuckDB...\033[0m\n")
   files_in_input <- read_source_files_as_views(
     db_connection = con,
     data_model = data_model,
@@ -120,7 +120,7 @@ load_db <- function(
   )
 
   # 4. Create empty CDM tables with correct schema
-  cat("\033[1mStep 4: Creating empty CDM tables with correct
+  message("\033[1mStep 4: Creating empty CDM tables with correct
    schema...\033[0m\n")
   create_empty_cdm_tables(
     db_connection = con,
@@ -130,7 +130,7 @@ load_db <- function(
   )
 
   # 5. Populate empty CDM tables with data from source views
-  cat("\033[1mStep 5: Populating empty CDM tables with data from source
+  message("\033[1mStep 5: Populating empty CDM tables with data from source
    views...\033[0m\n")
   populate_cdm_tables_from_views(
     con,
@@ -143,7 +143,7 @@ load_db <- function(
 
   # 6. If through_parquet, combine views to create DB
   if (through_parquet == "yes") {
-    cat("\033[1mStep 6: Combining parquet views to create database...\033[0m\n")
+    message("\033[1mStep 6: Combining parquet views to create database...\033[0m\n")
     combine_parquet_views(
       con,
       data_model,
@@ -156,7 +156,7 @@ load_db <- function(
     # if 'no', then then empty table already exists in schema_name,
     # because we created all tables in create_empty_cdm_tables()
     # if 'yes', then we need to create the empty tables in the data_model schema
-    cat("\033[1mStep 7: Adding missing tables as empty tables...\033[0m\n")
+    message("\033[1mStep 7: Adding missing tables as empty tables...\033[0m\n")
     add_missing_tables_as_empty(
       con,
       data_model,
@@ -166,11 +166,11 @@ load_db <- function(
     )
   }
 
-  cat("\033[1mHooray! Script finished running!\033[0m\n")
+  message("\033[1mHooray! Script finished running!\033[0m\n")
 
   # Final message: where to find the final tables
   view_or_table <- ifelse(create_db_as == "views", "Views", "Tables")
-  cat(paste0(
+  message(paste0(
     "The final tables can be accessed in the database through: \n",
     data_model, " > ", view_or_table
   ))

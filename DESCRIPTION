@@ -28,6 +28,8 @@ Imports:
     stats,
     tictoc,
     yaml
+SystemRequirements:
+    pandoc (>=3.12)
 Suggests:
     testthat (>= 3.0.0),
     withr (>= 3.0.2),

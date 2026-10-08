@@ -171,6 +171,6 @@ report_generator:
   report_name: count_rows_origin.fst
 '
 
-config_path <- file.path(tempdir(), "config_path.yaml")
-writeLines(config_yaml, config_path)
-Sys.setenv(APPLYCODELIST_CONFIG_PATH = config_path)
+config_apply_codelist <- file.path(tempdir(), "config_apply_codelist.yaml")
+writeLines(config_yaml, config_apply_codelist)
+Sys.setenv(APPLYCODELIST_CONFIG_PATH = config_apply_codelist)

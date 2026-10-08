@@ -96,7 +96,7 @@ testthat::test_that("Checking if the function saves the results", {
   cdm_tables_names <- c("VACCINES")
   scheme <- setNames(rep("*", length(cdm_tables_names)), cdm_tables_names)
 
-  save_path_csv <- "intermediate_data_file"
+  save_path_csv <- withr::local_tempdir()
 
   # Delete duplicates and save result
   suppressWarnings(
@@ -125,7 +125,7 @@ testthat::test_that("Checking if the function saves the results with a postfix",
   cdm_tables_names <- c("VACCINES")
   scheme <- setNames(rep("*", length(cdm_tables_names)), cdm_tables_names)
 
-  save_path_csv <- "intermediate_data_file"
+  save_path_csv <- withr::local_tempdir()
 
   post_fix <- "test_post_fix"
   # Delete duplicates and save result
