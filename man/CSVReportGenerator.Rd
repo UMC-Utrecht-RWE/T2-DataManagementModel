@@ -32,7 +32,7 @@ method, which declares the supported file extension(s) for dynamic dispatch.
 
 \keyword{internal}
 \section{Super classes}{
-\code{\link[T2.DMM:DatabaseOperation]{DatabaseOperation}} -> \code{\link[T2.DMM:ReportGenerator]{ReportGenerator}} -> \code{CSVReportGenerator}
+\code{\link[T2.DMM:DatabaseOperation]{T2.DMM::DatabaseOperation}} -> \code{\link[T2.DMM:ReportGenerator]{T2.DMM::ReportGenerator}} -> \code{CSVReportGenerator}
 }
 \section{Public fields}{
   \if{html}{\out{<div class="r6-fields">}}
@@ -52,8 +52,8 @@ Default is `"CSVReportGenerator"`.}
 }
 \if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-  <li><span class="pkg-link" data-pkg="T2.DMM" data-topic="DatabaseOperation" data-id="is_enabled"><a href='../../T2.DMM/html/DatabaseOperation.html#method-DatabaseOperation-is_enabled'><code>DatabaseOperation$is_enabled()</code></a></span></li>
-  <li><span class="pkg-link" data-pkg="T2.DMM" data-topic="ReportGenerator" data-id="run"><a href='../../T2.DMM/html/ReportGenerator.html#method-ReportGenerator-run'><code>ReportGenerator$run()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="T2.DMM" data-topic="DatabaseOperation" data-id="is_enabled"><a href='../../T2.DMM/html/DatabaseOperation.html#method-DatabaseOperation-is_enabled'><code>T2.DMM::DatabaseOperation$is_enabled()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="T2.DMM" data-topic="ReportGenerator" data-id="run"><a href='../../T2.DMM/html/ReportGenerator.html#method-ReportGenerator-run'><code>T2.DMM::ReportGenerator$run()</code></a></span></li>
 </ul>
 </details>}}
 \if{html}{\out{<hr>}}

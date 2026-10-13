@@ -46,7 +46,7 @@ report_generator$run(loader) # Delegates to the correct subclass
 }
 \keyword{internal}
 \section{Super class}{
-\code{\link[T2.DMM:DatabaseOperation]{DatabaseOperation}} -> \code{ReportGenerator}
+\code{\link[T2.DMM:DatabaseOperation]{T2.DMM::DatabaseOperation}} -> \code{ReportGenerator}
 }
 \section{Public fields}{
   \if{html}{\out{<div class="r6-fields">}}
@@ -66,7 +66,7 @@ Default is `"ReportGenerator"`.}
 }
 \if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-  <li><span class="pkg-link" data-pkg="T2.DMM" data-topic="DatabaseOperation" data-id="is_enabled"><a href='../../T2.DMM/html/DatabaseOperation.html#method-DatabaseOperation-is_enabled'><code>DatabaseOperation$is_enabled()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="T2.DMM" data-topic="DatabaseOperation" data-id="is_enabled"><a href='../../T2.DMM/html/DatabaseOperation.html#method-DatabaseOperation-is_enabled'><code>T2.DMM::DatabaseOperation$is_enabled()</code></a></span></li>
 </ul>
 </details>}}
 \if{html}{\out{<hr>}}
