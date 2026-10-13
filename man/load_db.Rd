@@ -11,7 +11,9 @@ load_db(
   format_source_files = "parquet",
   folder_path_to_source_files = "",
   create_db_as = "views",
-  tables_in_cdm = c()
+  tables_in_cdm = c(),
+  pg_con = NULL,
+  pg_schema = "public"
 )
 }
 \arguments{
@@ -36,6 +38,16 @@ Specify whether to create the database as `"views"` or `"tables"`.}
 
 \item{tables_in_cdm}{Character vector.
 A character vector of table names that are expected in the CDM.}
+
+\item{pg_con}{Connection object or NULL.
+Optional DBI connection to a PostgreSQL database (e.g. from
+`DBI::dbConnect(RPostgres::Postgres(), ...)`). If given, the tables in
+`tables_in_cdm` are first extracted to parquet files in
+`intermediate_parquet/` inside `folder_path_to_source_files`, and the
+pipeline continues from those files with `format_source_files = "parquet"`.}
+
+\item{pg_schema}{Character.
+Schema in the PostgreSQL database holding the tables. Default `"public"`.}
 }
 \value{
 None.
@@ -70,6 +82,29 @@ load_db(
   create_db_as = "tables",
   tables_in_cdm = c("EVENTS", "MEDICINES", "PROCEDURES")
 )
+
+# Load from a PostgreSQL database: extract to parquet, then run as usual
+# --- Database Connection ---
+pg_con <- DBI::dbConnect(
+  RPostgres::Postgres(),
+  host = "localhost",
+  port = 5432,
+  dbname = dbname,
+  user = user,
+  password = password
+)
+con <- DBI::dbConnect(duckdb::duckdb(), "db.duckdb")
+load_db(
+  con = con,
+  data_model = "conception",
+  cdm_schema = "./ConcePTION_CDM_tables_v2.2.yaml",
+  folder_path_to_source_files = "data/source/",
+  create_db_as = "tables",
+  tables_in_cdm = c("EVENTS", "MEDICINES", "PROCEDURES"),
+  pg_con = pg_con,
+  pg_schema = "public"
+)
+DBI::dbDisconnect(pg_con)
 }
 
 }

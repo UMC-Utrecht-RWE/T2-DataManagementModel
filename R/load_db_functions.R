@@ -894,3 +894,76 @@ add_missing_tables_as_empty <- function(
     }
   }
 }
+
+################################################################################
+########################### PostgreSQL Extraction ##############################
+################################################################################
+#' Extract PostgreSQL Tables to Parquet Files
+#'
+#' Reads the tables matching `tables_in_cdm` (case-insensitive) from a
+#'  PostgreSQL schema in chunks and writes them as parquet files named
+#'  `<table>_partN.parquet`, so they are picked up by
+#'  `read_source_files_as_views()`.
+#'
+#' @param pg_con DBIConnection to PostgreSQL.
+#' @param duckdb_con DBIConnection to DuckDB, used to write the parquet files.
+#' @param tables_in_cdm Character vector of expected CDM table names.
+#' @param output_folder Character. Folder where parquet files are written.
+#' @param pg_schema Character. PostgreSQL schema. Default `"public"`.
+#' @param chunk_size Integer. Rows fetched per chunk.
+#'
+#' @return Invisibly, a character vector of the files written.
+#' @keywords internal
+extract_postgres_to_parquet <- function(
+  pg_con,
+  duckdb_con,
+  tables_in_cdm,
+  output_folder,
+  pg_schema = "public",
+  chunk_size = 1e6
+) {
+  if (!dir.exists(output_folder)) {
+    dir.create(output_folder, recursive = TRUE)
+  }
+  pg_tables <- DBI::dbGetQuery(
+    pg_con,
+    "SELECT table_name FROM information_schema.tables WHERE table_schema = $1",
+    params = list(pg_schema)
+  )$table_name
+
+  written <- c()
+  for (table in tables_in_cdm) {
+    pg_name <- pg_tables[tolower(pg_tables) == tolower(table)]
+    if (length(pg_name) == 0) {
+      message("Skipping ", table, ": not found in PostgreSQL schema ", pg_schema)
+      next
+    }
+    pg_name <- pg_name[1]
+    message("Extracting table: ", pg_name)
+
+    res <- DBI::dbSendQuery(
+      pg_con,
+      paste0(
+        "SELECT * FROM ",
+        DBI::dbQuoteIdentifier(pg_con, DBI::Id(schema = pg_schema, table = pg_name))
+      )
+    )
+    part <- 0
+    repeat {
+      chunk <- DBI::dbFetch(res, n = chunk_size)
+      if (part > 0 && nrow(chunk) == 0) break
+      part <- part + 1
+      file <- file.path(output_folder, paste0(table, "_part", part, ".parquet"))
+      reg_name <- paste0("pg_chunk_", part)
+      duckdb::duckdb_register(duckdb_con, reg_name, chunk)
+      DBI::dbExecute(duckdb_con, paste0(
+        "COPY ", reg_name, " TO '", file, "' (FORMAT PARQUET)"
+      ))
+      duckdb::duckdb_unregister(duckdb_con, reg_name)
+      written <- c(written, file)
+      if (DBI::dbHasCompleted(res)) break
+    }
+    DBI::dbClearResult(res)
+  }
+  invisible(written)
+}

@@ -23,6 +23,14 @@
 #'  Specify whether to create the database as `"views"` or `"tables"`.
 #' @param tables_in_cdm Character vector.
 #' A character vector of table names that are expected in the CDM.
+#' @param pg_con Connection object or NULL.
+#'  Optional DBI connection to a PostgreSQL database (e.g. from
+#'  `DBI::dbConnect(RPostgres::Postgres(), ...)`). If given, the tables in
+#'  `tables_in_cdm` are first extracted to parquet files in
+#'  `intermediate_parquet/` inside `folder_path_to_source_files`, and the
+#'  pipeline continues from those files with `format_source_files = "parquet"`.
+#' @param pg_schema Character.
+#'  Schema in the PostgreSQL database holding the tables. Default `"public"`.
 #'
 #' @return None.
 #' The function performs operations to load data into a DuckDB database.
@@ -50,6 +58,29 @@
 #'   create_db_as = "tables",
 #'   tables_in_cdm = c("EVENTS", "MEDICINES", "PROCEDURES")
 #' )
+#'
+#' # Load from a PostgreSQL database: extract to parquet, then run as usual
+#' # --- Database Connection ---
+#' pg_con <- DBI::dbConnect(
+#'   RPostgres::Postgres(),
+#'   host = "localhost",
+#'   port = 5432,
+#'   dbname = dbname,
+#'   user = user,
+#'   password = password
+#' )
+#' con <- DBI::dbConnect(duckdb::duckdb(), "db.duckdb")
+#' load_db(
+#'   con = con,
+#'   data_model = "conception",
+#'   cdm_schema = "./ConcePTION_CDM_tables_v2.2.yaml",
+#'   folder_path_to_source_files = "data/source/",
+#'   create_db_as = "tables",
+#'   tables_in_cdm = c("EVENTS", "MEDICINES", "PROCEDURES"),
+#'   pg_con = pg_con,
+#'   pg_schema = "public"
+#' )
+#' DBI::dbDisconnect(pg_con)
 #' }
 #'
 #' @export
@@ -60,8 +91,13 @@ load_db <- function(
   format_source_files = "parquet",
   folder_path_to_source_files = "",
   create_db_as = "views",
-  tables_in_cdm = c()
+  tables_in_cdm = c(),
+  pg_con = NULL,
+  pg_schema = "public"
 ) {
+  if (!is.null(pg_con)) {
+    format_source_files <- "parquet"
+  }
   if (is.null(create_db_as) || length(create_db_as) == 0 || !(create_db_as %in% c("views", "tables"))) { # nolint
     create_db_as <- "views"
   }
@@ -78,7 +114,7 @@ load_db <- function(
   } else {
     through_parquet <- "no"
   }
-  if (through_parquet == "yes") {
+  if (through_parquet == "yes" || !is.null(pg_con)) {
     if (!dir.exists(parquet_path)) {
       dir.create(parquet_path)
     }
@@ -88,6 +124,20 @@ load_db <- function(
   schema_individual_views <- "Individual_views"
 
   tictoc::tic()
+
+  # Extracted parquet files must exist before the source folder is validated
+  if (!is.null(pg_con)) {
+    message("\033[1mStep 0: Extracting PostgreSQL tables to parquet...\033[0m\n")
+    extract_postgres_to_parquet(
+      pg_con = pg_con,
+      duckdb_con = con,
+      tables_in_cdm = tables_in_cdm,
+      output_folder = parquet_path,
+      pg_schema = pg_schema
+    )
+    # The extracted parquet files become the source files for the pipeline
+    folder_path_to_source_files <- parquet_path
+  }
 
   # 1. Check if the input parameters are correct
   # TODO: add check for tables_in_cdm?
