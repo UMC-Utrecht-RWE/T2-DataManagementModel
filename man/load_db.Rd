@@ -12,8 +12,8 @@ load_db(
   folder_path_to_source_files = "",
   create_db_as = "views",
   tables_in_cdm = c(),
-  pg_con = NULL,
-  pg_schema = "public"
+  origin_database_con = NULL,
+  origin_database_schema = NULL
 )
 }
 \arguments{
@@ -39,15 +39,17 @@ Specify whether to create the database as `"views"` or `"tables"`.}
 \item{tables_in_cdm}{Character vector.
 A character vector of table names that are expected in the CDM.}
 
-\item{pg_con}{Connection object or NULL.
-Optional DBI connection to a PostgreSQL database (e.g. from
-`DBI::dbConnect(RPostgres::Postgres(), ...)`). If given, the tables in
+\item{origin_database_con}{Connection object or NULL.
+Optional DBI connection to the origin database (e.g. PostgreSQL via
+`DBI::dbConnect(RPostgres::Postgres(), ...)`, or another DuckDB database).
+If given, the tables in
 `tables_in_cdm` are first extracted to parquet files in
 `intermediate_parquet/` inside `folder_path_to_source_files`, and the
 pipeline continues from those files with `format_source_files = "parquet"`.}
 
-\item{pg_schema}{Character.
-Schema in the PostgreSQL database holding the tables. Default `"public"`.}
+\item{origin_database_schema}{Character or NULL.
+Schema in the origin database holding the tables. If `NULL`, the
+connection's current schema is used (e.g. `public` in PostgreSQL).}
 }
 \value{
 None.
@@ -83,9 +85,9 @@ load_db(
   tables_in_cdm = c("EVENTS", "MEDICINES", "PROCEDURES")
 )
 
-# Load from a PostgreSQL database: extract to parquet, then run as usual
+# Load from an origin database (here PostgreSQL): extract to parquet, then run as usual
 # --- Database Connection ---
-pg_con <- DBI::dbConnect(
+origin_database_con <- DBI::dbConnect(
   RPostgres::Postgres(),
   host = "localhost",
   port = 5432,
@@ -101,10 +103,10 @@ load_db(
   folder_path_to_source_files = "data/source/",
   create_db_as = "tables",
   tables_in_cdm = c("EVENTS", "MEDICINES", "PROCEDURES"),
-  pg_con = pg_con,
-  pg_schema = "public"
+  origin_database_con = origin_database_con,
+  origin_database_schema = "public"
 )
-DBI::dbDisconnect(pg_con)
+DBI::dbDisconnect(origin_database_con)
 }
 
 }

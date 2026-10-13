@@ -896,56 +896,63 @@ add_missing_tables_as_empty <- function(
 }
 
 ################################################################################
-########################### PostgreSQL Extraction ##############################
+########################### Origin Database Extraction #########################
 ################################################################################
-#' Extract PostgreSQL Tables to Parquet Files
+#' Extract Origin Database Tables to Parquet Files
 #'
 #' Reads the tables matching `tables_in_cdm` (case-insensitive) from a
-#'  PostgreSQL schema in chunks and writes them as parquet files named
+#'  schema of any DBI-accessible database (e.g. PostgreSQL, DuckDB) in chunks
+#'  and writes them as parquet files named
 #'  `<table>_partN.parquet`, so they are picked up by
 #'  `read_source_files_as_views()`.
 #'
-#' @param pg_con DBIConnection to PostgreSQL.
+#' @param origin_database_con DBIConnection to the origin database.
 #' @param duckdb_con DBIConnection to DuckDB, used to write the parquet files.
 #' @param tables_in_cdm Character vector of expected CDM table names.
 #' @param output_folder Character. Folder where parquet files are written.
-#' @param pg_schema Character. PostgreSQL schema. Default `"public"`.
+#' @param origin_database_schema Character or NULL. Schema in the origin
+#'  database; if `NULL`, the connection's current schema.
 #' @param chunk_size Integer. Rows fetched per chunk.
 #'
 #' @return Invisibly, a character vector of the files written.
 #' @keywords internal
-extract_postgres_to_parquet <- function(
-  pg_con,
+extract_database_to_parquet <- function(
+  origin_database_con,
   duckdb_con,
   tables_in_cdm,
   output_folder,
-  pg_schema = "public",
+  origin_database_schema = NULL,
   chunk_size = 1e6
 ) {
   if (!dir.exists(output_folder)) {
     dir.create(output_folder, recursive = TRUE)
   }
-  pg_tables <- DBI::dbGetQuery(
-    pg_con,
+  if (is.null(origin_database_schema)) {
+    origin_database_schema <- DBI::dbGetQuery(
+      origin_database_con, "SELECT current_schema() AS s"
+    )$s
+  }
+  origin_tables <- DBI::dbGetQuery(
+    origin_database_con,
     "SELECT table_name FROM information_schema.tables WHERE table_schema = $1",
-    params = list(pg_schema)
+    params = list(origin_database_schema)
   )$table_name
 
   written <- c()
   for (table in tables_in_cdm) {
-    pg_name <- pg_tables[tolower(pg_tables) == tolower(table)]
-    if (length(pg_name) == 0) {
-      message("Skipping ", table, ": not found in PostgreSQL schema ", pg_schema)
+    origin_name <- origin_tables[tolower(origin_tables) == tolower(table)]
+    if (length(origin_name) == 0) {
+      message("Skipping ", table, ": not found in origin database schema ", origin_database_schema)
       next
     }
-    pg_name <- pg_name[1]
-    message("Extracting table: ", pg_name)
+    origin_name <- origin_name[1]
+    message("Extracting table: ", origin_name)
 
     res <- DBI::dbSendQuery(
-      pg_con,
+      origin_database_con,
       paste0(
         "SELECT * FROM ",
-        DBI::dbQuoteIdentifier(pg_con, DBI::Id(schema = pg_schema, table = pg_name))
+        DBI::dbQuoteIdentifier(origin_database_con, DBI::Id(schema = origin_database_schema, table = origin_name))
       )
     )
     part <- 0

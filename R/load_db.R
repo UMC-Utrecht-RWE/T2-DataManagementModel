@@ -23,14 +23,16 @@
 #'  Specify whether to create the database as `"views"` or `"tables"`.
 #' @param tables_in_cdm Character vector.
 #' A character vector of table names that are expected in the CDM.
-#' @param pg_con Connection object or NULL.
-#'  Optional DBI connection to a PostgreSQL database (e.g. from
-#'  `DBI::dbConnect(RPostgres::Postgres(), ...)`). If given, the tables in
+#' @param origin_database_con Connection object or NULL.
+#'  Optional DBI connection to the origin database (e.g. PostgreSQL via
+#'  `DBI::dbConnect(RPostgres::Postgres(), ...)`, or another DuckDB database).
+#'  If given, the tables in
 #'  `tables_in_cdm` are first extracted to parquet files in
 #'  `intermediate_parquet/` inside `folder_path_to_source_files`, and the
 #'  pipeline continues from those files with `format_source_files = "parquet"`.
-#' @param pg_schema Character.
-#'  Schema in the PostgreSQL database holding the tables. Default `"public"`.
+#' @param origin_database_schema Character or NULL.
+#'  Schema in the origin database holding the tables. If `NULL`, the
+#'  connection's current schema is used (e.g. `public` in PostgreSQL).
 #'
 #' @return None.
 #' The function performs operations to load data into a DuckDB database.
@@ -59,9 +61,9 @@
 #'   tables_in_cdm = c("EVENTS", "MEDICINES", "PROCEDURES")
 #' )
 #'
-#' # Load from a PostgreSQL database: extract to parquet, then run as usual
+#' # Load from an origin database (here PostgreSQL): extract to parquet, then run as usual
 #' # --- Database Connection ---
-#' pg_con <- DBI::dbConnect(
+#' origin_database_con <- DBI::dbConnect(
 #'   RPostgres::Postgres(),
 #'   host = "localhost",
 #'   port = 5432,
@@ -77,10 +79,10 @@
 #'   folder_path_to_source_files = "data/source/",
 #'   create_db_as = "tables",
 #'   tables_in_cdm = c("EVENTS", "MEDICINES", "PROCEDURES"),
-#'   pg_con = pg_con,
-#'   pg_schema = "public"
+#'   origin_database_con = origin_database_con,
+#'   origin_database_schema = "public"
 #' )
-#' DBI::dbDisconnect(pg_con)
+#' DBI::dbDisconnect(origin_database_con)
 #' }
 #'
 #' @export
@@ -92,10 +94,10 @@ load_db <- function(
   folder_path_to_source_files = "",
   create_db_as = "views",
   tables_in_cdm = c(),
-  pg_con = NULL,
-  pg_schema = "public"
+  origin_database_con = NULL,
+  origin_database_schema = NULL
 ) {
-  if (!is.null(pg_con)) {
+  if (!is.null(origin_database_con)) {
     format_source_files <- "parquet"
   }
   if (is.null(create_db_as) || length(create_db_as) == 0 || !(create_db_as %in% c("views", "tables"))) { # nolint
@@ -114,7 +116,7 @@ load_db <- function(
   } else {
     through_parquet <- "no"
   }
-  if (through_parquet == "yes" || !is.null(pg_con)) {
+  if (through_parquet == "yes" || !is.null(origin_database_con)) {
     if (!dir.exists(parquet_path)) {
       dir.create(parquet_path)
     }
@@ -126,14 +128,14 @@ load_db <- function(
   tictoc::tic()
 
   # Extracted parquet files must exist before the source folder is validated
-  if (!is.null(pg_con)) {
-    message("\033[1mStep 0: Extracting PostgreSQL tables to parquet...\033[0m\n")
-    extract_postgres_to_parquet(
-      pg_con = pg_con,
+  if (!is.null(origin_database_con)) {
+    message("\033[1mStep 0: Extracting origin database tables to parquet...\033[0m\n")
+    extract_database_to_parquet(
+      origin_database_con = origin_database_con,
       duckdb_con = con,
       tables_in_cdm = tables_in_cdm,
       output_folder = parquet_path,
-      pg_schema = pg_schema
+      origin_database_schema = origin_database_schema
     )
     # The extracted parquet files become the source files for the pipeline
     folder_path_to_source_files <- parquet_path

@@ -334,7 +334,7 @@ testthat::test_that("populate_cdm_tables_from_views works and skips columns not 
   unlink(dbname)
 })
 
-testthat::test_that("extract_postgres_to_parquet writes chunked parquet files and skips missing tables", {
+testthat::test_that("extract_database_to_parquet writes chunked parquet files and skips missing tables", {
   # A DuckDB connection stands in for PostgreSQL
   src <- DBI::dbConnect(duckdb::duckdb())
   dst <- DBI::dbConnect(duckdb::duckdb())
@@ -346,12 +346,12 @@ testthat::test_that("extract_postgres_to_parquet writes chunked parquet files an
   withr::defer(unlink(dirname(out), recursive = TRUE))
 
   testthat::expect_message(
-    files <- extract_postgres_to_parquet(
-      pg_con = src,
+    files <- extract_database_to_parquet(
+      origin_database_con = src,
       duckdb_con = dst,
       tables_in_cdm = c("EVENTS", "MEDICINES"),
       output_folder = out,
-      pg_schema = "main",
+      origin_database_schema = "main",
       chunk_size = 2
     ),
     "Skipping MEDICINES"

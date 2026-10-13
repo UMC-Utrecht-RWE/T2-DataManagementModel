@@ -45,8 +45,8 @@ testthat::test_that("load_db extracts tables from a database connection via parq
       folder_path_to_source_files = source_dir,
       create_db_as = "tables",
       tables_in_cdm = c("EVENTS"),
-      pg_con = pg,
-      pg_schema = "main"
+      origin_database_con = pg,
+      origin_database_schema = "main"
     ),
     regexp = "Hooray! Script finished running!"
   )
