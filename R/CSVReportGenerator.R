@@ -32,7 +32,7 @@
 #' @import R6
 #' @keywords internal
 CSVReportGenerator <- R6::R6Class("CSVReportGenerator", # nolint
-  inherit = T2.DMM:::ReportGenerator,
+  inherit = T2.CMM:::ReportGenerator,
   public = list(
     classname = "CSVReportGenerator",
 

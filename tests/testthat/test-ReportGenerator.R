@@ -2,10 +2,10 @@ testthat::test_that(
   "ReportGenerator calls generate_report with expected arguments",
   {
     testthat::expect_true(
-      T2.DMM:::ReportGenerator$inherit == "T2.DMM:::DatabaseOperation"
+      T2.CMM:::ReportGenerator$inherit == "T2.CMM:::DatabaseOperation"
     )
 
-    reporter <- T2.DMM:::ReportGenerator$new()
+    reporter <- T2.CMM:::ReportGenerator$new()
     testthat::expect_s3_class(reporter, "ReportGenerator")
 
     loader <- create_database_loader(config_path = "CONFIG_SET_DB")
@@ -30,7 +30,7 @@ testthat::test_that(
 testthat::test_that(
   "ReportGenerator with report_name without extension throws an error",
   {
-    reporter <- T2.DMM:::ReportGenerator$new()
+    reporter <- T2.CMM:::ReportGenerator$new()
 
     loader <- create_database_loader(config_path = "CONFIG_SET_DB")
     loader$config$report_generator$report_name <- "count_rows_origin"
@@ -45,7 +45,7 @@ testthat::test_that(
 testthat::test_that(
   "ReportGenerator with report_name missing throws an error",
   {
-    reporter <- T2.DMM:::ReportGenerator$new()
+    reporter <- T2.CMM:::ReportGenerator$new()
 
     loader <- create_database_loader(config_path = "CONFIG_SET_DB")
     loader$config$report_generator$report_name <- ""
@@ -60,7 +60,7 @@ testthat::test_that(
 testthat::test_that(
   "ReportGenerator with a not-implemented extension throws an error",
   {
-    reporter <- T2.DMM:::ReportGenerator$new()
+    reporter <- T2.CMM:::ReportGenerator$new()
 
     loader <- create_database_loader(config_path = "CONFIG_SET_DB")
     loader$config$report_generator$report_name <- "count_rows_origin.txt"

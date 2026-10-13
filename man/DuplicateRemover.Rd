@@ -10,7 +10,7 @@ It is responsible for identifying and removing duplicate records from the
 database tables specified in the `db_loader` object.
 }
 \details{
-This class uses the `delete_duplicates_origin` function from the `T2.DMM`
+This class uses the `delete_duplicates_origin` function from the `T2.CMM`
 package to remove duplicates. The duplicates are removed based on the
 schema provided by the `db_loader` object. Optionally, the deleted records
 can be saved to an intermediate file for auditing or debugging purposes.
@@ -30,7 +30,7 @@ can be saved to an intermediate file for auditing or debugging purposes.
 
 \keyword{internal}
 \section{Super class}{
-\code{\link[T2.DMM:DatabaseOperation]{T2.DMM::DatabaseOperation}} -> \code{DuplicateRemover}
+\code{\link[T2.CMM:DatabaseOperation]{T2.CMM::DatabaseOperation}} -> \code{DuplicateRemover}
 }
 \section{Public fields}{
   \if{html}{\out{<div class="r6-fields">}}
@@ -49,7 +49,7 @@ Default is `"DuplicateRemover"`.}
 }
 \if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-  <li><span class="pkg-link" data-pkg="T2.DMM" data-topic="DatabaseOperation" data-id="is_enabled"><a href='../../T2.DMM/html/DatabaseOperation.html#method-DatabaseOperation-is_enabled'><code>T2.DMM::DatabaseOperation$is_enabled()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="T2.CMM" data-topic="DatabaseOperation" data-id="is_enabled"><a href='../../T2.CMM/html/DatabaseOperation.html#method-DatabaseOperation-is_enabled'><code>T2.CMM::DatabaseOperation$is_enabled()</code></a></span></li>
 </ul>
 </details>}}
 \if{html}{\out{<hr>}}

@@ -275,7 +275,7 @@ apply_codelist <- function(
 
             sql_path <- system.file(
               "sql", "create_concepts_1.sql",
-              package = "T2.DMM"
+              package = "T2.CMM"
             )
             create_concepts_1 <- get_sql(sql_path)
 
@@ -321,7 +321,7 @@ apply_codelist <- function(
                   current_order_index <- order_idx
                   sql_path <- system.file(
                     "sql", "create_concepts_2.sql",
-                    package = "T2.DMM"
+                    package = "T2.CMM"
                   )
                   create_concepts_2 <- get_sql(sql_path)
                   query_child <- glue(create_concepts_2)
@@ -337,7 +337,7 @@ apply_codelist <- function(
       # -------------------
       sql_path <- system.file(
         "sql", "create_concepts_3.sql",
-        package = "T2.DMM"
+        package = "T2.CMM"
       )
       create_concepts_3 <- get_sql(sql_path)
 

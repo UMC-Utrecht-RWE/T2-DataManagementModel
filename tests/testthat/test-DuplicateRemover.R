@@ -4,9 +4,9 @@ testthat::test_that(
     temp_dir <- withr::local_tempdir()
 
     testthat::expect_true(
-      DuplicateRemover$inherit == "T2.DMM:::DatabaseOperation"
+      DuplicateRemover$inherit == "T2.CMM:::DatabaseOperation"
     )
-    remover <- T2.DMM:::DuplicateRemover$new()
+    remover <- T2.CMM:::DuplicateRemover$new()
 
     # Config paths like dbtest/ are relative, so load before changing dir.
     loader <- create_database_loader(config_path = "CONFIG_PATH")

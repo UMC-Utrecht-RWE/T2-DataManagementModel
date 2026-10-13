@@ -38,7 +38,7 @@
 #' @docType class
 #' @keywords internal
 MissingRemover <- R6::R6Class("MissingRemover", # nolint
-  inherit = T2.DMM:::DatabaseOperation,
+  inherit = T2.CMM:::DatabaseOperation,
   public = list(
     classname = "MissingRemover",
     #' @description

@@ -6,7 +6,7 @@
 #' database tables specified in the `db_loader` object.
 #'
 #' @details
-#' This class uses the `delete_duplicates_origin` function from the `T2.DMM`
+#' This class uses the `delete_duplicates_origin` function from the `T2.CMM`
 #' package to remove duplicates. The duplicates are removed based on the
 #' schema provided by the `db_loader` object. Optionally, the deleted records
 #' can be saved to an intermediate file for auditing or debugging purposes.
@@ -25,7 +25,7 @@
 #' @docType class
 #' @keywords internal
 DuplicateRemover <- R6::R6Class("DuplicateRemover", # nolint
-  inherit = T2.DMM:::DatabaseOperation,
+  inherit = T2.CMM:::DatabaseOperation,
   public = list(
     #' @field classname A string representing the name of the class.
     #' Default is `"DuplicateRemover"`.
@@ -55,7 +55,7 @@ DuplicateRemover <- R6::R6Class("DuplicateRemover", # nolint
       )
 
 
-      T2.DMM:::delete_duplicates_origin(
+      T2.CMM:::delete_duplicates_origin(
         db_connection = db_loader$db,
         scheme = scheme,
         # DuplicateRemover unique properties

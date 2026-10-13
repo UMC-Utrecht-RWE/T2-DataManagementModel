@@ -6,7 +6,7 @@
 #' specified database tables.
 #'
 #' @details
-#' This class uses the `create_unique_id` function from the `T2.DMM` package to
+#' This class uses the `create_unique_id` function from the `T2.CMM` package to
 #' generate unique IDs for the tables specified in the `cdm_tables_names`
 #' configuration of the `db_loader` object. The unique IDs are generated
 #' based on the instance name provided in the `db_loader` object.
@@ -41,7 +41,7 @@
 #' @docType class
 #' @keywords internal
 UniqueIdGenerator <- R6::R6Class("UniqueIdGenerator", # nolint
-  inherit = T2.DMM:::DatabaseOperation,
+  inherit = T2.CMM:::DatabaseOperation,
   public = list(
     #' @field classname A string representing the name of the class.
     classname = "UniqueIdGenerator",
@@ -49,7 +49,7 @@ UniqueIdGenerator <- R6::R6Class("UniqueIdGenerator", # nolint
     #' Executes the unique ID generation process.
     #' @param db_loader A `DatabaseLoader` object provides database connection.
     run = function(db_loader) {
-      T2.DMM:::create_unique_id(
+      T2.CMM:::create_unique_id(
         db_connection = db_loader$db,
         cdm_tables_names = db_loader$config$cdm_tables_names,
         # UniqueIdGenerator unique properties

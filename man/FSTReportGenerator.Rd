@@ -32,7 +32,7 @@ method, which declares the supported file extension(s) for dynamic dispatch.
 
 \keyword{internal}
 \section{Super classes}{
-\code{\link[T2.DMM:DatabaseOperation]{T2.DMM::DatabaseOperation}} -> \code{\link[T2.DMM:ReportGenerator]{T2.DMM::ReportGenerator}} -> \code{FSTReportGenerator}
+\code{\link[T2.CMM:DatabaseOperation]{T2.CMM::DatabaseOperation}} -> \code{\link[T2.CMM:ReportGenerator]{T2.CMM::ReportGenerator}} -> \code{FSTReportGenerator}
 }
 \section{Public fields}{
   \if{html}{\out{<div class="r6-fields">}}
@@ -52,8 +52,8 @@ Default is `"FSTReportGenerator"`.}
 }
 \if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-  <li><span class="pkg-link" data-pkg="T2.DMM" data-topic="DatabaseOperation" data-id="is_enabled"><a href='../../T2.DMM/html/DatabaseOperation.html#method-DatabaseOperation-is_enabled'><code>T2.DMM::DatabaseOperation$is_enabled()</code></a></span></li>
-  <li><span class="pkg-link" data-pkg="T2.DMM" data-topic="ReportGenerator" data-id="run"><a href='../../T2.DMM/html/ReportGenerator.html#method-ReportGenerator-run'><code>T2.DMM::ReportGenerator$run()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="T2.CMM" data-topic="DatabaseOperation" data-id="is_enabled"><a href='../../T2.CMM/html/DatabaseOperation.html#method-DatabaseOperation-is_enabled'><code>T2.CMM::DatabaseOperation$is_enabled()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="T2.CMM" data-topic="ReportGenerator" data-id="run"><a href='../../T2.CMM/html/ReportGenerator.html#method-ReportGenerator-run'><code>T2.CMM::ReportGenerator$run()</code></a></span></li>
 </ul>
 </details>}}
 \if{html}{\out{<hr>}}

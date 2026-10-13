@@ -1,7 +1,7 @@
 library(data.table)
 library(DBI)
 library(duckdb)
-library(T2.DMM)
+library(T2.CMM)
 
 # ====================
 # 1. SHARED METADATA

@@ -9,7 +9,7 @@
 #'
 #' @details
 #' This class retrieves table row counts using the `get_rows_tables()` function
-#' from the `T2.DMM` package. It then delegates the saving of this data to a
+#' from the `T2.CMM` package. It then delegates the saving of this data to a
 #' dynamically selected subclass, based on the output file extension
 #' (e.g., `.fst`, `.csv`) specified in the `report_name` field of
 #' the `db_loader` configuration.
@@ -45,7 +45,7 @@
 #' @importFrom tools file_ext
 #' @keywords internal
 ReportGenerator <- R6::R6Class("ReportGenerator", # nolint
-  inherit = T2.DMM:::DatabaseOperation,
+  inherit = T2.CMM:::DatabaseOperation,
   public = list(
     classname = "ReportGenerator",
 
@@ -54,7 +54,7 @@ ReportGenerator <- R6::R6Class("ReportGenerator", # nolint
     #' @param db_loader A `DatabaseLoader` object provides database connection,
     #' the instance name, and the configuration details for saving the report.
     run = function(db_loader) {
-      count_rows_origin <- T2.DMM:::get_rows_tables(db_loader$db)
+      count_rows_origin <- T2.CMM:::get_rows_tables(db_loader$db)
       self$write_report(count_rows_origin, db_loader)
 
       count_rows_origin
@@ -91,7 +91,7 @@ ReportGenerator <- R6::R6Class("ReportGenerator", # nolint
         )
       }
 
-      pkg_env <- asNamespace("T2.DMM")
+      pkg_env <- asNamespace("T2.CMM")
       objs <- mget(ls(pkg_env), envir = pkg_env)
 
       # Filter for R6 classes in the package environment
@@ -102,7 +102,7 @@ ReportGenerator <- R6::R6Class("ReportGenerator", # nolint
       class_names <- sapply(r6_classes, function(cls) cls$classname)
       formatted_class_names <- paste(class_names, collapse = ", ")
       message(glue::glue(
-        "R6 classes in T2.DMM package: {formatted_class_names}"
+        "R6 classes in T2.CMM package: {formatted_class_names}"
       ))
 
       # Load all R6 classes from the package environment

@@ -9,7 +9,7 @@ knitr::opts_chunk$set(
 # devtools::install_github("UMC-Utrecht-RWE/T2-DataManagementModel")
 
 ## -----------------------------------------------------------------------------
-library(T2.DMM)
+library(T2.CMM)
 library(data.table)
 library(DBI)
 library(duckdb)
@@ -149,4 +149,3 @@ DT::datatable(concept_table, options = list(scrollX = TRUE))
 
 ## -----------------------------------------------------------------------------
 sessionInfo()
-
