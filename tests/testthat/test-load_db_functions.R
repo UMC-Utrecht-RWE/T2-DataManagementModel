@@ -335,7 +335,7 @@ testthat::test_that("populate_cdm_tables_from_views works and skips columns not 
 })
 
 testthat::test_that("extract_database_to_parquet writes chunked parquet files and skips missing tables", {
-  # A DuckDB connection stands in for PostgreSQL
+  # A DuckDB connection stands in for any origin database
   src <- DBI::dbConnect(duckdb::duckdb())
   dst <- DBI::dbConnect(duckdb::duckdb())
   withr::defer(DBI::dbDisconnect(src, shutdown = TRUE))

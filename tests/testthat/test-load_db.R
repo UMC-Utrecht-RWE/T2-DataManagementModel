@@ -24,7 +24,7 @@ testthat::test_that("load_db runs end-to-end with all possible combinations of i
 })
 
 testthat::test_that("load_db extracts tables from a database connection via parquet", {
-  # A DuckDB connection stands in for PostgreSQL
+  # A DuckDB connection stands in for any origin database
   pg <- DBI::dbConnect(duckdb::duckdb())
   withr::defer(DBI::dbDisconnect(pg, shutdown = TRUE))
   DBI::dbExecute(pg, paste0(
