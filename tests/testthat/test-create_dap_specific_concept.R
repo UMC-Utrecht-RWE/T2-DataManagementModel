@@ -34,7 +34,7 @@ create_test_db <- function(
     overwrite = TRUE
   )
 
-  T2.DMM:::create_unique_id(
+  conceptLayer:::create_unique_id(
     source_db_conn,
     cdm_tables_names = "MEDICAL_OBSERVATIONS",
     to_view = FALSE

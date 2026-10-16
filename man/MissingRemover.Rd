@@ -38,7 +38,7 @@ missing_remover$run(loader)
 }
 \keyword{internal}
 \section{Super class}{
-\code{\link[T2.DMM:DatabaseOperation]{DatabaseOperation}} -> \code{MissingRemover}
+\code{\link[conceptLayer:DatabaseOperation]{DatabaseOperation}} -> \code{MissingRemover}
 }
 \section{Public fields}{
   \if{html}{\out{<div class="r6-fields">}}
@@ -57,7 +57,7 @@ Default is `"MissingRemover"`.}
 }
 \if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-  <li><span class="pkg-link" data-pkg="T2.DMM" data-topic="DatabaseOperation" data-id="is_enabled"><a href='../../T2.DMM/html/DatabaseOperation.html#method-DatabaseOperation-is_enabled'><code>DatabaseOperation$is_enabled()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="conceptLayer" data-topic="DatabaseOperation" data-id="is_enabled"><a href='../../conceptLayer/html/DatabaseOperation.html#method-DatabaseOperation-is_enabled'><code>DatabaseOperation$is_enabled()</code></a></span></li>
 </ul>
 </details>}}
 \if{html}{\out{<hr>}}
