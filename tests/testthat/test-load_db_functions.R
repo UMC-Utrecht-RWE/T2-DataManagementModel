@@ -333,3 +333,38 @@ testthat::test_that("populate_cdm_tables_from_views works and skips columns not 
   dbDisconnect(con, shutdown = TRUE)
   unlink(dbname)
 })
+
+testthat::test_that("extract_database_to_parquet writes chunked parquet files and skips missing tables", {
+  # A DuckDB connection stands in for any origin database
+  src <- DBI::dbConnect(duckdb::duckdb())
+  dst <- DBI::dbConnect(duckdb::duckdb())
+  withr::defer(DBI::dbDisconnect(src, shutdown = TRUE))
+  withr::defer(DBI::dbDisconnect(dst, shutdown = TRUE))
+  DBI::dbWriteTable(src, "events", data.frame(id = 1:5, val = letters[1:5]))
+
+  out <- file.path(tempfile(), "extract")
+  withr::defer(unlink(dirname(out), recursive = TRUE))
+
+  testthat::expect_message(
+    files <- extract_database_to_parquet(
+      origin_database_con = src,
+      duckdb_con = dst,
+      tables_in_cdm = c("EVENTS", "MEDICINES"),
+      output_folder = out,
+      origin_database_schema = "main",
+      chunk_size = 2
+    ),
+    "Skipping MEDICINES"
+  )
+
+  testthat::expect_length(files, 3)
+  testthat::expect_true(all(file.exists(files)))
+  testthat::expect_match(basename(files), "^EVENTS_part[0-9]+\\.parquet$")
+
+  res <- DBI::dbGetQuery(
+    dst,
+    paste0("SELECT * FROM read_parquet('", file.path(out, "EVENTS_part*.parquet"), "') ORDER BY id")
+  )
+  testthat::expect_equal(res$id, 1:5)
+  testthat::expect_equal(res$val, letters[1:5])
+})
