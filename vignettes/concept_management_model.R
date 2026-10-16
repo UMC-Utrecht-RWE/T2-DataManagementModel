@@ -9,7 +9,7 @@ knitr::opts_chunk$set(
 # devtools::install_github("UMC-Utrecht-RWE/T2-DataManagementModel")
 
 ## -----------------------------------------------------------------------------
-library(T2.CMM)
+library(conceptLayer)
 library(data.table)
 library(DBI)
 library(duckdb)

@@ -10,7 +10,7 @@ It is responsible for generating unique identifiers for the records in the
 specified database tables.
 }
 \details{
-This class uses the `create_unique_id` function from the `T2.CMM` package to
+This class uses the `create_unique_id` function from the `conceptLayer` package to
 generate unique IDs for the tables specified in the `cdm_tables_names`
 configuration of the `db_loader` object. The unique IDs are generated
 based on the instance name provided in the `db_loader` object.
@@ -49,7 +49,7 @@ unique_id_generator$run(loader)
 }
 \keyword{internal}
 \section{Super class}{
-\code{\link[T2.CMM:DatabaseOperation]{T2.CMM::DatabaseOperation}} -> \code{UniqueIdGenerator}
+\code{\link[conceptLayer:DatabaseOperation]{DatabaseOperation}} -> \code{UniqueIdGenerator}
 }
 \section{Public fields}{
   \if{html}{\out{<div class="r6-fields">}}
@@ -67,7 +67,7 @@ unique_id_generator$run(loader)
 }
 \if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-  <li><span class="pkg-link" data-pkg="T2.CMM" data-topic="DatabaseOperation" data-id="is_enabled"><a href='../../T2.CMM/html/DatabaseOperation.html#method-DatabaseOperation-is_enabled'><code>T2.CMM::DatabaseOperation$is_enabled()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="conceptLayer" data-topic="DatabaseOperation" data-id="is_enabled"><a href='../../conceptLayer/html/DatabaseOperation.html#method-DatabaseOperation-is_enabled'><code>DatabaseOperation$is_enabled()</code></a></span></li>
 </ul>
 </details>}}
 \if{html}{\out{<hr>}}

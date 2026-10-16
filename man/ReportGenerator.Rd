@@ -12,7 +12,7 @@ a particular format.
 }
 \details{
 This class retrieves table row counts using the `get_rows_tables()` function
-from the `T2.CMM` package. It then delegates the saving of this data to a
+from the `conceptLayer` package. It then delegates the saving of this data to a
 dynamically selected subclass, based on the output file extension
 (e.g., `.fst`, `.csv`) specified in the `report_name` field of
 the `db_loader` configuration.
@@ -46,7 +46,7 @@ report_generator$run(loader) # Delegates to the correct subclass
 }
 \keyword{internal}
 \section{Super class}{
-\code{\link[T2.CMM:DatabaseOperation]{T2.CMM::DatabaseOperation}} -> \code{ReportGenerator}
+\code{\link[conceptLayer:DatabaseOperation]{DatabaseOperation}} -> \code{ReportGenerator}
 }
 \section{Public fields}{
   \if{html}{\out{<div class="r6-fields">}}
@@ -66,7 +66,7 @@ Default is `"ReportGenerator"`.}
 }
 \if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-  <li><span class="pkg-link" data-pkg="T2.CMM" data-topic="DatabaseOperation" data-id="is_enabled"><a href='../../T2.CMM/html/DatabaseOperation.html#method-DatabaseOperation-is_enabled'><code>T2.CMM::DatabaseOperation$is_enabled()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="conceptLayer" data-topic="DatabaseOperation" data-id="is_enabled"><a href='../../conceptLayer/html/DatabaseOperation.html#method-DatabaseOperation-is_enabled'><code>DatabaseOperation$is_enabled()</code></a></span></li>
 </ul>
 </details>}}
 \if{html}{\out{<hr>}}

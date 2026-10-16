@@ -5,10 +5,10 @@ testthat::test_that(
     loader$set_database()
 
     testthat::expect_true(
-      T2.CMM:::MissingRemover$inherit == "T2.CMM:::DatabaseOperation"
+      conceptLayer:::MissingRemover$inherit == "conceptLayer:::DatabaseOperation"
     )
 
-    remover <- T2.CMM:::MissingRemover$new()
+    remover <- conceptLayer:::MissingRemover$new()
     testthat::expect_s3_class(remover, "MissingRemover")
 
     testthat::expect_error(

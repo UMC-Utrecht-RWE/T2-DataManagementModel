@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(T2.CMM)
+library(conceptLayer)
 
-test_check("T2.CMM")
+test_check("conceptLayer")

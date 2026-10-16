@@ -18,7 +18,7 @@ testthat::test_that("DatabaseLoader forwards configuration to load_db", {
     load_db = function(...) {
       load_db_args <<- list(...)
     },
-    .package = "T2.CMM"
+    .package = "conceptLayer"
   )
 
   loader$set_database()
@@ -66,7 +66,7 @@ testthat::test_that("set_database reports errors from load_db", {
     load_db = function(...) {
       stop("load failure")
     },
-    .package = "T2.CMM"
+    .package = "conceptLayer"
   )
 
   testthat::expect_message(
