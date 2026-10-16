@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Getting Started with the Concept Management Model Package • T2.DMM</title>
+<title>Getting Started with the Concept Management Model Package • conceptLayer</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
@@ -31,7 +31,7 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">T2.DMM</a>
+        <a class="navbar-link" href="../index.html">conceptLayer</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
       </span>
     </div>
@@ -108,7 +108,7 @@ for loading, transforming, and analyzing CDM data.</p>
 <code class="sourceCode R"><span><span class="co"># Install the package (example installation method)</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"UMC-Utrecht-RWE/T2-DataManagementModel"</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">T2.DMM</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">conceptLayer</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: package 'data.table' was built under R version 4.4.3</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dbi.r-dbi.org" class="external-link">DBI</a></span><span class="op">)</span></span>
@@ -370,7 +370,7 @@ defined in your configuration file sequentially.</p>
 <span><span class="co">#&gt; Tables found: EVENTS, PERSONS, VACCINES</span></span>
 <span><span class="co">#&gt; Generated query: SELECT 'EVENTS' AS name, (SELECT COUNT(1) FROM EVENTS) AS row_count UNION ALL SELECT 'PERSONS' AS name, (SELECT COUNT(1) FROM PERSONS) AS row_count UNION ALL SELECT 'VACCINES' AS name, (SELECT COUNT(1) FROM VACCINES) AS row_count</span></span>
 <span><span class="co">#&gt; Generating reports for: count_rows_origin.fst</span></span>
-<span><span class="co">#&gt; R6 classes in T2.DMM package: CSVReportGenerator, DatabaseLoader, DatabaseOperation, DuplicateRemover, FSTReportGenerator, MissingRemover, ReportGenerator, UniqueIdGenerator</span></span>
+<span><span class="co">#&gt; R6 classes in conceptLayer package: CSVReportGenerator, DatabaseLoader, DatabaseOperation, DuplicateRemover, FSTReportGenerator, MissingRemover, ReportGenerator, UniqueIdGenerator</span></span>
 <span><span class="co">#&gt; Subclasses of ReportGenerator: CSVReportGenerator, FSTReportGenerator</span></span>
 <span><span class="co">#&gt; Extensions for CSVReportGenerator: csv</span></span>
 <span><span class="co">#&gt; Extensions for FSTReportGenerator: fst</span></span>
