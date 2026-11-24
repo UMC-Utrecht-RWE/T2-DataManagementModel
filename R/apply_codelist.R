@@ -70,7 +70,7 @@
 #' @importFrom here here
 #' @export
 apply_codelist <- function(
-    db_con,
+    db_con, # nolint: indentation_linter. styler uses double indent here
     codelist,
     scheme = NULL,
     materialize = "in_parquet", # in_database
