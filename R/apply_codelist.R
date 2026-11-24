@@ -70,13 +70,12 @@
 #' @importFrom here here
 #' @export
 apply_codelist <- function(
-  db_con,
-  codelist,
-  scheme = NULL,
-  materialize = "in_parquet", # in_database
-  path_parquets = NULL,
-  keep_id_set = TRUE
-) {
+    db_con,
+    codelist,
+    scheme = NULL,
+    materialize = "in_parquet", # in_database
+    path_parquets = NULL,
+    keep_id_set = TRUE) {
   # ---- Input checks ----
   if (!DBI::dbIsValid(db_con)) {
     stop("[apply_codelist] The provided database connection is not valid.")
@@ -221,174 +220,174 @@ apply_codelist <- function(
 
 
   for (fam_idx in seq_len(nrow(family_groups))) {
-      fam_info <- family_groups[fam_idx]
-      message(
-        paste0(
-          "[apply_codelist] Processing family ",
-          fam_idx, ": ",
-          paste(fam_info, collapse = ", ")
-        )
+    fam_info <- family_groups[fam_idx]
+    message(
+      paste0(
+        "[apply_codelist] Processing family ",
+        fam_idx, ": ",
+        paste(fam_info, collapse = ", ")
       )
-      # Subset family
-      family_subset <- codelist[family_group == fam_info$family_group]
+    )
+    # Subset family
+    family_subset <- codelist[family_group == fam_info$family_group]
 
 
-      cdm_table_name <- unique(
-        family_subset[family_group == fam_idx, cdm_table_name]
+    cdm_table_name <- unique(
+      family_subset[family_group == fam_idx, cdm_table_name]
+    )
+    cdm_table_name <- if (is.null(scheme)) {
+      as.character(DBI::dbQuoteIdentifier(db_con, cdm_table_name))
+    } else {
+      paste(
+        as.character(DBI::dbQuoteIdentifier(db_con, scheme)),
+        as.character(DBI::dbQuoteIdentifier(db_con, cdm_table_name)),
+        sep = "."
       )
-      cdm_table_name <- if (is.null(scheme)) {
-        as.character(DBI::dbQuoteIdentifier(db_con, cdm_table_name))
-      } else {
-        paste(
-          as.character(DBI::dbQuoteIdentifier(db_con, scheme)),
-          as.character(DBI::dbQuoteIdentifier(db_con, cdm_table_name)),
-          sep = "."
-        )
-      }
-      keep_value_column_name <- unique(
-        family_subset[family_group == fam_idx, keep_value_column_name]
-      )
-      keep_date_column_name <- unique(
-        family_subset[family_group == fam_idx, keep_date_column_name]
-      )
+    }
+    keep_value_column_name <- unique(
+      family_subset[family_group == fam_idx, keep_value_column_name]
+    )
+    keep_date_column_name <- unique(
+      family_subset[family_group == fam_idx, keep_date_column_name]
+    )
 
-      for (order_idx in sort(unique(family_subset$order_index))) {
+    for (order_idx in sort(unique(family_subset$order_index))) {
+      # -------------------
+      # 1 Process Parent(s)
+      # -------------------
+      current_codelist <- family_subset[order_index == order_idx]
+      for (cdm_column in unique(current_codelist[, cdm_column])) {
+        if (order_idx == 1) {
+          message("   Applying parent scheme(s)")
+          parent_rows <- current_codelist[["cdm_column"]] == cdm_column
+          DBI::dbWriteTable(
+            db_con,
+            name = "codelist", value = current_codelist[parent_rows],
+            TEMPORARY = TRUE, overwrite = TRUE,
+            field.types = stats::setNames(
+              ifelse(
+                names(current_codelist) == "order_index", "INTEGER", "VARCHAR"
+              ),
+              names(current_codelist)
+            )
+          )
+
+          sql_path <- system.file(
+            "sql", "create_concepts_1.sql",
+            package = "conceptLayer"
+          )
+          create_concepts_1 <- get_sql(sql_path)
+
+          query_parent <- glue(create_concepts_1)
+          DBI::dbExecute(db_con, query_parent)
+        }
+
         # -------------------
-        # 1 Process Parent(s)
+        # 2 Process Children
         # -------------------
-        current_codelist <- family_subset[order_index == order_idx]
-        for (cdm_column in unique(current_codelist[, cdm_column])) {
-          if (order_idx == 1) {
-            message("   Applying parent scheme(s)")
-            parent_rows <- current_codelist[["cdm_column"]] == cdm_column
-            DBI::dbWriteTable(
-              db_con,
-              name = "codelist", value = current_codelist[parent_rows],
-              TEMPORARY = TRUE, overwrite = TRUE,
-              field.types = stats::setNames(
-                ifelse(
-                  names(current_codelist) == "order_index", "INTEGER", "VARCHAR"
-                ),
-                names(current_codelist)
+        if (order_idx > 1) {
+          child_subset <- family_subset[order_index > 1]
+          if (nrow(child_subset) > 0) {
+            # Each child distinguished by cdm_column
+            child_groups <- unique(child_subset[, .(
+              cdm_column
+            )])
+
+            for (child_idx in seq_len(nrow(child_groups))) {
+              child_col <- child_groups[child_idx, cdm_column]
+              message(
+                paste0("    Processing child with cdm_column=", child_col)
               )
-            )
 
-            sql_path <- system.file(
-              "sql", "create_concepts_1.sql",
-              package = "conceptLayer"
-            )
-            create_concepts_1 <- get_sql(sql_path)
+              current_child <- child_subset[cdm_column == child_col]
+              setorderv(current_child, "order_index")
 
-            query_parent <- glue(create_concepts_1)
-            DBI::dbExecute(db_con, query_parent)
-          }
+              for (child_order in unique(current_child$order_index)) {
+                message(paste0("        Order index: ", child_order))
 
-          # -------------------
-          # 2 Process Children
-          # -------------------
-          if (order_idx > 1) {
-            child_subset <- family_subset[order_index > 1]
-            if (nrow(child_subset) > 0) {
-              # Each child distinguished by cdm_column
-              child_groups <- unique(child_subset[, .(
-                cdm_column
-              )])
-
-              for (child_idx in seq_len(nrow(child_groups))) {
-                child_col <- child_groups[child_idx, cdm_column]
-                message(
-                  paste0("    Processing child with cdm_column=", child_col)
+                current_codelist <- current_child[order_index == child_order]
+                DBI::dbWriteTable(
+                  db_con,
+                  name = "codelist", value = current_codelist,
+                  TEMPORARY = TRUE, overwrite = TRUE,
+                  field.types = stats::setNames(
+                    ifelse(
+                      names(current_codelist) == "order_index", "INTEGER", "VARCHAR"
+                    ),
+                    names(current_codelist)
+                  )
                 )
-
-                current_child <- child_subset[cdm_column == child_col]
-                setorderv(current_child, "order_index")
-
-                for (child_order in unique(current_child$order_index)) {
-                  message(paste0("        Order index: ", child_order))
-
-                  current_codelist <- current_child[order_index == child_order]
-                  DBI::dbWriteTable(
-                    db_con,
-                    name = "codelist", value = current_codelist,
-                    TEMPORARY = TRUE, overwrite = TRUE,
-                    field.types = stats::setNames(
-                      ifelse(
-                        names(current_codelist) == "order_index", "INTEGER", "VARCHAR"
-                      ),
-                      names(current_codelist)
-                    )
-                  )
-                  current_order_index <- order_idx
-                  sql_path <- system.file(
-                    "sql", "create_concepts_2.sql",
-                    package = "conceptLayer"
-                  )
-                  create_concepts_2 <- get_sql(sql_path)
-                  query_child <- glue(create_concepts_2)
-                  DBI::dbExecute(db_con, query_child)
-                }
+                current_order_index <- order_idx
+                sql_path <- system.file(
+                  "sql", "create_concepts_2.sql",
+                  package = "conceptLayer"
+                )
+                create_concepts_2 <- get_sql(sql_path)
+                query_child <- glue(create_concepts_2)
+                DBI::dbExecute(db_con, query_child)
               }
             }
           }
         }
       }
-      # -------------------
-      # 3 Finalize Family
-      # -------------------
-      sql_path <- system.file(
-        "sql", "create_concepts_3.sql",
-        package = "conceptLayer"
-      )
-      create_concepts_3 <- get_sql(sql_path)
+    }
+    # -------------------
+    # 3 Finalize Family
+    # -------------------
+    sql_path <- system.file(
+      "sql", "create_concepts_3.sql",
+      package = "conceptLayer"
+    )
+    create_concepts_3 <- get_sql(sql_path)
 
-      if (keep_id_set) {
-        id_set_query <- ",
+    if (keep_id_set) {
+      id_set_query <- ",
         t2.id_set"
-      } else {
-        id_set_query <- ""
-      }
-      create_concepts_3 <- glue(create_concepts_3)
+    } else {
+      id_set_query <- ""
+    }
+    create_concepts_3 <- glue(create_concepts_3)
 
-      if (materialize == "in_database") {
-        update_columns <- c("ori_table", "person_id", "value", "date")
-        if (keep_id_set) {
-          update_columns <- c(update_columns, "id_set")
-        }
-        quoted_columns <- as.character(
-          DBI::dbQuoteIdentifier(db_con, update_columns)
-        )
-        update_assignments <- paste(
-          paste0(quoted_columns, " = EXCLUDED.", quoted_columns),
-          collapse = ", "
-        )
-        query_final <- glue("INSERT INTO concept_table
+    if (materialize == "in_database") {
+      update_columns <- c("ori_table", "person_id", "value", "date")
+      if (keep_id_set) {
+        update_columns <- c(update_columns, "id_set")
+      }
+      quoted_columns <- as.character(
+        DBI::dbQuoteIdentifier(db_con, update_columns)
+      )
+      update_assignments <- paste(
+        paste0(quoted_columns, " = EXCLUDED.", quoted_columns),
+        collapse = ", "
+      )
+      query_final <- glue("INSERT INTO concept_table
                           {create_concepts_3}
                           ON CONFLICT (unique_id, concept_id)
                           DO UPDATE SET {update_assignments};")
-      } else if (materialize == "in_parquet") {
-        query_final <- glue("COPY (
+    } else if (materialize == "in_parquet") {
+      query_final <- glue("COPY (
                               {create_concepts_3}
                               )
                             TO '{path_parquets}'
                             (FORMAT PARQUET,
                             PARTITION_BY (concept_id),
                             APPEND TRUE);")
-      }
-      DBI::dbExecute(db_con, query_final)
-      DBI::dbExecute(db_con, "DROP TABLE identified_ids;")
     }
+    DBI::dbExecute(db_con, query_final)
+    DBI::dbExecute(db_con, "DROP TABLE identified_ids;")
+  }
 
-    if (
-      !DBI::dbExistsTable(db_con, "concept_table") &&
-        materialize %in% "in_parquet"
-    ) {
-      initialize_concept_table(
-        db_con,
-        type_table = "view",
-        path_parquets = path_parquets,
-        partition = TRUE,
-        overwrite = TRUE,
-        add_id_set = keep_id_set
-      )
-    }
+  if (
+    !DBI::dbExistsTable(db_con, "concept_table") &&
+      materialize %in% "in_parquet"
+  ) {
+    initialize_concept_table(
+      db_con,
+      type_table = "view",
+      path_parquets = path_parquets,
+      partition = TRUE,
+      overwrite = TRUE,
+      add_id_set = keep_id_set
+    )
+  }
 }
