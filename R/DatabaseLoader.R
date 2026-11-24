@@ -108,7 +108,7 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
       message("Setting up the database")
       tryCatch(
         {
-          T2.DMM:::load_db(
+          conceptLayer:::load_db(
             con = self$db,
             data_model = self$config$data_model,
             cdm_schema = self$config$cdm_schema,
@@ -151,16 +151,16 @@ DatabaseLoader <- R6::R6Class("DatabaseLoader", # nolint
           next # Skip this operation if it's not enabled
         }
 
-        # Attempt to retrieve the class object from the T2.DMM package
+        # Attempt to retrieve the class object from the conceptLayer package
         class_obj <- tryCatch(
-          get(operation, envir = asNamespace("T2.DMM")),
+          get(operation, envir = asNamespace("conceptLayer")),
           error = function(e) NULL
         )
 
-        # Check if the class object inherits from "T2.DMM:::DatabaseOperation"
+        # Check if the class object inherits from "conceptLayer:::DatabaseOperation"
         inherits_from_dbop <- !is.null(class_obj) &&
           !is.null(class_obj$inherit) &&
-          class_obj$inherit == "T2.DMM:::DatabaseOperation"
+          class_obj$inherit == "conceptLayer:::DatabaseOperation"
 
         if (inherits_from_dbop) {
           message(glue::glue("Loading operation: {operation}"))

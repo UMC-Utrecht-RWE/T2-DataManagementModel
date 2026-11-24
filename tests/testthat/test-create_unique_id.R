@@ -24,7 +24,7 @@ testthat::test_that("create_unique_id: creates views when to_view is TRUE", {
   db_connection <- create_loaded_test_db()
   withr::defer(DBI::dbDisconnect(db_connection))
 
-  # Note: This test assumes T2.DMM:::add_view is accessible or mocked
+  # Note: This test assumes conceptLayer:::add_view is accessible or mocked
   # If add_view creates a table/view named [table][pipeline_extension]
   table_name <- "VACCINES"
   pipe_ext <- "_T2DMM"

@@ -1,7 +1,7 @@
 # test-database-operation.R
 testthat::test_that("DatabaseOperation abstract methods behave as expected", {
   # Instantiate the abstract class
-  db_op <- T2.DMM:::DatabaseOperation$new()
+  db_op <- conceptLayer:::DatabaseOperation$new()
 
   testthat::expect_error(
     db_op$run(NULL),
@@ -14,7 +14,7 @@ testthat::test_that("DatabaseOperation abstract methods behave as expected", {
 testthat::test_that("Subclass of DatabaseOperation can override run()", {
   # Define dummy subclass inline
   DummyOp <- R6::R6Class("DummyOp", # nolint
-    inherit = T2.DMM:::DatabaseOperation,
+    inherit = conceptLayer:::DatabaseOperation,
     public = list(
       run = function(db_loader) {
         "success"

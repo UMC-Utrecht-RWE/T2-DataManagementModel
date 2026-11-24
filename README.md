@@ -16,7 +16,7 @@ For example, see the concept management model vignette:
 
 ## Installation
 
-You can install the current version of T2.DMM as follows:
+You can install the current version of conceptLayer as follows:
 
 1. In your R console, ensure you have the package `devtools` installed:
    ```
